@@ -1,0 +1,277 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Taller Práctico de HTML</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f9f9f9;
+        }
+        
+        header {
+            background-color: #4CAF50;
+            color: white;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+        
+        h1, h2, h3 {
+            color: #2E7D32;
+        }
+        
+        section {
+            background-color: white;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+        
+        .ejercicio {
+            background-color: #E8F5E9;
+            padding: 15px;
+            border-left: 4px solid #4CAF50;
+            margin-bottom: 15px;
+            border-radius: 4px;
+        }
+        
+        code {
+            background-color: #f5f5f5;
+            padding: 2px 5px;
+            border-radius: 3px;
+            font-family: monospace;
+        }
+        
+        pre {
+            background-color: #f5f5f5;
+            padding: 15px;
+            border-radius: 5px;
+            overflow-x: auto;
+        }
+        
+        .consejo {
+            background-color: #FFF8E1;
+            padding: 10px;
+            border-left: 4px solid #FFC107;
+            margin: 10px 0;
+            border-radius: 4px;
+        }
+        
+        button {
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+            margin-top: 10px;
+        }
+        
+        button:hover {
+            background-color: #2E7D32;
+        }
+        
+        footer {
+            text-align: center;
+            margin-top: 30px;
+            padding: 10px;
+            color: #666;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>Taller Práctico de HTML</h1>
+        <p>¡Aprende HTML mediante ejercicios prácticos!</p>
+    </header>
+    
+    <section id="introduccion">
+        <h2>Introducción</h2>
+        <p>En este taller aprenderás los conceptos básicos de HTML mediante ejercicios prácticos. Sigue las instrucciones de cada sección y completa los ejercicios propuestos.</p>
+        
+        <div class="consejo">
+            <p><strong>Consejo:</strong> Abre un editor de texto como Visual Studio Code, Sublime Text o incluso el Bloc de notas para practicar.</p>
+        </div>
+    </section>
+    
+    <section id="ejercicio1">
+        <h2>Ejercicio 1: Estructura básica de HTML</h2>
+        <p>Crea un archivo HTML con la estructura básica:</p>
+        
+        <pre><code>&lt;!DOCTYPE html&gt;
+&lt;html lang="es"&gt;
+&lt;head&gt;
+    &lt;meta charset="UTF-8"&gt;
+    &lt;title&gt;Mi primera página&lt;/title&gt;
+&lt;/head&gt;
+&lt;body&gt;
+    &lt;h1&gt;¡Hola mundo!&lt;/h1&gt;
+    &lt;p&gt;Esta es mi primera página web.&lt;/p&gt;
+&lt;/body&gt;
+&lt;/html&gt;</code></pre>
+        
+        <div class="ejercicio">
+            <h3>Tu turno:</h3>
+            <p>Crea un archivo llamado <code>mi_pagina.html</code> y escribe el código anterior. Luego ábrelo en tu navegador para ver el resultado.</p>
+        </div>
+    </section>
+    
+    <section id="ejercicio2">
+        <h2>Ejercicio 2: Encabezados y párrafos</h2>
+        <p>Los encabezados se definen con las etiquetas <code>&lt;h1&gt;</code> a <code>&lt;h6&gt;</code> y los párrafos con <code>&lt;p&gt;</code>.</p>
+        
+        <div class="ejercicio">
+            <h3>Tu turno:</h3>
+            <p>Agrega a tu página los siguientes elementos:</p>
+            <ul>
+                <li>Un encabezado principal con <code>&lt;h1&gt;</code></li>
+                <li>Un subtítulo con <code>&lt;h2&gt;</code></li>
+                <li>Varios párrafos con <code>&lt;p&gt;</code></li>
+            </ul>
+        </div>
+    </section>
+    
+    <section id="ejercicio3">
+        <h2>Ejercicio 3: Enlaces e imágenes</h2>
+        <p>Los enlaces se crean con la etiqueta <code>&lt;a&gt;</code> y las imágenes con <code>&lt;img&gt;</code>.</p>
+        
+        <pre><code>&lt;a href="https://www.ejemplo.com"&gt;Visita nuestro sitio&lt;/a&gt;
+
+&lt;img src="imagen.jpg" alt="Descripción de la imagen"&gt;</code></pre>
+        
+        <div class="ejercicio">
+            <h3>Tu turno:</h3>
+            <p>Agrega a tu página:</p>
+            <ul>
+                <li>Un enlace a tu página web favorita</li>
+                <li>Una imagen desde internet (usa la URL de la imagen)</li>
+                <li>Un enlace que abra en una nueva pestaña (investiga cómo hacerlo)</li>
+            </ul>
+        </div>
+    </section>
+    
+    <section id="ejercicio4">
+        <h2>Ejercicio 4: Listas</h2>
+        <p>Hay dos tipos de listas: ordenadas (<code>&lt;ol&gt;</code>) y no ordenadas (<code>&lt;ul&gt;</code>).</p>
+        
+        <pre><code>&lt;ul&gt;
+    &lt;li&gt;Elemento 1&lt;/li&gt;
+    &lt;li&gt;Elemento 2&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;ol&gt;
+    &lt;li&gt;Primer paso&lt;/li&gt;
+    &lt;li&gt;Segundo paso&lt;/li&gt;
+&lt;/ol&gt;</code></pre>
+        
+        <div class="ejercicio">
+            <h3>Tu turno:</h3>
+            <p>Crea en tu página:</p>
+            <ul>
+                <li>Una lista no ordenada con tus pasatiempos favoritos</li>
+                <li>Una lista ordenada con los pasos para preparar tu comida favorita</li>
+            </ul>
+        </div>
+    </section>
+    
+    <section id="ejercicio5">
+        <h2>Ejercicio 5: Tablas</h2>
+        <p>Las tablas se crean con las etiquetas <code>&lt;table&gt;</code>, <code>&lt;tr&gt;</code> (fila), <code>&lt;th&gt;</code> (encabezado) y <code>&lt;td&gt;</code> (celda).</p>
+        
+        <pre><code>&lt;table&gt;
+    &lt;tr&gt;
+        &lt;th&gt;Nombre&lt;/th&gt;
+        &lt;th&gt;Edad&lt;/th&gt;
+    &lt;/tr&gt;
+    &lt;tr&gt;
+        &lt;td&gt;María&lt;/td&gt;
+        &lt;td&gt;25&lt;/td&gt;
+    &lt;/tr&gt;
+&lt;/table&gt;</code></pre>
+        
+        <div class="ejercicio">
+            <h3>Tu turno:</h3>
+            <p>Crea una tabla con información sobre tus amigos o familiares con las columnas: Nombre, Edad y Ciudad.</p>
+        </div>
+    </section>
+    
+    <section id="ejercicio6">
+        <h2>Ejercicio 6: Formularios</h2>
+        <p>Los formularios se crean con la etiqueta <code>&lt;form&gt;</code> y contienen diferentes tipos de inputs.</p>
+        
+        <pre><code>&lt;form&gt;
+    &lt;label for="nombre"&gt;Nombre:&lt;/label&gt;
+    &lt;input type="text" id="nombre" name="nombre"&gt;&lt;br&gt;
+    
+    &lt;label for="email"&gt;Email:&lt;/label&gt;
+    &lt;input type="email" id="email" name="email"&gt;&lt;br&gt;
+    
+    &lt;input type="submit" value="Enviar"&gt;
+&lt;/form&gt;</code></pre>
+        
+        <div class="ejercicio">
+            <h3>Tu turno:</h3>
+            <p>Crea un formulario de contacto que incluya:</p>
+            <ul>
+                <li>Campo para nombre</li>
+                <li>Campo para email</li>
+                <li>Campo para mensaje (usando <code>&lt;textarea&gt;</code>)</li>
+                <li>Botón de enviar</li>
+            </ul>
+        </div>
+    </section>
+    
+    <section id="reto-final">
+        <h2>Reto Final: Crea tu propia página web</h2>
+        <p>Ahora que has practicado los conceptos básicos, crea una página web sobre tu tema favorito.</p>
+        
+        <div class="ejercicio">
+            <h3>Requisitos:</h3>
+            <ul>
+                <li>Usa al menos 3 niveles de encabezados diferentes</li>
+                <li>Incluye varios párrafos de texto</li>
+                <li>Agrega al menos 2 imágenes</li>
+                <li>Incluye enlaces a páginas relacionadas</li>
+                <li>Crea una lista con información relevante</li>
+                <li>Diseña una tabla con datos interesantes</li>
+                <li>Agrega un formulario de contacto</li>
+            </ul>
+        </div>
+        
+        <button onclick="mostrarSolucion()">Ver ejemplo de solución</button>
+        
+        <div id="solucion" style="display: none; margin-top: 20px;">
+            <pre><code>&lt;!DOCTYPE html&gt;
+&lt;html lang="es"&gt&gt;
+    &lt;/form&gt;
+&lt;/body&gt;
+&lt;/html&gt;</code></pre>
+        </div>
+    </section>
+    
+    <footer>
+        <p>Taller de HTML - Práctica para alumnos</p>
+    </footer>
+
+    <script>
+        function mostrarSolucion() {
+            const solucion = document.getElementById('solucion');
+            if (solucion.style.display === 'none') {
+                solucion.style.display = 'block';
+            } else {
+                solucion.style.display = 'none';
+            }
+        }
+    </script>
+</body>
+</html>
