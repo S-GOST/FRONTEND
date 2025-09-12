@@ -1,154 +1,246 @@
 @import url('https://fonts.googleapis.com/css2?family=PT+Serif:ital,wght@0,400;0,700;1,400;1,700&family=Story+Script&display=swap');
 body {
-  margin: 0vh; /* Margen de la pagina */
-  padding:0vh;
-  width:auto;
-  height:auto;
-  min-height: 100vh;
-  min-width: 100vh;
-  font-family: "PT Serif", serif;
-  background: #000000;
-  box-shadow: inset 0px -2px 12px 5px rgba(233, 74, 0, 0.8);
-  color: white;
-  overflow-x: hidden;
+  margin: 0; /* espacio externo  */
+  padding: 0; /* espacio interno */
+  height: auto; /* La altura se ajusta al contenido */
+  width: auto;  /* El ancho se ajusta al contenido */
+  min-width: 100vw; /* Mínimo ancho de la pantalla */
+  min-height: 100vh; /* Mínimo altura de la pantalla */
+  font-family: "PT Serif", serif; /* Tipografía */
+  background: #000000; /* Fondo negro */
+  color: white; /* Texto blanco */
+  box-shadow: inset 0px -2px 12px 5px rgba(233, 74, 0, 0.8); /* Sombra interna naranja con efecto de resplandor */
+  overflow: hidden;
 }
-
-/* ===== Header ===== */
-.linea-principal {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  box-sizing: border-box;
-  width: 98%;
-  height: 100px;
-  min-height: auto;
-  position: relative;
-  left: 2vh;
-  top: 2vh;
-  border-radius: 25px;
-  background: #EB5B00;
-  box-shadow: inset 0px 2px 23px -1px rgba(0, 0, 0, 0.8);
-  flex-wrap: wrap; /* para que no se rompa en pantallas pequeñas */
+.Caja-principal {
+  display: flex; /* Activamos caja */
+  justify-content: space-between; /* tipo caja */ 
+  align-items: center; /* Alinea los elementos */
+  width: 1495px; /* Ancho linen adaptado al body */
+  height: 100px; /* Alto linea valor fijo */
+  position: relative; /* Activamos movimiento */
+  left: 1vw; /* Movimiento horizontal */
+  top: 2vh; /* Movimiento vertical */
+  border-radius: 25px; /* Borde caja */
+  background: #EB5B00; /* Color caja */
+  box-shadow: inset 0px 2px 23px -1px rgba(0, 0, 0, 0.8); /* Sombra caja */
 }
-
+/*-------------------------------------------------------------------------------------------*/
 /* Bloque izquierdo */
 #bloque-1 {
-  background: #000000;
-  position: relative;
-  left: 1%;
-  top: 0%;
-  height: 65%;
-  width: 38%;
-  border-radius: 10px;
+  background: #000000; /* color bloque */
+  position: relative; /* Activar movimiento */
+  left: 1%; /*Movimiento horizontal */
+  top: 0%; /* Movimiento vertical */
+  height: 66%; /* Alto bloque Adaptado a la caja */
+  width: 44%;  /* Ancho bloque adaptado a la caja  */
+  border-radius: 10px; /* Borde Caja */
 }
-
 .img {
-  width: 40px;
-  height: 40px;
-  transform: scale(1.7);
-  position: relative;
-  left: 20px;
-  top: 12px;
+  width: 40px; /* Ancho imagen valor fijo */
+  height: 40px; /* Alto Imagen valor fijo */
+  transform: scale(1.7); /* Escala imagen */
+  position: relative; /* Activar Movimiento */ 
+  left: 20px; /* Movimiento horizontal */
+  top: 12px; /* Movimiento vertical */
 }
-
 .linea {
-  width: 1px;
-  height: 53px;
-  position: relative;
-  left: 10%;
-  top: -58px;
-  background: rgb(236, 236, 236);
+  width: 1px; /* Ancho linea */
+  height: 53px;/* Alto linea */
+  position: relative; /* Activar movimiento */ 
+  left: 12%; /* Movimiento horizontal */
+  top: -58px; /* Movimiento Vertical */
+  background: rgb(236, 236, 236); /* Color linea */
 }
-
 .texto1 {
-  color: #fff;
-  font-family: "Story Script", sans-serif;
-  transform: skew(20deg) scale(1.3);
-  position: relative;
-  left: 195px;
-  top: -130px;
+  color: #fff; /* Color texto */
+  font-family: "Story Script", sans-serif; /* Tipografia */
+  transform: skew(20deg) scale(1.3); /* Inclinacion y escala */
+  position: relative; /* Activar Movimiento */
+  left: 30%; /* Movimiento Horizontal */
+  top: -198%; /* Movimiento Vertical */
 }
-
 .buscador {
-  display:grid ;
-  border-radius: 10px;
-  border: none;
-  width: 337px;
-  height: 25px;
-  position: relative;
-  left: 344px;
-  top: -183px;
+  display:block; /* Activar Caja */
+  border-radius: 10px; /* Borde Buscador */
+  border:none; /* desactivar borde */
+  width: 41%; /*  Ancho Buscador */
+  height: 35%; /* Alto buscador */ 
+  position: relative; /* Activar movimiento */
+  left: 56%; /* Movimiento horizontal */
+  top: -278%; /* Movimiento vertical */
 }
-
 .lupa {
-  position: relative;
-  filter: grayscale(680%);
-  left: 28vh;
-  top: 4vh;
-  height: 5vh;
-  width: 5vh;
+  position: relative; /* Activar movimiento */
+  filter: grayscale(680%); /* Color */
+  left: 93%; /* Movimiento horizontal */
+  top: -312%; /* Movimiento Vertical */
+  height: 27%; /* Alto Lupa */
+  width:3%; /* Ancho Lupa */
 }
+/*--------------------------------------------------------------------------------------------------*/
+.img1 {
+  width: auto;
+  height: auto;
+  max-width: 13%; /* La imagen no superará el ancho de su contenedor */
+  position: relative; /* Activar movimiento */
+  left: -43%; /*Movimiento horizontal */
+  top: -5%; /* Movimiento vertical */
+}
+/*-------------------------------------------------------------------------------------------------------------*/
 /* Bloque derecho */
 #bloque-2 {
-  display: flex;
-  align-items: center;
-  position: relative;
-  left: 6vh;
-  top: 34vh;
-  background: #000000;
-  border-radius: 10px;
-  justify-content: flex-end;
+  background: #000000; /* color bloque */
+  position: relative; /* Activar movimiento */
+  left: 12%; /*Movimiento horizontal */
+  top: 0%; /* Movimiento vertical */
+  height: 66%; /* Alto bloque Adaptado a la caja */
+  width: 43%;  /* Ancho bloque adaptado a la caja  */
+  border-radius: 10px; /* Borde Caja */
+}
+/*----------------------------------------------------------------------------------------------------------------------------*/
+.Boton-carrito {
+    width: 40px;
+    height: 40px;
+    background-color: #222222; /* Fondo casi negro */
+    border: 2px solid #555555; /* Borde gris oscuro */
+    border-radius: 6px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    position: relative;
+    overflow: hidden;
 }
 
-#bloque-2 button {
-  display: flex;
-  align-items: center;
-  gap: 5px;
-  border: none;
-  background: #000000;
-  padding: 8px 14px;
-  border-radius: 50px;
-  color: #fff;
-  font-size: 1rem;
-  cursor: pointer;
-  transition: 0.3s;
+/* Pseudo-elemento para el borde naranja que aparece al pasar el ratón */
+.Boton-carrito::before {
+    content: '';
+    position: absolute;
+    top: -2px;
+    left: -2px;
+    right: -2px;
+    bottom: -2px;
+    border: 2px solid transparent; /* Borde inicial transparente */
+    border-radius: 6px;
+    transition: border-color 0.3s ease, box-shadow 0.3s ease;
+    pointer-events: none;
 }
 
-#bloque-2 button:hover {
-  background: #222;
-  box-shadow: 0 4px 10px #fff;
+.Boton-carrito img {
+    width: 25px; /* Tamaño del icono */
+    height: 25px;
+    filter: invert(1) grayscale(100%) brightness(150%); /* Icono en gris claro */
+    transition: filter 0.3s ease;
 }
 
-#bloque-2 img {
-  width: 25px;
-  height: auto;
+/* Efecto al pasar el ratón (hover) */
+.Boton-carrito:hover {
+    background-color: #333333;
 }
 
-.img1 {
-  width: 60px;
-  height: auto;
+.Boton-carrito::before {
+    border-color: #F37321; /* Borde naranja KTM al pasar el ratón */
+    box-shadow: 0 0 10px rgba(243, 115, 33, 0.7); /* Resplandor naranja */
 }
 
-/* ===== Main ===== */
-#contenido {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-  gap: 20px;
-  padding: 20px;
-  max-width: 1200px;
-  margin: auto;
+.Boton-carrito:hover img {
+    filter: invert(0) grayscale(0) brightness(1) sepia(0); /* Icono vuelve a su color original */
+}
+/*--------------------------------------------------------------------------------------------------------------*/
+.Boton-iniciar {
+    padding: 10px 20px; /* Ajusta el tamaño según necesites */
+    background-color: #222222; /* Fondo casi negro */
+    border: 2px solid #555555; /* Borde gris oscuro */
+    border-radius: 8px; /* Bordes ligeramente redondeados */
+    text-decoration: none; /* Si usas un <a> */
+    text-transform: uppercase;
+    font-weight: bold;
+    color: #FFFFFF; /* Texto blanco por defecto */
+    cursor: pointer;
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
 }
 
-#contenido button {
-  background: #000;
-  border-radius: 20px;
-  height: 150px;
-  border: 3px double #fff;
-  box-shadow: inset 0px 1px 10px #fff;
-  cursor: pointer;
-  transition: 0.3s;
+/* Pseudo-elemento para el borde naranja que aparece al pasar el ratón */
+.Boton-iniciar::before {
+    content: '';
+    position: absolute;
+    top: -2px;
+    left: -2px;
+    right: -2px;
+    bottom: -2px;
+    border: 2px solid transparent; /* Borde inicial transparente */
+    border-radius: 8px;
+    transition: border-color 0.3s ease, box-shadow 0.3s ease;
+    pointer-events: none;
+}
+.Boton-iniciar img {
+    width: 25px; /* Tamaño del icono */
+    height: 25px;
+    filter: invert(1) grayscale(100%) brightness(150%); /* Icono en gris claro */
+    transition: filter 0.3s ease;
+}
+/* Efecto al pasar el ratón (hover) */
+.Boton-iniciar:hover {
+    background-color: #333333; /* Fondo un poco más claro */
 }
 
-#contenido button:hover {
-  background: #111;
+.Boton-iniciar:hover::before {
+    border-color: #F37321; /* Borde naranja KTM al pasar el ratón */
+    box-shadow: 0 0 10px rgba(243, 115, 33, 0.7); /* Resplandor naranja */
+}
+
+.Boton-iniciar:hover {
+    color: #F37321; /* Texto se vuelve naranja */
+}
+/*--------------------------------------------------------------------------------------------------------------------------------------*/
+.Boton-crearcuenta {
+    padding: 10px 20px; /* Ajusta el tamaño según necesites */
+    background-color: #222222; /* Fondo casi negro */
+    border: 2px solid #555555; /* Borde gris oscuro */
+    border-radius: 8px; /* Bordes ligeramente redondeados */
+    text-decoration: none; /* Si usas un <a> */
+    text-transform: uppercase;
+    font-weight: bold;
+    color: #FFFFFF; /* Texto blanco por defecto */
+    cursor: pointer;
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
+}
+
+/* Pseudo-elemento para el borde naranja que aparece al pasar el ratón */
+.Boton-crearcuenta::before {
+    content: '';
+    position: absolute;
+    top: -2px;
+    left: -2px;
+    right: -2px;
+    bottom: -2px;
+    border: 2px solid transparent; /* Borde inicial transparente */
+    border-radius: 8px;
+    transition: border-color 0.3s ease, box-shadow 0.3s ease;
+    pointer-events: none;
+}
+.Boton-crearcuenta img {
+    width: 25px; /* Tamaño del icono */
+    height: 25px;
+    filter: invert(1) grayscale(100%) brightness(150%); /* Icono en gris claro */
+    transition: filter 0.3s ease;
+}
+/* Efecto al pasar el ratón (hover) */
+.Boton-crearcuenta:hover {
+    background-color: #333333; /* Fondo un poco más claro */
+}
+
+.Boton-crearcuenta:before {
+    border-color: #F37321; /* Borde naranja KTM al pasar el ratón */
+    box-shadow: 0 0 10px rgba(243, 115, 33, 0.7); /* Resplandor naranja */
+}
+
+.Boton-crearcuenta:hover {
+    color: #F37321; /* Texto se vuelve naranja */
 }
