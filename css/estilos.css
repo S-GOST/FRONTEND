@@ -96,16 +96,16 @@ body {
   position: relative; /* Activar movimiento */
   left: 12%; /*Movimiento horizontal */
   top: 0%; /* Movimiento vertical */
-  height: 66%; /* Alto bloque Adaptado a la caja */
+  height: 76%; /* Alto bloque Adaptado a la caja */
   width: 43%;  /* Ancho bloque adaptado a la caja  */
   border-radius: 10px; /* Borde Caja */
 }
 /*----------------------------------------------------------------------------------------------------------------------------*/
-.Boton-carrito {
+.Boton-carrito, .Boton-iniciar, .Boton-crearcuenta {
     width: 75px;
     height: 50px;
-    background-color: #222222; /* Fondo casi negro */
-    border: 2px solid #555555; /* Borde gris oscuro */
+    background-color: #222222;
+    border: 2px solid #555555;
     border-radius: 6px;
     cursor: pointer;
     transition: all 0.3s ease;
@@ -114,126 +114,44 @@ body {
     align-items: center;
 }
 
+/* Estilos de la imagen dentro de los botones */
+.Boton-carrito img, .Boton-iniciar img, .Boton-crearcuenta img {
+    width: 55px;
+    height: 55px;
+    filter: invert(1) grayscale(100%) brightness(150%);
+    transition: filter 0.3s ease;
+}
+
 /* Pseudo-elemento para el borde naranja que aparece al pasar el ratón */
-.Boton-carrito::before {
+.Boton-carrito::before, .Boton-iniciar::before, .Boton-crearcuenta::before {
     content: '';
     position: absolute;
     top: -2px;
     left: -2px;
     right: -2px;
     bottom: -2px;
-    border: 2px solid transparent; /* Borde inicial transparente */
+    border: 2px solid transparent;
     border-radius: 6px;
     transition: border-color 0.3s ease, box-shadow 0.3s ease;
     pointer-events: none;
 }
 
-.Boton-carrito img {
-    width: 55px; /* Tamaño del icono */
-    height: 55px;
-    filter: invert(1) grayscale(100%) brightness(150%); /* Icono en gris claro */
-    transition: filter 0.3s ease;
-}
+/* --- Efectos al pasar el ratón (hover) --- */
 
-/* Efecto al pasar el ratón (hover) */
-.Boton-carrito:hover {
+/* Cambio de color de fondo al pasar el ratón */
+.Boton-carrito:hover, .Boton-iniciar:hover, .Boton-crearcuenta:hover {
     background-color: #333333;
 }
 
-.Boton-carrito::before {
-    border-color: #F37321; /* Borde naranja KTM al pasar el ratón */
-    box-shadow: 0 0 10px rgba(243, 115, 33, 0.7); /* Resplandor naranja */
+/* Cambio de color de la imagen (icono) al pasar el ratón */
+.Boton-carrito:hover img, .Boton-iniciar:hover img, .Boton-crearcuenta:hover img {
+    filter: invert(0) grayscale(0) brightness(1) sepia(0);
 }
 
-.Boton-carrito:hover img {
-    filter: invert(0) grayscale(0) brightness(1) sepia(0); /* Icono vuelve a su color original */
-}
-/*--------------------------------------------------------------------------------------------------------------*/
-.Boton-iniciar {
-    width: 75px;
-    height: 50px;
-    background-color: #222222; /* Fondo casi negro */
-    border: 2px solid #555555; /* Borde gris oscuro */
-    border-radius: 6px;
-    cursor: pointer;
-    transition: all 0.3s ease;
-}
-
-/* Pseudo-elemento para el borde naranja que aparece al pasar el ratón */
-.Boton-iniciar::before {
-    content: '';
-    position: absolute;
-    top: -2px;
-    left: -2px;
-    right: -2px;
-    bottom: -2px;
-    border: 2px solid transparent; /* Borde inicial transparente */
-    border-radius: 8px;
-    transition: border-color 0.3s ease, box-shadow 0.3s ease;
-    pointer-events: none;
-}
-.Boton-iniciar img {
-    width: 25px; /* Tamaño del icono */
-    height: 25px;
-    filter: invert(1) grayscale(100%) brightness(150%); /* Icono en gris claro */
-    transition: filter 0.3s ease;
-}
-/* Efecto al pasar el ratón (hover) */
-.Boton-iniciar:hover {
-    background-color: #333333; /* Fondo un poco más claro */
-}
-
-.Boton-iniciar:hover::before {
-    border-color: #F37321; /* Borde naranja KTM al pasar el ratón */
-    box-shadow: 0 0 10px rgba(243, 115, 33, 0.7); /* Resplandor naranja */
-}
-
-.Boton-iniciar:hover {
-    color: #F37321; /* Texto se vuelve naranja */
-}
-/*--------------------------------------------------------------------------------------------------------------------------------------*/
-.Boton-crearcuenta {
-    background-color: #222222; /* Fondo casi negro */
-    border: 2px solid #555555; /* Borde gris oscuro */
-    border-radius: 8px; /* Bordes ligeramente redondeados */
-    font-weight: bold;
-    color: #FFFFFF; /* Texto blanco por defecto */
-    cursor: pointer;
-    transition: all 0.3s ease;
-    transform: translate(10%);
-}
-
-/* Pseudo-elemento para el borde naranja que aparece al pasar el ratón */
-.Boton-crearcuenta::before {
-    content: '';
-    position: absolute;
-    top: -2px;
-    left: -2px;
-    right: -2px;
-    bottom: -2px;
-    border: 2px solid transparent; /* Borde inicial transparente */
-    border-radius: 8px;
-    transition: border-color 0.3s ease, box-shadow 0.3s ease;
-    pointer-events: none;
-}
-.Boton-crearcuenta img {
-    width: 25px; /* Tamaño del icono */
-    height: 25px;
-    filter: invert(1) grayscale(100%) brightness(150%); /* Icono en gris claro */
-    transition: filter 0.3s ease;
-}
-/* Efecto al pasar el ratón (hover) */
-.Boton-crearcuenta:hover {
-    background-color: #333333; /* Fondo un poco más claro */
-}
-
-.Boton-crearcuenta:before {
-    border-color: #F37321; /* Borde naranja KTM al pasar el ratón */
-    box-shadow: 0 0 10px rgba(243, 115, 33, 0.7); /* Resplandor naranja */
-}
-
-.Boton-crearcuenta:hover {
-    color: #F37321; /* Texto se vuelve naranja */
+/* Borde naranja y sombra al pasar el ratón */
+.Boton-carrito:hover::before, .Boton-iniciar:hover::before, .Boton-crearcuenta:hover::before {
+    border-color: #F37321;
+    box-shadow: 0 0 10px rgba(243, 115, 33, 0.7);
 }
 .Caja-logo-movimiento {
     width: 98%;
