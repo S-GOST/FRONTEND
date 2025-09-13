@@ -7,21 +7,14 @@ body {
   min-width: 100vw; /* Mínimo ancho de la pantalla */
   min-height: 100vh; /* Mínimo altura de la pantalla */
   font-family: "PT Serif", serif; /* Tipografía */
-  background: #000000; /* Fondo negro */
-  color: white; /* Texto blanco */
   box-shadow: inset 0px -2px 12px 5px rgba(233, 74, 0, 0.8); /* Sombra interna naranja con efecto de resplandor */
   overflow: hidden;
-  min-height: 100vh;      /* Mínimo altura de la pantalla */
-  font-family: "PT Serif", serif; /* Tipografía */
-  background: #000000;    /* Fondo negro */
-  color: white;           /* Texto blanco */
-  box-shadow: inset 0px -2px 12px 5px rgba(233, 74, 0, 0.8); /* Sombra interna naranja con efecto de resplandor */
+  background-color: #000000 !important;
 }
 .Caja-principal {
   display: flex; /* Activamos caja */
   justify-content: space-between; /* tipo caja */ 
   align-items: center; /* Alinea los elementos */
-  width: 1495px; /* Ancho linen adaptado al body */
   width: 98%; /* Ancho linen adaptado al body */
   height: 100px; /* Alto linea valor fijo */
   position: relative; /* Activamos movimiento */
@@ -35,11 +28,11 @@ body {
 /*-------------------------------------------------------------------------------------------*/
 /* Bloque izquierdo */
 #bloque-1 {
+  display: flex;
+  align-items: center;
   background: #000000; /* color bloque */
   position: relative; /* Activar movimiento */
   left: 1%; /*Movimiento horizontal */
-  top: 0%; /* Movimiento vertical */
-  height: 66%; /* Alto bloque Adaptado a la caja */
   width: 44%;  /* Ancho bloque adaptado a la caja  */
   border-radius: 10px; /* Borde Caja */
 }
@@ -53,34 +46,33 @@ body {
 }
 .linea {
   width: 1px; /* Ancho linea */
-  height: 53px;/* Alto linea */
+  height: 60px;/* Alto linea */
   position: relative; /* Activar movimiento */ 
-  left: 12%; /* Movimiento horizontal */
-  top: -58px; /* Movimiento Vertical */
+  left: 0%; /* Movimiento horizontal */
+  top: 2px; /* Movimiento Vertical */
   background: rgb(236, 236, 236); /* Color linea */
 }
 .texto1 {
   color: #fff; /* Color texto */
   font-family: "Story Script", sans-serif; /* Tipografia */
-  transform: skew(20deg) scale(1.3); /* Inclinacion y escala */
-  position: relative; /* Activar Movimiento */
-  left: 30%; /* Movimiento Horizontal */
-  top: -198%; /* Movimiento Vertical */
+  transform: skew(20deg) scale(1.0); /* Inclinacion y escala */
+  position: relative;
+  left: 4%;
 }
 .buscador {
   display:block; /* Activar Caja */
   border-radius: 10px; /* Borde Buscador */
   border:none; /* desactivar borde */
   width: 41%; /*  Ancho Buscador */
-  height: 35%; /* Alto buscador */ 
+  height: 28px; /* Alto buscador */ 
   position: relative; /* Activar movimiento */
-  left: 56%; /* Movimiento horizontal */
+  left: 9%; /* Movimiento horizontal */
   top: -278%; /* Movimiento vertical */
 }
 .lupa {
   position: relative; /* Activar movimiento */
   filter: grayscale(680%); /* Color */
-  left: 93%; /* Movimiento horizontal */
+  left: 5%; /* Movimiento horizontal */
   top: -312%; /* Movimiento Vertical */
   height: 27%; /* Alto Lupa */
   width:3%; /* Ancho Lupa */
@@ -97,6 +89,9 @@ body {
 /*-------------------------------------------------------------------------------------------------------------*/
 /* Bloque derecho */
 #bloque-2 {
+  display: flex;
+  justify-content:space-around;
+  align-items: center;
   background: #000000; /* color bloque */
   position: relative; /* Activar movimiento */
   left: 12%; /*Movimiento horizontal */
@@ -107,8 +102,8 @@ body {
 }
 /*----------------------------------------------------------------------------------------------------------------------------*/
 .Boton-carrito {
-    width: 40px;
-    height: 40px;
+    width: 75px;
+    height: 50px;
     background-color: #222222; /* Fondo casi negro */
     border: 2px solid #555555; /* Borde gris oscuro */
     border-radius: 6px;
@@ -117,8 +112,6 @@ body {
     display: flex;
     justify-content: center;
     align-items: center;
-    position: relative;
-    overflow: hidden;
 }
 
 /* Pseudo-elemento para el borde naranja que aparece al pasar el ratón */
@@ -136,8 +129,8 @@ body {
 }
 
 .Boton-carrito img {
-    width: 25px; /* Tamaño del icono */
-    height: 25px;
+    width: 55px; /* Tamaño del icono */
+    height: 55px;
     filter: invert(1) grayscale(100%) brightness(150%); /* Icono en gris claro */
     transition: filter 0.3s ease;
 }
@@ -157,18 +150,13 @@ body {
 }
 /*--------------------------------------------------------------------------------------------------------------*/
 .Boton-iniciar {
-    padding: 10px 20px; /* Ajusta el tamaño según necesites */
+    width: 75px;
+    height: 50px;
     background-color: #222222; /* Fondo casi negro */
     border: 2px solid #555555; /* Borde gris oscuro */
-    border-radius: 8px; /* Bordes ligeramente redondeados */
-    text-decoration: none; /* Si usas un <a> */
-    text-transform: uppercase;
-    font-weight: bold;
-    color: #FFFFFF; /* Texto blanco por defecto */
+    border-radius: 6px;
     cursor: pointer;
     transition: all 0.3s ease;
-    position: relative;
-    overflow: hidden;
 }
 
 /* Pseudo-elemento para el borde naranja que aparece al pasar el ratón */
@@ -205,18 +193,14 @@ body {
 }
 /*--------------------------------------------------------------------------------------------------------------------------------------*/
 .Boton-crearcuenta {
-    padding: 10px 20px; /* Ajusta el tamaño según necesites */
     background-color: #222222; /* Fondo casi negro */
     border: 2px solid #555555; /* Borde gris oscuro */
     border-radius: 8px; /* Bordes ligeramente redondeados */
-    text-decoration: none; /* Si usas un <a> */
-    text-transform: uppercase;
     font-weight: bold;
     color: #FFFFFF; /* Texto blanco por defecto */
     cursor: pointer;
     transition: all 0.3s ease;
-    position: relative;
-    overflow: hidden;
+    transform: translate(10%);
 }
 
 /* Pseudo-elemento para el borde naranja que aparece al pasar el ratón */
@@ -251,4 +235,28 @@ body {
 .Boton-crearcuenta:hover {
     color: #F37321; /* Texto se vuelve naranja */
 }
-
+.Caja-logo-movimiento {
+    width: 98%;
+    background: #000000;
+    box-shadow: inset 0px 2px 23px -1px rgba(0, 0, 0, 0.8);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    overflow: hidden;
+    position: relative;
+    top: 90px;
+    left: 17px;
+}
+.img-movimiento {
+    max-width: 52px;
+    animation: movimiento-continuo 10s infinite linear;
+}
+/* La animación que mueve la imagen de un lado a otro y reaparece */
+@keyframes movimiento-continuo {
+    0% {
+        transform: translateX(-1500px); /* Comienza fuera de la pantalla por la izquierda */
+    }
+    100% {
+        transform: translateX(1500px); /* Termina fuera de la pantalla por la derecha */
+    }
+}
