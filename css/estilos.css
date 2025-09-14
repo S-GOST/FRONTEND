@@ -9,8 +9,8 @@ body {
   font-family: "PT Serif", serif; /* Tipografía */
   box-shadow: inset 0px -2px 12px 5px rgba(233, 74, 0, 0.8); /* Sombra interna naranja con efecto de resplandor */
   overflow: hidden;
-  background-image: url("img/fondo.png");
-    background-repeat: no-repeat;       /* evita que se repita */
+  background-image: url("img/fondo.jpg") !important;
+  background-repeat: no-repeat;       /* evita que se repita */
   background-size: cover; 
 }
 .Caja-principal {
