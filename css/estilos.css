@@ -84,6 +84,7 @@ body {
   position: relative; /* Activar movimiento */
   left: -43%; /*Movimiento horizontal */
   top: -5%; /* Movimiento vertical */
+  transform: scale(0.8);
 }
 /*-------------------------------------------------------------------------------------------------------------*/
 /* Bloque derecho */
