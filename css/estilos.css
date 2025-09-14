@@ -1,26 +1,23 @@
 @import url('https://fonts.googleapis.com/css2?family=PT+Serif:ital,wght@0,400;0,700;1,400;1,700&family=Story+Script&display=swap');
 body {
-  margin: 0; /* espacio externo  */
-  padding: 0; /* espacio interno */
-  height: auto; /* La altura se ajusta al contenido */
-  width: auto;  /* El ancho se ajusta al contenido */
-  min-width: 100vw; /* Mínimo ancho de la pantalla */
-  min-height: 100vh; /* Mínimo altura de la pantalla */
-  font-family: "PT Serif", serif; /* Tipografía */
-  box-shadow: inset 0px -2px 12px 5px rgba(233, 74, 0, 0.8); /* Sombra interna naranja con efecto de resplandor */
-  background-image: url("img/fondo.png") !important;
-  background-repeat: no-repeat;/* evita que se repita */
-  background-size: cover; 
+  font-family: "PT Serif", serif; /* Tipo letra de imagen */
+  background-image: url("./img/fondo.png"); /* imagen de fondo */
+  background-repeat: no-repeat; /* no se repita la imagen */
+  background-size: cover; /* ajusta la imagen con la pantalla */
+  background-position: center; /* centra la imagen */
+  min-height: 100vh; /* Alto minimo */
+  min-width: 100vw; /* Ancho minimo */
+  box-shadow: inset 0px -2px 12px 5px rgba(233, 74, 0, 0.8);
 }
 .Caja-principal {
   display: flex; /* Activamos caja */
   justify-content: space-between; /* tipo caja */ 
   align-items: center; /* Alinea los elementos */
   width: 98%; /* Ancho linen adaptado al body */
-  height: 112%; /* Alto linea valor fijo */
+  height: 122px; /* Alto linea valor fijo */
   position: relative; /* Activamos movimiento */
   left: 1%; /* Movimiento horizontal */
-  top: 72px; /* Movimiento vertical */
+  top: 24px; /* Movimiento vertical */
   border-radius: 25px; /* Borde caja */
   background: #eb5a0000; /* Color caja */
   box-shadow: inset 2px 1px 20px 5px rgba(0, 0, 0, 0.8); /* Sombra caja */
@@ -34,6 +31,7 @@ body {
   position: relative; /* Activar movimiento */
   left: 1%; /*Movimiento horizontal */
   width: 44%;  /* Ancho bloque adaptado a la caja  */
+  height: 80px;
   border-radius: 10px; /* Borde Caja */
 }
 .img {
@@ -67,25 +65,21 @@ body {
   height: 28px; /* Alto buscador */ 
   position: relative; /* Activar movimiento */
   left: 9%; /* Movimiento horizontal */
-  top: -278%; /* Movimiento vertical */
 }
 .lupa {
   position: relative; /* Activar movimiento */
   filter: grayscale(680%); /* Color */
   left: 5%; /* Movimiento horizontal */
-  top: -312%; /* Movimiento Vertical */
   height: 27%; /* Alto Lupa */
   width:3%; /* Ancho Lupa */
 }
 /*--------------------------------------------------------------------------------------------------*/
 .img1 {
-  width: auto;
-  height: auto;
-  max-width: 12%; /* La imagen no superará el ancho de su contenedor */
-  position: relative; /* Activar movimiento */
-  left: 44%; /*Movimiento horizontal */
-  top: -193px; /* Movimiento vertical */
-  transform: scale(0.8);
+  max-width: 12%;          /* Tamaño relativo */
+  height: auto; /* Mantiene proporción */
+  display: block;
+  margin: 0 auto; /* Centrado horizontal */
+  position: relative;
 }
 /*-------------------------------------------------------------------------------------------------------------*/
 /* Bloque derecho */
@@ -97,14 +91,18 @@ body {
   position: relative; /* Activar movimiento */
   left: -1%; /*Movimiento horizontal */
   top: 0%; /* Movimiento vertical */
-  height: 76%; /* Alto bloque Adaptado a la caja */
+  height: 88%; /* Alto bloque Adaptado a la caja */
   width: 43%;  /* Ancho bloque adaptado a la caja  */
   border-radius: 10px; /* Borde Caja */
 }
+.img2 {
+  max-width: 0%;/* Tamaño relativo */
+  transform: scale(0.1);
+}
 /*----------------------------------------------------------------------------------------------------------------------------*/
  .Boton-carrito {
-    width: 75px;
-    height: 50px;
+    width: 111px;
+    height: 83px;
     background-color: #222222;
     border: 2px solid #555555;
     border-radius: 6px;
@@ -114,11 +112,11 @@ body {
     justify-content: center;
     align-items: center;
     position: relative;
-    left: 0%;
+    left: 7%;
 }
 .Boton-carrito img {
-    width: 55px;
-    height: 55px;
+    width: 80px;
+    height: 80px;
     filter: invert(1) grayscale(100%) brightness(150%);
     transition: filter 0.3s ease;
 }
@@ -135,8 +133,8 @@ body {
     box-shadow: 0 0 10px rgba(243, 115, 33, 0.7);
 }
 .Boton-iniciar {
-    width: 110px;
-    height: 55px;
+    width: 135px;
+    height: 88px;
     background-color: #222222;
     border: 2px solid #555555;
     border-radius: 6px;
@@ -146,7 +144,7 @@ body {
     justify-content: center;
     align-items: center;
     position: relative;
-    left: 25%;
+    left: 10%;
 }
 .Boton-iniciar img {
     width: 110px;
@@ -167,8 +165,8 @@ body {
     box-shadow: 0 0 10px rgba(243, 115, 33, 0.7);
 }
 .Boton-crearcuenta {
-    width: 100px;
-    height: 55px;
+    width: 126px;
+    height: 88px;
     background-color: #222222;
     border: 2px solid #555555;
     border-radius: 6px;
@@ -178,7 +176,7 @@ body {
     justify-content: center;
     align-items: center;
     position: relative;
-    left: 8%;
+    left: 4%;
 }
 .Boton-crearcuenta img {
     width: 90px;
@@ -200,14 +198,14 @@ body {
 }
 .Caja-logo-movimiento {
     width: 98%;
-    background: #000000;
+    background: #00000000;
     box-shadow: inset 0px 2px 23px -1px rgba(0, 0, 0, 0.8);
     display: flex;
     justify-content: center;
     align-items: center;
     overflow: hidden;
     position: relative;
-    top: 90px;
+    top: 150px;
     left: 17px;
 }
 .img-movimiento {
@@ -215,11 +213,55 @@ body {
     animation: movimiento-continuo 22s infinite linear;
 }
 /* La animación que mueve la imagen de un lado a otro y reaparece */
-@keyframes movimiento-continu {
+@keyframes movimiento-continuo {
     0% {
         transform: translateX(-1500px); /* Comienza fuera de la pantalla por la izquierda */
     }
     100% {
         transform: translateX(1500px); /* Termina fuera de la pantalla por la derecha */
     }
+}
+/* Contenedor principal */
+#contenido {
+  display: flex;
+  justify-content: flex-end; /* Alinea los botones a la derecha */
+  align-items: center; /* Centra verticalmente */
+  margin: 0; /* espacio externo  */
+  padding: 0; /* espacio interno */
+  gap: 427px; /* Espacio entre botones */      /* Ajusta separación desde arriba y derecha */
+  height: auto; /* La altura se ajusta al contenido */
+  width: auto;  /* El ancho se ajusta al contenido */
+  min-width: 100vw; /* Mínimo ancho de la pantalla */
+  min-height: 100vh; /* Mínimo altura de la pantalla */
+}
+
+
+/* Estilos de los botones */
+#contenido button {
+  background-color: #1a1a1a;   /* Fondo negro */
+  color: #f15a24;              /* Texto naranja */
+  font-family: Arial, sans-serif;
+  font-size: 15px;
+  font-weight: bold;
+  padding: 10px 20px;
+  border: 1px solid #000;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 2px 2px 4px rgba(0,0,0,0.4);
+  text-transform: uppercase;
+}
+
+/* Hover */
+#contenido button:hover {
+  background-color: #333;     /* Gris oscuro al pasar el mouse */
+  transform: scale(1.05);     /* Efecto de zoom */
+  box-shadow: 3px 3px 6px rgba(0,0,0,0.5);
+}
+/* Botones que deben llevar texto naranja */
+.Mantenimiento,
+.Reparaciones,
+.Diagnosticos,
+.instalaciones {
+  color: #f15a24; /* Texto naranja */
 }
