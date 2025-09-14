@@ -8,9 +8,8 @@ body {
   min-height: 100vh; /* Mínimo altura de la pantalla */
   font-family: "PT Serif", serif; /* Tipografía */
   box-shadow: inset 0px -2px 12px 5px rgba(233, 74, 0, 0.8); /* Sombra interna naranja con efecto de resplandor */
-  overflow: hidden;
-  background-image: url("img/fondo.jpg") !important;
-  background-repeat: no-repeat;       /* evita que se repita */
+  background-image: url("img/fondo.png") !important;
+  background-repeat: no-repeat;/* evita que se repita */
   background-size: cover; 
 }
 .Caja-principal {
@@ -18,13 +17,13 @@ body {
   justify-content: space-between; /* tipo caja */ 
   align-items: center; /* Alinea los elementos */
   width: 98%; /* Ancho linen adaptado al body */
-  height: 100px; /* Alto linea valor fijo */
+  height: 112%; /* Alto linea valor fijo */
   position: relative; /* Activamos movimiento */
-  left: 1vw; /* Movimiento horizontal */
-  top: 2vh; /* Movimiento vertical */
+  left: 1%; /* Movimiento horizontal */
+  top: 72px; /* Movimiento vertical */
   border-radius: 25px; /* Borde caja */
-  background: #EB5B00; /* Color caja */
-  box-shadow: inset 0px 2px 23px -1px rgba(0, 0, 0, 0.8); /* Sombra caja */
+  background: #eb5a0000; /* Color caja */
+  box-shadow: inset 2px 1px 20px 5px rgba(0, 0, 0, 0.8); /* Sombra caja */
 }
 /*-------------------------------------------------------------------------------------------*/
 /* Bloque izquierdo */
@@ -82,10 +81,10 @@ body {
 .img1 {
   width: auto;
   height: auto;
-  max-width: 13%; /* La imagen no superará el ancho de su contenedor */
+  max-width: 12%; /* La imagen no superará el ancho de su contenedor */
   position: relative; /* Activar movimiento */
-  left: -43%; /*Movimiento horizontal */
-  top: -5%; /* Movimiento vertical */
+  left: 44%; /*Movimiento horizontal */
+  top: -193px; /* Movimiento vertical */
   transform: scale(0.8);
 }
 /*-------------------------------------------------------------------------------------------------------------*/
@@ -96,7 +95,7 @@ body {
   align-items: center;
   background: #000000; /* color bloque */
   position: relative; /* Activar movimiento */
-  left: 12%; /*Movimiento horizontal */
+  left: -1%; /*Movimiento horizontal */
   top: 0%; /* Movimiento vertical */
   height: 76%; /* Alto bloque Adaptado a la caja */
   width: 43%;  /* Ancho bloque adaptado a la caja  */
