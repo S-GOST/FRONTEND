@@ -1,17 +1,16 @@
-    /* funcion mostrar contrseña carrito */
-    function ocultarMostrar() {
-      const input = document.getElementById('Clave');
-      const btn   = document.getElementById('toggle');
-      const icono  = document.getElementById('iconoOjo');
+ /* funcion de ocultar contraseña carrito */
+ const input = document.getElementById('Clave');
+  const btn   = document.getElementById('toggle');
 
-      if (input.type == 'password') {
-        input.type = 'text';        // 👁️ Muestra la contraseña
-        icono.src  = 'css/img/Ojo.png';
-      } else {
-        input.type = 'password';    // 🔒 La vuelve a ocultar
-        btn.textContent = 'css/img/Ocultar.png';
-      }
+  btn.addEventListener('click', () => { /* funciona a hacer click */
+    if (input.type == 'password') { /* Si es contraseña pasa eso */
+      input.type = 'text'; /* cambia a texto */
+      btn.textContent = '🔒';  // ojo cerrado
+    } else {
+      input.type = 'password'; /* Cambia a contraseña */
+      btn.textContent = '👁️';  // ojo abierto
     }
+  });
 
 
 

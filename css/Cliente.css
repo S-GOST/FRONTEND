@@ -5,3 +5,11 @@ body {
   font-size: 16px;        /* Tamaño de fuente base */
   line-height: 1.5;       /* Altura de línea para mejor legibilidad */
 }
+.Text1 {
+display: flex;
+  margin: 0;              /* Quita el margen que ponen los navegadores */
+  padding: 0;             /* Quita el padding por defecto */
+  font-family: Arial, sans-serif; /* Fuente base */
+  font-size: 16px;        /* Tamaño de fuente base */
+  line-height: 1.5;       /* Altura de línea para mejor legibilidad */
+}
