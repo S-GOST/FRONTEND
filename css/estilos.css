@@ -1,37 +1,38 @@
-@import url('https://fonts.googleapis.com/css2?family=PT+Serif:ital,wght@0,400;0,700;1,400;1,700&family=Story+Script&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Cardo:ital,wght@0,400;0,700;1,400&family=Inter+Tight:ital,wght@0,100..900;1,100..900&family=Karantina:wght@300;400;700&family=Oswald:wght@700&family=PT+Serif:ital,wght@0,400;0,700;1,400;1,700&family=Reem+Kufi&family=Rufina:wght@400;700&family=Story+Script&family=Yrsa:wght@700&display=swap');
 body {
-  font-family: "PT Serif", serif; /* Tipo letra de imagen */
-  background-image: url("./img/fondo.png"); /* imagen de fondo */
-  background-repeat: no-repeat; /* no se repita la imagen */
-  background-size: cover; /* ajusta la imagen con la pantalla */
-  background-position: center; /* centra la imagen */
-  min-height: 100vh; /* Alto minimo */
-  min-width: 100vw; /* Ancho minimo */
-  box-shadow: inset 0px -2px 12px 5px rgba(233, 74, 0, 0.8);
+    min-height: 100vh;
+    margin: 0; /* Elimina el margen por defecto del body */
+    padding: 0; /* Elimina el relleno por defecto */
+    background-image: url("./img/fondo.png"); /* imagen de fondo */
+    font-family: "PT Serif", serif; /* Tipografia */
+    background-repeat: no-repeat; /* no se repita la imagen */
+    background-size: cover; /* ajusta la imagen con la pantalla */
+    background-position: center; /* centra la imagen */
+    box-shadow: inset 0px 0px 12px 1px rgba(233, 74, 0, 0.8); /* Borde pantalla */
 }
 .Caja-principal {
   display: flex; /* Activamos caja */
   justify-content: space-between; /* tipo caja */ 
   align-items: center; /* Alinea los elementos */
   width: 98%; /* Ancho linen adaptado al body */
-  height: 122px; /* Alto linea valor fijo */
+  height: 6rem; /* Alto linea raiz html */
   position: relative; /* Activamos movimiento */
-  left: 1%; /* Movimiento horizontal */
-  top: 24px; /* Movimiento vertical */
+  left: 1%; /* Movimiento horizontal adapatado contenedor padre */
+  top: 17px; /* Movimiento vertical valor fijo */
   border-radius: 25px; /* Borde caja */
-  background: #eb5a0000; /* Color caja */
-  box-shadow: inset 2px 1px 20px 5px rgba(0, 0, 0, 0.8); /* Sombra caja */
+  background: #E67514; /* Color caja */
+  box-shadow: inset -3px 0px 10px 11px rgba(0, 0, 0, 0.8); /* Sombra caja */
 }
 /*-------------------------------------------------------------------------------------------*/
 /* Bloque izquierdo */
 #bloque-1 {
-  display: flex;
-  align-items: center;
-  background: #000000; /* color bloque */
+  display: flex;  /* Activamos caja */
+  align-items: center; /* Alinea los elementos */
+  background: #00000059; /* color bloque */
   position: relative; /* Activar movimiento */
   left: 1%; /*Movimiento horizontal */
   width: 44%;  /* Ancho bloque adaptado a la caja  */
-  height: 80px;
+  height: 72px; /* Alto linea valor fijo */
   border-radius: 10px; /* Borde Caja */
 }
 .img {
@@ -44,224 +45,212 @@ body {
 }
 .linea {
   width: 1px; /* Ancho linea */
-  height: 60px;/* Alto linea */
+  height: 63px;/* Alto linea */
   position: relative; /* Activar movimiento */ 
   left: 0%; /* Movimiento horizontal */
-  top: 2px; /* Movimiento Vertical */
+  top: 5px; /* Movimiento Vertical */
   background: rgb(236, 236, 236); /* Color linea */
 }
 .texto1 {
   color: #fff; /* Color texto */
-  font-family: "Story Script", sans-serif; /* Tipografia */
-  transform: skew(20deg) scale(1.0); /* Inclinacion y escala */
-  position: relative;
-  left: 4%;
+  font-family: "Oswald", sans-serif; /* Tipografia */
+  transform: scale(0.9); /* Inclinacion y escala */
+  position: relative; /* Activar movimiento */
+  left: 1%; /* Movimiento horizontal */
 }
 .buscador {
   display:block; /* Activar Caja */
-  border-radius: 10px; /* Borde Buscador */
-  border:none; /* desactivar borde */
+  border-radius: 11px 0px 17px 8px; /* Borde Buscador */
+  border:0; /* desactivar borde */
   width: 41%; /*  Ancho Buscador */
   height: 28px; /* Alto buscador */ 
   position: relative; /* Activar movimiento */
-  left: 9%; /* Movimiento horizontal */
+  left: 8%; /* Movimiento horizontal */
 }
 .lupa {
   position: relative; /* Activar movimiento */
   filter: grayscale(680%); /* Color */
-  left: 5%; /* Movimiento horizontal */
-  height: 27%; /* Alto Lupa */
-  width:3%; /* Ancho Lupa */
+  left: 3%; /* Movimiento horizontal */
+  height: 26%; /* Alto Lupa */
+  width: 4%; /* Ancho Lupa */
 }
 /*--------------------------------------------------------------------------------------------------*/
 .img1 {
-  max-width: 12%;          /* Tamaño relativo */
+  max-width: 12%; /* Tamaño relativo */
   height: auto; /* Mantiene proporción */
-  display: block;
+  display: block; /* Activar caja */
   margin: 0 auto; /* Centrado horizontal */
-  position: relative;
+  position: relative; /* Activar mvimiento */
 }
 /*-------------------------------------------------------------------------------------------------------------*/
 /* Bloque derecho */
 #bloque-2 {
-  display: flex;
-  justify-content:space-around;
-  align-items: center;
-  background: #000000; /* color bloque */
+  display: flex; /* Activar caja */
+  justify-content:space-around; /* Espacio estre elementos */
+  align-items: center; /* Alineamos elementos */
+  background: #00000059; /* color bloque */
   position: relative; /* Activar movimiento */
   left: -1%; /*Movimiento horizontal */
   top: 0%; /* Movimiento vertical */
-  height: 88%; /* Alto bloque Adaptado a la caja */
+  height: 4rem; /* Alto bloque Adaptado a la caja */
   width: 43%;  /* Ancho bloque adaptado a la caja  */
   border-radius: 10px; /* Borde Caja */
 }
-.img2 {
-  max-width: 0%;/* Tamaño relativo */
-  transform: scale(0.1);
-}
 /*----------------------------------------------------------------------------------------------------------------------------*/
  .Boton-carrito {
-    width: 111px;
-    height: 83px;
-    background-color: #222222;
-    border: 2px solid #555555;
-    border-radius: 6px;
-    cursor: pointer;
-    transition: all 0.3s ease;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    position: relative;
-    left: 7%;
+    width: 50px; /* Ancho carrito valor fijo */
+    height: 50px; /* Alto carrito valor fijo */
+    background: linear-gradient(135deg,#000000, #393939 ); /* Color de fondo degradado */
+    border-radius: 25px; /* Borde */
+    font-size: 1.2rem; /* Ajuste tanaño carrito */
+    font-weight: bold; /* Grosor */
+    border: none; /* Quitamos */
+    cursor: pointer; /* Al poner el mouse */
+    transition: all 0.3s ease; /* Efecto */
+    display: flex; /* Activamos caja */
+    justify-content: center; /* Alineamos elementos */
+    align-items: center; /* Centramos elementos */
+    position: relative; /* Activar posicion */
+    left: -2%; /* Movimiento horizontal */
 }
 .Boton-carrito img {
-    width: 80px;
-    height: 80px;
-    filter: invert(1) grayscale(100%) brightness(150%);
-    transition: filter 0.3s ease;
+    width: 40px; /* Ancho imagen carrito */
+    height: 40px; /* Alto imagen carrito */
+    filter: invert(1) grayscale(100%) brightness(150%); /* Color aplicado imagen carrito */
+    transition: filter 0.3s ease; /* Efecto */
 }
-.Boton-carrito:hover {
-    background-color: #333333;
-}
-
 .Boton-carrito:hover img {
-    filter: invert(0) grayscale(0) brightness(1) sepia(0);
+    filter: invert(0) grayscale(0) brightness(1) sepia(0); /* Efecto al pasar el mouse */
 }
-
-.Boton-carrito:hover::before {
-    border-color: #F37321;
-    box-shadow: 0 0 10px rgba(243, 115, 33, 0.7);
+.Boton-carrito:active {
+  transform: scale(0.9); /* Efecto de escala */
 }
-.Boton-iniciar {
-    width: 135px;
-    height: 88px;
-    background-color: #222222;
-    border: 2px solid #555555;
-    border-radius: 6px;
-    cursor: pointer;
-    transition: all 0.3s ease;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    position: relative;
-    left: 10%;
-}
-.Boton-iniciar img {
-    width: 110px;
-    height: 90px;
-    filter: invert(1) grayscale(100%) brightness(150%);
-    transition: filter 0.3s ease;
+/*------------------------------------------------------------------------------------------------------------------------------*/
+.Boton-iniciar  {
+    width: 147px; /* Ancho boton */
+    height: 47px; /* Alto boton */
+    background: linear-gradient(15deg,#000000, #393939 ); /* Color degradado */
+    font-family: "Karantina", system-ui; /*Tipografia */
+    transform: skew(-7deg); /* Inclinacion */
+    color: #fff; /* Color texto */
+    border-radius: 25px; /* Borde boton */
+    font-size: 1.2rem; /* Ajsute tamaño boton */
+    cursor: pointer; /* Al poner el mouse */
+    border: none; /* Quitamos borde defecto */
+    font-weight: bold; /* Grosor */
+    transition: all 0.3s ease; /* Efecto */
+    display: flex; /* Activar caja */
+    justify-content: center; /* Alineamos boton */
+    align-items: center; /* Alineamos elementos */
+    position: relative; /* Activar posicion */
+    left: 19%; /* Movimiento horizontal */
 }
 .Boton-iniciar:hover {
-    background-color: #333333;
+    color: #F37321; /* Las letras cambian a naranja */
 }
-
-.Boton-iniciar:hover img {
-    filter: invert(0) grayscale(0) brightness(1) sepia(0);
+.Boton-iniciar:active  {
+  transform: scale(0.9); /* Activar escala */
 }
-
-.Boton-iniciar:hover::before {
-    border-color: #F37321;
-    box-shadow: 0 0 10px rgba(243, 115, 33, 0.7);
-}
-.Boton-crearcuenta {
-    width: 126px;
-    height: 88px;
-    background-color: #222222;
-    border: 2px solid #555555;
-    border-radius: 6px;
-    cursor: pointer;
-    transition: all 0.3s ease;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    position: relative;
-    left: 4%;
-}
-.Boton-crearcuenta img {
-    width: 90px;
-    height: 110px;
-    filter: invert(1) grayscale(100%) brightness(150%);
-    transition: filter 0.3s ease;
-    position: relative;
-    top: 5%;
+/*------------------------------------------------------------------------------------------------------------*/
+.Boton-crearcuenta  {
+    width: 147px; /* Ancho boton */
+    height: 47px; /* Alto botn */
+    background: linear-gradient(135deg,#000000, #393939 ); /* Color degradado */
+    font-family: "Karantina", system-ui; /* Tipografia */
+    transform: skew(-7deg); /* Inclinacion */
+    color: #fff; /* Color texto */
+    border-radius: 25px; /* Borde */
+    font-size: 1.2rem; /* Ajsute tamaño boton */
+    cursor: pointer; /* Al pasar el mouse */
+    border: none; /* Quitamos borde defecto */
+    font-weight: bold; /* Grosor */
+    transition: all 0.3s ease; /* Efecto */
+    display: flex; /* Activar caja */
+    justify-content: center; /* Alineamos  elementos */
+    align-items: center; /* Centramos elementos */
+    position: relative; /* Activar posicion */
+    left: 6%; /* Movimiento horizontal */
 }
 .Boton-crearcuenta:hover {
-    background-color: #333333;
+    color: #F37321; /* Las letras cambian a naranja */
 }
-.Boton-crearcuenta:hover img {
-    filter: invert(0) grayscale(0) brightness(1) sepia(0);
-}
-.Boton-crearcuenta:hover::before {
-    border-color: #F37321;
-    box-shadow: 0 0 10px rgba(243, 115, 33, 0.7);
+.Boton-crearcuenta:active  {
+  transform: scale(0.9); /* Escala bton */
 }
 .Caja-logo-movimiento {
-    width: 98%;
-    background: #00000000;
-    box-shadow: inset 0px 2px 23px -1px rgba(0, 0, 0, 0.8);
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    overflow: hidden;
-    position: relative;
-    top: 150px;
-    left: 17px;
+    width: 98%; /* Ancho caja moviemto */
+    background: #00000000; /* Color fondo movimeto */
+    box-shadow: 0px 7px 23px -1px rgba(0, 0, 0, 0.8);
+    display: flex; /* Activamos caja */
+    justify-content: center; /* Alineamos elementos */
+    align-items: center; /* Centramos elementos */
+    overflow: hidden; /* Scrool caja */
+    position: relative; /* Activamos posicion */
+    top: 77px; /* Moivimiento vertical */
+    left: 17px; /*Movimiento horizontal */
 }
 .img-movimiento {
-    max-width: 52px;
-    animation: movimiento-continuo 22s infinite linear;
+    max-width: 52px; /* Ajsute maximo ancho */
+    animation: movimiento-continuo 22s infinite linear; /* Movimiento de las imagenes */
 }
 /* La animación que mueve la imagen de un lado a otro y reaparece */
 @keyframes movimiento-continuo {
     0% {
-        transform: translateX(-1500px); /* Comienza fuera de la pantalla por la izquierda */
+        transform: translateX(-1800px); /* Comienza fuera de la pantalla por la izquierda */
     }
     100% {
         transform: translateX(1500px); /* Termina fuera de la pantalla por la derecha */
     }
+  }
+.menu {
+  position: relative; /* Activar movimiento */
+  top: -20px; /* Movimiento vertical */
+  left: 91px; /* Movimiento horizontal */
+  height: 0; /* Ancho */
+  width: 0; /* Alto */
 }
-/* Contenedor principal */
-#contenido {
-  display: flex;
-  justify-content: flex-end; /* Alinea los botones a la derecha */
-  align-items: center; /* Centra verticalmente */
-  margin: 0; /* espacio externo  */
-  padding: 0; /* espacio interno */
-  gap: 427px; /* Espacio entre botones */      /* Ajusta separación desde arriba y derecha */
-  height: auto; /* La altura se ajusta al contenido */
-  width: auto;  /* El ancho se ajusta al contenido */
-  min-width: 100vw; /* Mínimo ancho de la pantalla */
-  min-height: 100vh; /* Mínimo altura de la pantalla */
+.menu ul {
+  list-style: none; /* lo usamos para poner el estilo por defecto */
+  font-size: 1.7em; /* Ajustamos tamaño */
+  margin-top: 45px; /* Ayuda alinear */
+  border-radius: 25px; /* Borde */
+  background: linear-gradient(181deg,#000000, #393939 ); /* Color degradado */
+  width: 1320px; /* Ancho */
+  height: 87px; /* Alto */
 }
-
-
-/* Estilos de los botones */
-#contenido button {
-  background-color: #1a1a1a;   /* Fondo negro */
-  color: #f15a24;              /* Texto naranja */
-  font-family: Arial, sans-serif;
-  font-size: 15px;
-  font-weight: bold;
-  padding: 10px 20px;
-  border: 1px solid #000;
-  border-radius: 5px;
-  cursor: pointer;
-  transition: all 0.3s ease;
-  box-shadow: 2px 2px 4px rgba(0,0,0,0.4);
-  text-transform: uppercase;
+.menu ul li {
+  display: inline-block; /* Alineamos los bloques */
+  margin: 2em; /* Espacio entre elementos */
+  position: relative; /* Activar movimiento */
+  top: -32px; /* Movimiento vertical */
+  left: 6px; /* Movimientio horizontal */
 }
-
-/* Hover */
-#contenido button:hover {
-  background-color: #333;     /* Gris oscuro al pasar el mouse */
-  transform: scale(1.05);     /* Efecto de zoom */
-  box-shadow: 3px 3px 6px rgba(0,0,0,0.5);
+.menu ul li a {
+  display: inline-block; /* Esto es esencial para que el padding funcione */
+  padding: 1px 52px; /* Ajusta el tamaño con relleno (padding) */
+  background-color: rgba(0, 0, 0, 0.4); /* Fondo semi-transparente */
+  font-family: "Karantina", system-ui; /* Tipografia */
+  color: #ffffff; /* Color texto */
+  font-weight: 400; /* Grosor */
+  border-radius: 25px; /* Borde */
+  text-decoration: none; /*quitamosla linea que trae por defecto para aplicar la transicion */
 }
-/* Botones que deben llevar texto naranja */
-.Mantenimiento,
-.Reparaciones,
-.Diagnosticos,
-.instalaciones {
-  color: #f15a24; /* Texto naranja */
+.menu ul li a:active  {
+  transform: scale(0.9); /* Escala bton */
+}
+.menu ul li a:hover {
+  color: #E67514; /* Color texto pasar mouse */
+}
+.menu ul li a::after {
+  content: ""; /* Espacio psudo-elemento para trabajarlo */
+  display: block; /* Espacio propio */
+  width: 0; /* Ancho inicial: 0 Linea */
+  height: 1px; /* Linea que aparece */
+  background: #E67514; /* Color linea */
+  border-radius: 5px; /* Bordes redondeados */
+  transition: width .7s; /* Transición del ancho */
+}
+/* Esta es la regla clave. El ancho cambia a 100% al pasar el mouse */
+.menu ul li a:hover::after {
+  width: 100%; /* Ancho */
 }
