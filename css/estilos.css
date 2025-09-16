@@ -52,11 +52,11 @@ body {
   background: rgb(236, 236, 236); /* Color linea */
 }
 .texto1 {
-  color: #fff; /* Color texto */
-  font-family: "Oswald", sans-serif; /* Tipografia */
-  transform: scale(0.9); /* Inclinacion y escala */
+  color: #ffffff; /* Color texto */
+  font-family: "Karantina", system-ui; /* Tipografia */
+  transform: scale(1.2); /* Inclinacion y escala */
   position: relative; /* Activar movimiento */
-  left: 1%; /* Movimiento horizontal */
+  left: 5%; /* Movimiento horizontal */
 }
 .buscador {
   display:block; /* Activar Caja */
@@ -65,7 +65,7 @@ body {
   width: 41%; /*  Ancho Buscador */
   height: 28px; /* Alto buscador */ 
   position: relative; /* Activar movimiento */
-  left: 8%; /* Movimiento horizontal */
+  left: 12%; /* Movimiento horizontal */
 }
 .lupa {
   position: relative; /* Activar movimiento */
@@ -186,7 +186,7 @@ body {
     align-items: center; /* Centramos elementos */
     overflow: hidden; /* Scrool caja */
     position: relative; /* Activamos posicion */
-    top: 77px; /* Moivimiento vertical */
+    top: 8px; /* Moivimiento vertical */
     left: 17px; /*Movimiento horizontal */
 }
 .img-movimiento {
@@ -203,37 +203,30 @@ body {
     }
   }
 .menu {
-  position: relative; /* Activar movimiento */
-  top: -20px; /* Movimiento vertical */
-  left: 91px; /* Movimiento horizontal */
-  height: 0; /* Ancho */
-  width: 0; /* Alto */
+  width: 100%;              /* Que ocupe todo el ancho */
+  display: flex;
+  justify-content: center;  /* Centra horizontalmente */
 }
 .menu ul {
-  list-style: none; /* lo usamos para poner el estilo por defecto */
-  font-size: 1.7em; /* Ajustamos tamaño */
-  margin-top: 45px; /* Ayuda alinear */
-  border-radius: 25px; /* Borde */
-  background: linear-gradient(181deg,#000000, #393939 ); /* Color degradado */
-  width: 1320px; /* Ancho */
-  height: 87px; /* Alto */
-}
-.menu ul li {
-  display: inline-block; /* Alineamos los bloques */
-  margin: 2em; /* Espacio entre elementos */
-  position: relative; /* Activar movimiento */
-  top: -32px; /* Movimiento vertical */
-  left: 6px; /* Movimientio horizontal */
+  list-style: none;         
+  display: flex;            /* Flex para los <li> */
+  justify-content: center;  /* Centra el grupo de items */
+  align-items: center;      /* Centra verticalmente */
+  gap: 2rem;                /* Espaciado entre botones */
+  padding: 0.5rem 1rem;
+  margin: 0;
+  border-radius: 25px;
+  background: linear-gradient(181deg,#000000, #393939 );
 }
 .menu ul li a {
-  display: inline-block; /* Esto es esencial para que el padding funcione */
-  padding: 1px 52px; /* Ajusta el tamaño con relleno (padding) */
-  background-color: rgba(0, 0, 0, 0.4); /* Fondo semi-transparente */
-  font-family: "Karantina", system-ui; /* Tipografia */
-  color: #ffffff; /* Color texto */
-  font-weight: 400; /* Grosor */
-  border-radius: 25px; /* Borde */
-  text-decoration: none; /*quitamosla linea que trae por defecto para aplicar la transicion */
+  display: block;
+  padding: 0.5rem 1rem; /* Ajusta con rem, no px fijos */
+  font-family: "Karantina", system-ui;
+  font-size: 2.3rem;   /* <--- Ajusta aquí el tamaño del texto */
+  color: #ffffff;
+  border-radius: 25px;
+  text-decoration: none;
+  transition: all 0.3s ease;
 }
 .menu ul li a:active  {
   transform: scale(0.9); /* Escala bton */
@@ -253,4 +246,47 @@ body {
 /* Esta es la regla clave. El ancho cambia a 100% al pasar el mouse */
 .menu ul li a:hover::after {
   width: 100%; /* Ancho */
+}
+#video-fondo {
+  position: fixed;  /* Fijo detrás de todo */
+  width: 100%;  /* Que ocupe todo el ancho */
+  height: 100%; /* Que ocupe todo el alto */
+  object-fit: cover;    /* Recorta y ajusta sin deformar */
+  z-index: -1; /* Lo manda al fondo */
+}
+#video-fondo1 {
+  width: 100%;  /* Que ocupe todo el ancho */
+  height: 100%; /* Que ocupe todo el alto */
+  object-fit: cover;    /* Recorta y ajusta sin deformar */
+  border-radius: 20px;
+  position: relative;
+  left: -210%;
+  top: 0%;
+}
+.p1 {
+  position: relative;
+  left: -10rem;
+  top: 0rem;
+  font-size: 10px;
+  display: flex;
+  background: linear-gradient(181deg,#000000, #393939 );
+  font-family:Cambria, Cochin, Georgia, Times, 'Times New Roman', serif; /* Tipografia */
+  color: #ffffff;
+  padding: 50px 65px;
+  border-radius: 20px;
+  font-size: 25px;
+  position: relative;
+  left: 2rem;
+  top: 2rem;
+  height: 25rem;
+  width: 50rem;
+  padding-left: 523px;
+}
+footer {
+  background-color: #E67514;
+  color: #000000;
+  border-radius: 20px;
+  height: 80px; ;
+  position:absolute ;
+  bottom: 0;
 }
