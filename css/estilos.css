@@ -135,7 +135,8 @@ body {
     width: 147px; /* Ancho boton */
     height: 47px; /* Alto boton */
     background: linear-gradient(15deg,#000000, #393939 ); /* Color degradado */
-    font-family: "Karantina", system-ui; /*Tipografia */
+    font-family: 
+    "Karantina", system-ui; /*Tipografia */
     transform: skew(-7deg); /* Inclinacion */
     color: #fff; /* Color texto */
     border-radius: 25px; /* Borde boton */
@@ -261,8 +262,8 @@ body {
   height: 25rem; /* Alto fondo */
   width: 50rem; /* Ancho fondo */
   position: relative; /* Actiavr posicion */
-  left: 10rem; /* Movimineto horizontal fondo */
-  top: 10rem; /* Movimiento vertical fondo */
+  left: 7rem; /* Movimineto horizontal fondo */
+  top: 6rem; /* Movimiento vertical fondo */
 }
 .imgbujia {
   height: 9rem; /* Ancho bujia */
@@ -279,7 +280,7 @@ body {
 }
 .p1 {
   background: linear-gradient(181deg,#000000, #393939 ); /* Degradado */
-  font-family:Cambria, Cochin, Georgia, Times, 'Times New Roman', serif; /* Tipografia */
+  font-family:"Cossette Titre", sans-serif; /* Tipografia */
   color: #ffffff; /* Color texto */
   border-radius: 20px; /* Borde fondo */
   font-size: 26px; /* Tamaño fuente */
@@ -305,8 +306,7 @@ body {
   height: 26rem; /* Alto fondo */
   width: 54rem; /* Ancho fondo */
   position: relative; /* Actiavr posicion */
-  left: 100rem; /* Movimineto horizontal fondo */
-  top: 20rem; /* Movimiento vertical fondo */
+  left: 50%; /* Movimineto horizontal fondo */
 }
 .imgracing {
   height: 3rem;
@@ -322,7 +322,7 @@ body {
 }
 .p2 {
   background: linear-gradient(181deg,#000000, #393939 ); /* Degradado */
-  font-family:Cambria, Cochin, Georgia, Times, 'Times New Roman', serif; /* Tipografia */
+  font-family: "Cossette Titre", sans-serif; /* Tipografia */
   color: #ffffff; /* Color texto */
   border-radius: 20px; /* Borde fondo */
   font-size: 28px; /* Tamaño fuente */
@@ -340,7 +340,7 @@ footer {
   height: 5rem; /* Alto linea raiz html */
   position: relative; /* Activamos movimiento */
   left: 0%; /* Movimiento horizontal adapatado contenedor padre */
-  top: 472px; /* Movimiento vertical valor fijo */
+  top: 472%; /* Movimiento vertical valor fijo */
   background: #E67514; /* Color caja */
   box-shadow: inset 1px 0px 0px 3px rgba(0, 0, 0, 0.8); /* Sombra caja */
   font-weight: 700;
@@ -378,4 +378,13 @@ footer {
 }
 .iconos img:hover {
   transform: scale(1.2); /* efecto de agrandado al pasar */
+}
+.imgmotocast {
+  position: relative;
+  left: 85%; top: -20em;
+}
+.imgmestrella {
+  position: relative;
+  left: 15%; top: 20em;
+  transform: scale(2.9);
 }

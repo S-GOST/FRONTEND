@@ -1,15 +1,63 @@
+@import url('https://fonts.googleapis.com/css2?family=Cossette+Titre:wght@400;700&family=Marcellus&display=swap');
 body {
-  margin: 0;              /* Quita el margen que ponen los navegadores */
-  padding: 0;             /* Quita el padding por defecto */
+  background-image: url('../css/img/fondo.png') !important; /* la imagen de fondo */
+  background-size: cover;
+  background-repeat: no-repeat;
+  padding: 30px; /* Quita el padding por defecto */
+  min-height: 100vh; /* minimo alto ventana */
   font-family: Arial, sans-serif; /* Fuente base */
-  font-size: 16px;        /* Tamaño de fuente base */
-  line-height: 1.5;       /* Altura de línea para mejor legibilidad */
+  font-size: 16px; /* Tamaño de fuente base */
 }
 .Text1 {
-display: flex;
-  margin: 0;              /* Quita el margen que ponen los navegadores */
-  padding: 0;             /* Quita el padding por defecto */
+  display: flex; /* Activar caja */
+  flex-direction: column; /* los pone en fila */
+  margin: 0; /* Quita el margen que ponen los navegadores */
+  padding: 0; /* Quita el padding por defecto */
   font-family: Arial, sans-serif; /* Fuente base */
-  font-size: 16px;        /* Tamaño de fuente base */
-  line-height: 1.5;       /* Altura de línea para mejor legibilidad */
+  font-size: 16px; /* Tamaño de fuente base */
+  line-height: 1.5; /* Altura de línea para mejor legibilidad */
+}
+.Text1 h1 {
+  font-size: 2.5rem;
+  margin-bottom: 10px;
+  position: relative;
+  left: 2%;
+  color: #fff;
+  font-family: "Cossette Titre", sans-serif;
+  font-weight: 300;
+}
+.Text1 h2 {
+  font-size: 2rem;
+  position: relative;
+  left: 2%; top: -2rem;
+  color: #fff;
+  font-family: "Cossette Titre", sans-serif;
+  font-weight: 300;
+}
+
+/* Botones */
+.btn {
+    width: 147px; /* Ancho boton */
+    height: 47px; /* Alto botn */
+    background: linear-gradient(135deg,#000000, #393939 ); /* Color degradado */
+    font-family: "Karantina", system-ui; /* Tipografia */
+    transform: skew(-7deg); /* Inclinacion */
+    color: #fff; /* Color texto */
+    border-radius: 25px; /* Borde */
+    font-size: 1.2rem; /* Ajsute tamaño boton */
+    cursor: pointer; /* Al pasar el mouse */
+    border: none; /* Quitamos borde defecto */
+    font-weight: bold; /* Grosor */
+    transition: all 0.3s ease; /* Efecto */
+    display: flex; /* Activar caja */
+    justify-content: center; /* Alineamos  elementos */
+    align-items: center; /* Centramos elementos */
+    position: relative; /* Activar posicion */
+    left: 6%; /* Movimiento horizontal */
+}
+.btn:hover {
+  background-color: #d65a0c;   /* tono más oscuro al pasar el mouse */
+}
+.btn:active  {
+  transform: scale(0.9); /* Escala bton */
 }
