@@ -3,32 +3,37 @@ body {
     min-height: 100vh;
     margin: 0; /* Elimina el margen por defecto del body */
     padding: 0; /* Elimina el relleno por defecto */
-    background-image: url("./img/fondo.png"); /* imagen de fondo */
     font-family: "PT Serif", serif; /* Tipografia */
     background-repeat: no-repeat; /* no se repita la imagen */
     background-size: cover; /* ajusta la imagen con la pantalla */
     background-position: center; /* centra la imagen */
-    box-shadow: inset 0px 0px 12px 1px rgba(233, 74, 0, 0.8); /* Borde pantalla */
+}
+#video-fondo {
+  position: fixed;  /* Fijo detrás de todo */
+  width: 100%;  /* Que ocupe todo el ancho */
+  height: 100%; /* Que ocupe todo el alto */
+  object-fit: cover;    /* Recorta y ajusta sin deformar */
+  z-index: -1; /* Lo manda al fondo */
 }
 .Caja-principal {
   display: flex; /* Activamos caja */
   justify-content: space-between; /* tipo caja */ 
   align-items: center; /* Alinea los elementos */
-  width: 98%; /* Ancho linen adaptado al body */
+  width: 100%; /* Ancho linen adaptado al body */
   height: 6rem; /* Alto linea raiz html */
-  position: relative; /* Activamos movimiento */
-  left: 1%; /* Movimiento horizontal adapatado contenedor padre */
-  top: 17px; /* Movimiento vertical valor fijo */
-  border-radius: 25px; /* Borde caja */
   background: #E67514; /* Color caja */
-  box-shadow: inset -3px 0px 10px 11px rgba(0, 0, 0, 0.8); /* Sombra caja */
+  box-shadow: inset 1px 0px 0px 3px rgba(0, 0, 0, 0.8); /* Sombra caja */
+} 
+.imgdke {
+  position: relative;
+  left: 14rem;
 }
 /*-------------------------------------------------------------------------------------------*/
 /* Bloque izquierdo */
 #bloque-1 {
   display: flex;  /* Activamos caja */
   align-items: center; /* Alinea los elementos */
-  background: #00000059; /* color bloque */
+  background: #000000b0; /* color bloque */
   position: relative; /* Activar movimiento */
   left: 1%; /*Movimiento horizontal */
   width: 44%;  /* Ancho bloque adaptado a la caja  */
@@ -88,7 +93,7 @@ body {
   display: flex; /* Activar caja */
   justify-content:space-around; /* Espacio estre elementos */
   align-items: center; /* Alineamos elementos */
-  background: #00000059; /* color bloque */
+  background: #000000b0; /* color bloque */
   position: relative; /* Activar movimiento */
   left: -1%; /*Movimiento horizontal */
   top: 0%; /* Movimiento vertical */
@@ -247,46 +252,111 @@ body {
 .menu ul li a:hover::after {
   width: 100%; /* Ancho */
 }
-#video-fondo {
-  position: fixed;  /* Fijo detrás de todo */
-  width: 100%;  /* Que ocupe todo el ancho */
-  height: 100%; /* Que ocupe todo el alto */
-  object-fit: cover;    /* Recorta y ajusta sin deformar */
-  z-index: -1; /* Lo manda al fondo */
+.sesion-1 {
+  display: flex; /* Activamos caja */
+  justify-content:flex-start; /* Ayuda a ubicar los elementos */
+  background: linear-gradient(181deg,#000000, #39393900 ); /* Degradaddo */
+  border-radius: 20px; /* Borde fondo video */
+  padding: 5rem 5rem; /* Espacio externo e interno */
+  height: 25rem; /* Alto fondo */
+  width: 50rem; /* Ancho fondo */
+  position: absolute; /* Actiavr posicion */
+  left: 2rem; /* Movimineto horizontal fondo */
+  top: 15rem; /* Movimiento vertical fondo */
 }
-#video-fondo1 {
-  width: 100%;  /* Que ocupe todo el ancho */
-  height: 100%; /* Que ocupe todo el alto */
-  object-fit: cover;    /* Recorta y ajusta sin deformar */
-  border-radius: 20px;
+.imgbujia {
+  height: 9rem;
+  width: 6rem;
   position: relative;
-  left: -210%;
-  top: 0%;
+  left: -9rem;
+  top: -3rem;
+}
+#s1 {
+  border-radius: 20px; /* Borde video */
+  transform: scale(1.2); /* Escala video */
+  position: relative; /* Activar posicion */
+  left: -5rem; /* Movimiento horizontal **/
 }
 .p1 {
-  position: relative;
-  left: -10rem;
-  top: 0rem;
-  font-size: 10px;
-  display: flex;
-  background: linear-gradient(181deg,#000000, #393939 );
+  background: linear-gradient(181deg,#000000, #393939 ); /* Degradado */
   font-family:Cambria, Cochin, Georgia, Times, 'Times New Roman', serif; /* Tipografia */
-  color: #ffffff;
-  padding: 50px 65px;
-  border-radius: 20px;
-  font-size: 25px;
+  color: #ffffff; /* Color texto */
+  border-radius: 20px; /* Borde fondo */
+  font-size: 26px; /* Tamaño fuente */
+  position: relative; /* Activar ´posicion */
+  left: -1rem; /* Activar movimiento horizontal */
+  top: -4rem; /* Activar movimiento vertical **/
+  height: 14rem; /* Ancho fondo texto */
+  width: 19rem; /* Alto fondo texto */
+  padding: 12px 20px; /* Espacio interno y esxterno fondo */
+}
+.imgpistomm {
+  height: 9rem;
+  width: 6rem;
   position: relative;
-  left: 2rem;
-  top: 2rem;
-  height: 25rem;
-  width: 50rem;
-  padding-left: 523px;
+  left: -2rem;
+  top: 9rem;
+}
+.sesion-2 {
+  display: flex; /* Activamos caja */
+  justify-content:flex-start; /* Ayuda a ubicar los elementos */
+  background: linear-gradient(181deg,#00000000, #393939 ); /* Degradaddo */
+  border-radius: 20px; /* Borde fondo video */
+  padding: 5rem 5rem; /* Espacio externo e interno */
+  height: 27rem; /* Alto fondo */
+  width: 45rem; /* Ancho fondo */
+  position: absolute; /* Actiavr posicion */
+  left: 48rem; /* Movimineto horizontal fondo */
+  top: 15rem; /* Movimiento vertical fondo */
+}
+.imgracing {
+  height: 3rem;
+  width: 8rem;
+  position: relative;
+  top: -5rem; left: 4rem;
+}
+#s2 {
+  border-radius: 20px; /* Borde video */
+  transform: scale(1.2); /* Escala video */
+  position: relative;
+  left: -4rem; top: 1rem;
+}
+.p2 {
+  background: linear-gradient(181deg,#000000, #393939 ); /* Degradado */
+  font-family:Cambria, Cochin, Georgia, Times, 'Times New Roman', serif; /* Tipografia */
+  color: #ffffff; /* Color texto */
+  border-radius: 20px; /* Borde fondo */
+  font-size: 28px; /* Tamaño fuente */
+  position: relative; /* Activar ´posicion */
+  left: 3rem; /* Activar movimiento horizontal */
+  top: -4rem; /* Activar movimiento vertical **/
+  height: 23rem; /* Ancho fondo texto */
+  padding: 12px 20px; /* Espacio interno y esxterno fondo */
 }
 footer {
-  background-color: #E67514;
-  color: #000000;
-  border-radius: 20px;
-  height: 80px; ;
-  position:absolute ;
-  bottom: 0;
+  display: flex; /* Activamos caja */
+  justify-content: space-between; /* tipo caja */ 
+  align-items: center; /* Alinea los elementos */
+  width: 100%; /* Ancho linen adaptado al body */
+  height: 4rem; /* Alto linea raiz html */
+  position: relative; /* Activamos movimiento */
+  left: 0%; /* Movimiento horizontal adapatado contenedor padre */
+  top: 472px; /* Movimiento vertical valor fijo */
+  background: #E67514; /* Color caja */
+  box-shadow: inset 1px 0px 0px 3px rgba(0, 0, 0, 0.8); /* Sombra caja */
+}
+.f1 {
+  display: flex;
+  flex-direction: column; /* los <span> se ponen uno debajo del otro */
+  align-items: center; /* centra horizontal */
+  text-align: center; /* centra el texto */
+  position: relative;
+  left: 3rem; top: 1rem;
+  font-weight: 700;
+  font-family:'Franklin Gothic Medium', 'Arial Narrow', Arial, sans-serif';
+}
+.c {
+  filter: brightness(0); /* negro total */
+  position: relative;
+  top: -23px; left: -127px;
 }
