@@ -265,9 +265,9 @@ body {
   top: 15rem; /* Movimiento vertical fondo */
 }
 .imgbujia {
-  height: 9rem;
-  width: 6rem;
-  position: relative;
+  height: 9rem; /* Ancho bujia */
+  width: 6rem; /* Alto bujia */
+  position: relative; /* Activar pposicion */
   left: -9rem;
   top: -3rem;
 }
@@ -335,28 +335,48 @@ body {
 }
 footer {
   display: flex; /* Activamos caja */
-  justify-content: space-between; /* tipo caja */ 
+  justify-content:space-between;
   align-items: center; /* Alinea los elementos */
   width: 100%; /* Ancho linen adaptado al body */
-  height: 4rem; /* Alto linea raiz html */
+  height: 5rem; /* Alto linea raiz html */
   position: relative; /* Activamos movimiento */
   left: 0%; /* Movimiento horizontal adapatado contenedor padre */
   top: 472px; /* Movimiento vertical valor fijo */
   background: #E67514; /* Color caja */
   box-shadow: inset 1px 0px 0px 3px rgba(0, 0, 0, 0.8); /* Sombra caja */
-}
-.f1 {
-  display: flex;
-  flex-direction: column; /* los <span> se ponen uno debajo del otro */
-  align-items: center; /* centra horizontal */
-  text-align: center; /* centra el texto */
-  position: relative;
-  left: 3rem; top: 1rem;
   font-weight: 700;
   font-family:'Franklin Gothic Medium', 'Arial Narrow', Arial, sans-serif';
 }
-.c {
-  filter: brightness(0); /* negro total */
+.col {
+  display: flex;
+  flex-direction: column; /* texto en columna */
+  align-items: center;
+  color: #ffffff;
+}
+.C {
+  width: 2rem;
   position: relative;
-  top: -23px; left: -127px;
+  left: 257px; top: -20px;
+}
+.T1 {
+  position: relative;
+  top: 22px;
+  color: #ffffff;
+}
+.iconos {
+  display: flex;
+  align-items: center;
+  gap: 10px; /* espacio entre íconos */
+  position: relative;
+  top: -1rem;
+  filter: brightness(0) invert(1); /* los pone blancos sobre negro */
+}
+.iconos img {
+  width: 30px; /* 👈 tamaño más pequeño */
+  height: auto; /* mantiene proporción */
+  cursor: pointer; /* cambia el cursor al pasar */
+  transition: transform 0.2s;
+}
+.iconos img:hover {
+  transform: scale(1.2); /* efecto de agrandado al pasar */
 }
