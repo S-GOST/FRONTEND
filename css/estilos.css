@@ -26,7 +26,7 @@ body {
 } 
 .imgdke {
   position: relative;
-  left: 14rem;
+  left: 49%;
 }
 /*-------------------------------------------------------------------------------------------*/
 /* Bloque izquierdo */
@@ -35,7 +35,7 @@ body {
   align-items: center; /* Alinea los elementos */
   background: #000000b0; /* color bloque */
   position: relative; /* Activar movimiento */
-  left: 1%; /*Movimiento horizontal */
+  left: -7%; /*Movimiento horizontal */
   width: 44%;  /* Ancho bloque adaptado a la caja  */
   height: 72px; /* Alto linea valor fijo */
   border-radius: 10px; /* Borde Caja */
@@ -260,9 +260,9 @@ body {
   padding: 5rem 5rem; /* Espacio externo e interno */
   height: 25rem; /* Alto fondo */
   width: 50rem; /* Ancho fondo */
-  position: absolute; /* Actiavr posicion */
-  left: 2rem; /* Movimineto horizontal fondo */
-  top: 15rem; /* Movimiento vertical fondo */
+  position: relative; /* Actiavr posicion */
+  left: 10rem; /* Movimineto horizontal fondo */
+  top: 10rem; /* Movimiento vertical fondo */
 }
 .imgbujia {
   height: 9rem; /* Ancho bujia */
@@ -285,7 +285,6 @@ body {
   font-size: 26px; /* Tamaño fuente */
   position: relative; /* Activar ´posicion */
   left: -1rem; /* Activar movimiento horizontal */
-  top: -4rem; /* Activar movimiento vertical **/
   height: 14rem; /* Ancho fondo texto */
   width: 19rem; /* Alto fondo texto */
   padding: 12px 20px; /* Espacio interno y esxterno fondo */
@@ -303,11 +302,11 @@ body {
   background: linear-gradient(181deg,#00000000, #393939 ); /* Degradaddo */
   border-radius: 20px; /* Borde fondo video */
   padding: 5rem 5rem; /* Espacio externo e interno */
-  height: 27rem; /* Alto fondo */
-  width: 45rem; /* Ancho fondo */
-  position: absolute; /* Actiavr posicion */
-  left: 48rem; /* Movimineto horizontal fondo */
-  top: 15rem; /* Movimiento vertical fondo */
+  height: 26rem; /* Alto fondo */
+  width: 54rem; /* Ancho fondo */
+  position: relative; /* Actiavr posicion */
+  left: 100rem; /* Movimineto horizontal fondo */
+  top: 20rem; /* Movimiento vertical fondo */
 }
 .imgracing {
   height: 3rem;
@@ -329,7 +328,7 @@ body {
   font-size: 28px; /* Tamaño fuente */
   position: relative; /* Activar ´posicion */
   left: 3rem; /* Activar movimiento horizontal */
-  top: -4rem; /* Activar movimiento vertical **/
+  top: -5rem; /* Activar movimiento vertical **/
   height: 23rem; /* Ancho fondo texto */
   padding: 12px 20px; /* Espacio interno y esxterno fondo */
 }
@@ -356,7 +355,7 @@ footer {
 .C {
   width: 2rem;
   position: relative;
-  left: 257px; top: -20px;
+  left: 17%; top: -23%;
 }
 .T1 {
   position: relative;
