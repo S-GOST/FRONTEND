@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Registro / Login</title>
+  <link rel="stylesheet" href="panelRegistro.css">
+</head>
+<body>
+  <div class="form-container">
+    <h2>Crear cuenta</h2>
+    <form action="#">
+      <label for="usuario">Usuario:</label>
+      <input type="text" id="usuario" name="usuario" required>
+
+      <label for="correo">Correo:</label>
+      <input type="email" id="correo" name="correo" required>
+
+      <label for="password">Contraseña nueva:</label>
+      <div class="password-field">
+        <input type="password" id="password" name="password" required>
+        <span class="help">?</span>
+      </div>
+
+      <label for="repite">Repite contraseña:</label>
+      <input type="password" id="repite" name="repite" required>
+
+      <div class="checkbox">
+        <input type="checkbox" id="terminos">
+        <label for="terminos">Términos de uso y política de privacidad</label>
+      </div>
+
+      <button type="submit" class="btn">Iniciar</button>
+    </form>
+
+    <div class="divider">
+      <span>OR</span>
+    </div>
+
+    <p>Inicie sesión con alguna cuenta</p>
+    <button class="social google">Continue with Google</button>
+    <button class="social microsoft">Continue with Microsoft Account</button>
+    <button class="social apple">Continue with Apple</button>
+  </div>
+</body>
+</html>

@@ -1,0 +1,121 @@
+body {
+  font-family: Arial, sans-serif;
+  background: url("../css/img/fondo.png") no-repeat center center/cover !important;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  margin: 0;
+}
+.form-container {
+  background: rgba(0, 0, 0, 0.7);
+  padding: 25px;
+  border-radius: 10px;
+  color: #fff;
+  width: 350px;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.6);
+}
+.form-container h2 {
+  text-align: center;
+  margin-bottom: 20px;
+}
+label {
+  display: block;
+  margin-top: 12px;
+  font-size: 14px;
+}
+input[type="text"],
+input[type="email"],
+input[type="password"] {
+  width: 100%;
+  padding: 8px;
+  margin-top: 5px;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  font-size: 14px;
+}
+
+.password-field {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.password-field input {
+  flex: 1;
+}
+
+.password-field .help {
+  display: inline-block;
+  width: 22px;
+  height: 22px;
+  background: #fff;
+  color: #000;
+  border-radius: 50%;
+  text-align: center;
+  line-height: 22px;
+  font-weight: bold;
+  cursor: pointer;
+}
+
+.checkbox {
+  margin: 12px 0;
+  font-size: 13px;
+}
+
+.btn {
+  width: 100%;
+  padding: 10px;
+  background: #fff;
+  color: #000;
+  border: none;
+  border-radius: 6px;
+  font-size: 16px;
+  cursor: pointer;
+  margin-bottom: 15px;
+}
+
+.divider {
+  display: flex;
+  align-items: center;
+  text-align: center;
+  margin: 15px 0;
+  color: #ccc;
+}
+
+.divider::before,
+.divider::after {
+  content: "";
+  flex: 1;
+  border-bottom: 1px solid #ccc;
+}
+
+.divider span {
+  margin: 0 10px;
+  font-size: 12px;
+}
+
+.social {
+  width: 100%;
+  padding: 10px;
+  margin-top: 8px;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 14px;
+}
+
+.google {
+  background: #fff;
+  color: #000;
+}
+
+.microsoft {
+  background: #f2f2f2;
+  color: #000;
+}
+
+.apple {
+  background: #000;
+  color: #fff;
+}

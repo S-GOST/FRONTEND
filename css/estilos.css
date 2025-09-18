@@ -1,7 +1,8 @@
 @import url('https://fonts.googleapis.com/css2?family=Cardo:ital,wght@0,400;0,700;1,400&family=Inter+Tight:ital,wght@0,100..900;1,100..900&family=Karantina:wght@300;400;700&family=Oswald:wght@700&family=PT+Serif:ital,wght@0,400;0,700;1,400;1,700&family=Reem+Kufi&family=Rufina:wght@400;700&family=Story+Script&family=Yrsa:wght@700&display=swap');
 body {
-    background-image: url('../css/img/fondo.png') !important; /* la imagen de fondo */
-    background-size: cover;
+    background-image: url('../css/img/fondo1.png'); /* la imagen de fondo */
+    background-size: 100% auto;
+    background-position: top center;
     background-repeat: no-repeat;
     min-height: 100vh;
     margin: 0; /* Elimina el margen por defecto del body */
@@ -22,7 +23,7 @@ body {
 } 
 .imgdke {
     position: relative;
-    left: 49%;
+    left: 48%;
 }
 /*-------------------------------------------------------------------------------------------*/
 /* Bloque izquierdo */
@@ -276,7 +277,7 @@ body {
 }
 .p1 {
   background: linear-gradient(181deg,#000000, #393939 ); /* Degradado */
-  font-family:"Cossette Titre", sans-serif; /* Tipografia */
+  font-family:'Franklin Gothic Medium', 'Arial Narrow', Arial, sans-serif; /* Tipografia */
   color: #ffffff; /* Color texto */
   border-radius: 20px; /* Borde fondo */
   font-size: 26px; /* Tamaño fuente */
@@ -318,7 +319,7 @@ body {
 }
 .p2 {
   background: linear-gradient(181deg,#000000, #393939 ); /* Degradado */
-  font-family: "Cossette Titre", sans-serif; /* Tipografia */
+  font-family:'Franklin Gothic Medium', 'Arial Narrow', Arial, sans-serif; /* Tipografia */
   color: #ffffff; /* Color texto */
   border-radius: 20px; /* Borde fondo */
   font-size: 28px; /* Tamaño fuente */
@@ -377,10 +378,21 @@ footer {
 }
 .imgmotocast {
   position: relative;
-  left: 85%; top: -20em;
+  left: 72%; top: -20em;
 }
 .imgmestrella {
   position: relative;
-  left: 15%; top: 20em;
+  top: 20em;
   transform: scale(2.9);
+}
+.imgmrefbulktm {
+  position: relative;
+  left: 50%; top: 22em;
+  transform: scale(1.9);
+}
+.imgtanquemotoktm {
+  position: relative;
+  border-radius: 10px;
+  left: 50%; top: -12em;
+  transform: scale(1.9);
 }
