@@ -70,8 +70,8 @@ body {
     width: 147px; /* Ancho boton */
     height: 47px; /* Alto botn */
     background: linear-gradient(135deg,#000000, #d64b00 ); /* Color degradado */
-    font-family: "Karantina", system-ui; /* Tipografia */
-    color: #fff; /* Color texto */
+    font-family: "Cossette Titre", sans-serif; /* Tipografia */
+    color: #ffffff; /* Color texto */
     border-radius: 7px; /* Borde */
     font-size: 1.2rem; /* Ajsute tamaño boton */
     cursor: pointer; /* Al pasar el mouse */
@@ -88,7 +88,7 @@ body {
     width: 147px; /* Ancho boton */
     height: 47px; /* Alto botn */
     background: linear-gradient(135deg,#000000, #d64b00 ); /* Color degradado */
-    font-family: "Karantina", system-ui; /* Tipografia */
+    font-family: "Cossette Titre", sans-serif; /* Tipografia */
     color: #fff; /* Color texto */
     border-radius: 7px; /* Borde */
     font-size: 1.2rem; /* Ajsute tamaño boton */
@@ -112,6 +112,26 @@ body {
   background-color: #d65a0c;   /* tono más oscuro al pasar el mouse */
 }
 .btn2:active  {
+  transform: scale(0.9); /* Escala bton */
+}
+.btn3 {
+    width: 70px; /* Ancho carrito valor fijo */
+    background: linear-gradient(135deg,#FF4F0F, #E67514 ); /* Color de fondo degradado */
+    border-radius: 5px; /* Borde */
+    font-size: 1.2rem; /* Ajuste tanaño carrito */
+    font-weight: bold; /* Grosor */
+    border: none; /* Quitamos */
+    cursor: pointer; /* Al poner el mouse */
+    transition: all 0.3s ease; /* Efecto */
+    display: flex; /* Activamos caja */
+    justify-content: center; /* Alineamos elementos */
+    align-items: center; /* Centramos elementos */
+    position: relative; /* Activar posicion */
+}
+.btn3:hover {
+  background-color: #d65a0c;   /* tono más oscuro al pasar el mouse */
+}
+.btn3:active  {
   transform: scale(0.9); /* Escala bton */
 }
 

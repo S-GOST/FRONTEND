@@ -1,21 +1,28 @@
 body {
-  font-family: Arial, sans-serif;
-  background: url("../css/img/fondo.png") no-repeat center center/cover !important;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  min-height: 100vh;
-  margin: 0;
+  background-image: url('../img/fondo.png') !important; /* la imagen de fondo */
+  background-size: cover;
+  background-repeat: no-repeat;
+  background-position: center;
+  padding: 30px; /* Quita el padding por defecto */
+  min-height: 100vh; /* minimo alto ventana */
+  font-family: Arial, sans-serif; /* Fuente base */
+  font-size: 16px; /* Tamaño de fuente base */
 }
-.form-container {
+.imgdke {
+    position: relative;
+    left: 48%; top: -2em;
+}
+.formulario {
   background: rgba(0, 0, 0, 0.7);
   padding: 25px;
   border-radius: 10px;
-  color: #fff;
-  width: 350px;
-  box-shadow: 0 4px 10px rgba(0,0,0,0.6);
+  color: #E67514;
+  width: 680px;
+  box-shadow: 0 4px 10px #FE5D26;
+  position: relative;
+  left: 60em; top: 4em;
 }
-.form-container h2 {
+.formulario h2 {
   text-align: center;
   margin-bottom: 20px;
 }
