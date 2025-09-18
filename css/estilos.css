@@ -1,6 +1,6 @@
 @import url('https://fonts.googleapis.com/css2?family=Cardo:ital,wght@0,400;0,700;1,400&family=Inter+Tight:ital,wght@0,100..900;1,100..900&family=Karantina:wght@300;400;700&family=Oswald:wght@700&family=PT+Serif:ital,wght@0,400;0,700;1,400;1,700&family=Reem+Kufi&family=Rufina:wght@400;700&family=Story+Script&family=Yrsa:wght@700&display=swap');
 body {
-    background-image: url('../css/img/fondo1.png'); /* la imagen de fondo */
+    background-image: url('../img/fondo1.png'); /* la imagen de fondo */
     background-size: 100% auto;
     background-position: top center;
     background-repeat: no-repeat;
@@ -277,14 +277,14 @@ body {
 }
 .p1 {
   background: linear-gradient(181deg,#000000, #393939 ); /* Degradado */
-  font-family:'Franklin Gothic Medium', 'Arial Narrow', Arial, sans-serif; /* Tipografia */
+  font-family: "Karantina", system-ui;  
   color: #ffffff; /* Color texto */
   border-radius: 20px; /* Borde fondo */
-  font-size: 26px; /* Tamaño fuente */
+  font-size: 35px; /* Tamaño fuente */
   position: relative; /* Activar ´posicion */
   left: -1rem; /* Activar movimiento horizontal */
   height: 14rem; /* Ancho fondo texto */
-  width: 19rem; /* Alto fondo texto */
+  width: 20rem; /* Alto fondo texto */
   padding: 12px 20px; /* Espacio interno y esxterno fondo */
 }
 .imgpistomm {
@@ -319,10 +319,10 @@ body {
 }
 .p2 {
   background: linear-gradient(181deg,#000000, #393939 ); /* Degradado */
-  font-family:'Franklin Gothic Medium', 'Arial Narrow', Arial, sans-serif; /* Tipografia */
+  font-family: "Karantina", system-ui;  
   color: #ffffff; /* Color texto */
   border-radius: 20px; /* Borde fondo */
-  font-size: 28px; /* Tamaño fuente */
+  font-size: 47px; /* Tamaño fuente */
   position: relative; /* Activar ´posicion */
   left: 3rem; /* Activar movimiento horizontal */
   top: -5rem; /* Activar movimiento vertical **/
