@@ -1,5 +1,8 @@
 @import url('https://fonts.googleapis.com/css2?family=Cardo:ital,wght@0,400;0,700;1,400&family=Inter+Tight:ital,wght@0,100..900;1,100..900&family=Karantina:wght@300;400;700&family=Oswald:wght@700&family=PT+Serif:ital,wght@0,400;0,700;1,400;1,700&family=Reem+Kufi&family=Rufina:wght@400;700&family=Story+Script&family=Yrsa:wght@700&display=swap');
 body {
+    background-image: url('../css/img/fondo.png') !important; /* la imagen de fondo */
+    background-size: cover;
+    background-repeat: no-repeat;
     min-height: 100vh;
     margin: 0; /* Elimina el margen por defecto del body */
     padding: 0; /* Elimina el relleno por defecto */
@@ -8,32 +11,25 @@ body {
     background-size: cover; /* ajusta la imagen con la pantalla */
     background-position: center; /* centra la imagen */
 }
-#video-fondo {
-  position: fixed;  /* Fijo detrás de todo */
-  width: 100%;  /* Que ocupe todo el ancho */
-  height: 100%; /* Que ocupe todo el alto */
-  object-fit: cover;    /* Recorta y ajusta sin deformar */
-  z-index: -1; /* Lo manda al fondo */
-}
 .Caja-principal {
-  display: flex; /* Activamos caja */
-  justify-content: space-between; /* tipo caja */ 
-  align-items: center; /* Alinea los elementos */
-  width: 100%; /* Ancho linen adaptado al body */
-  height: 6rem; /* Alto linea raiz html */
-  background: #E67514; /* Color caja */
-  box-shadow: inset 1px 0px 0px 3px rgba(0, 0, 0, 0.8); /* Sombra caja */
+    display: flex; /* Activamos caja */
+    justify-content: space-between; /* tipo caja */ 
+    align-items: center; /* Alinea los elementos */
+    width: 100%; /* Ancho linen adaptado al body */
+    height: 6rem; /* Alto linea raiz html */
+    background: #E67514; /* Color caja */
+    box-shadow: inset 1px 0px 0px 3px rgba(0, 0, 0, 0.8); /* Sombra caja */
 } 
 .imgdke {
-  position: relative;
-  left: 49%;
+    position: relative;
+    left: 49%;
 }
 /*-------------------------------------------------------------------------------------------*/
 /* Bloque izquierdo */
 #bloque-1 {
   display: flex;  /* Activamos caja */
   align-items: center; /* Alinea los elementos */
-  background: #000000b0; /* color bloque */
+  background: #000000; /* color bloque */
   position: relative; /* Activar movimiento */
   left: -7%; /*Movimiento horizontal */
   width: 44%;  /* Ancho bloque adaptado a la caja  */
@@ -93,7 +89,7 @@ body {
   display: flex; /* Activar caja */
   justify-content:space-around; /* Espacio estre elementos */
   align-items: center; /* Alineamos elementos */
-  background: #000000b0; /* color bloque */
+  background: #000000; /* color bloque */
   position: relative; /* Activar movimiento */
   left: -1%; /*Movimiento horizontal */
   top: 0%; /* Movimiento vertical */
@@ -300,19 +296,19 @@ body {
 .sesion-2 {
   display: flex; /* Activamos caja */
   justify-content:flex-start; /* Ayuda a ubicar los elementos */
-  background: linear-gradient(181deg,#00000000, #393939 ); /* Degradaddo */
+  background: linear-gradient(181deg,#00000000, #000000 ); /* Degradaddo */
   border-radius: 20px; /* Borde fondo video */
   padding: 5rem 5rem; /* Espacio externo e interno */
   height: 26rem; /* Alto fondo */
-  width: 54rem; /* Ancho fondo */
+  width: 45%; /* Ancho fondo */
   position: relative; /* Actiavr posicion */
   left: 50%; /* Movimineto horizontal fondo */
 }
 .imgracing {
-  height: 3rem;
-  width: 8rem;
+  height: 3em;
+  width: 8em;
   position: relative;
-  top: -5rem; left: 4rem;
+  top: -29%; left: -5%;
 }
 #s2 {
   border-radius: 20px; /* Borde video */

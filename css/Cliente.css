@@ -39,7 +39,7 @@ body {
 .btn {
     width: 147px; /* Ancho boton */
     height: 47px; /* Alto botn */
-    background: linear-gradient(135deg,#000000, #393939 ); /* Color degradado */
+    background: linear-gradient(135deg,#000000, #d64b00 ); /* Color degradado */
     font-family: "Karantina", system-ui; /* Tipografia */
     transform: skew(-7deg); /* Inclinacion */
     color: #fff; /* Color texto */
