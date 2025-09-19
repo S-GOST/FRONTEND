@@ -20,7 +20,7 @@ body {
   width: 30%;
   box-shadow: 0 4px 10px #000000;
   position: relative;
-  left: 31em; top: -1em;
+  left: 31em;
 }
 .C3 {
   padding-left: 3%;
@@ -122,4 +122,8 @@ input[type="password"] {
 }
 .social:active {
   transform: scale(0.9); /* Escala bton */
+}
+.copyright2 {
+  position: relative;
+  left: 49%; top: 40px;
 }

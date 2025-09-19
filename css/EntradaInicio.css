@@ -1,0 +1,41 @@
+@import url('https://fonts.googleapis.com/css2?family=Cardo:ital,wght@0,400;0,700;1,400&family=Inter+Tight:ital,wght@0,100..900;1,100..900&family=Karantina:wght@300;400;700&family=Oswald:wght@700&family=PT+Serif:ital,wght@0,400;0,700;1,400;1,700&family=Reem+Kufi&family=Rufina:wght@400;700&family=Story+Script&family=Yrsa:wght@700&display=swap');
+body {
+  background-image: url('../img/fondo.png'); /* la imagen de fondo */
+  background-size: cover;
+  background-repeat: no-repeat;
+  background-position: center;
+  padding: 30px; /* Quita el padding por defecto */
+  min-height: 100vh; /* minimo alto ventana */
+  font-family: Arial, sans-serif; /* Fuente base */
+  font-size: 16px; /* Tamaño de fuente base */
+}
+.imgdke {
+    position: relative;
+    left: 48%; top: -2em;
+}
+header {
+  display: flex;                  /* activa flexbox */
+  justify-content: space-between; /* espacio entre los elementos */
+  align-items: center;            /* centra verticalmente */ 
+}
+header .imgrock {
+  position: relative;
+  left: 2%; top: -1em;
+  transform: scale(1.7);
+}
+header h1 {
+  position: relative;
+  color: #ffffff;
+  font-weight: 500;
+  left: -15%;
+  transform: scale(2.2);
+  font-family: "Karantina", system-ui; /* Tipografia */
+
+}
+.linea {
+  display: flex;
+  background-color: #E67514;
+  height: 1px;
+  position: relative;
+  top: 1rem;
+}
