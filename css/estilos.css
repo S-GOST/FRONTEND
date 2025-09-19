@@ -304,7 +304,7 @@ body {
   height: 26rem; /* Alto fondo */
   width: 45%; /* Ancho fondo */
   position: relative; /* Actiavr posicion */
-  left: 50%; top: -7rem; /* Movimineto horizontal fondo */
+  left: 51%; top: -4rem; /* Movimineto horizontal fondo */
 }
 .imgracing {
   height: 3em;
@@ -384,8 +384,8 @@ footer {
 }
 .imgmrefbulktm {
   position: relative;
-  left: 36%; top: 5em;
-  transform: scale(1.9);
+  left: 27%; top: 25em;
+  transform: scale(1.7);
 }
 .imgtanquemotoktm {
   position: relative;
@@ -398,4 +398,22 @@ footer {
   border-radius: 10px;
   left: -25px; top: -1px;
   transform: scale(1.0);
+}
+.imgreadttorace {
+  position: relative;
+  border-radius: 10px;
+  left: 32%; top: -7em;
+  transform: scale(2.9);
+}
+.imgduke1 {
+  position: relative;
+  border-radius: 10px;
+  left: 15%; top: 10em;
+  transform: scale(2.9);
+}
+.imgcaramelo {
+  position: relative;
+  border-radius: 10px;
+  left: -7%; top: 6em;
+  transform: scale(3.9);
 }

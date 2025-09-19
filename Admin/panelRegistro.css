@@ -17,10 +17,13 @@ body {
   padding: 25px;
   border-radius: 10px;
   color: #E67514;
-  width: 680px;
-  box-shadow: 0 4px 10px #FE5D26;
+  width: 30%;
+  box-shadow: 0 4px 10px #000000;
   position: relative;
-  left: 60em; top: 4em;
+  left: 31em; top: -1em;
+}
+.C3 {
+  padding-left: 3%;
 }
 .formulario h2 {
   text-align: center;
@@ -34,25 +37,20 @@ label {
 input[type="text"],
 input[type="email"],
 input[type="password"] {
-  width: 100%;
+  width: 90%;
   padding: 8px;
   margin-top: 5px;
   border: 1px solid #ccc;
   border-radius: 6px;
   font-size: 14px;
 }
-
-.password-field {
+.contraseña {
   display: flex;
   align-items: center;
-  gap: 8px;
+  width: 57%;
+  gap: 6px;
 }
-
-.password-field input {
-  flex: 1;
-}
-
-.password-field .help {
+.contraseña .help {
   display: inline-block;
   width: 22px;
   height: 22px;
@@ -64,14 +62,12 @@ input[type="password"] {
   font-weight: bold;
   cursor: pointer;
 }
-
 .checkbox {
   margin: 12px 0;
   font-size: 13px;
 }
-
-.btn {
-  width: 100%;
+.boton {
+  width: 40%;
   padding: 10px;
   background: #fff;
   color: #000;
@@ -80,8 +76,11 @@ input[type="password"] {
   font-size: 16px;
   cursor: pointer;
   margin-bottom: 15px;
+  transition: all 0.3s ease; /* Efecto */
 }
-
+.boton:active {
+  transform: scale(0.9); /* Escala bton */
+}
 .divider {
   display: flex;
   align-items: center;
@@ -89,19 +88,16 @@ input[type="password"] {
   margin: 15px 0;
   color: #ccc;
 }
-
 .divider::before,
 .divider::after {
   content: "";
   flex: 1;
   border-bottom: 1px solid #ccc;
 }
-
 .divider span {
   margin: 0 10px;
   font-size: 12px;
 }
-
 .social {
   width: 100%;
   padding: 10px;
@@ -110,19 +106,20 @@ input[type="password"] {
   border-radius: 6px;
   cursor: pointer;
   font-size: 14px;
+  transition: all 0.3s ease; /* Efecto */
 }
-
 .google {
-  background: #fff;
-  color: #000;
+  background: radial-gradient(ellipse, #00000000, #ff0000);
+  color: #ffffff;
 }
-
-.microsoft {
-  background: #f2f2f2;
-  color: #000;
+.facebook {
+  background: radial-gradient(ellipse, #00000000, #1322f6);
+  color: #ffffff;
 }
-
 .apple {
-  background: #000;
-  color: #fff;
+  background: radial-gradient(ellipse, #000000, #000000);
+  color: #ffffff;
+}
+.social:active {
+  transform: scale(0.9); /* Escala bton */
 }
