@@ -318,14 +318,12 @@ body {
 }
 .p2 {
   background: linear-gradient(181deg,#000000, #393939 ); /* Degradado */
-  font-family: "Karantina", system-ui;  
+  font-family: "Karantina", system-ui; 
   color: #ffffff; /* Color texto */
   border-radius: 20px; /* Borde fondo */
-  font-size: 44px; /* Tamaño fuente */
+  font-size: 50px; /* Tamaño fuente */
   position: relative; /* Activar ´posicion */
-  left: 3rem; /* Activar movimiento horizontal */
-  top: 0rem;
-  height: 18rem; /* Ancho fondo texto */
+  height: 20rem; /* Ancho fondo texto */
   padding: 12px 20px; /* Espacio interno y esxterno fondo */
 }
 footer {
@@ -377,16 +375,16 @@ footer {
 }
 .imgmotocast {
   position: relative;
-  left: 72%; top: -20em;
+  left: 69%; top: -22em;
 }
 .imgmestrella {
   position: relative;
   top: 20em;
-  transform: scale(2.9);
+  transform: rotate(54deg) scale(2.9);
 }
 .imgmrefbulktm {
   position: relative;
-  left: 28%; top: 9em;
+  left: 36%; top: 5em;
   transform: scale(1.9);
 }
 .imgtanquemotoktm {
@@ -394,4 +392,10 @@ footer {
   border-radius: 10px;
   left: 49em; top: -18em;
   transform: scale(1.9);
+}
+.redbull1 {
+  position: relative;
+  border-radius: 10px;
+  left: -25px; top: -1px;
+  transform: scale(1.0);
 }
