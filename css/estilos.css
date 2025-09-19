@@ -1,7 +1,7 @@
 @import url('https://fonts.googleapis.com/css2?family=Cardo:ital,wght@0,400;0,700;1,400&family=Inter+Tight:ital,wght@0,100..900;1,100..900&family=Karantina:wght@300;400;700&family=Oswald:wght@700&family=PT+Serif:ital,wght@0,400;0,700;1,400;1,700&family=Reem+Kufi&family=Rufina:wght@400;700&family=Story+Script&family=Yrsa:wght@700&display=swap');
 body {
     background-image: url('../img/fondo1.png'); /* la imagen de fondo */
-    background-size: 100% auto;
+    background-size: auto;
     background-position: top center;
     background-repeat: no-repeat;
     min-height: 100vh;
@@ -260,7 +260,7 @@ body {
   width: 50rem; /* Ancho fondo */
   position: relative; /* Actiavr posicion */
   left: 7rem; /* Movimineto horizontal fondo */
-  top: 6rem; /* Movimiento vertical fondo */
+  top: 4rem; /* Movimiento vertical fondo */
 }
 .imgbujia {
   height: 9rem; /* Ancho bujia */
@@ -280,11 +280,12 @@ body {
   font-family: "Karantina", system-ui;  
   color: #ffffff; /* Color texto */
   border-radius: 20px; /* Borde fondo */
-  font-size: 35px; /* Tamaño fuente */
+  font-size: 45px; /* Tamaño fuente */
   position: relative; /* Activar ´posicion */
-  left: -1rem; /* Activar movimiento horizontal */
-  height: 14rem; /* Ancho fondo texto */
-  width: 20rem; /* Alto fondo texto */
+  left: -6rem; /* Activar movimiento horizontal */
+  top: -2rem;
+  height: 22rem; /* Ancho fondo texto */
+  width: 28rem; /* Alto fondo texto */
   padding: 12px 20px; /* Espacio interno y esxterno fondo */
 }
 .imgpistomm {
@@ -299,17 +300,15 @@ body {
   justify-content:flex-start; /* Ayuda a ubicar los elementos */
   background: linear-gradient(181deg,#00000000, #000000 ); /* Degradaddo */
   border-radius: 20px; /* Borde fondo video */
-  padding: 5rem 5rem; /* Espacio externo e interno */
+  padding: 2rem; /* Espacio externo e interno */
   height: 26rem; /* Alto fondo */
   width: 45%; /* Ancho fondo */
   position: relative; /* Actiavr posicion */
-  left: 50%; /* Movimineto horizontal fondo */
+  left: 50%; top: -7rem; /* Movimineto horizontal fondo */
 }
 .imgracing {
   height: 3em;
-  width: 8em;
-  position: relative;
-  top: -29%; left: -5%;
+  width: 5em;
 }
 #s2 {
   border-radius: 20px; /* Borde video */
@@ -322,11 +321,11 @@ body {
   font-family: "Karantina", system-ui;  
   color: #ffffff; /* Color texto */
   border-radius: 20px; /* Borde fondo */
-  font-size: 47px; /* Tamaño fuente */
+  font-size: 44px; /* Tamaño fuente */
   position: relative; /* Activar ´posicion */
   left: 3rem; /* Activar movimiento horizontal */
-  top: -5rem; /* Activar movimiento vertical **/
-  height: 23rem; /* Ancho fondo texto */
+  top: 0rem;
+  height: 18rem; /* Ancho fondo texto */
   padding: 12px 20px; /* Espacio interno y esxterno fondo */
 }
 footer {
@@ -387,12 +386,12 @@ footer {
 }
 .imgmrefbulktm {
   position: relative;
-  left: 50%; top: 22em;
+  left: 28%; top: 9em;
   transform: scale(1.9);
 }
 .imgtanquemotoktm {
   position: relative;
   border-radius: 10px;
-  left: 47em; top: -12em;
+  left: 49em; top: -18em;
   transform: scale(1.9);
 }
