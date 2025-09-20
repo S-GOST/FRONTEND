@@ -132,8 +132,7 @@ body {
     width: 147px; /* Ancho boton */
     height: 47px; /* Alto boton */
     background: linear-gradient(15deg,#000000, #393939 ); /* Color degradado */
-    font-family: 
-    "Karantina", system-ui; /*Tipografia */
+    font-family: "Karantina", system-ui; /*Tipografia */
     transform: skew(-7deg); /* Inclinacion */
     color: #fff; /* Color texto */
     border-radius: 25px; /* Borde boton */
@@ -206,6 +205,9 @@ body {
     }
   }
 .menu {
+  position: sticky;
+  top: 0;
+  z-index: 1;
   width: 100%;              /* Que ocupe todo el ancho */
   display: flex;
   justify-content: center;  /* Centra horizontalmente */
@@ -219,7 +221,7 @@ body {
   padding: 0.5rem 1rem;
   margin: 0;
   border-radius: 25px;
-  background: linear-gradient(181deg,#000000, #393939 );
+  background: linear-gradient(181deg,#F14A00, #000000 );
 }
 .menu ul li a {
   display: block;

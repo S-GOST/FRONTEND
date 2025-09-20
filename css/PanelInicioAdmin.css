@@ -1,0 +1,86 @@
+body {
+  background-image: url('../img/fondo.png') !important; /* la imagen de fondo */
+  background-size: cover;
+  background-repeat: no-repeat;
+  background-position: center;
+  padding: 30px; /* Quita el padding por defecto */
+  min-height: 100vh; /* minimo alto ventana */
+  font-family: Arial, sans-serif; /* Fuente base */
+  font-size: 16px; /* Tamaño de fuente base */
+}
+
+/* Barra superior */
+.topbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: #2a2a2a;
+  padding: 10px 20px;
+}
+
+.topbar .usuario {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-weight: bold;
+}
+
+.topbar .logo {
+  width: 30px;
+}
+
+.topbar .icons i {
+  margin-left: 15px;
+  cursor: pointer;
+}
+
+/* Layout principal */
+.container {
+  display: flex;
+  justify-content: space-between;
+  padding: 20px;
+}
+
+/* Menú lateral */
+.sidebar {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.sidebar button {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: #FF6600;
+  border: none;
+  border-radius: 5px;
+  padding: 12px 20px;
+  font-size: 16px;
+  font-weight: bold;
+  color: white;
+  cursor: pointer;
+  transition: background 0.3s ease;
+}
+
+.sidebar button:hover {
+  background: #cc5200;
+}
+
+/* Logos */
+.logos {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.logos img {
+  width: 80px;
+  max-width: 100px;
+}
+
+/* Footer */
+.footer {
+  height: 30px;
+  background: linear-gradient(to right, #000, #FF6600, #000);
+}
