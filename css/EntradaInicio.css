@@ -20,22 +20,81 @@ header {
 }
 header .imgrock {
   position: relative;
-  left: 2%; top: -1em;
+  left: 1%; top: -3em;
   transform: scale(1.7);
 }
 header h1 {
   position: relative;
   color: #ffffff;
   font-weight: 500;
-  left: -15%;
+  left: -15%; top: -1em;
   transform: scale(2.2);
   font-family: "Karantina", system-ui; /* Tipografia */
-
+}
+.imgreddbull2 {
+  position: relative;
+  left: 20em; top: -3em;
+}
+header .imgcasa {
+  filter: invert(100%) brightness(200%);
+  position: relative;
+  top: -4em;
+  transform: scale(0.7);
+  transition: all 0.3s ease; /* Efecto */
+  cursor: pointer;
+}
+.imgcasa:active {
+  transform: scale(0.9); /* Escala bton */
 }
 .linea {
   display: flex;
   background-color: #E67514;
   height: 1px;
   position: relative;
-  top: 1rem;
+  top: -1rem;
+}
+.Botones1 {
+  width: 100%;              /* Que ocupe todo el ancho */
+  display: flex;
+  justify-content: center;  /* Centra horizontalmente */
+}
+.Botones1 ul {
+  list-style: none;         
+  display: flex;            /* Flex para los <li> */
+  justify-content: center;  /* Centra el grupo de items */
+  align-items: center;      /* Centra verticalmente */
+  gap: 2rem;                /* Espaciado entre botones */
+  padding: 0.5rem 1rem;
+  margin: 0;
+  border-radius: 25px;
+  background: linear-gradient(181deg,#000000, #393939 );
+}
+.Botones1 ul li a {
+  display: block;
+  padding: 0.5rem 1rem; /* Ajusta con rem, no px fijos */
+  font-family: "Karantina", system-ui;
+  font-size: 2.3rem;   /* <--- Ajusta aquí el tamaño del texto */
+  color: #ffffff;
+  border-radius: 25px;
+  text-decoration: none;
+  transition: all 0.3s ease;
+}
+.Botones1 ul li a:active  {
+  transform: scale(0.9); /* Escala bton */
+}
+.Botones1 ul li a:hover {
+  color: #E67514; /* Color texto pasar mouse */
+}
+.Botones1 ul li a::after {
+  content: ""; /* Espacio psudo-elemento para trabajarlo */
+  display: block; /* Espacio propio */
+  width: 0; /* Ancho inicial: 0 Linea */
+  height: 1px; /* Linea que aparece */
+  background: #E67514; /* Color linea */
+  border-radius: 5px; /* Bordes redondeados */
+  transition: width .7s; /* Transición del ancho */
+}
+/* Esta es la regla clave. El ancho cambia a 100% al pasar el mouse */
+.Botones1 ul li a:hover::after {
+  width: 100%; /* Ancho */
 }
