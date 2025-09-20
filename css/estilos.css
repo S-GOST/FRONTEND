@@ -51,7 +51,7 @@ body {
   position: relative; /* Activar movimiento */ 
   left: 0%; /* Movimiento horizontal */
   top: 5px; /* Movimiento Vertical */
-  background: rgb(236, 236, 236); /* Color linea */
+  background: #ffffff9d; /* Color linea */
 }
 .texto1 {
   color: #ffffff; /* Color texto */
@@ -134,7 +134,7 @@ body {
     background: linear-gradient(15deg,#000000, #393939 ); /* Color degradado */
     font-family: "Karantina", system-ui; /*Tipografia */
     transform: skew(-7deg); /* Inclinacion */
-    color: #fff; /* Color texto */
+    color: #ffffff9d; /* Color texto */
     border-radius: 25px; /* Borde boton */
     font-size: 1.2rem; /* Ajsute tamaño boton */
     cursor: pointer; /* Al poner el mouse */
@@ -160,7 +160,7 @@ body {
     background: linear-gradient(135deg,#000000, #393939 ); /* Color degradado */
     font-family: "Karantina", system-ui; /* Tipografia */
     transform: skew(-7deg); /* Inclinacion */
-    color: #fff; /* Color texto */
+    color: #ffffff9d; /* Color texto */
     border-radius: 25px; /* Borde */
     font-size: 1.2rem; /* Ajsute tamaño boton */
     cursor: pointer; /* Al pasar el mouse */
@@ -221,14 +221,14 @@ body {
   padding: 0.5rem 1rem;
   margin: 0;
   border-radius: 25px;
-  background: linear-gradient(181deg,#F14A00, #000000 );
+  background: linear-gradient(181deg,#000000, #393939 );
 }
 .menu ul li a {
   display: block;
   padding: 0.5rem 1rem; /* Ajusta con rem, no px fijos */
   font-family: "Karantina", system-ui;
   font-size: 2.3rem;   /* <--- Ajusta aquí el tamaño del texto */
-  color: #ffffff;
+  color: #ffffff9d;
   border-radius: 25px;
   text-decoration: none;
   transition: all 0.3s ease;
@@ -280,7 +280,7 @@ body {
 .p1 {
   background: linear-gradient(181deg,#000000, #393939 ); /* Degradado */
   font-family: "Karantina", system-ui;  
-  color: #ffffff; /* Color texto */
+  color: #ffffff9d; /* Color texto */
   border-radius: 20px; /* Borde fondo */
   font-size: 45px; /* Tamaño fuente */
   position: relative; /* Activar ´posicion */
@@ -321,7 +321,7 @@ body {
 .p2 {
   background: linear-gradient(181deg,#000000, #393939 ); /* Degradado */
   font-family: "Karantina", system-ui; 
-  color: #ffffff; /* Color texto */
+  color: #ffffff9d; /* Color texto */
   border-radius: 20px; /* Borde fondo */
   font-size: 50px; /* Tamaño fuente */
   position: relative; /* Activar ´posicion */
@@ -346,7 +346,7 @@ footer {
   display: flex;
   flex-direction: column; /* texto en columna */
   align-items: center;
-  color: #ffffff;
+  color: #ffffff9d;
 }
 .C {
   width: 2rem;
@@ -356,7 +356,7 @@ footer {
 .T1 {
   position: relative;
   top: 22px;
-  color: #ffffff;
+  color: #ffffff9d;
 }
 .iconos {
   display: flex;
