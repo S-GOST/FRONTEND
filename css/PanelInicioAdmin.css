@@ -8,14 +8,24 @@ body {
   font-family: Arial, sans-serif; /* Fuente base */
   font-size: 16px; /* Tamaño de fuente base */
 }
-
+.imgdke {
+    position: relative;
+    left: 43em; top: -2em;
+}
 /* Barra superior */
-.topbar {
+.BloquePrincipal {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  background: #2a2a2a;
-  padding: 10px 20px;
+  position: sticky;
+  top: 0;
+  background: #000000;
+  width: 90rem;
+  height: 60px;
+}
+.BloquePrincipal .imgdke {
+  left: 0em; top: 0em;
+  transform: scale(0.6);
 }
 
 .topbar .usuario {

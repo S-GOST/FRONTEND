@@ -25,7 +25,7 @@ header .imgrock {
 }
 header h1 {
   position: relative;
-  color: #ffffff;
+  color: #ffffff9d;
   font-weight: 500;
   left: -15%; top: -1em;
   transform: scale(2.2);
@@ -74,7 +74,7 @@ header .imgcasa {
   padding: 0.5rem 1rem; /* Ajusta con rem, no px fijos */
   font-family: "Karantina", system-ui;
   font-size: 2.3rem;   /* <--- Ajusta aquí el tamaño del texto */
-  color: #ffffff;
+  color: #ffffff9d;
   border-radius: 25px;
   text-decoration: none;
   transition: all 0.3s ease;
@@ -104,7 +104,7 @@ Body h2 {
   width: 10em;
   left: 25em; top: 2em;
   transform: scale(3.2);
-  color: #ffffff;
+  color: #ffffff9d;
 }
 .imgbienvenido {
   position: relative;
@@ -122,6 +122,7 @@ Body button {
     width: 140px; /* Ancho carrito valor fijo */
     height: 60px; /* Alto carrito valor fijo */
     background: linear-gradient(135deg,#000000, #393939 ); /* Color de fondo degradado */
+    color: #ffffff9d;
     font-family: "Karantina", system-ui; /*Tipografia */
     border-radius: 12px; /* Borde */
     font-size: 1.6rem; /* Ajuste tanaño carrito */
@@ -134,7 +135,7 @@ Body button {
     align-items: center; /* Centramos elementos */
     position: relative; /* Activar posicion */
     left: 46%; top: 6em; /* Movimiento horizontal */
-    color: #ffffff;
+    font-weight: 400;
 }
 Body button:hover {
     color: #F37321; /* Las letras cambian a naranja */
