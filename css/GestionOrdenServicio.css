@@ -1,0 +1,48 @@
+body {
+  background-image: url('../img/fondo.png') !important; /* la imagen de fondo */
+  background-size: cover;
+  background-repeat: no-repeat;
+  background-position: center;
+  padding: 30px; /* Quita el padding por defecto */
+  min-height: 100vh; /* minimo alto ventana */
+  font-family: Arial, sans-serif; /* Fuente base */
+  font-size: 16px; /* Tamaño de fuente base */
+}
+.imgdke {
+    position: relative;
+    left: 48%; top: -6em;
+}
+body .rock {
+    position: relative;
+    left: -1%; top: 3em;
+    transform: scale(2.5);
+}
+.Botones {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+  width: 26%;
+  position: relative;
+  left: 23%; top: -3em;
+}
+.Botones button {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: #E67514;
+  border: none;
+  border-radius: 5px;
+  padding: 12px 20px;
+  font-size: 16px;
+  font-weight: bold;
+  color: rgba(255, 255, 255, 0.934);
+  box-shadow: 0 4px 10px #000000;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+.Botones button:active  {
+  transform: scale(0.9); /* Escala bton */
+}
+.Botones button:hover {
+  color: #000000; /* Color texto pasar mouse */
+}

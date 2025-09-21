@@ -1,0 +1,81 @@
+@import url('https://fonts.googleapis.com/css2?family=Cardo:ital,wght@0,400;0,700;1,400&family=Inter+Tight:ital,wght@0,100..900;1,100..900&family=Karantina:wght@300;400;700&family=Oswald:wght@700&family=PT+Serif:ital,wght@0,400;0,700;1,400;1,700&family=Reem+Kufi&family=Rufina:wght@400;700&family=Story+Script&family=Yrsa:wght@700&display=swap');
+body {
+  background-image: url('../img/fondo.png') !important; /* la imagen de fondo */
+  background-size: cover;
+  background-repeat: no-repeat;
+  background-position: center;
+  padding: 30px; /* Quita el padding por defecto */
+  min-height: 100vh; /* minimo alto ventana */
+  font-weight: 100;
+}
+.imgdke {
+    position: relative;
+    left: 42em; top: -6em;
+}
+.imgatras {
+  filter: invert(100%) brightness(200%);
+  position: relative;
+  top: -3em; left: -14em;
+  transform: scale(0.7);
+  transition: all 0.3s ease; /* Efecto */
+  cursor: pointer;
+}
+.imgatras:active {
+  transform: scale(0.9); /* Escala bton */
+}
+.imgcasa {
+  filter: invert(100%) brightness(200%);
+  position: relative;
+  top: -2em; left: 80em;
+  transform: scale(0.7);
+  transition: all 0.3s ease; /* Efecto */
+  cursor: pointer;
+}
+.imgcasa:active {
+  transform: scale(0.9); /* Escala bton */
+}
+body h1 {
+  color: #ffffff;
+  transform: scale(1.00); /* Escala bton */
+  position: relative;
+  top: -2em; 
+}
+table,th,td {
+  border: 3px solid #000000;
+  color: #ffffff;
+  background: linear-gradient(to right, #00000020, #00000000, #0000001c);
+  box-shadow: 0 4px 10px #000000;
+  border-collapse: collapse ;
+  position: relative;
+  top: -5em;
+  transform: scale(1.0);
+}
+th,td {
+  padding: 20px;
+  position: relative;
+  top: 0em;
+}
+th {
+  text-align: left;
+}
+.btn {
+  background: linear-gradient(15deg,#e37515, #000000 ); /* Color degradado */
+  font-family: "Karantina", system-ui; /* Tipografia */
+  font-weight: 700;
+  color: #000000;
+  border: none;
+  border-radius: 6px;
+  font-size: 16px;
+  cursor: pointer;
+  margin-bottom: 15px;
+  transition: all 0.3s ease; /* Efecto */
+  box-shadow: 0 4px 10px #000000;
+}
+.btn:active {
+  transform: scale(0.9); /* Escala bton */
+  background: #29be00;
+  border-radius: 40%;
+}
+th {
+  color: #F14A00;
+}
