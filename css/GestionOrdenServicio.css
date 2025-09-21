@@ -10,17 +10,17 @@ body {
 }
 .imgdke {
     position: relative;
-    left: 48%; top: -6em;
+    left: 48%; top: -4em;
 }
 body .rock {
     position: relative;
-    left: -4%; top: 3em;
+    left: -4%; top: 9em;
     transform: scale(2.5);
 }
 body .moto1 {
     filter: invert(100%) brightness(200%);
     position: relative;
-    left: -1%; top: 0em;
+    left: -1%; top: 4em;
     transform: scale(0.7);
 }
 .moto1:active {
@@ -29,7 +29,7 @@ body .moto1 {
 body .ojo {
     filter: invert(100%) brightness(200%);
     position: relative;
-    left: -106px; top: 3em;
+    left: -106px; top: 7em;
     transform: scale(0.7);
 }
 .ojo:active {
@@ -38,7 +38,7 @@ body .ojo {
 body .filtro1 {
     filter: invert(100%) brightness(200%);
     position: relative;
-    left: -14%; top: 7em;
+    left: -14%; top: 11em;
     transform: scale(0.7);
 }
 .filtro1:active {
@@ -47,7 +47,7 @@ body .filtro1 {
 body .informeT {
     filter: invert(100%) brightness(200%);
     position: relative;
-    left: -294px; top: 11em;
+    left: -294px; top: 15em;
     transform: scale(0.7);
 }
 .informeT:active {
@@ -59,7 +59,7 @@ body .informeT {
   gap: 15px;
   width: 26%;
   position: relative;
-  left: 19%; top: -58px;
+  left: 19%; top: 6px;
 }
 .Botones button {
   display: flex;
@@ -90,31 +90,33 @@ body .informeT {
   border-radius: 10px;
   color: #ffffff;
   font-family: "Karantina", system-ui; /*Tipografia */
-  width: 30%;
+  width: 18%;
   height: 50px;
   box-shadow: 0 4px 10px #000000;
   position: relative;
-  left: 63%; top: -16em;
+  left: 47%; top: -18em;
 }
 .formulario {
+  padding: 14px 20px;
   background: rgba(0, 0, 0, 0.7);
   border-radius: 10px;
   color: #E67514;
-  width: 30%;
+  width: 15%;
   height: 15em;
   box-shadow: 0 4px 10px #000000;
   position: relative;
-  left: 63%; top: -15rem;
+  left: 47%; top: -17rem;
 }
 .formulario2 {
+  padding: 14px 20px;
   background: rgba(0, 0, 0, 0.7);
   border-radius: 10px;
   color: #E67514;
-  width: 30%;
+  width: 16%;
   height: 15em;
   box-shadow: 0 4px 10px #000000;
   position: relative;
-  left: 63%; top: -4em;
+  left: 60em; top: -34em;
 }
 .NI {
   display: flex;
@@ -124,9 +126,70 @@ body .informeT {
   border-radius: 10px;
   color: #ffffff;
   font-family: "Karantina", system-ui; /*Tipografia */
-  width: 30%;
-  height: 50px;
+  width: 18%;
+  height: 54px;
   box-shadow: 0 4px 10px #000000;
   position: relative;
-  left: 63%; top: -23em;
+  left: 67%; top: -55em;
+}
+.men1 {
+  filter: invert(100%) brightness(200%);
+  position: relative;
+  left: 46%; top: -14em;
+  transform: scale(0.5);
+  z-index: 5;
+}
+.men2 {
+  filter: invert(100%) brightness(200%);
+  position: relative;
+  left: 60%; top: -14em;
+  transform: scale(0.5);
+  z-index: 5;
+}
+table,th,td {
+  border: 3px solid #000000;
+  color: #ffffff;
+  background: linear-gradient(to right, #00000020, #00000000, #0000001c);
+  box-shadow: 0 4px 10px #000000;
+  border-collapse: collapse ;
+  position: relative;
+  top: -30em; left: 7em;
+  transform: scale(1.2);
+}
+th,td {
+  padding: 20px;
+  position: relative;
+  top: 0em; left: 0em;
+  transform: scale(1.0);
+}
+th {
+  text-align: left;
+}
+.btn {
+  background: linear-gradient(15deg,#000000, #ffffff ); /* Color degradado */
+  font-family: "Karantina", system-ui; /* Tipografia */
+  font-weight: 500;
+  color: #060606;
+  border: none;
+  border-radius: 6px;
+  font-size: 16px;
+  cursor: pointer;
+  margin-bottom: 15px;
+  transition: all 0.3s ease; /* Efecto */
+  box-shadow: 0 4px 10px #000000;
+}
+.btn:active {
+  transform: scale(0.9); /* Escala bton */
+  background: #29be00;
+  border-radius: 40%;
+}
+.table2 {
+  border: 3px solid #000000;
+  color: #ffffff;
+  background: linear-gradient(to right, #00000020, #00000000, #0000001c);
+  box-shadow: 0 4px 10px #000000;
+  border-collapse: collapse ;
+  position: relative;
+  top: -20rem; left: 16px;
+  transform: scale(1.0);
 }
