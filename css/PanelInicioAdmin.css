@@ -10,7 +10,7 @@ body {
 }
 .imgdke {
     position: relative;
-    left: 43em; top: -2em;
+    left: 33em; top: -2em;
 }
 /* Barra superior */
 .BloquePrincipal {
@@ -28,67 +28,143 @@ body {
   left: 0em; top: 0em;
   transform: scale(0.6);
 }
-.BloquePrincipal .c {
+.c {
   position: relative;
-  left: -26em;
+  left: -18em;
   transform: scale(0.6);
-  filter: invert(100%) brightness(200%);
+  filter: sepia(100%) saturate(600%) hue-rotate(90deg) brightness(100%);
+  transition: all 0.3s ease; /* Efecto */
+}
+.c:hover {
+  transform: scale(0.7); /* un poco más grande */
+}
+.c:active {
+  transform: scale(0.9); /* Escala bton */
+  filter: grayscale(100%) brightness(140%) contrast(90%);
 }
 .BloquePrincipal span {
   position: relative;
   font-family: "Karantina", system-ui; /* Tipografia */
-  left: -48em;
+  left: -32em;
   transform: scale(1.7);
   font-weight: 700 ;
-  filter: invert(100%) brightness(200%);
+  color: #ffffffc7;
+}
+.notificaciones {
+  position: relative;
+  left: 15em;
+  transform: scale(0.9);
+  cursor: pointer;
+  font-weight: 700 ;
+  filter: grayscale(100%) brightness(140%) contrast(90%);
+  transition: all 0.3s ease; /* Efecto */
+}
+.notificaciones:hover {
+  transform: scale(1.1); /* un poco más grande */
+  filter: sepia(100%) saturate(700%) hue-rotate(-15deg) brightness(90%);
+}
+.notificaciones:active {
+  transform: scale(1.9); /* Escala bton */
+  filter: sepia(100%) saturate(700%) hue-rotate(-15deg) brightness(90%);
+}
+.confi {
+  position: relative;
+  font-family: "Karantina", system-ui; /* Tipografia */
+  left: -1em;
+  transform: scale(1.0);
+  font-weight: 700 ;
+  filter: grayscale(100%) brightness(140%) contrast(90%);
+  transition: all 0.3s ease; /* Efecto */
+}
+.confi:hover {
+  transform: scale(1.1); /* un poco más grande */
+  filter: sepia(100%) saturate(700%) hue-rotate(-15deg) brightness(90%);
+}
+.confi:active {
+  transform: scale(1.9); /* Escala bton */
+  filter: sepia(100%) saturate(700%) hue-rotate(-15deg) brightness(90%);
 }
 /* Layout principal */
-.container {
+.centro {
   display: flex;
   justify-content: space-between;
   padding: 20px;
 }
 
 /* Menú lateral */
-.sidebar {
+.Botones {
   display: flex;
   flex-direction: column;
   gap: 15px;
 }
 
-.sidebar button {
+.Botones button {
   display: flex;
   align-items: center;
   gap: 10px;
-  background: #FF6600;
+  background: #E67514;
   border: none;
   border-radius: 5px;
   padding: 12px 20px;
   font-size: 16px;
   font-weight: bold;
   color: white;
+  box-shadow: 0 4px 10px #000000;
   cursor: pointer;
-  transition: background 0.3s ease;
+  transition: all 0.3s ease;
 }
-
-.sidebar button:hover {
-  background: #cc5200;
+.Botones button:active  {
+  transform: scale(0.9); /* Escala bton */
 }
-
-/* Logos */
-.logos {
-  display: flex;
-  flex-direction: column;
-  gap: 20px;
+.Botones button:hover {
+  color: #000000; /* Color texto pasar mouse */
 }
-
-.logos img {
-  width: 80px;
-  max-width: 100px;
-}
-
 /* Footer */
 .footer {
   height: 30px;
-  background: linear-gradient(to right, #000, #FF6600, #000);
+  background: linear-gradient(to right, #000, #E67514, #000);
+}
+table,th,td {
+  border: 3px solid #000000;
+  color: #ffffff;
+  background: linear-gradient(to right, #00000020, #00000000, #0000001c);
+  box-shadow: 0 4px 10px #000000;
+  border-collapse: collapse ;
+  position: relative;
+  top: 2em;
+  transform: scale(0.9);
+}
+th,td {
+  padding: 20px;
+  position: relative;
+  top: 0em;
+}
+th {
+  text-align: left;
+}
+.resaltada {
+  background-color: #E67514; /* naranja KTM */
+  color: white;
+  font-weight: bold;
+}
+.cir {
+  position: relative;
+  left: 85%; top: -17em;
+  transform: scale(1.7);
+  height: 100px;
+  width: 100px;
+  border-radius: 50px;
+  background: conic-gradient(#E67514 0deg 200deg, #ffffff 180deg 360deg);
+}
+.T1 {
+ position: relative;
+ left: -53%; top: 2em;
+}
+.T2 {
+ position: relative;
+ left: 41%; top: 1em;
+}
+.copyright2 {
+  position: relative;
+  left: 49%; top: 30px;
 }
