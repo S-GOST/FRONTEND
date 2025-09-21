@@ -14,8 +14,44 @@ body {
 }
 body .rock {
     position: relative;
-    left: -1%; top: 3em;
+    left: -4%; top: 3em;
     transform: scale(2.5);
+}
+body .moto1 {
+    filter: invert(100%) brightness(200%);
+    position: relative;
+    left: -1%; top: 0em;
+    transform: scale(0.7);
+}
+.moto1:active {
+  transform: scale(0.9); /* Escala bton */
+}
+body .ojo {
+    filter: invert(100%) brightness(200%);
+    position: relative;
+    left: -106px; top: 3em;
+    transform: scale(0.7);
+}
+.ojo:active {
+  transform: scale(0.9); /* Escala bton */
+}
+body .filtro1 {
+    filter: invert(100%) brightness(200%);
+    position: relative;
+    left: -14%; top: 7em;
+    transform: scale(0.7);
+}
+.filtro1:active {
+  transform: scale(0.9); /* Escala bton */
+}
+body .informeT {
+    filter: invert(100%) brightness(200%);
+    position: relative;
+    left: -294px; top: 11em;
+    transform: scale(0.7);
+}
+.informeT:active {
+  transform: scale(0.9); /* Escala bton */
 }
 .Botones {
   display: flex;
@@ -23,7 +59,7 @@ body .rock {
   gap: 15px;
   width: 26%;
   position: relative;
-  left: 23%; top: -3em;
+  left: 19%; top: -58px;
 }
 .Botones button {
   display: flex;
@@ -45,4 +81,52 @@ body .rock {
 }
 .Botones button:hover {
   color: #000000; /* Color texto pasar mouse */
+}
+.NO {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0, 0, 0, 0.7);
+  border-radius: 10px;
+  color: #ffffff;
+  font-family: "Karantina", system-ui; /*Tipografia */
+  width: 30%;
+  height: 50px;
+  box-shadow: 0 4px 10px #000000;
+  position: relative;
+  left: 63%; top: -16em;
+}
+.formulario {
+  background: rgba(0, 0, 0, 0.7);
+  border-radius: 10px;
+  color: #E67514;
+  width: 30%;
+  height: 15em;
+  box-shadow: 0 4px 10px #000000;
+  position: relative;
+  left: 63%; top: -15rem;
+}
+.formulario2 {
+  background: rgba(0, 0, 0, 0.7);
+  border-radius: 10px;
+  color: #E67514;
+  width: 30%;
+  height: 15em;
+  box-shadow: 0 4px 10px #000000;
+  position: relative;
+  left: 63%; top: -4em;
+}
+.NI {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0, 0, 0, 0.7);
+  border-radius: 10px;
+  color: #ffffff;
+  font-family: "Karantina", system-ui; /*Tipografia */
+  width: 30%;
+  height: 50px;
+  box-shadow: 0 4px 10px #000000;
+  position: relative;
+  left: 63%; top: -23em;
 }
