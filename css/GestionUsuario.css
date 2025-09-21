@@ -61,3 +61,14 @@ body .rock {
 .imgcasa:active {
   transform: scale(0.9); /* Escala bton */
 }
+.imgatras {
+  filter: invert(100%) brightness(200%);
+  position: relative;
+  top: -27em; left: -8em;
+  transform: scale(0.7);
+  transition: all 0.3s ease; /* Efecto */
+  cursor: pointer;
+}
+.imgatras:active {
+  transform: scale(0.9); /* Escala bton */
+}
