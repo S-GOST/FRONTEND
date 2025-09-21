@@ -79,7 +79,9 @@ input[type="password"] {
   transition: all 0.3s ease; /* Efecto */
 }
 .boton:active {
-  transform: scale(0.9); /* Escala bton */
+  transform: scale(0.9); /* Activar escala */
+  background: #000000;
+  color: #ffffff;
 }
 .divider {
   display: flex;

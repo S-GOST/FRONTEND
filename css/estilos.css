@@ -147,11 +147,9 @@ body {
     position: relative; /* Activar posicion */
     left: 19%; /* Movimiento horizontal */
 }
-.Boton-iniciar:hover {
-    color: #F37321; /* Las letras cambian a naranja */
-}
 .Boton-iniciar:active  {
   transform: scale(0.9); /* Activar escala */
+  background: #000000;
 }
 /*------------------------------------------------------------------------------------------------------------*/
 .Boton-crearcuenta  {
@@ -173,11 +171,9 @@ body {
     position: relative; /* Activar posicion */
     left: 6%; /* Movimiento horizontal */
 }
-.Boton-crearcuenta:hover {
-    color: #F37321; /* Las letras cambian a naranja */
-}
 .Boton-crearcuenta:active  {
-  transform: scale(0.9); /* Escala bton */
+  transform: scale(0.9); /* Activar escala */
+  background: #000000;
 }
 .Caja-logo-movimiento {
     width: 98%; /* Ancho caja moviemto */
