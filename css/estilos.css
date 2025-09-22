@@ -373,16 +373,16 @@ footer {
 }
 .imgmotocast {
   position: relative;
-  left: 69%; top: -22em;
+  left: 79em; top: -22em;
 }
 .imgmestrella {
   position: relative;
-  top: 20em;
+  top: 18em;
   transform: rotate(54deg) scale(2.9);
 }
 .imgmrefbulktm {
   position: relative;
-  left: 27%; top: 25em;
+  left: 37em; top: 25em;
   transform: scale(1.7);
 }
 .imgtanquemotoktm {
@@ -400,18 +400,18 @@ footer {
 .imgreadttorace {
   position: relative;
   border-radius: 10px;
-  left: 32%; top: -7em;
+  left: 30em; top: -7em;
   transform: scale(2.9);
 }
 .imgduke1 {
   position: relative;
   border-radius: 10px;
-  left: 15%; top: 10em;
+  left: 27em; top: 10em;
   transform: scale(2.9);
 }
 .imgcaramelo {
   position: relative;
   border-radius: 10px;
-  left: -7%; top: 6em;
+  left: 6em; top: 6em;
   transform: scale(3.9);
 }
