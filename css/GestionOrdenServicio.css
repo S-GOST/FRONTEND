@@ -10,17 +10,39 @@ body {
 }
 .imgdke {
     position: relative;
-    left: 48%; top: -4em;
+    left: 33%; top: -4em;
+}
+.imgcasa {
+  filter: invert(100%) brightness(200%);
+  position: relative;
+  top: -2em; left: 86em;
+  transform: scale(0.7);
+  transition: all 0.3s ease; /* Efecto */
+  cursor: pointer;
+}
+.imgcasa:active {
+  transform: scale(0.9); /* Escala bton */
+}
+.imgatras {
+  filter: invert(100%) brightness(200%);
+  position: relative;
+  top: -4em; left: -8em;
+  transform: scale(0.7);
+  transition: all 0.3s ease; /* Efecto */
+  cursor: pointer;
+}
+.imgatras:active {
+  transform: scale(0.9); /* Escala bton */
 }
 body .rock {
     position: relative;
-    left: -4%; top: 9em;
+    left: -16%; top: 9em;
     transform: scale(2.5);
 }
 body .moto1 {
     filter: invert(100%) brightness(200%);
     position: relative;
-    left: -1%; top: 4em;
+    left: -13%; top: 4em;
     transform: scale(0.7);
 }
 .moto1:active {
@@ -29,7 +51,7 @@ body .moto1 {
 body .ojo {
     filter: invert(100%) brightness(200%);
     position: relative;
-    left: -106px; top: 7em;
+    left: -284px; top: 7em;
     transform: scale(0.7);
 }
 .ojo:active {
@@ -38,7 +60,7 @@ body .ojo {
 body .filtro1 {
     filter: invert(100%) brightness(200%);
     position: relative;
-    left: -14%; top: 11em;
+    left: -26%; top: 11em;
     transform: scale(0.7);
 }
 .filtro1:active {
@@ -47,7 +69,7 @@ body .filtro1 {
 body .informeT {
     filter: invert(100%) brightness(200%);
     position: relative;
-    left: -294px; top: 15em;
+    left: -469px; top: 15em;
     transform: scale(0.7);
 }
 .informeT:active {
@@ -94,7 +116,7 @@ body .informeT {
   height: 50px;
   box-shadow: 0 4px 10px #000000;
   position: relative;
-  left: 47%; top: -18em;
+  left: 62%; top: -18em;
 }
 .formulario {
   padding: 14px 20px;
@@ -105,7 +127,7 @@ body .informeT {
   height: 15em;
   box-shadow: 0 4px 10px #000000;
   position: relative;
-  left: 47%; top: -17rem;
+  left: 62%; top: -17rem;
 }
 .formulario2 {
   padding: 14px 20px;
@@ -116,7 +138,7 @@ body .informeT {
   height: 15em;
   box-shadow: 0 4px 10px #000000;
   position: relative;
-  left: 60em; top: -34em;
+  left: 73em; top: -34em;
 }
 .NI {
   display: flex;
@@ -130,19 +152,19 @@ body .informeT {
   height: 54px;
   box-shadow: 0 4px 10px #000000;
   position: relative;
-  left: 67%; top: -55em;
+  left: 82%; top: -55em;
 }
 .men1 {
   filter: invert(100%) brightness(200%);
   position: relative;
-  left: 46%; top: -14em;
+  left: 61%; top: -14em;
   transform: scale(0.5);
   z-index: 5;
 }
 .men2 {
   filter: invert(100%) brightness(200%);
   position: relative;
-  left: 60%; top: -14em;
+  left: 75%; top: -14em;
   transform: scale(0.5);
   z-index: 5;
 }
@@ -192,4 +214,8 @@ th {
   position: relative;
   top: -20rem; left: 16px;
   transform: scale(1.0);
+}
+.copyright2 {
+  position: relative;
+  left: 47%; top: -21px;
 }

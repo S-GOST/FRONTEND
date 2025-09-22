@@ -1,0 +1,53 @@
+body {
+  background-image: url('../img/fondo.png') !important; /* la imagen de fondo */
+  background-size: cover;
+  background-repeat: no-repeat;
+  background-position: center;
+  padding: 30px; /* Quita el padding por defecto */
+  min-height: 100vh; /* minimo alto ventana */
+  font-family: Arial, sans-serif; /* Fuente base */
+  font-size: 16px; /* Tamaño de fuente base */
+}
+.imgdke {
+    position: relative;
+    left: 46%; top: -6em;
+}
+.imgcasa {
+  filter: invert(100%) brightness(200%);
+  position: relative;
+  top: -2em; left: 80em;
+  transform: scale(0.7);
+  transition: all 0.3s ease; /* Efecto */
+  cursor: pointer;
+}
+.imgcasa:active {
+  transform: scale(0.9); /* Escala bton */
+}
+.imgatras {
+  filter: invert(100%) brightness(200%);
+  position: relative;
+  top: -3em; left: -13em;
+  transform: scale(0.7);
+  transition: all 0.3s ease; /* Efecto */
+  cursor: pointer;
+}
+.imgatras:active {
+  transform: scale(0.9); /* Escala bton */
+}
+.fondo {
+  padding: 14px 20px;
+  background: rgba(0, 0, 0, 0.7);
+  border-radius: 10px;
+  color: #E67514;
+  width: 15%;
+  height: 15em;
+  box-shadow: 0 4px 10px #000000;
+  position: relative;
+  left: 41%; top: 9rem;
+  transform: scale(2.8);
+}
+body .rock {
+  position: relative;
+  left: -2em; top: -2em;
+  transform: scale(0.5);
+} 
