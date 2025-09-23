@@ -1,0 +1,77 @@
+body {
+  background-image: url('../img/fondo.png') !important; /* la imagen de fondo */
+  background-size: cover;
+  background-repeat: no-repeat;
+  background-position: center;
+  padding: 30px; /* Quita el padding por defecto */
+  min-height: 100vh; /* minimo alto ventana */
+  font-family: Arial, sans-serif; /* Fuente base */
+  font-size: 16px; /* Tamaño de fuente base */
+}
+.imgdke {
+    position: relative;
+    left: 48%; top: -2em;
+}
+.fondo {
+  background: rgba(0, 0, 0, 0.7);
+  padding: 25px;
+  border-radius: 10px;
+  color: #E67514;
+  width: 30%;
+  height: 28rem;
+  box-shadow: 0 4px 10px #000000;
+  position: relative;
+  left: 31rem; top: 4rem;
+  display: grid;
+  align-content: center;
+  align-items: stretch;
+  justify-items: center;
+} 
+.fondo h2 {
+    position: relative;
+    left: 0rem; top: 0rem;
+}
+.fondo button {
+  width: 77%;
+  padding: 10px;
+  background: linear-gradient(15deg,#000000, #393939 ); /* Color degradado */
+  font-family: "Karantina", system-ui; /*Tipografia */
+  font-weight: 700;
+  color: #ffffff9d;
+  border: none;
+  border-radius: 6px;
+  font-size: 16px;
+  cursor: pointer;
+  margin-bottom: 15px;
+  transition: all 0.3s ease; /* Efecto */
+}
+.fondo button:active {
+  transform: scale(0.9); /* Escala bton */
+  background: #000000;
+}
+.imgcasa {
+  filter: invert(100%) brightness(200%);
+  position: relative;
+  top: -36rem; left: 86em;
+  transform: scale(0.7);
+  transition: all 0.3s ease; /* Efecto */
+  cursor: pointer;
+}
+.imgcasa:active {
+  transform: scale(0.9); /* Escala bton */
+}
+.imgatras {
+  filter: invert(100%) brightness(200%);
+  position: relative;
+  top: -37rem; left: -8rem;
+  transform: scale(0.7);
+  transition: all 0.3s ease; /* Efecto */
+  cursor: pointer;
+}
+.imgatras:active {
+  transform: scale(0.9); /* Escala bton */
+}
+.copyright2 {
+  position: relative;
+  left: 36%; top: 11rem;
+}

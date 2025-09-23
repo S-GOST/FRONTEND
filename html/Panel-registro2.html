@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Registro cuenta</title>
+  <link rel="stylesheet" href="../css/panelRegistro.css">
+</head>
+<body>
+  <img class="imgdke" src="../img/dukke.png" alt="Logo Rocket Service" width="90">
+  <div class="formulario">
+    <h2>Crear cuenta</h2>
+    <form class="C3">
+      <label for="usuario">Usuario:</label>
+      <input type="text" id="usuario" name="usuario" required>
+      <label for="correo">Correo:</label>
+      <input type="email" id="correo" name="correo" required>
+      <label for="password">Contraseña nueva:</label>
+      <div class="contraseña">
+        <input type="password" id="password" name="password" required>
+        <span class="help">?</span>
+      </div>
+      <label for="repite">Repite contraseña:</label>
+      <input type="password" id="repite" name="repite" required>
+      <div class="checkbox">
+        <input type="checkbox" id="terminos">
+        <label for="terminos">Términos de uso y política de privacidad</label>
+      </div>
+      <button type="submit" class="boton">Iniciar</button>
+    </form>
+    <div class="divider">
+      <span>OR</span>
+    </div>
+    <p>Inicie sesión con alguna cuenta</p>
+    <button class="social google">Continue con Google</button>
+    <button class="social facebook">Continue con facebook</button>
+    <button class="social apple">Continue con Apple</button>
+  </div>
+      <img class="copyright2" src="../img/copyright2.png" alt="copyright2" width="70">
+</body>
+</html>

@@ -302,7 +302,7 @@ body {
   height: 26rem; /* Alto fondo */
   width: 45%; /* Ancho fondo */
   position: relative; /* Actiavr posicion */
-  left: 51%; top: -4rem; /* Movimineto horizontal fondo */
+  left: 55%; top: -4rem; /* Movimineto horizontal fondo */
 }
 .imgracing {
   height: 3em;
@@ -373,16 +373,16 @@ footer {
 }
 .imgmotocast {
   position: relative;
-  left: 79em; top: -22em;
+  left: 65rem; top: -22em;
 }
 .imgmestrella {
   position: relative;
-  top: 18em;
+  top: 45vh;
   transform: rotate(54deg) scale(2.9);
 }
 .imgmrefbulktm {
   position: relative;
-  left: 37em; top: 25em;
+  left: 25rem; top: 25em;
   transform: scale(1.7);
 }
 .imgtanquemotoktm {
@@ -406,12 +406,12 @@ footer {
 .imgduke1 {
   position: relative;
   border-radius: 10px;
-  left: 27em; top: 10em;
+  left: 20rem; top: 10em;
   transform: scale(2.9);
 }
 .imgcaramelo {
   position: relative;
   border-radius: 10px;
-  left: 6em; top: 6em;
+  left: 0rem; top: 6em;
   transform: scale(3.9);
 }
