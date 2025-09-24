@@ -1,0 +1,69 @@
+body {
+  background-image: url('../img/fondo.png') !important; /* la imagen de fondo */
+  background-size: cover;
+  background-repeat: no-repeat;
+  background-position: center;
+  padding: 30px; /* Quita el padding por defecto */
+  min-height: 100vh; /* minimo alto ventana */
+  font-family: Arial, sans-serif; /* Fuente base */
+  font-size: 16px; /* Tamaño de fuente base */
+}
+.imgdke {
+    position: relative;
+    left: 48%; top: -5em;
+}
+.copyright2 {
+  position: relative;
+  left: 42%; top: 57rem;
+}
+.imgcasa {
+  filter: invert(100%) brightness(200%);
+  position: relative;
+  top: -2em; left: 99em;
+  transform: scale(0.7);
+  transition: all 0.3s ease; /* Efecto */
+  cursor: pointer;
+}
+.imgcasa:active {
+  transform: scale(0.9); /* Escala bton */
+}
+.imgatras {
+  filter: invert(100%) brightness(200%);
+  position: relative;
+  top: -4em; left: -18em;
+  transform: scale(0.7);
+  transition: all 0.3s ease; /* Efecto */
+  cursor: pointer;
+}
+.imgatras:active {
+  transform: scale(0.9); /* Escala bton */
+}
+.blo {
+  display: flex;
+  gap: 140px;
+  padding: 14px 20px;
+  width: 0px;
+  border-radius: 10px;
+  box-shadow: 0 4px 10px #000000;
+  position: relative;
+  left: 18%; top: 10rem;
+  transform: scale(1.3);
+}
+.blo .B1 {
+  padding: 14px 20px;
+  background: rgb(255, 0, 0);
+  border-radius: 10px;
+  box-shadow: 0 4px 10px #000000;
+}
+.blo .B2 {
+  padding: 14px 20px;
+  background: rgb(255, 0, 0);
+  border-radius: 10px;
+  box-shadow: 0 4px 10px #000000;
+}
+.blo .B3 {
+  padding: 14px 20px;
+  background: rgb(255, 0, 0);
+  border-radius: 10px;
+  box-shadow: 0 4px 10px #000000;
+}
