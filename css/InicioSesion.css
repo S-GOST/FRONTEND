@@ -20,7 +20,7 @@ body {
   width: 20%;
   box-shadow: 0 4px 10px #000000;
   position:relative;
-  left: 30em; top: 7GIem;
+  left: 44em; top: 6em;
 }
 .C3 {
   padding-left: 4%;
@@ -115,10 +115,18 @@ input[type="password"] {
   background: radial-gradient(ellipse, #00000000, #ff0000);
   color: #ffffff;
 }
+.facebook {
+  background: radial-gradient(ellipse, #00000000, #1322f6);
+  color: #ffffff;
+}
+.apple {
+  background: radial-gradient(ellipse, #000000, #000000);
+  color: #ffffff;
+}
 .social:active {
   transform: scale(0.9); /* Escala bton */
 }
 .copyright2 {
   position: relative;
-  left: 49%; top: 40px;
+  left: 49%; top: 23rem;
 }
