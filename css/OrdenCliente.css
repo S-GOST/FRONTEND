@@ -1,0 +1,119 @@
+body {
+  background-image: url('../img/fondo.png') !important; /* la imagen de fondo */
+  background-size: cover;
+  background-repeat: no-repeat;
+  background-position: center;
+  padding: 30px; /* Quita el padding por defecto */
+  min-height: 100vh; /* minimo alto ventana */
+  font-family: Arial, sans-serif; /* Fuente base */
+  font-size: 16px; /* Tamaño de fuente base */
+}
+.imgdke {
+    position: relative;
+    left: 46%; top: -2em;
+}
+.orden {
+  background: linear-gradient(15deg,#000000, #393939 ); /* Color degradado */
+  color: #ffffffd1;
+  box-shadow: 0 4px 10px #000000;
+  max-width: 800px;
+  margin: 50px 200px;
+  padding: 20px;
+  border: 1px solid #ffffff;
+  box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+  position: relative;
+  left: 16rem; top: 5rem;
+}
+.header {
+  background: #9e9c9c57;
+  border-radius: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.rock {
+  width: 80px;
+  height: auto;
+}
+.titulo {
+  text-align: center;
+  flex-grow: 1;
+}
+.titulo h2 {
+  margin: 0;
+}
+.numero {
+  font-weight: bold;
+}
+.datos {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 20px;
+  margin: 35px 40px;
+  color: #ffffffd1;
+}
+.datos h3 {
+  text-align: center;
+  margin-bottom: 10px;
+}
+.datos input {
+  color: #ffffffd1;
+  border: none;
+  border-bottom: 1px solid rgb(255, 255, 255); /* solo línea abajo */
+  outline: none;
+  padding: 2px 5px;
+  width: 200px; /* ancho de la línea */
+  background: transparent; /* transparente para parecer línea sola */
+}
+.servicios {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 30px;
+}
+.descripcion {
+  margin-top: 35px;
+  background: #ffffff51;
+  padding: 45px;
+  border-radius: 5px;
+}
+.descripcion h4 {
+  background: #9e9c9c57;
+  margin: 0;
+  padding: 5px;
+  text-align: center;
+}
+.botones {
+  background: rgba(0, 0, 0, 0.7);
+  padding: 25px;
+  border-radius: 10px;
+  width: 30%;
+  height: 15rem;
+  transform: scale(0.5);
+  box-shadow: 0 4px 10px #000000;
+  position: relative;
+  left: 73rem; top: -41rem;
+}
+.botones button {
+  position: relative;
+  left: 122px; top: 49px;
+  width: 55%;
+  padding: 10px;
+  transform: scale(1.5);
+  background: #fff;
+  color: #000;
+  border: none;
+  border-radius: 25px;
+  font-size: 16px;
+  cursor: pointer;
+  margin-bottom: 40px;
+  transition: all 0.3s ease; /* Efecto */
+}
+.botones button:active {
+  transform: scale(1.2); /* Activar escala */
+  background: #000000;
+  color: #ffffff;
+}
+.copyright2 {
+  position: relative;
+  left: 42%; top: 65rem;
+}

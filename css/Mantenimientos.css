@@ -11,16 +11,16 @@ body {
 }
 .imgdke {
     position: relative;
-    left: 48%; top: -6em;
+    left: 48%; top: -9em;
 }
 .copyright2 {
   position: relative;
-  left: 42%; top: 57rem;
+  left: 42%; top: 54rem;
 }
 .imgcasa {
   filter: invert(100%) brightness(200%);
   position: relative;
-  top: -2em; left: 99em;
+  top: -6em; left: 100em;
   transform: scale(0.7);
   transition: all 0.3s ease; /* Efecto */
   cursor: pointer;
@@ -31,7 +31,7 @@ body {
 .imgatras {
   filter: invert(100%) brightness(200%);
   position: relative;
-  top: -4em; left: -18em;
+  top: -7em; left: -18em;
   transform: scale(0.7);
   transition: all 0.3s ease; /* Efecto */
   cursor: pointer;
@@ -55,6 +55,12 @@ body {
   background: #E67514;
   border-radius: 10px;
   box-shadow: 0 4px 10px #000000;
+}
+.imgkkttm {
+  position: relative;
+  left: 6em; top: 45em;
+  transform: scale(1.9);
+  border-radius: 20px;
 }
 .blo .B2 {
   padding: 14px 20px;
