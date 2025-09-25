@@ -1,0 +1,133 @@
+body {
+  background-image: url('../img/fondo.png') !important; /* la imagen de fondo */
+  background-size: cover;
+  background-repeat: no-repeat;
+  background-position: center;
+  padding: 30px; /* Quita el padding por defecto */
+  min-height: 100vh; /* minimo alto ventana */
+  font-family: Arial, sans-serif; /* Fuente base */
+  font-size: 16px; /* Tamaño de fuente base */
+}
+.imgdke {
+    position: relative;
+    left: 44%; top: -2em;
+}
+.formulario {
+  background: rgba(0, 0, 0, 0.7);
+  padding: 25px;
+  border-radius: 10px;
+  color: #E67514;
+  width: 20%;
+  box-shadow: 0 4px 10px #000000;
+  position:relative;
+  left: 30em; top: 1sem;
+}
+.C3 {
+  padding-left: 4%;
+}
+.formulario h2 {
+  text-align: center;
+  margin-bottom: 8px;
+}
+label {
+  display: flex;
+  margin-top: 12px;
+  font-size: 14px;
+}
+input[type="text"],
+input[type="email"],
+input[type="password"] {
+  width: 90%;
+  padding: 8px;
+  margin-top: 5px;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  font-size: 14px;
+}
+.contraseña {
+  display: flex;
+  align-items: center;
+  width: 57%;
+  gap: 6px;
+}
+.contraseña .help {
+  display: inline-block;
+  width: 22px;
+  height: 22px;
+  background: #fff;
+  color: #000;
+  border-radius: 50%;
+  text-align: center;
+  line-height: 22px;
+  font-weight: bold;
+  cursor: pointer;
+}
+.checkbox {
+  margin: 12px 0;
+  font-size: 13px;
+}
+.boton {
+  width: 22%;
+  padding: 10px;
+  background: #fff;
+  color: #000;
+  border: none;
+  border-radius: 6px;
+  font-size: 16px;
+  cursor: pointer;
+  margin-bottom: 15px;
+  transition: all 0.3s ease; /* Efecto */
+  left: 20em; top: 0;
+}
+.boton:active {
+  transform: scale(0.9); /* Activar escala */
+  background: #000000;
+  color: #ffffff;
+
+}
+.divider {
+  display: flex;
+  align-items: center;
+  text-align: center;
+  margin: 15px 0;
+  color: #ccc;
+}
+.divider::before,
+.divider::after {
+  content: "";
+  flex: 1;
+  border-bottom: 1px solid #ccc;
+}
+.divider span {
+  margin: 0 10px;
+  font-size: 12px;
+}
+.social {
+  width: 100%;
+  padding: 10px;
+  margin-top: 8px;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 14px;
+  transition: all 0.3s ease; /* Efecto */
+}
+.google {
+  background: radial-gradient(ellipse, #00000000, #ff0000);
+  color: #ffffff;
+}
+.facebook {
+  background: radial-gradient(ellipse, #00000000, #1322f6);
+  color: #ffffff;
+}
+.apple {
+  background: radial-gradient(ellipse, #000000, #000000);
+  color: #ffffff;
+}
+.social:active {
+  transform: scale(0.9); /* Escala bton */
+}
+.copyright2 {
+  position: relative;
+  left: 47%; top: 21rem;
+}
