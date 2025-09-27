@@ -22,7 +22,7 @@ body {
   border: 1px solid #ffffff;
   box-shadow: 0 4px 8px rgba(0,0,0,0.1);
   position: relative;
-  left: 16rem; top: 5rem;
+  left: 1rem; top: -1rem;
 }
 .header {
   background: #9e9c9c57;
