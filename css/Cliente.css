@@ -137,12 +137,35 @@ body {
 .CP {
   position: relative;
   left: 56em;
-  top: -24em;
+  top: -20em;
   width: 600px;
-  height: 412px;
+  height: 495px;
   background: #E67514;
   border-radius: 20px;
   box-shadow: 0 4px 10px #000000;
   transform: scale(1.5);
 }
-
+.imgCP {
+    border-radius: 20px;
+}
+.LR {
+  display: flex;
+  padding: 20px;
+  box-shadow: 0 4px 10px #000000;
+}
+.imgAM {
+    border-radius: 20px;
+}
+.AM {
+  display: flex;
+  padding: 20px;
+  box-shadow: 0 4px 10px #000000;
+}
+.imgAE {
+    border-radius: 20px;
+}
+.AE {
+  display: flex;
+  padding: 20px;
+  box-shadow: 0 4px 10px #000000;
+}
