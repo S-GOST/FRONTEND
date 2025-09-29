@@ -134,4 +134,15 @@ body {
 .btn3:active  {
   transform: scale(0.9); /* Escala bton */
 }
+.CP {
+  position: relative;
+  left: 56em;
+  top: -24em;
+  width: 600px;
+  height: 412px;
+  background: #E67514;
+  border-radius: 20px;
+  box-shadow: 0 4px 10px #000000;
+  transform: scale(1.5);
+}
 
