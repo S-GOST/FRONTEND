@@ -1,171 +1,171 @@
 @import url('https://fonts.googleapis.com/css2?family=Cossette+Titre:wght@400;700&family=Marcellus&display=swap');
+
 body {
-  background-image: url('../img/fondo.png') !important; /* la imagen de fondo */
+  background-image: url('../img/fondo.png') !important;
   background-size: cover;
   background-repeat: no-repeat;
   background-position: center;
-  padding: 30px; /* Quita el padding por defecto */
-  min-height: 100vh; /* minimo alto ventana */
-  font-family: Arial, sans-serif; /* Fuente base */
-  font-size: 16px; /* Tamaño de fuente base */
+  margin: 0;
+  padding: 20px;
+  min-height: 100vh;
+  font-family: Arial, sans-serif;
+  font-size: 16px;
 }
+
+/* Logo */
 .imgdke {
-    position: relative;
-    left: 48%; top: -2em;
+  display: block;
+  margin: 0 auto 20px auto;
 }
+
+/* Encabezados */
 .Text1 {
-  display: flex; /* Activar caja */
-  flex-direction: column; /* los pone en fila */
-  margin: 0; /* Quita el margen que ponen los navegadores */
-  padding: 0; /* Quita el padding por defecto */
-  font-family: Arial, sans-serif; /* Fuente base */
-  font-size: 16px; /* Tamaño de fuente base */
-  line-height: 1.5; /* Altura de línea para mejor legibilidad */
+  color: #fff;
+  position: relative;
+  top: 0rem;
+  padding-left: 3%;
+  z-index: 5;
+  width: 541px;
 }
 .Text1 h1 {
   font-size: 2.5rem;
   margin-bottom: 10px;
-  position: relative;
-  left: 2%;
-  color: #fff;
   font-family: "Cossette Titre", sans-serif;
   font-weight: 300;
 }
 .Text1 h2 {
-  font-size: 2rem;
   position: relative;
-  left: 2%; top: -3rem;
-  color: #fff;
+  left: 0rem; top: -1rem;
+  font-size: 1.5rem;
+  margin-bottom: 20px;
   font-family: "Cossette Titre", sans-serif;
   font-weight: 300;
 }
+
+/* Formulario */
 .Text2 {
-  position: relative;
-  color: #ffffff;
-  left: 8%;
-  width: 24em;
-  height: 14em;
-  display: flex; /* Activar caja */
+  max-width: 390px;
+  margin: 0 140px 40px 20px;
+  display: flex;
   flex-direction: column;
-  flex-wrap: nowrap;
-  align-items: flex-start;
-  gap: 20px;
-  transform: scale(1.6 );
+  gap: 15px;
+  color: #fff;
+  position: relative;
+  left: -1rem; top: 4rem;
 }
 .Text2 input {
-  width: 25em;
-  height: 1em;
-}
-#toggle {
-  position: relative;
-  left: 26em; top: -41px;
-  transform: scale(0.8);
+  width: 100%;
+  padding: 10px;
+  border-radius: 5px;
+  border: none;
 }
 .Text2 h5 {
-  position: relative;
-  left: 13em; top: -4rem;
+  position: absolute;
+  left: 59%; top: 72%;
+  text-align: center;
+  margin-top: 7px;
 }
-/* Botones */
-.btn1 {
-    width: 147px; /* Ancho boton */
-    height: 47px; /* Alto botn */
-    background: linear-gradient(135deg,#000000, #d64b00 ); /* Color degradado */
-    font-family: "Cossette Titre", sans-serif; /* Tipografia */
-    color: #ffffff; /* Color texto */
-    border-radius: 7px; /* Borde */
-    font-size: 1.2rem; /* Ajsute tamaño boton */
-    cursor: pointer; /* Al pasar el mouse */
-    border: none; /* Quitamos borde defecto */
-    font-weight: bold; /* Grosor */
-    transition: all 0.3s ease; /* Efecto */
-    display: flex; /* Activar caja */
-    justify-content: center; /* Alineamos  elementos */
-    align-items: center; /* Centramos elementos */
-    position: relative; /* Activar posicion */
-    left: 2em; top:-4rem /* Movimiento horizontal */
-}
-.btn2 {
-    width: 147px; /* Ancho boton */
-    height: 47px; /* Alto botn */
-    background: linear-gradient(135deg,#000000, #d64b00 ); /* Color degradado */
-    font-family: "Cossette Titre", sans-serif; /* Tipografia */
-    color: #fff; /* Color texto */
-    border-radius: 7px; /* Borde */
-    font-size: 1.2rem; /* Ajsute tamaño boton */
-    cursor: pointer; /* Al pasar el mouse */
-    border: none; /* Quitamos borde defecto */
-    font-weight: bold; /* Grosor */
-    transition: all 0.3s ease; /* Efecto */
-    display: flex; /* Activar caja */
-    justify-content: center; /* Alineamos  elementos */
-    align-items: center; /* Centramos elementos */
-    position: relative; /* Activar posicion */
-    left: 10em; top:-7rem /* Movimiento horizontal */
-}
-.btn1:hover {
-  background-color: #d65a0c;   /* tono más oscuro al pasar el mouse */
-}
-.btn1:active  {
-  transform: scale(0.9); /* Escala bton */
-}
-.btn2:hover {
-  background-color: #d65a0c;   /* tono más oscuro al pasar el mouse */
-}
-.btn2:active  {
-  transform: scale(0.9); /* Escala bton */
-}
-.btn3 {
-    width: 70px; /* Ancho carrito valor fijo */
-    background: linear-gradient(135deg,#FF4F0F, #E67514 ); /* Color de fondo degradado */
-    border-radius: 5px; /* Borde */
-    font-size: 1.2rem; /* Ajuste tanaño carrito */
-    font-weight: bold; /* Grosor */
-    border: none; /* Quitamos */
-    cursor: pointer; /* Al poner el mouse */
-    transition: all 0.3s ease; /* Efecto */
-    display: flex; /* Activamos caja */
-    justify-content: center; /* Alineamos elementos */
-    align-items: center; /* Centramos elementos */
-    position: relative; /* Activar posicion */
-}
-.btn3:hover {
-  background-color: #d65a0c;   /* tono más oscuro al pasar el mouse */
-}
-.btn3:active  {
-  transform: scale(0.9); /* Escala bton */
+#toggle {
+  position: absolute;
+  right: -54px;
+  margin-top: 62px;
+  background: transparent;
+  border: none;
+  cursor: pointer;
 }
 .CP {
   position: relative;
-  left: 56em;
-  top: -20em;
-  width: 600px;
-  height: 495px;
-  background: #E67514;
-  border-radius: 20px;
-  box-shadow: 0 4px 10px #000000;
-  transform: scale(1.5);
-}
-.imgCP {
-    border-radius: 20px;
-}
-.LR {
+  top: -20rem;
+  padding-left: 39%;
   display: flex;
-  padding: 20px;
-  box-shadow: 0 4px 10px #000000;
+  gap: 25px;
+  width: 0;
+  flex-direction: column;
 }
-.imgAM {
-    border-radius: 20px;
+/* Botones generales */
+.btn1, .btn2, .btn3 {
+  width: 147px; /* Ancho boton */
+  height: 47px; /* Alto boton */
+  background: linear-gradient(15deg,#000000, #393939 ); /* Color degradado */
+  font-family: "Karantina", system-ui; /*Tipografia */
+  transform: skew(-7deg); /* Inclinacion */
+  color: #ffffff9d; /* Color texto */
+  border-radius: 25px; /* Borde boton */
+  font-size: 1.2rem; /* Ajsute tamaño boton */
+  cursor: pointer; /* Al poner el mouse */
+  border: none; /* Quitamos borde defecto */
+  font-weight: bold; /* Grosor */
+  transition: all 0.3s ease; /* Efecto */
+  justify-content: center; /* Alineamos boton */
+  align-items: center; /* Alineamos elementos */
+  position: relative; /* Activar posicion */
+  left: 0%; /* Movimiento horizontal */
 }
-.AM {
+.btn1:active {
+  transform: scale(0.9);
+}
+.btn2:active {
+  transform: scale(0.9);
+}
+.btn3:active {
+  transform: scale(0.9);
+}
+.btn1:hover {
+  color: #E67514; /* Color texto pasar mouse */
+}
+.btn2:hover {
+  color: #E67514; /* Color texto pasar mouse */
+}
+.btn3:hover {
+  color: #E67514; /* Color texto pasar mouse */
+}
+/* Secciones internas */
+.LR, .AM, .AE {
   display: flex;
-  padding: 20px;
-  box-shadow: 0 4px 10px #000000;
+  flex-direction: row;
+  gap: 15px;
+  background: linear-gradient(135deg,#000000, #000000 ); /* Color de fondo degradado */
+  color: #ffffff;
+  transition: all 0.3s ease; /* Efecto */
+  border-radius: 15px;
+  padding: 15px;
+  box-shadow: 0 2px 6px #000000;
+  align-items: center;
+  width: 800px;
+  height: 100px;
 }
-.imgAE {
-    border-radius: 20px;
+.LR img, .AM img, .AE img {
+  border-radius: 15px;
+  max-width: 100px;
+  height: auto;
+  cursor: pointer;
+  transition: all 0.3s ease; /* Efecto */
 }
-.AE {
-  display: flex;
-  padding: 20px;
-  box-shadow: 0 4px 10px #000000;
+.LR img:active {
+  transform: scale(0.9); /* Efecto de escala */
+}
+.AE img:active {
+  transform: scale(0.9); /* Efecto de escala */
+}
+.AM img:active {
+  transform: scale(0.9); /* Efecto de escala */
+}
+/* Responsive */
+@media (max-width: 768px) {
+  .Text1 h1 { font-size: 2rem; }
+  .Text1 h2 { font-size: 1.2rem; }
+  .LR, .AM, .AE {
+    flex-direction: column;
+    text-align: center;
+  }
+  .LR img, .AM img, .AE img {
+    max-width: 80px;
+    margin: 0 auto;
+  }
+}
+@media (max-width: 480px) {
+  body { padding: 10px; }
+  .Text1 h1 { font-size: 1.6rem; }
+  .Text1 h2 { font-size: 1rem; }
+  .btn1, .btn2, .btn3 { max-width: 100%; }
 }
