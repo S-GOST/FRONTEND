@@ -12,13 +12,19 @@ body {
     position: relative;
     left: 48%; top: -2em;
 }
+body .rock {
+  position: relative;
+  left: 49em; top: 42em;
+  transform: scale(2.2);
+  z-index: 5;
+}
 .formulario {
   background: rgba(0, 0, 0, 0.7);
   padding: 25px;
   border-radius: 10px;
   color: #E67514;
   width: 32%;
-  height: 30rem;;
+  height: 40rem;;
   box-shadow: 0 4px 10px #000000;
   position:relative;
   left: 37em; top: 5em;
@@ -97,6 +103,6 @@ input[type="password"] {
 }
 .copyright2 {
   position: relative;
-  left: 48%; top: 25rem;
+  left: 48%; top: 12rem;
 }
 
