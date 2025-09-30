@@ -25,6 +25,7 @@ body {
   left: 1rem; top: -1rem;
 }
 .header {
+  padding: 15px;
   background: #9e9c9c57;
   border-radius: 20px;
   display: flex;
@@ -91,7 +92,7 @@ body {
   transform: scale(0.5);
   box-shadow: 0 4px 10px #000000;
   position: relative;
-  left: 73rem; top: -41rem;
+  left: 59rem; top: -48rem;
 }
 .botones button {
   position: relative;
