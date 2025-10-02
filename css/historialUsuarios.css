@@ -35,47 +35,34 @@ body {
   transform: scale(0.9); /* Escala bton */
 }
 body h1 {
+  font-family: "Karantina", system-ui; /* Tipografia */
+  font-weight: 500;
+  font-size: 50px;
   color: #ffffff;
   transform: scale(1.00); /* Escala bton */
   position: relative;
-  top: -2em; 
+  top: -1em; left: 14em;
+  width: 0;
 }
-table,th,td {
+table {
   border: 3px solid #000000;
-  color: #ffffff;
-  background: linear-gradient(to right, #00000020, #00000000, #0000001c);
+  color: #a38f8f;
+  font-family: "Karantina", system-ui; /* Tipografia */
+  background-color: #000000d2;
   box-shadow: 0 4px 10px #000000;
   border-collapse: collapse ;
   position: relative;
-  top: -5em;
-  transform: scale(1.0);
+  top: 0em; left: 19em;
+  transform: scale(1.5);
 }
-th,td {
-  padding: 20px;
+td,th {
+  padding: 18px 40px;
+  border: 3px solid #292929;
+}
+td {
+  font-size: 22px;
+}
+.copyright2 {
   position: relative;
-  top: 0em;
-}
-th {
-  text-align: left;
-}
-.btn {
-  background: linear-gradient(15deg,#e37515, #000000 ); /* Color degradado */
-  font-family: "Karantina", system-ui; /* Tipografia */
-  font-weight: 700;
-  color: #000000;
-  border: none;
-  border-radius: 6px;
-  font-size: 16px;
-  cursor: pointer;
-  margin-bottom: 15px;
-  transition: all 0.3s ease; /* Efecto */
-  box-shadow: 0 4px 10px #000000;
-}
-.btn:active {
-  transform: scale(0.9); /* Escala bton */
-  background: #29be00;
-  border-radius: 40%;
-}
-th {
-  color: #F14A00;
+  left: 47%; top: 230px;
 }

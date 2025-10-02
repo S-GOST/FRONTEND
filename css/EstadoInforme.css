@@ -35,32 +35,33 @@ body {
   transform: scale(0.9); /* Escala bton */
 }
 body h1 {
+  font-family: "Karantina", system-ui; /* Tipografia */
+  font-weight: 500;
+  font-size: 50px;
   color: #ffffff;
   transform: scale(1.00); /* Escala bton */
   position: relative;
-  top: -2em; 
+  top: -1em; left: 13em;
+  width: 0;
 }
 table {
   border: 3px solid #000000;
-  color: #ffffff;
-  background: linear-gradient(to right, #00000020, #00000000, #0000001c);
+  color: #a38f8f;
+  font-family: "Karantina", system-ui; /* Tipografia */
+  background-color: #000000d2;
   box-shadow: 0 4px 10px #000000;
   border-collapse: collapse ;
   position: relative;
-  top: -5em; left: -2em;
-  padding: 0px;
-  margin: 0px;
-}
-th,td {
-  position: relative;
-  left: 1em;
-  padding: 20px;
-  position: relative;
-  top: 0em;
+  top: -2em; left: 5em;
   transform: scale(1.2);
 }
-th {
-  text-align: left;
+td,th {
+  padding: 5px 6px;
+  border: 3px solid #292929;
+}
+td {
+  font-size: 27px;
+  font-weight: 400;
 }
 .btn {
   background: linear-gradient(15deg,#000000, #ffffff ); /* Color degradado */
@@ -69,7 +70,7 @@ th {
   color: #060606;
   border: none;
   border-radius: 6px;
-  font-size: 16px;
+  font-size: 25px;
   cursor: pointer;
   margin-bottom: 15px;
   transition: all 0.3s ease; /* Efecto */
@@ -98,6 +99,7 @@ th {
   background: #29be00;
   border-radius: 40%;
 }
-th {
-  color: #F14A00;
+.copyright2 {
+  position: relative;
+  left: 49%; top: 280px;
 }
