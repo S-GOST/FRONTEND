@@ -10,13 +10,14 @@ body {
 }
 .imgdke {
     position: relative;
-    left: 33%; top: -4em;
+    left: 33%; top: -5em;
+    transform: scale(1.7);
 }
 .imgcasa {
   filter: invert(100%) brightness(200%);
   position: relative;
-  top: -2em; left: 86em;
-  transform: scale(0.7);
+  top: -4em; left: 87em;
+  transform: scale(0.6);
   transition: all 0.3s ease; /* Efecto */
   cursor: pointer;
 }
@@ -26,8 +27,8 @@ body {
 .imgatras {
   filter: invert(100%) brightness(200%);
   position: relative;
-  top: -4em; left: -8em;
-  transform: scale(0.7);
+  top: -5em; left: -9em;
+  transform: scale(0.6);
   transition: all 0.3s ease; /* Efecto */
   cursor: pointer;
 }
@@ -118,18 +119,8 @@ body .informeT {
   position: relative;
   left: 62%; top: -18em;
 }
-.formulario {
-  padding: 14px 20px;
-  background: rgba(0, 0, 0, 0.7);
-  border-radius: 10px;
-  color: #E67514;
-  width: 15%;
-  height: 15em;
-  box-shadow: 0 4px 10px #000000;
-  position: relative;
-  left: 62%; top: -17rem;
-}
 .formulario2 {
+  text-align: center;
   padding: 14px 20px;
   background: rgba(0, 0, 0, 0.7);
   border-radius: 10px;
@@ -138,7 +129,12 @@ body .informeT {
   height: 15em;
   box-shadow: 0 4px 10px #000000;
   position: relative;
-  left: 73em; top: -34em;
+  left: 73em; top: -14em;
+}
+.formulario2 p1 {
+  text-align: center;
+  color: #ffffff;
+  font-size: 185%;
 }
 .NI {
   display: flex;
@@ -168,29 +164,25 @@ body .informeT {
   transform: scale(0.5);
   z-index: 5;
 }
-table,th,td {
+table {
   border: 3px solid #000000;
   color: #ffffff;
-  background: linear-gradient(to right, #00000020, #00000000, #0000001c);
+  background-color: #000000d2;
   box-shadow: 0 4px 10px #000000;
   border-collapse: collapse ;
   position: relative;
-  top: -30em; left: 7em;
+  top: -8em; left: 5em;
   transform: scale(1.2);
 }
-th,td {
-  padding: 20px;
-  position: relative;
-  top: 0em; left: 0em;
-  transform: scale(1.0);
-}
-th {
-  text-align: left;
+td,th {
+  padding: 5px 20px;
+  border: 3px solid #292929;
 }
 .btn {
   background: linear-gradient(15deg,#000000, #ffffff ); /* Color degradado */
   font-family: "Karantina", system-ui; /* Tipografia */
   font-weight: 500;
+  width: 90px;
   color: #060606;
   border: none;
   border-radius: 6px;
@@ -208,14 +200,14 @@ th {
 .table2 {
   border: 3px solid #000000;
   color: #ffffff;
-  background: linear-gradient(to right, #00000020, #00000000, #0000001c);
+  background-color: #000000d2;
   box-shadow: 0 4px 10px #000000;
   border-collapse: collapse ;
   position: relative;
-  top: -20rem; left: 16px;
+  top: -4em; left: -12px;
   transform: scale(1.0);
 }
 .copyright2 {
   position: relative;
-  left: 47%; top: -21px;
+  left: 50%; top: 23px;
 }

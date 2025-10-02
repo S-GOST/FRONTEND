@@ -40,7 +40,7 @@ body h1 {
   position: relative;
   top: -2em; 
 }
-table,th,td {
+table {
   border: 3px solid #000000;
   color: #ffffff;
   background: linear-gradient(to right, #00000020, #00000000, #0000001c);
@@ -48,7 +48,8 @@ table,th,td {
   border-collapse: collapse ;
   position: relative;
   top: -5em; left: -2em;
-  transform: scale(1.0);
+  padding: 0px;
+  margin: 0px;
 }
 th,td {
   position: relative;
