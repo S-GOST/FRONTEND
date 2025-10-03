@@ -12,6 +12,18 @@ body {
     position: relative;
     left: 37em; top: -2em;
 }
+.orden {
+  background: linear-gradient(15deg,#000000, #393939 ); /* Color degradado */
+  color: #ffffffd1;
+  box-shadow: 0 4px 10px #000000;
+  max-width: 800px;
+  margin: 50px 200px;
+  padding: 20px;
+  border: 1px solid #ffffff;
+  box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+  position: relative;
+  left: 1rem; top: -1rem;
+}
 /* Barra superior */
 .BloquePrincipal {
   display: flex;
