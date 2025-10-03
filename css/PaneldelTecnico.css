@@ -24,15 +24,22 @@ body {
   width: 81rem;
   height: 60px;
 }
-.Tabla{
+table {
   border: 3px solid #000000;
   color: #ffffff;
   background-color: #000000d2;
   box-shadow: 0 4px 10px #000000;
   border-collapse: collapse ;
   position: relative;
-  top: -1em; left: 5em;
+  top: 16em; left: 0em;
   transform: scale(1.2);
+}
+td,th {
+  padding: 5px 24px;
+  border: 3px solid #292929;
+}
+td {
+  font-size: 14px;
 }
 .BloquePrincipal .imgdke {
   left: 0em; top: 0em;
@@ -135,24 +142,6 @@ body {
 .footer {
   height: 30px;
   background: linear-gradient(to right, #000, #E67514, #000);
-}
-table,th,td {
-  border: 3px solid #000000;
-  color: #ffffff;
-  background: linear-gradient(to right, #00000020, #00000000, #0000001c);
-  box-shadow: 0 4px 10px #000000;
-  border-collapse: collapse ;
-  position: relative;
-  top: 2em;
-  transform: scale(0.9);
-}
-th,td {
-  padding: 20px;
-  position: relative;
-  top: 0em;
-}
-th {
-  text-align: left;
 }
 .resaltada {
   background-color: #E67514; /* naranja KTM */
