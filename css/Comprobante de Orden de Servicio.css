@@ -122,8 +122,10 @@ footer {
 }
 
 img {
+  display: flex;
   position: relative;
+  justify-content: space-around;
   cursor: pointer;
   left: 0px;
   top: 0px;
-}
+} 
