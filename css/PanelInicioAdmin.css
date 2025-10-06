@@ -10,7 +10,7 @@ body {
 }
 .imgdke {
     position: relative;
-    left: 33em; top: -2em;
+    left: 42em; top: -2em;
 }
 /* Barra superior */
 .BloquePrincipal {
@@ -30,6 +30,7 @@ body {
 }
 .c {
   position: relative;
+  cursor: pointer;
   left: -18em;
   transform: scale(0.6);
   filter: sepia(100%) saturate(600%) hue-rotate(90deg) brightness(100%);
@@ -69,8 +70,8 @@ body {
 }
 .confi {
   position: relative;
-  font-family: "Karantina", system-ui; /* Tipografia */
   left: -1em;
+  cursor: pointer;
   transform: scale(1.0);
   font-weight: 700 ;
   filter: grayscale(100%) brightness(140%) contrast(90%);

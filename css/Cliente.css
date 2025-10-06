@@ -1,5 +1,4 @@
 @import url('https://fonts.googleapis.com/css2?family=Cossette+Titre:wght@400;700&family=Marcellus&display=swap');
-
 body {
   background-image: url('../img/fondo.png') !important;
   background-size: cover;
@@ -11,13 +10,22 @@ body {
   font-family: Arial, sans-serif;
   font-size: 16px;
 }
-
 /* Logo */
 .imgdke {
   display: block;
-  margin: 0 auto 20px auto;
+  margin:-7px auto 20px auto;
 }
-
+.imgatras {
+  filter: invert(100%) brightness(200%);
+  position: relative;
+  top: -2rem; left: -2rem;
+  transform: scale(0.7);
+  transition: all 0.3s ease; /* Efecto */
+  cursor: pointer;
+}
+.imgatras:active {
+  transform: scale(0.9); /* Escala bton */
+}
 /* Encabezados */
 .Text1 {
   color: #fff;
@@ -168,4 +176,8 @@ body {
   .Text1 h1 { font-size: 1.6rem; }
   .Text1 h2 { font-size: 1rem; }
   .btn1, .btn2, .btn3 { max-width: 100%; }
+}
+.copyright2 {
+  position: relative;
+  left: 48%; top: 22px;
 }

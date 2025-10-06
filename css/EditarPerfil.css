@@ -67,3 +67,7 @@ body {
 .imgatras:active {
   transform: scale(0.9); /* Escala bton */
 }
+.copyright2 {
+  position: relative;
+  left: 35%; top: 17rem;
+}

@@ -10,7 +10,18 @@ body {
 }
 .imgdke {
     position: relative;
-    left: 48%; top: -2em;
+    left: 48%; top: -4em;
+}
+.imgatras {
+  filter: invert(100%) brightness(200%);
+  position: relative;
+  top: -2rem; left: -7rem;
+  transform: scale(0.7);
+  transition: all 0.3s ease; /* Efecto */
+  cursor: pointer;
+}
+.imgatras:active {
+  transform: scale(0.9); /* Escala bton */
 }
 .formulario {
   background: rgba(0, 0, 0, 0.7);
@@ -20,7 +31,7 @@ body {
   width: 20%;
   box-shadow: 0 4px 10px #000000;
   position:relative;
-  left: 44em; top: 6em;
+  left: 35em; top: 0em;
 }
 .C3 {
   padding-left: 4%;
@@ -128,5 +139,5 @@ input[type="password"] {
 }
 .copyright2 {
   position: relative;
-  left: 49%; top: 23rem;
+  left: 49%; top: 8rem;
 }

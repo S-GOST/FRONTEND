@@ -11,16 +11,16 @@ body {
 }
 .imgdke {
     position: relative;
-    left: 48%; top: -9em;
+    left: 48%; top: -4em;
 }
 .copyright2 {
   position: relative;
-  left: 42%; top: 54rem;
+  left: 42%; top: 46rem;
 }
 .imgcasa {
   filter: invert(100%) brightness(200%);
   position: relative;
-  top: -6em; left: 100em;
+  top: -3em; left: 76em;
   transform: scale(0.7);
   transition: all 0.3s ease; /* Efecto */
   cursor: pointer;
@@ -31,7 +31,7 @@ body {
 .imgatras {
   filter: invert(100%) brightness(200%);
   position: relative;
-  top: -7em; left: -18em;
+  top: -2em; left: -13em;
   transform: scale(0.7);
   transition: all 0.3s ease; /* Efecto */
   cursor: pointer;
@@ -46,7 +46,7 @@ body {
   width: 0px;
   border-radius: 10px;
   position: relative;
-  left: 16%; top: 0rem;
+  left: 6%; top: 0rem;
   transform: scale(1.2);
   font-family: "Roboto Slab", serif;
 }

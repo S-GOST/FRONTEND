@@ -13,6 +13,21 @@ body {
     position: relative;
     left: 47%; top: -2em;
 }
+.c {
+  position: relative;
+  cursor: pointer;
+  left: 1em; top: -5em;
+  transform: scale(0.6);
+  filter: sepia(100%) saturate(600%) hue-rotate(90deg) brightness(100%);
+  transition: all 0.3s ease; /* Efecto */
+}
+.c:hover {
+  transform: scale(0.7); /* un poco más grande */
+}
+.c:active {
+  transform: scale(0.9); /* Escala bton */
+  filter: grayscale(100%) brightness(140%) contrast(90%);
+}
 header {
   display: flex;                  /* activa flexbox */
   justify-content: space-between; /* espacio entre los elementos */
