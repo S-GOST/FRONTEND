@@ -11,6 +11,18 @@ body {
 .imgdke {
     position: relative;
     left: 46%; top: -2em;
+    transform: scale(1.5)
+}
+.imgatras {
+  filter: invert(100%) brightness(200%);
+  position: relative;
+  top: -2em; left: -8em;
+  transform: scale(0.6);
+  transition: all 0.3s ease; /* Efecto */
+  cursor: pointer;
+}
+.imgatras:active {
+  transform: scale(0.9); /* Escala bton */
 }
 .orden {
   background: linear-gradient(15deg,#000000, #393939 ); /* Color degradado */
@@ -28,6 +40,7 @@ body {
   display: flex;
   align-items: center;
   justify-content: space-between;
+  padding: 15px;
 }
 .rock {
   width: 80px;
@@ -110,4 +123,8 @@ body {
   transform: scale(1.2); /* Activar escala */
   background: #000000;
   color: #ffffff;
+}
+.copyright2 {
+  position: relative;
+  left: 49%; top: 32px;
 }

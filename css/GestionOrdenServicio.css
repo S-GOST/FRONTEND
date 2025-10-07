@@ -10,7 +10,7 @@ body {
 }
 .imgdke {
     position: relative;
-    left: 33%; top: -5em;
+    left: 39%; top: -5em;
     transform: scale(1.7);
 }
 .imgcasa {
@@ -27,7 +27,7 @@ body {
 .imgatras {
   filter: invert(100%) brightness(200%);
   position: relative;
-  top: -5em; left: -9em;
+  top: -5em; left: -3em;
   transform: scale(0.6);
   transition: all 0.3s ease; /* Efecto */
   cursor: pointer;
@@ -37,13 +37,13 @@ body {
 }
 body .rock {
     position: relative;
-    left: -16%; top: 9em;
+    left: -10%; top: 9em;
     transform: scale(2.5);
 }
 body .moto1 {
     filter: invert(100%) brightness(200%);
     position: relative;
-    left: -13%; top: 4em;
+    left: -7%; top: 4em;
     transform: scale(0.7);
 }
 .moto1:active {
@@ -52,7 +52,7 @@ body .moto1 {
 body .ojo {
     filter: invert(100%) brightness(200%);
     position: relative;
-    left: -284px; top: 7em;
+    left: -14%; top: 7em;
     transform: scale(0.7);
 }
 .ojo:active {
@@ -61,7 +61,7 @@ body .ojo {
 body .filtro1 {
     filter: invert(100%) brightness(200%);
     position: relative;
-    left: -26%; top: 11em;
+    left: -20%; top: 11em;
     transform: scale(0.7);
 }
 .filtro1:active {
@@ -70,7 +70,7 @@ body .filtro1 {
 body .informeT {
     filter: invert(100%) brightness(200%);
     position: relative;
-    left: -469px; top: 15em;
+    left: -385px; top: 15em;
     transform: scale(0.7);
 }
 .informeT:active {
