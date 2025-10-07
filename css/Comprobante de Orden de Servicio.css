@@ -10,6 +10,7 @@ body {
   align-items: flex-start;
   padding: 40px 0;
 }
+
 .container {
   position: relative;
 }
@@ -105,27 +106,15 @@ footer {
 
 .EnviarComprobante {
  position: relative;
- left: 559px; top: -805px;
+ left: 559px; top: -765px;
 }
 .VerHistorial {
   position: relative;
-  left: 443px; top: -757px; 
+  left: 443px; top: -716px; 
 }
 
 .DescargarPDF {
   position: relative;
-  left: 345px; top: -711px;
+  left: 345px; top: -661px;
 }
 
-.rocket-model {
-    user-select: none;
-}
-
-img {
-  display: flex;
-  position: relative;
-  justify-content: space-around;
-  cursor: pointer;
-  left: 0px;
-  top: 0px;
-} 
