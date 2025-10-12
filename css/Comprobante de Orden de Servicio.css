@@ -11,8 +11,20 @@ body {
   padding: 40px 0;
 }
 
+.imgdke1 {
+    position: relative;
+    left: -5em; top: 6em;
+}
+
+.imgdke {
+    position: relative;
+    left: 14em; top: -1em;
+}
+
 .container {
   position: relative;
+  left: 2px;
+  top : -67px;
 }
 .formulario {
   background: white;
@@ -28,8 +40,11 @@ header {
   position: relative;
 }
 h2 {
+  position: relative;
   margin: 0;
   color: #f60;
+  left: 13px;
+  top: 4px;
 }
 
 section {
