@@ -27,16 +27,18 @@ body {
   top : -67px;
 }
 .formulario {
-  background: white;
+  background: linear-gradient(15deg,#000000, #393939 ); /* Color degradado */
   padding: 20px;
   width: 503px;
+  height: 730px;
   border-radius: 8px;
   box-shadow: 0 0 10px rgba(0,0,0,0.3);
+  color: #ffffffd1;
 }
 header {
   text-align: center;
   border-bottom: 2px solid #ccc;
-  padding-bottom: 10px;
+  padding-bottom: 28px;
   position: relative;
 }
 h2 {
@@ -46,9 +48,15 @@ h2 {
   left: 13px;
   top: 4px;
 }
-
+p1 {
+  position: relative;
+  margin: 0;
+  color: #f60;
+  left: 13px;
+  top: 4px;
+}
 section {
-  margin-top: 10px;
+  margin-top: 16px;
 }
 
 .fila {
@@ -95,7 +103,7 @@ th, td {
 }
 
 th {
-  background: #f5f5f5;
+  background: #000000;
 }
 
 .proceso p {
@@ -132,4 +140,17 @@ footer {
   position: relative;
   left: 345px; top: -661px;
 }
-
+button {
+  position: relative;
+  left: 113%; top: -44rem;
+  width: 53%;
+  padding: 2px;
+  background: #fff;
+  color: #000;
+  border: none;
+  border-radius: 6px;
+  font-size: 16px;
+  cursor: pointer;
+  margin-bottom: 15px;
+  transition: all 0.3s ease; /* Efecto */
+}
