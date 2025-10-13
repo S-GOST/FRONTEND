@@ -1,0 +1,188 @@
+body {
+  margin: 0;
+  font-family: Arial, sans-serif;
+  background-image: url('../img/fondo.png') !important; /* la imagen de fondo */
+  background-size: cover;     /* ajusta la imagen al tamaño de la pantalla */
+  background-position: center;
+  min-height: 100vh;          /* asegura que cubra todo el alto */
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  padding: 40px 0;
+}
+
+.imgdke1 {
+    position: relative;
+    left: -5em; top: 7em;
+}
+.imgcasa {
+  filter: invert(100%) brightness(200%);
+  position: relative;
+  top: -1rem; left: 65em;
+  transform: scale(0.7);
+  transition: all 0.3s ease; /* Efecto */
+  cursor: pointer;
+}
+.imgcasa:active {
+  transform: scale(0.9); /* Escala bton */
+}
+.imgdke {
+    position: relative;
+    left: 14em; top: -1em;
+}
+.imgatras {
+  filter: invert(100%) brightness(200%);
+  position: relative;
+  top: -0rem; left: -30rem;
+  transform: scale(0.7);
+  transition: all 0.3s ease; /* Efecto */
+  cursor: pointer;
+}
+.imgatras:active {
+  transform: scale(0.9); /* Escala bton */
+}
+.container {
+  position: relative;
+  left: -62px;
+  top : -67px;
+}
+.formulario {
+  margin-top: 3%;
+  background: linear-gradient(15deg,#000000, #393939 ); /* Color degradado */
+  padding: 20px;
+  width: 503px;
+  height: 892px;
+  border-radius: 8px;
+  box-shadow: 0 0 10px rgba(0,0,0,0.3);
+  color: #ffffffd1;
+}
+header {
+  text-align: center;
+  border-bottom: 2px solid #ccc;
+  padding-bottom: 28px;
+  position: relative;
+}
+h2 {
+  position: relative;
+  margin: 0;
+  color: #f60;
+  left: 13px;
+  top: -3px;
+}
+p1 {
+  position: relative;
+  margin: 0;
+  color: #f60;
+  left: 66px;
+  top: 0px;
+}
+p2 {
+  position: relative;
+  margin: 0;
+  color: #f60;
+  left: -22px;
+  top: 16px;
+}
+section {
+  margin-top: 16px;
+}
+
+.fila {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 5px;
+}
+
+label {
+  font-size: 14px;
+  width: 184px;
+}
+
+input[type="text"], input[type="date"] {
+  flex: 1;
+  padding: 3px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+}
+
+.checkboxes {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 10px;
+}
+
+.servicios p {
+  font-size: 14px;
+  line-height: 1.4;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 5px;
+}
+
+th, td {
+  border: 1px solid #ccc;
+  text-align: left;
+  padding: 5px;
+  font-size: 14px;
+}
+
+th {
+  background: #000000;
+}
+
+.proceso p {
+  font-size: 13px;
+  line-height: 1.4;
+}
+
+.total {
+  text-align: right;
+  font-weight: bold;
+  margin-top: 8px;
+}
+
+footer {
+  text-align: left;
+  margin-top: 15px;
+  font-size: 14px;
+}
+
+.historial:hover {
+  background-color: #e05500;
+}
+
+.EnviarComprobante {
+ position: relative;
+ left: 559px; top: -765px;
+}
+.VerHistorial {
+  position: relative;
+  left: 443px; top: -716px; 
+}
+
+.DescargarPDF {
+  position: relative;
+  left: 345px; top: -661px;
+}
+button {
+  position: relative;
+  left: 113%; top: -44rem;
+  width: 53%;
+  padding: 2px;
+  background: #fff;
+  color: #000;
+  border: none;
+  border-radius: 6px;
+  font-size: 16px;
+  cursor: pointer;
+  margin-bottom: 15px;
+  transition: all 0.3s ease; /* Efecto */
+}
+.copyright2 {
+  position: relative;
+  left: -12%; top: 0rem;
+}

@@ -20,10 +20,20 @@ body {
     position: relative;
     left: 14em; top: -1em;
 }
-
+.imgatras {
+  filter: invert(100%) brightness(200%);
+  position: relative;
+  top: -0rem; left: -28rem;
+  transform: scale(0.7);
+  transition: all 0.3s ease; /* Efecto */
+  cursor: pointer;
+}
+.imgatras:active {
+  transform: scale(0.9); /* Escala bton */
+}
 .container {
   position: relative;
-  left: 2px;
+  left: -62px;
   top : -67px;
 }
 .formulario {
@@ -153,4 +163,8 @@ button {
   cursor: pointer;
   margin-bottom: 15px;
   transition: all 0.3s ease; /* Efecto */
+}
+.copyright2 {
+  position: relative;
+  left: -12%; top: 0rem;
 }
