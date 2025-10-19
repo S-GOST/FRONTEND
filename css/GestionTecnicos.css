@@ -1,0 +1,185 @@
+body {
+  background-image: url('../img/fondo.png') !important; /* la imagen de fondo */
+  background-size: cover;
+  background-repeat: no-repeat;
+  background-position: center;
+  padding: 30px; /* Quita el padding por defecto */
+  min-height: 100vh; /* minimo alto ventana */
+  font-family: Arial, sans-serif; /* Fuente base */
+  font-size: 16px; /* Tamaño de fuente base */
+}
+.imgdke1 {
+    position: relative;
+    left: 3em; top: 8em;
+}
+/* Barra superior */
+.BloquePrincipal {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 81rem;
+  height: 60px;
+  background: linear-gradient(to right, #000, #3d3d3d, #000);
+  box-shadow: 0 4px 10px #000000;
+  position: relative;
+  left: -11px;
+  top: -100px;
+}
+table {
+  border: 3px solid #000000;
+  color: #ffffff;
+  background-color: #000000d2;
+  box-shadow: 0 4px 10px #000000;
+  border-collapse: collapse ;
+  position: relative;
+  top: 16em; left: 0em;
+  transform: scale(1.2);
+}
+td,th {
+  padding: 5px 24px;
+  border: 3px solid #292929;
+}
+td {
+  font-size: 14px;
+}
+.c {
+  position: relative;
+  left: -16em;
+  transform: scale(0.6);
+  filter: sepia(100%) saturate(600%) hue-rotate(90deg) brightness(100%);
+  transition: all 0.3s ease; /* Efecto */
+}
+.c:hover {
+  transform: scale(0.7); /* un poco más grande */
+}
+.c:active {
+  transform: scale(0.9); /* Escala bton */
+  filter: grayscale(100%) brightness(140%) contrast(90%);
+}
+.BloquePrincipal span {
+  position: relative;
+  font-family: "Karantina", system-ui; /* Tipografia */
+  left: -28em;
+  transform: scale(1.7);
+  font-weight: 700 ;
+  color: #ffffffc7;
+}
+.notificaciones {
+  position: relative;
+  left: 11em;
+  transform: scale(0.9);
+  cursor: pointer;
+  font-weight: 700 ;
+  filter: grayscale(100%) brightness(140%) contrast(90%);
+  transition: all 0.3s ease; /* Efecto */
+}
+.notificaciones:hover {
+  transform: scale(1.1); /* un poco más grande */
+  filter: sepia(100%) saturate(700%) hue-rotate(-15deg) brightness(90%);
+}
+.notificaciones:active {
+  transform: scale(1.9); /* Escala bton */
+  filter: sepia(100%) saturate(700%) hue-rotate(-15deg) brightness(90%);
+}
+.confi {
+  position: relative;
+  font-family: "Karantina", system-ui; /* Tipografia */
+  left: -2em;
+  transform: scale(1.0);
+  font-weight: 700 ;
+  filter: grayscale(100%) brightness(140%) contrast(90%);
+  transition: all 0.3s ease; /* Efecto */
+}
+.confi:hover {
+  transform: scale(1.1); /* un poco más grande */
+  filter: sepia(100%) saturate(700%) hue-rotate(-15deg) brightness(90%);
+}
+.confi:active {
+  transform: scale(1.9); /* Escala bton */
+  filter: sepia(100%) saturate(700%) hue-rotate(-15deg) brightness(90%);
+}
+/* Layout principal */
+.centro {
+  display: flex;
+  justify-content: space-evenly;
+  padding: 20px;
+}
+
+/* Menú lateral */
+.Botones {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+  position: relative;
+  left: -281px;
+  top: -118px;
+}
+
+.Botones button {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: #E67514;
+  border: none;
+  border-radius: 5px;
+  padding: 13px 20px;
+  font-size: 16px;
+  font-weight: bold;
+  color: white;
+  box-shadow: 0 4px 10px #000000;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  position: relative;
+  left: 0em; top: 1em;
+}
+.Botones button:active  {
+  transform: scale(0.9); /* Escala bton */
+}
+.Botones button:hover {
+  color: #000000; /* Color texto pasar mouse */
+}
+/* Footer */
+.footer {
+  height: 30px;
+  background: linear-gradient(to right, #000, #E67514, #000);
+}
+.resaltada {
+  background-color: #E67514; /* naranja KTM */
+  color: white;
+  font-weight: bold;
+}
+.cir {
+  position: relative;
+  left: 85%; top: -17em;
+  transform: scale(1.7);
+  height: 100px;
+  width: 100px;
+  border-radius: 50px;
+  background: conic-gradient(#E67514 0deg 200deg, #ffffff 180deg 360deg);
+}
+.T1 {
+ position: relative;
+ left: -53%; top: 2em;
+}
+.T2 {
+ position: relative;
+ left: 41%; top: 1em;
+}
+.copyright2 {
+  position: relative;
+  width: 7%;
+  height: 13%;
+  left: -4%; top: 385px;
+  
+}
+.BloquePrincipal .imgdke1 {
+  left: 0em;
+  top: 0em;
+  transform: scale(0.6);
+}
+
+.BloquePrincipal .imgdke1 {
+  left: 0em;
+  top: 0em;
+}
+
