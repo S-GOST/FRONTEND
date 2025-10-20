@@ -10,7 +10,7 @@ body {
 }
 .imgdke1 {
     position: relative;
-    left: 1em; top: 0em;
+    left: 33em; top: 0em;
     transform: scale(0.5);
 }
 .imgdke {
@@ -27,8 +27,8 @@ body {
   background: linear-gradient(to right, #000, #3d3d3d, #000);
   box-shadow: 0 4px 10px #000000;
   position: relative;
-  left: -11px;
-  top: 40px;
+  left: -549px;
+  top: -13px;
 }
 table {
   border: 3px solid #000000;
@@ -49,7 +49,7 @@ td {
 }
 .c {
   position: relative;
-  left: -23em;
+  left: 10em;
   transform: scale(0.6);
   filter: sepia(100%) saturate(600%) hue-rotate(90deg) brightness(100%);
   transition: all 0.3s ease; /* Efecto */
@@ -64,7 +64,7 @@ td {
 .BloquePrincipal span {
   position: relative;
   font-family: "Karantina", system-ui; /* Tipografia */
-  left: -43em;
+  left: -10em;
   transform: scale(1.7);
   font-weight: 700 ;
   color: #ffffffc7;
@@ -116,8 +116,8 @@ td {
   flex-direction: column;
   gap: 15px;
   position: relative;
-  left: -684px;
-  top: 21px;
+  left: -398px;
+  top: -27px;
 }
 
 .Botones button {
