@@ -1,0 +1,142 @@
+body {
+  margin: 0;
+  font-family: Arial, sans-serif;
+  background-image: url('../img/fondo.png') !important; /* la imagen de fondo */
+  background-size: cover;     /* ajusta la imagen al tamaño de la pantalla */
+  background-position: center;
+  min-height: 100vh;          /* asegura que cubra todo el alto */
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  padding: 40px 0;
+  position: relative;
+  left: 0px;
+  top: -31px;
+}
+.dashboard-container {
+    width: 95%;
+    max-width: 1600px;
+    margin: auto;
+    background-color: #333; /* Fondo del contenedor */
+    border-radius: 8px;
+    overflow: hidden; /* Para contener los bordes redondeados */
+    border: 1px solid #444;
+}
+/* --- 1. Encabezado --- */
+.dashboard-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 20px;
+    background-color: #f39c12; /* Naranja de la barra superior */
+    color: #222; /* Texto oscuro para la barra naranja */
+}
+
+.dashboard-header h2 {
+    margin: 0;
+    font-size: 24px;
+}
+
+.home-icon {
+    font-size: 24px;
+    text-decoration: none;
+    color: #222;
+}
+
+/* --- 2. Contenedor de la Tabla --- */
+.table-container {
+    padding: 20px;
+    overflow-x: auto; /* Permite scroll horizontal en móviles */
+}
+
+table {
+    width: 103px;
+    border-collapse: collapse; /* Bordes de tabla limpios */
+    background-color: rgba(0, 0, 0, 0.2); /* Fondo semi-transparente para la tabla */
+}
+
+th, td {
+    padding: 12px 15px;
+    border-bottom: 1px solid #444;
+    text-align: left;
+    vertical-align: middle;
+}
+
+/* Encabezados de la tabla */
+thead th {
+    background-color: rgba(255, 255, 255, 0.05);
+    font-size: 14px;
+    text-transform: uppercase;
+    color: #ccc;
+}
+
+/* Celdas del cuerpo de la tabla */
+tbody td {
+    font-size: 15px;
+    overflow: hidden;
+    color:#fff
+}
+/* --- Puntos de Estado (La parte clave) --- */
+.status-dot {
+    display: inline-block;
+    width: 12px;
+    height: 12px;
+    border-radius: 50%; /* Los hace círculos perfectos */
+    margin-right: 8px;
+    vertical-align: middle; /* Alinea el círculo con el texto */
+}
+
+/* Colores de los estados */
+.status-proceso {
+    background-color: #f39c12; /* Naranja */
+}
+.status-lista {
+    background-color: #9b59b6; /* Morado */
+}
+.status-entregado {
+    background-color: #2ecc71; /* Verde */
+}
+
+/* --- Alineación de texto --- */
+.text-right {
+    text-align: right;
+    color: #fff
+}
+/* --- Botones --- */
+.btn {
+    padding: 6px 12px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 14px;
+    background-color: #555;
+    color: white;
+    margin: 0 2px;
+}
+
+.btn:hover {
+    background-color: #666;
+}
+
+.btn-enviar {
+    background-color: #4a4a4a;
+}
+.btn-enviar:hover {
+    background-color: #5a5a5a;
+}
+
+/* --- 3. Pie de página y botón "Inicio" --- */
+.dashboard-footer {
+    padding: 20px;
+    text-align: left;
+}
+
+.btn-inicio {
+    background-color: #444;
+    padding: 10px 20px;
+    font-size: 16px;
+}
+
+.btn-inicio:hover {
+    background-color: #555;
+}
