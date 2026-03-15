@@ -1,0 +1,101 @@
+/* Heredamos las variables del :root anterior */
+
+.login-form-container {
+  background-color: var(--ktm-dark-card);
+  padding: 2.5rem;
+  border-radius: 20px;
+  border: 1px solid var(--ktm-gray-medium);
+  box-shadow: 0 15px 35px rgba(0, 0, 0, 0.7);
+  backdrop-filter: blur(10px);
+  width: 100%;
+  max-width: 400px;
+}
+
+.login-title {
+  font-family: 'Orbitron', sans-serif;
+  color: var(--ktm-orange);
+  text-align: center;
+  margin-bottom: 1.5rem;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  font-size: 1.8rem;
+  text-shadow: 0 0 15px var(--ktm-glow);
+}
+
+.form-group label {
+  display: block;
+  font-family: 'Rajdhani', sans-serif;
+  color: var(--ktm-gray-light);
+  margin-bottom: 0.5rem;
+  text-transform: uppercase;
+  font-weight: 600;
+  font-size: 0.9rem;
+}
+
+/* --- Bloque actualizado para mayor claridad en inputs --- */
+
+.form-control {
+  width: 100%;
+  background-color: var(--ktm-gray-dark) !important;
+  border: 1px solid var(--ktm-gray-medium);
+  /* Cambiamos a blanco puro o un gris muy claro para el texto que se escribe */
+  color: #ffffff !important; 
+  padding: 0.8rem 1rem;
+  border-radius: 8px;
+  outline: none;
+  transition: all 0.3s ease;
+  font-size: 1rem;
+}
+
+/* Letras del "Ej: admi1" o "********" antes de escribir */
+.form-control::placeholder {
+  /* Un gris claro para que sea legible pero se note que es placeholder */
+  color: #bbbbbb; 
+  opacity: 1; /* Asegura que en Firefox se vea con el color real */
+}
+
+/* Opcional: Que el texto resalte aún más cuando el usuario hace clic */
+.form-control:focus {
+  border-color: var(--ktm-orange);
+  box-shadow: 0 0 10px var(--ktm-glow);
+  color: #ffffff !important;
+  background-color: #000000 !important; /* Un poco más oscuro al escribir */
+}
+
+.error-message {
+  background-color: rgba(220, 53, 69, 0.1);
+  color: #ff4d4d;
+  padding: 0.7rem;
+  border-radius: 6px;
+  border-left: 4px solid #dc3545;
+  margin-bottom: 1rem;
+  font-size: 0.85rem;
+  text-align: center;
+}
+
+/* El botón con el ADN de KTM */
+.btn-login {
+  width: 100%;
+  background: var(--ktm-orange);
+  color: #fff;
+  border: none;
+  padding: 1rem;
+  border-radius: 8px;
+  font-family: 'Orbitron', sans-serif;
+  font-weight: 700;
+  text-transform: uppercase;
+  cursor: pointer;
+  letter-spacing: 1px;
+  transition: all 0.3s ease;
+  margin-top: 10px;
+}
+
+.btn-login:hover {
+  background: var(--ktm-orange-glow);
+  box-shadow: 0 0 20px var(--ktm-glow-strong);
+  transform: translateY(-2px);
+}
+
+.btn-login:active {
+  transform: translateY(0);
+}

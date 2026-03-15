@@ -1,0 +1,107 @@
+/* src/index.css - VERSIÓN CORREGIDA */
+
+/* Importar Bootstrap Icons directamente */
+@import url('https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css');
+@import url('https://fonts.googleapis.com/css2?family=Rajdhani:wght@400;500;600;700&family=Inter:wght@300;400;500&family=Orbitron:wght@400;600;700&display=swap');
+
+:root {
+  --ktm-orange: #FF6600;
+  --ktm-orange-glow: #FF8C00;
+  --ktm-dark: #0A0A0A;
+  --ktm-dark-card: #111111;
+  --ktm-gray-dark: #1A1A1A;
+  --ktm-gray-medium: #2A2A2A;
+  --ktm-gray-light: #CCCCCC;
+  --ktm-accent: #FF8C00;
+  --ktm-glow: rgba(255, 102, 0, 0.4);
+  --ktm-glow-strong: rgba(255, 102, 0, 0.7);
+}
+
+/* 1. RESET CRÍTICO PARA ELIMINAR EL BLANCO */
+html, body {
+  margin: 0;
+  padding: 0;
+  width: 100%;
+  min-height: 100vh;
+  /* El !important es vital para sobrescribir el blanco de Bootstrap */
+  background-color: var(--ktm-dark) !important; 
+  color: #fff;
+  overflow-x: hidden;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  font-family: 'Inter', sans-serif;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+}
+
+/* 2. FONDO DE PARTÍCULAS (AJUSTADO) */
+body::before {
+  content: '';
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: 
+      radial-gradient(circle at 10% 20%, rgba(255, 102, 0, 0.05) 0%, transparent 25%),
+      radial-gradient(circle at 90% 80%, rgba(255, 102, 0, 0.03) 0%, transparent 25%),
+      radial-gradient(circle at 50% 50%, rgba(255, 102, 0, 0.02) 0%, transparent 35%),
+      linear-gradient(180deg, var(--ktm-dark) 0%, #0d0d0d 100%);
+  z-index: -1; /* Cambiado a -1 para estar justo detrás del contenido */
+  pointer-events: none;
+}
+
+/* 3. CONTENEDORES (SOBRESCRIBIENDO BOOTSTRAP) */
+.container {
+  width: 100%;
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 0 20px;
+  background: transparent !important; /* Evita que contenedores de BS tengan fondo */
+}
+
+/* Barra de navegación mejorada */
+.navbar-premium {
+  background: rgba(10, 10, 10, 0.95);
+  backdrop-filter: blur(15px);
+  border-bottom: 1px solid rgba(255, 102, 0, 0.2);
+  padding: 15px 0;
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+  box-shadow: 0 5px 20px rgba(0, 0, 0, 0.3);
+}
+
+/* ... (Aquí iría todo el resto de tu CSS de botones, cards, etc. que ya tienes) ... */
+
+/* 4. AJUSTE PARA EL LOGIN/AUTH LAYOUT */
+/* Si usas AuthLayout, asegúrate de que no tenga un fondo blanco accidental */
+.auth-layout, .ktm-container {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: center; /* Esto centrará tu login verticalmente */
+  align-items: center;
+  background: transparent !important;
+}
+
+/* Asegurar que las "cards" de Bootstrap no sean blancas */
+.card {
+  background-color: var(--ktm-dark-card) !important;
+  border: 1px solid var(--ktm-gray-medium) !important;
+  color: white !important;
+}
+
+/* --- MANTENER TUS ANIMACIONES Y RESPONSIVE DE ABAJO --- */
+@keyframes shine {
+  0% { left: -100%; }
+  100% { left: 100%; }
+}
+
+/* (Copia aquí el resto de tus estilos de .main-content hacia abajo) */
