@@ -7,14 +7,14 @@ export interface Service {
   icon: string;
 }
 
-export interface CartItem extends Service {
-  quantity: number;
-}
-
 export interface SearchSuggestion {
-  id: number;
+  id: string;
   name: string;
   category: string;
   icon: string;
   price: number;
+}
+
+export interface CartItem extends Service {
+  quantity: number;
 }

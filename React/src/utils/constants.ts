@@ -135,21 +135,10 @@ export const servicesData: Service[] = [
   }
 ];
 
-export const searchSuggestionsData: SearchSuggestion[] = [
-  { id: 1, name: 'Mantenimiento Preventivo', category: 'Mantenimiento', icon: 'bi-shield-check', price: 120.00 },
-  { id: 2, name: 'Mantenimiento Correctivo', category: 'Mantenimiento', icon: 'bi-wrench-adjustable', price: 200.00 },
-  { id: 3, name: 'Mantenimiento Predictivo', category: 'Mantenimiento', icon: 'bi-graph-up-arrow', price: 180.00 },
-  { id: 4, name: 'Mantenimiento Proactivo', category: 'Mantenimiento', icon: 'bi-lightning-charge', price: 250.00 },
-  { id: 5, name: 'Reparaciones por Daños', category: 'Reparaciones', icon: 'bi-tools', price: 350.00 },
-  { id: 6, name: 'Motorización y Transmisión', category: 'Reparaciones', icon: 'bi-gear', price: 500.00 },
-  { id: 7, name: 'Electrónica y Sistemas de Control', category: 'Reparaciones', icon: 'bi-cpu', price: 300.00 },
-  { id: 8, name: 'Carrocería y Personalización', category: 'Reparaciones', icon: 'bi-palette', price: 400.00 },
-  { id: 9, name: 'Diagnóstico de Emisiones y Rendimiento', category: 'Diagnósticos', icon: 'bi-speedometer2', price: 150.00 },
-  { id: 10, name: 'Diagnóstico de Seguridad y Dinámica', category: 'Diagnósticos', icon: 'bi-shield-check', price: 180.00 },
-  { id: 11, name: 'Diagnóstico Eléctrico', category: 'Diagnósticos', icon: 'bi-lightning-charge', price: 120.00 },
-  { id: 12, name: 'Diagnóstico Mecánico', category: 'Diagnósticos', icon: 'bi-gear-wide', price: 160.00 },
-  { id: 13, name: 'Instalación Personalizada', category: 'Instalaciones', icon: 'bi-wrench', price: 100.00 },
-  { id: 14, name: 'Instalaciones de Seguridad', category: 'Instalaciones', icon: 'bi-shield-shaded', price: 200.00 },
-  { id: 15, name: 'Instalaciones de Rendimiento', category: 'Instalaciones', icon: 'bi-graph-up', price: 350.00 },
-  { id: 16, name: 'Accesorios Personalizados', category: 'Instalaciones', icon: 'bi-stars', price: 150.00 }
-];
+export const searchSuggestionsData: SearchSuggestion[] = servicesData.map(s => ({
+  id: s.id,
+  name: s.name,
+  category: s.category,
+  icon: s.icon,
+  price: s.price
+}));

@@ -9,18 +9,17 @@ const Login: React.FC = () => {
   const [error, setError] = useState('');
   const navigate = useNavigate();
 
-  const handleLogin = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setError('');
-
-    try {
-      await loginService(usuario, contrasena);
-      // Si todo sale bien, mandamos al usuario al Home o Dashboard
-      navigate('/admin/usuarios'); // Cambia esta ruta por la que quieras mostrar después del login
-    } catch (err) {
-      setError('Usuario o contraseña incorrectos');
-    }
-  };
+    const handleLogin = async (e: React.FormEvent) => {
+      e.preventDefault();
+      setError('');
+      try {
+        await loginService(usuario, contrasena);
+        // Redirige al panel de administración tras éxito
+        navigate('/admin/usuarios');
+      } catch (err) {
+        setError('Usuario o contraseña incorrectos');
+      }
+    };
 
   return (
   <AuthLayout>

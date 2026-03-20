@@ -1,74 +1,33 @@
-/* src/index.css */
-@import 'bootstrap/dist/css/bootstrap.min.css';
-@import 'bootstrap-icons/font/bootstrap-icons.css';
-@import url('https://fonts.googleapis.com/css2?family=Rajdhani:wght@400;500;600;700&family=Inter:wght@300;400;500&family=Orbitron:wght@400;600;700&display=swap');
-
 :root {
-  --ktm-orange: #FF6600;
-  --ktm-orange-glow: #FF8C00;
   --ktm-dark: #0A0A0A;
-  --ktm-dark-card: #111111;
-  --ktm-gray-dark: #1A1A1A;
-  --ktm-gray-medium: #2A2A2A;
-  --ktm-gray-light: #CCCCCC;
-  --ktm-accent: #FF8C00;
-  --ktm-glow: rgba(255, 102, 0, 0.4);
-  --ktm-glow-strong: rgba(255, 102, 0, 0.7);
+  --ktm-orange: #FF6600;
 }
 
-/* Reset de Bootstrap y estilos base */
-html, body {
-  height: 100%;
+* {
   margin: 0;
   padding: 0;
-  background-color: var(--ktm-dark) !important; /* El !important mata el blanco de Bootstrap */
-  color: #efefef;
+  box-sizing: border-box;
+}
+
+html, body {
+  height: 100%;
+  width: 100%;
+  background-color: var(--ktm-dark) !important;
+  color: #ffffff;
+  font-family: 'Inter', sans-serif;
   overflow-x: hidden;
 }
 
-body {
-  font-family: 'Inter', sans-serif;
+#root {
   min-height: 100vh;
   display: flex;
   flex-direction: column;
 }
 
-/* Fondo avanzado fijo detrás de todo */
-body::before {
-  content: '';
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background: 
-      radial-gradient(circle at 10% 20%, rgba(255, 102, 0, 0.05) 0%, transparent 30%),
-      radial-gradient(circle at 90% 80%, rgba(255, 102, 0, 0.03) 0%, transparent 30%),
-      linear-gradient(180deg, var(--ktm-dark) 0%, #050505 100%);
-  z-index: -1; /* Cambiado a -1 para asegurar que esté detrás de los componentes */
-  pointer-events: none;
+::-webkit-scrollbar { width: 8px; }
+::-webkit-scrollbar-track { background: var(--ktm-dark); }
+::-webkit-scrollbar-thumb {
+  background: #2A2A2A;
+  border-radius: 10px;
 }
-
-/* Sobrescribir el contenedor de Bootstrap para que no tenga fondos raros */
-.container, .container-fluid {
-  background-color: transparent !important;
-}
-
-/* Tu contenedor principal corregido */
-.ktm-container {
-  flex: 1; /* Esto empuja el contenido para que ocupe todo el alto disponible */
-  display: flex;
-  flex-direction: column;
-  justify-content: center; /* Centra el Login verticalmente si es necesario */
-  align-items: center;
-  width: 100%;
-  max-width: 1400px;
-  margin: 0 auto;
-  position: relative;
-  z-index: 1;
-}
-
-/* Si tu AuthLayout usa una caja blanca por error de clase Bootstrap */
-.bg-white, .bg-light {
-  background-color: transparent !important;
-}
+::-webkit-scrollbar-thumb:hover { background: var(--ktm-orange); }

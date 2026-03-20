@@ -21,7 +21,6 @@ const ServiceSection: React.FC<ServiceSectionProps> = ({
         <h2 className="section-title">{title}</h2>
         <h3 className="section-subtitle">{subtitle}</h3>
       </div>
-      
       <div className="services-grid">
         {services.map(service => (
           <ServiceCard

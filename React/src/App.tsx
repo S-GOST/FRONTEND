@@ -1,30 +1,43 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
+import { Routes, Route } from 'react-router-dom';
 import Navbar from './componentes/Navbar';
 import Header from './componentes/Header';
 import ServiceSection from './componentes/ServiceSection';
 import InfoSection from './componentes/InfoSection';
 import AccessSection from './componentes/AccessSection';
 import Footer from './componentes/Footer';
+import Login from './pages/Login'; 
 import { servicesData, searchSuggestionsData } from './utils/constants';
 import { Service, SearchSuggestion, CartItem } from './types';
 import './App.css';
 
-// Componente de Notificación
-const Notification: React.FC<{ message: string; type: 'success' | 'warning'; onClose: () => void }> = ({ message, type, onClose }) => {
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      onClose();
-    }, 3000);
-
-    return () => clearTimeout(timer);
-  }, [onClose]);
-
+// 1. HomePage DEBE estar fuera para evitar que desaparezca el contenido al actualizar el estado
+const HomePage: React.FC<{ addToCart: (s: Service) => void }> = ({ addToCart }) => {
+  const categories = ['Mantenimiento', 'Reparaciones', 'Diagnósticos', 'Instalaciones'];
+  
   return (
-    <div className={`cart-notification alert-${type}`}>
-      <i className={`bi ${type === 'success' ? 'bi-check-circle' : 'bi-exclamation-triangle'}`}></i>
-      <span>{message}</span>
-      <button className="close-notification" onClick={onClose}>&times;</button>
-    </div>
+    <>
+      <Header />
+      <div className="container">
+        {categories.map((cat, index) => {
+          const filtered = servicesData.filter(s => s.category === cat);
+          return (
+            <React.Fragment key={cat}>
+              <ServiceSection
+                title={cat}
+                subtitle="Categorías Oficiales"
+                services={filtered}
+                onAddToCart={addToCart}
+              />
+              {index < categories.length - 1 && <div className="section-divider"></div>}
+            </React.Fragment>
+          );
+        })}
+        <div className="section-divider"></div>
+        <InfoSection />
+        <AccessSection />
+      </div>
+    </>
   );
 };
 
@@ -33,146 +46,90 @@ function App() {
     const savedCart = localStorage.getItem('ktmCart');
     return savedCart ? JSON.parse(savedCart) : [];
   });
-  
-  const [notifications, setNotifications] = useState<{ id: number; message: string; type: 'success' | 'warning' }[]>([]);
 
-  // Guardar carrito en localStorage
   useEffect(() => {
     localStorage.setItem('ktmCart', JSON.stringify(cart));
   }, [cart]);
 
-  // Funciones del carrito
+  // Partículas
+  useEffect(() => {
+    const container = document.querySelector('.particles');
+    if (container && container.innerHTML === '') {
+      for (let i = 0; i < 30; i++) {
+        const p = document.createElement('div');
+        p.className = 'particle';
+        p.style.left = Math.random() * 100 + '%';
+        p.style.top = Math.random() * 100 + '%';
+        p.style.animation = `float ${5 + Math.random() * 10}s linear infinite`;
+        container.appendChild(p);
+      }
+    }
+  }, []);
+
   const addToCart = (service: Service) => {
     setCart(prevCart => {
       const existingItem = prevCart.find(item => item.id === service.id);
-      
       if (existingItem) {
         return prevCart.map(item =>
-          item.id === service.id
-            ? { ...item, quantity: item.quantity + 1 }
-            : item
+          item.id === service.id ? { ...item, quantity: item.quantity + 1 } : item
         );
       }
-      
       return [...prevCart, { ...service, quantity: 1 }];
     });
-    
-    showNotification(`${service.name} agregado al carrito`, 'success');
-  };
-
-  const showNotification = (message: string, type: 'success' | 'warning') => {
-    const id = Date.now();
-    setNotifications(prev => [...prev, { id, message, type }]);
-  };
-
-  const removeNotification = (id: number) => {
-    setNotifications(prev => prev.filter(notification => notification.id !== id));
   };
 
   const filterSuggestions = (query: string): SearchSuggestion[] => {
     if (!query.trim()) return [];
-    
-    const lowerQuery = query.toLowerCase();
-    return searchSuggestionsData.filter(item => 
-      item.name.toLowerCase().includes(lowerQuery) ||
-      item.category.toLowerCase().includes(lowerQuery)
+    return searchSuggestionsData.filter(item =>
+      item.name.toLowerCase().includes(query.toLowerCase()) ||
+      item.category.toLowerCase().includes(query.toLowerCase())
     ).slice(0, 8);
   };
 
   const handleSuggestionClick = (suggestion: SearchSuggestion) => {
     const service: Service = {
-      id: suggestion.id.toString(),
+      id: suggestion.id,
       name: suggestion.name,
-      description: `Servicio de ${suggestion.category}`,
+      description: `Servicio especializado de ${suggestion.category}`,
       price: suggestion.price,
       category: suggestion.category,
       icon: suggestion.icon
     };
-    
     addToCart(service);
   };
 
-  const cartCount = cart.reduce((sum, item) => sum + item.quantity, 0);
-
-  // Filtrar servicios por categoría
-  const mantenimientoServices = servicesData.filter(s => s.category === 'Mantenimiento');
-  const reparacionesServices = servicesData.filter(s => s.category === 'Reparaciones');
-  const diagnosticosServices = servicesData.filter(s => s.category === 'Diagnósticos');
-  const instalacionesServices = servicesData.filter(s => s.category === 'Instalaciones');
+  const cartCount = useMemo(() => cart.reduce((sum, item) => sum + item.quantity, 0), [cart]);
 
   return (
     <div className="app">
-      {/* Partículas de fondo */}
-      <div className="particles" id="particles"></div>
-      
-      {/* Notificaciones */}
-      {notifications.map(notification => (
-        <Notification
-          key={notification.id}
-          message={notification.message}
-          type={notification.type}
-          onClose={() => removeNotification(notification.id)}
-        />
-      ))}
-      
-      <Navbar 
+      <div className="particles"></div>
+
+      <Navbar
         cartCount={cartCount}
         onSearch={filterSuggestions}
         onSuggestionClick={handleSuggestionClick}
       />
-      
-      <div className="ktm-container">
-        <Header />
-        
-        <main className="main-content">
-          <div className="container">
-            {/* Sección Mantenimiento */}
-            <ServiceSection
-              title="Mantenimiento"
-              subtitle="Categorías"
-              services={mantenimientoServices}
-              onAddToCart={addToCart}
-            />
-            
-            <div className="section-divider"></div>
-            
-            {/* Sección Reparaciones */}
-            <ServiceSection
-              title="Reparaciones"
-              subtitle="Categorías"
-              services={reparacionesServices}
-              onAddToCart={addToCart}
-            />
-            
-            <div className="section-divider"></div>
-            
-            {/* Sección Diagnósticos */}
-            <ServiceSection
-              title="Diagnósticos"
-              subtitle="Categorías"
-              services={diagnosticosServices}
-              onAddToCart={addToCart}
-            />
-            
-            <div className="section-divider"></div>
-            
-            {/* Sección Instalaciones */}
-            <ServiceSection
-              title="Instalaciones"
-              subtitle="Categorías"
-              services={instalacionesServices}
-              onAddToCart={addToCart}
-            />
-            
-            <div className="section-divider"></div>
-            
-            <InfoSection />
-            <AccessSection />
-          </div>
-        </main>
-        
-        <Footer />
-      </div>
+
+      <main className="ktm-container">
+        <Routes>
+          {/* RUTA RAÍZ: Aquí es donde aparece todo el contenido principal */}
+          <Route path="/" element={<HomePage addToCart={addToCart} />} />
+          
+          <Route path="/login" element={<Login />} />
+          
+          <Route path="/admin/usuarios" element={
+            <div className="container" style={{padding: '100px 20px', textAlign: 'center', color: 'white'}}>
+              <h1>Panel de Administración SGOST</h1>
+              <p>Bienvenido, Duvan.</p>
+            </div>
+          } />
+          
+          {/* Ruta comodín: si la URL no existe, vuelve al Home para que no se vea vacío */}
+          <Route path="*" element={<HomePage addToCart={addToCart} />} />
+        </Routes>
+      </main>
+
+      <Footer />
     </div>
   );
 }
