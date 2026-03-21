@@ -1,0 +1,122 @@
+/* Contenedor principal */
+.container {
+  padding: 20px;
+  max-width: 1200px;
+  margin: 0 auto;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+/* Encabezado y botón de cerrar sesión */
+.header-admin {
+  display: flex;
+  justify-content: flex-end;
+  margin-bottom: 20px;
+}
+
+.btn-logout {
+  background-color: #333;
+  color: white;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 4px;
+  cursor: pointer;
+  /* Arreglo: Especificamos background-color para ser más precisos */
+  transition: background-color 0.3s ease, transform 0.2s; 
+}
+
+/* Esto es lo que "activa" el arreglo anterior */
+.btn-logout:hover {
+  background-color: #ff6600; 
+}
+
+.btn-logout:hover {
+  background-color: #ff6600; /* Naranja KTM */
+}
+
+/* Sección de la tabla */
+.admin-section {
+  background-color: #f9f9f9;
+  padding: 25px;
+  border-radius: 8px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.admin-title {
+  color: #222;
+  border-left: 5px solid #ff6600;
+  padding-left: 15px;
+  margin-bottom: 25px;
+  text-transform: uppercase;
+  font-weight: bold;
+}
+
+/* Estilos de la Tabla */
+.table-ktm {
+  width: 100%;
+  border-collapse: collapse;
+  background-color: white;
+}
+
+.table-ktm th {
+  background-color: #222;
+  color: #ff6600;
+  text-align: left;
+  padding: 12px 15px;
+  text-transform: uppercase;
+  font-size: 0.9rem;
+}
+
+.table-ktm td {
+  padding: 12px 15px;
+  border-bottom: 1px solid #ddd;
+  color: #444;
+}
+
+/* Efecto cebra y hover */
+.table-ktm tbody tr:nth-child(even) {
+  background-color: #f2f2f2;
+}
+
+.table-ktm tbody tr:hover {
+  background-color: #fff5eb;
+  transition: 0.2s;
+}
+
+/* Botón Eliminar */
+.btn-eliminar-ktm {
+  background-color: #e74c3c; /* Rojo intenso */
+  color: white;
+  border: none;
+  padding: 8px 14px; /* Un poco más de espacio para que respire */
+  border-radius: 6px; /* Bordes más suaves */
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px; /* Espacio entre el icono de basura y el texto */
+  font-size: 0.85rem;
+  font-weight: 500;
+  /* El arreglo: esto prepara la animación */
+  transition: all 0.2s ease-in-out; 
+}
+
+.btn-eliminar-ktm:hover {
+  background-color: #c0392b;
+  transform: scale(1.05);
+}
+
+/* Mensajes de carga o vacíos */
+.loading-row {
+  text-align: center;
+  padding: 40px !important;
+  font-style: italic;
+  color: #888;
+}
+
+/* Responsivo para móviles */
+@media (max-width: 768px) {
+  .table-ktm {
+    display: block;
+    overflow-x: auto;
+  }
+}
