@@ -15,10 +15,7 @@ const ServiceCard: React.FC<ServiceCardProps> = ({ service, onAddToCart }) => {
       <h4 className="service-name">{service.name}</h4>
       <p className="service-desc">{service.description}</p>
       <div className="service-price">€{service.price.toFixed(2)}</div>
-      <button
-        className="btn-service"
-        onClick={() => onAddToCart(service)}
-      >
+      <button className="btn-service" onClick={() => onAddToCart(service)}>
         <i className="bi bi-cart-plus"></i>
         Agregar al Carrito
       </button>

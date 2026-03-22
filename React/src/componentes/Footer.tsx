@@ -17,7 +17,7 @@ const Footer: React.FC = () => {
               <a href="#"><i className="bi bi-whatsapp"></i></a>
             </div>
           </div>
-          
+
           <div className="footer-item">
             <h4 className="footer-title">Contacto</h4>
             <p><i className="bi bi-envelope me-2"></i> info@ktmrocketservice.com</p>
@@ -25,7 +25,7 @@ const Footer: React.FC = () => {
             <p><i className="bi bi-geo-alt me-2"></i> Calle Motocicleta, 123 - Madrid</p>
             <p><i className="bi bi-clock me-2"></i> Atención 24/7 para emergencias</p>
           </div>
-          
+
           <div className="footer-item">
             <h4 className="footer-title">Horario</h4>
             <p>Lunes a Viernes: 9:00 - 18:00</p>
@@ -34,7 +34,7 @@ const Footer: React.FC = () => {
             <p>Servicio de urgencias 24h</p>
           </div>
         </div>
-        
+
         <div className="copyright">
           <p>© 2025 KTM Rocket Service | Sistema de Gestión de Órdenes de Servicio Técnico</p>
           <p>Venta de repuestos originales para motos KTM de gama alta | Todos los derechos reservados</p>

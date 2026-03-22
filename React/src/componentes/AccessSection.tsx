@@ -6,7 +6,7 @@ const AccessSection: React.FC = () => {
     <section className="access-section">
       <h3 className="access-title">Acceso al Sistema de Gestión</h3>
       <div className="access-buttons">
-        <Link to="/admin/login" className="access-btn">
+        <Link to="/admin" className="access-btn">
           <i className="bi bi-person-badge-fill access-icon"></i>
           <span>Administrador</span>
           <span className="access-role">Acceso completo al sistema</span>

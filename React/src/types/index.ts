@@ -1,10 +1,14 @@
 export interface Service {
   id: string;
   name: string;
-  description: string;
-  price: number;
   category: string;
-  icon: string;
+  price: number;
+  description: string;
+  icon: string; // nombre del ícono Bootstrap (ej. "bi-shield-check")
+}
+
+export interface CartItem extends Service {
+  quantity: number;
 }
 
 export interface SearchSuggestion {
@@ -12,9 +16,5 @@ export interface SearchSuggestion {
   name: string;
   category: string;
   icon: string;
-  price: number;
-}
-
-export interface CartItem extends Service {
-  quantity: number;
+  price: string;
 }

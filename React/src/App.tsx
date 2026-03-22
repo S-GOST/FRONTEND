@@ -1,43 +1,87 @@
-import React, { useState, useEffect, useMemo } from 'react';
-import { Routes, Route } from 'react-router-dom';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
+import { Navigate, Route, Routes, useLocation } from 'react-router-dom';
 import Navbar from './componentes/Navbar';
 import Header from './componentes/Header';
 import ServiceSection from './componentes/ServiceSection';
 import InfoSection from './componentes/InfoSection';
 import AccessSection from './componentes/AccessSection';
 import Footer from './componentes/Footer';
-import Login from './pages/Login'; 
+import Login from './pages/Login';
+import Panel from './componentes/TableAdmin/Panel';
+import Admins from './componentes/TableAdmin/Admin';
 import { servicesData, searchSuggestionsData } from './utils/constants';
 import { Service, SearchSuggestion, CartItem } from './types';
-import './App.css';
 
-// 1. HomePage DEBE estar fuera para evitar que desaparezca el contenido al actualizar el estado
-const HomePage: React.FC<{ addToCart: (s: Service) => void }> = ({ addToCart }) => {
+const HomePage: React.FC<{ addToCart: (service: Service) => void }> = ({ addToCart }) => {
   const categories = ['Mantenimiento', 'Reparaciones', 'Diagnósticos', 'Instalaciones'];
-  
+
   return (
     <>
       <Header />
-      <div className="container">
-        {categories.map((cat, index) => {
-          const filtered = servicesData.filter(s => s.category === cat);
-          return (
-            <React.Fragment key={cat}>
-              <ServiceSection
-                title={cat}
-                subtitle="Categorías Oficiales"
-                services={filtered}
-                onAddToCart={addToCart}
-              />
-              {index < categories.length - 1 && <div className="section-divider"></div>}
-            </React.Fragment>
-          );
-        })}
-        <div className="section-divider"></div>
-        <InfoSection />
-        <AccessSection />
+      <main className="main-content">
+        <div className="container">
+          {categories.map((category, index) => {
+            const filteredServices = servicesData.filter(
+              service => service.category === category
+            );
+
+            return (
+              <React.Fragment key={category}>
+                <ServiceSection
+                  title={category}
+                  subtitle="Categorías"
+                  services={filteredServices}
+                  onAddToCart={addToCart}
+                />
+                {index < categories.length - 1 && <div className="section-divider"></div>}
+              </React.Fragment>
+            );
+          })}
+          <div className="section-divider"></div>
+          <InfoSection />
+          <AccessSection />
+        </div>
+      </main>
+    </>
+  );
+};
+
+const StorefrontPage: React.FC<{
+  addToCart: (service: Service) => void;
+  cartCount: number;
+  onSearch: (query: string) => SearchSuggestion[];
+  onSuggestionClick: (suggestion: SearchSuggestion) => void;
+  particlesRef: React.RefObject<HTMLDivElement>;
+}> = ({ addToCart, cartCount, onSearch, onSuggestionClick, particlesRef }) => {
+  return (
+    <>
+      <div className="particles" ref={particlesRef}></div>
+      <Navbar
+        cartCount={cartCount}
+        onSearch={onSearch}
+        onSuggestionClick={onSuggestionClick}
+      />
+      <div className="ktm-container">
+        <HomePage addToCart={addToCart} />
+        <Footer />
       </div>
     </>
+  );
+};
+
+const DashboardHome: React.FC = () => {
+  return (
+    <div style={{ padding: '1rem' }}>
+      <h2 style={{ color: '#fff', margin: 0 }}>Dashboard KTM Activo</h2>
+    </div>
+  );
+};
+
+const AdminMotosPage: React.FC = () => {
+  return (
+    <div style={{ padding: '1rem' }}>
+      <h2 style={{ color: '#fff', margin: 0 }}>Gestion de Motos</h2>
+    </div>
   );
 };
 
@@ -47,89 +91,105 @@ function App() {
     return savedCart ? JSON.parse(savedCart) : [];
   });
 
+  const location = useLocation();
+  const particlesRef = useRef<HTMLDivElement>(null);
+  const isLoginPage = location.pathname === '/login';
+  const isAdminPage = location.pathname.startsWith('/admin');
+  const isAuthenticated = Boolean(localStorage.getItem('user_token'));
+
   useEffect(() => {
     localStorage.setItem('ktmCart', JSON.stringify(cart));
   }, [cart]);
 
-  // Partículas
   useEffect(() => {
-    const container = document.querySelector('.particles');
-    if (container && container.innerHTML === '') {
-      for (let i = 0; i < 30; i++) {
-        const p = document.createElement('div');
-        p.className = 'particle';
-        p.style.left = Math.random() * 100 + '%';
-        p.style.top = Math.random() * 100 + '%';
-        p.style.animation = `float ${5 + Math.random() * 10}s linear infinite`;
-        container.appendChild(p);
-      }
+    const container = particlesRef.current;
+    if (!container || isAdminPage || isLoginPage) return;
+
+    container.innerHTML = '';
+
+    for (let i = 0; i < 30; i += 1) {
+      const particle = document.createElement('div');
+      particle.className = 'particle';
+      particle.style.left = `${Math.random() * 100}%`;
+      particle.style.top = `${Math.random() * 100}%`;
+      particle.style.animation = `float ${5 + Math.random() * 10}s linear infinite`;
+      container.appendChild(particle);
     }
-  }, []);
+
+    return () => {
+      container.innerHTML = '';
+    };
+  }, [isAdminPage, isLoginPage, location.pathname]);
 
   const addToCart = (service: Service) => {
     setCart(prevCart => {
       const existingItem = prevCart.find(item => item.id === service.id);
+
       if (existingItem) {
         return prevCart.map(item =>
-          item.id === service.id ? { ...item, quantity: item.quantity + 1 } : item
+          item.id === service.id
+            ? { ...item, quantity: item.quantity + 1 }
+            : item
         );
       }
+
       return [...prevCart, { ...service, quantity: 1 }];
     });
   };
 
   const filterSuggestions = (query: string): SearchSuggestion[] => {
     if (!query.trim()) return [];
-    return searchSuggestionsData.filter(item =>
-      item.name.toLowerCase().includes(query.toLowerCase()) ||
-      item.category.toLowerCase().includes(query.toLowerCase())
-    ).slice(0, 8);
+
+    return searchSuggestionsData
+      .filter(
+        item =>
+          item.name.toLowerCase().includes(query.toLowerCase()) ||
+          item.category.toLowerCase().includes(query.toLowerCase())
+      )
+      .slice(0, 8);
   };
 
   const handleSuggestionClick = (suggestion: SearchSuggestion) => {
-    const service: Service = {
-      id: suggestion.id,
-      name: suggestion.name,
-      description: `Servicio especializado de ${suggestion.category}`,
-      price: suggestion.price,
-      category: suggestion.category,
-      icon: suggestion.icon
-    };
-    addToCart(service);
+    const service = servicesData.find(item => item.id === suggestion.id);
+    if (service) addToCart(service);
   };
 
-  const cartCount = useMemo(() => cart.reduce((sum, item) => sum + item.quantity, 0), [cart]);
+  const cartCount = useMemo(
+    () => cart.reduce((sum, item) => sum + item.quantity, 0),
+    [cart]
+  );
 
   return (
     <div className="app">
-      <div className="particles"></div>
-
-      <Navbar
-        cartCount={cartCount}
-        onSearch={filterSuggestions}
-        onSuggestionClick={handleSuggestionClick}
-      />
-
-      <main className="ktm-container">
-        <Routes>
-          {/* RUTA RAÍZ: Aquí es donde aparece todo el contenido principal */}
-          <Route path="/" element={<HomePage addToCart={addToCart} />} />
-          
-          <Route path="/login" element={<Login />} />
-          
-          <Route path="/admin/usuarios" element={
-            <div className="container" style={{padding: '100px 20px', textAlign: 'center', color: 'white'}}>
-              <h1>Panel de Administración SGOST</h1>
-              <p>Bienvenido, Duvan.</p>
-            </div>
-          } />
-          
-          {/* Ruta comodín: si la URL no existe, vuelve al Home para que no se vea vacío */}
-          <Route path="*" element={<HomePage addToCart={addToCart} />} />
-        </Routes>
-      </main>
-
-      <Footer />
+      <Routes>
+        <Route
+          path="/"
+          element={
+            <StorefrontPage
+              addToCart={addToCart}
+              cartCount={cartCount}
+              onSearch={filterSuggestions}
+              onSuggestionClick={handleSuggestionClick}
+              particlesRef={particlesRef}
+            />
+          }
+        />
+        <Route
+          path="/login"
+          element={isAuthenticated ? <Navigate to="/admin/dashboard" replace /> : <Login />}
+        />
+        <Route
+          path="/admin"
+          element={isAuthenticated ? <Panel /> : <Navigate to="/login" replace />}
+        >
+          <Route index element={<Navigate to="/admin/dashboard" replace />} />
+          <Route path="dashboard" element={<DashboardHome />} />
+          <Route path="administradores" element={<Admins />} />
+          <Route path="motos" element={<AdminMotosPage />} />
+          <Route path="*" element={<Navigate to="/admin/dashboard" replace />} />
+        </Route>
+        <Route path="*" element={<Navigate to="/" replace />} />
+      </Routes>
     </div>
   );
 }

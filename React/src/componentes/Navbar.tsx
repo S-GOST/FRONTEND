@@ -1,8 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
-
-import { SearchSuggestion } from '../types';
-import rock from "../assets/icons/rock.png";
 import { Link } from 'react-router-dom';
+import type { SearchSuggestion } from '../types';
+import logo from '../assets/icons/rock.png';
 
 interface NavbarProps {
   cartCount: number;
@@ -11,49 +10,47 @@ interface NavbarProps {
 }
 
 const Navbar: React.FC<NavbarProps> = ({ cartCount, onSearch, onSuggestionClick }) => {
-  const [searchQuery, setSearchQuery] = useState('');
+  const [query, setQuery] = useState('');
   const [suggestions, setSuggestions] = useState<SearchSuggestion[]>([]);
   const [showSuggestions, setShowSuggestions] = useState(false);
-  const searchRef = useRef<HTMLDivElement>(null);
+  const formRef = useRef<HTMLFormElement>(null);
 
-  // Cerrar sugerencias al hacer click afuera o presionar Escape
   useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
-      if (searchRef.current && !searchRef.current.contains(event.target as Node)) {
-        setShowSuggestions(false);
-      }
-    };
-
-    const handleEsc = (event: KeyboardEvent) => {
-      if (event.key === 'Escape') setShowSuggestions(false);
-    };
-
-    document.addEventListener('mousedown', handleClickOutside);
-    document.addEventListener('keydown', handleEsc);
-    return () => {
-      document.removeEventListener('mousedown', handleClickOutside);
-      document.removeEventListener('keydown', handleEsc);
-    };
-  }, []);
-
-  const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const query = e.target.value;
-    setSearchQuery(query);
-    if (query.trim().length > 0) {
-      const results = onSearch(query);
-      setSuggestions(results);
+    if (query.trim()) {
+      setSuggestions(onSearch(query));
       setShowSuggestions(true);
     } else {
       setSuggestions([]);
       setShowSuggestions(false);
     }
+  }, [query, onSearch]);
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+
+    if (suggestions.length > 0) {
+      onSuggestionClick(suggestions[0]);
+      setQuery('');
+      setShowSuggestions(false);
+    }
   };
 
-  const handleSuggestionClickInternal = (suggestion: SearchSuggestion) => {
+  const handleSuggestionSelect = (suggestion: SearchSuggestion) => {
     onSuggestionClick(suggestion);
-    setSearchQuery('');
+    setQuery('');
     setShowSuggestions(false);
   };
+
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (formRef.current && !formRef.current.contains(event.target as Node)) {
+        setShowSuggestions(false);
+      }
+    };
+
+    document.addEventListener('click', handleClickOutside);
+    return () => document.removeEventListener('click', handleClickOutside);
+  }, []);
 
   return (
     <nav className="navbar navbar-premium">
@@ -61,37 +58,38 @@ const Navbar: React.FC<NavbarProps> = ({ cartCount, onSearch, onSuggestionClick 
         <div className="navbar-left">
           <div className="navbar-brand">
             <Link to="/">
-              <img src={rock} alt="logo" style={{ cursor: 'pointer' }} />
+              <img src={logo} alt="KTM Rocket Service Logo" />
             </Link>
           </div>
-          
-          <div className="ktm-search-container" ref={searchRef}>
-            <form className="ktm-search-form" onSubmit={(e) => e.preventDefault()}>
+
+          <div className="ktm-search-container">
+            <form className="ktm-search-form" ref={formRef} onSubmit={handleSubmit}>
               <div className="search-input-group">
                 <i className="bi bi-search search-icon"></i>
                 <input
                   type="text"
                   className="form-control ktm-search-input"
-                  placeholder="Buscar servicios..."
-                  value={searchQuery}
-                  onChange={handleSearchChange}
-                  onFocus={() => searchQuery.length > 0 && setShowSuggestions(true)}
+                  placeholder="Buscar servicios, repuestos, diagnósticos..."
+                  value={query}
+                  onChange={(e) => setQuery(e.target.value)}
+                  onFocus={() => query.trim() && setShowSuggestions(true)}
                 />
+                <button type="submit" className="ktm-search-btn">
+                  <i className="bi bi-arrow-right"></i>
+                </button>
               </div>
-              
+
               {showSuggestions && suggestions.length > 0 && (
                 <div className="search-suggestions show">
-                  {suggestions.map(suggestion => (
-                    <div 
-                      key={suggestion.id} 
-                      className="search-suggestion-item" 
-                      onClick={() => handleSuggestionClickInternal(suggestion)}
+                  {suggestions.map((suggestion) => (
+                    <div
+                      key={suggestion.id}
+                      className="search-suggestion-item"
+                      onClick={() => handleSuggestionSelect(suggestion)}
                     >
                       <i className={`bi ${suggestion.icon} suggestion-icon`}></i>
-                      <div className="suggestion-text">
-                        <span className="suggestion-name">{suggestion.name}</span>
-                        <span className="suggestion-category">{suggestion.category}</span>
-                      </div>
+                      <div className="suggestion-text">{suggestion.name}</div>
+                      <div className="suggestion-category">{suggestion.category}</div>
                     </div>
                   ))}
                 </div>
@@ -104,7 +102,7 @@ const Navbar: React.FC<NavbarProps> = ({ cartCount, onSearch, onSuggestionClick 
           <Link to="/carrito" className="nav-btn btn-cart">
             <i className="bi bi-cart3"></i>
             <span>Carrito</span>
-            {cartCount > 0 && <span className="cart-count">{cartCount}</span>}
+            <span className="cart-count">{cartCount}</span>
           </Link>
           <Link to="/login" className="nav-btn btn-login">
             <i className="bi bi-box-arrow-in-right"></i>

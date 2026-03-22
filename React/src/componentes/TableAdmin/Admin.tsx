@@ -1,7 +1,6 @@
 import { useEffect, useState } from "react";
 import { obtenerAdmins, eliminarAdmin } from "../../services/authService";
-import "./admin.css";
-import { useNavigate } from "react-router-dom";
+import "./Admin.css";
 
 // 1. La interfaz se queda fuera, está perfecta ahí.
 interface Administrador {
@@ -14,17 +13,8 @@ interface Administrador {
 }
 
 function Admins() {
-  // 2. MOVIDO: El hook useNavigate DEBE estar dentro del componente
-  const navigate = useNavigate();
-  
   const [admins, setAdmins] = useState<Administrador[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
-
-  // 3. MOVIDO: La función de cerrar sesión ahora puede acceder a 'navigate'
-  const cerrarSesion = () => {
-    localStorage.removeItem("token"); 
-    navigate("/login");
-  };
 
   useEffect(() => {
     cargarAdmins();
@@ -61,12 +51,7 @@ function Admins() {
   };
 
   return (
-    <div className="container">
-      <div className="header-admin">
-        <button className="btn-logout" onClick={cerrarSesion}>
-          Cerrar Sesión
-        </button>
-      </div>
+    <div className="admin-page">
       <div className="admin-section">
         <h1 className="admin-title">Panel de Administración</h1>
         
