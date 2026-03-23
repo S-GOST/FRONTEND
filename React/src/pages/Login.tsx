@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import type { AxiosError } from 'axios';
 import { Link } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
-import { loginService } from '../services/authService';
+import { loginService } from '../services/adminService';
 import logo from '../assets/icons/rock.png';
 import './Login.css';
 

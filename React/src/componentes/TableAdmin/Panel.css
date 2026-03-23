@@ -1,5 +1,26 @@
 /* Admin panel styles ordenados */
 
+.panel-container .logo-img {
+    object-fit: contain;
+    
+    /* Efecto de iluminación naranja suave (KTM style) */
+    filter: drop-shadow(0 0 5px rgba(255, 109, 31, 0.4)); 
+    
+    transition: all 0.3s ease;
+    cursor: pointer;
+}
+
+.panel-container .logo-img:hover {
+    transform: scale(1.05); /* Efecto de crecimiento suave */
+    filter: drop-shadow(0 0 12px rgba(255, 109, 31, 0.8)); /* Brillo más intenso al pasar el mouse */
+}
+
+/* Contenedor del logo para asegurar alineación vertical */
+.logo-wrapper {
+    display: flex;
+    align-items: center;
+    height: 100%;
+}
 :root {
     --ktm-orange: #FF6D1F;
     --ktm-orange-light: #ff8a4d;
@@ -34,7 +55,6 @@
 }
 
 .panel-container .logo-img {
-    width: 120px;
     filter: drop-shadow(0 0 8px rgba(255, 109, 31, 0.6));
     transition: transform 0.3s ease;
 }

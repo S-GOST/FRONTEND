@@ -1,7 +1,7 @@
 import React from 'react';
 import { NavLink, Outlet, Link } from 'react-router-dom';
 import Swal from 'sweetalert2';
-import { logout } from '../../services/authService';
+import { logout } from '../../services/adminService';
 import rock from "../../assets/icons/rock.png";
 import './Panel.css';
 

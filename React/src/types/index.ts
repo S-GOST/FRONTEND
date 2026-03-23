@@ -18,3 +18,4 @@ export interface SearchSuggestion {
   icon: string;
   price: string;
 }
+

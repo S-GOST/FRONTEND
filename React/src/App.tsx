@@ -9,6 +9,7 @@ import Footer from './componentes/Footer';
 import Login from './pages/Login';
 import Panel from './componentes/TableAdmin/Panel';
 import Admins from './componentes/TableAdmin/Admin';
+import Servicios from './componentes/TableServicios/Servicios';
 import { servicesData, searchSuggestionsData } from './utils/constants';
 import { Service, SearchSuggestion, CartItem } from './types';
 
@@ -185,6 +186,7 @@ function App() {
           <Route index element={<Navigate to="/admin/dashboard" replace />} />
           <Route path="dashboard" element={<DashboardHome />} />
           <Route path="administradores" element={<Admins />} />
+          <Route path="servicios" element={<Servicios />} />
           <Route path="motos" element={<AdminMotosPage />} />
           <Route path="*" element={<Navigate to="/admin/dashboard" replace />} />
         </Route>
