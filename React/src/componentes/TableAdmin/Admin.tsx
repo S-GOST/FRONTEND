@@ -38,59 +38,33 @@ const createInitialFormData = (): AdminFormState => ({
 });
 
 const readAdminArray = (value: unknown): AdminRecord[] | null => {
-  if (Array.isArray(value)) {
-    return value as AdminRecord[];
-  }
-
+  if (Array.isArray(value)) return value;
   if (value && typeof value === 'object') {
-    const nestedValue = value as Record<string, unknown>;
-    const nestedData = readAdminArray(nestedValue.data);
-
-    if (nestedData) {
-      return nestedData;
-    }
-
-    const nestedAdmins = readAdminArray(nestedValue.admins);
-
-    if (nestedAdmins) {
-      return nestedAdmins;
-    }
+    const nested = value as Record<string, unknown>;
+    const fromData = readAdminArray(nested.data);
+    if (fromData) return fromData;
+    const fromAdmins = readAdminArray(nested.admins);
+    if (fromAdmins) return fromAdmins;
   }
-
   return null;
 };
 
-const extractAdmins = (payload: unknown): AdminRecord[] => {
-  return readAdminArray(payload) ?? [];
-};
+const extractAdmins = (payload: unknown): AdminRecord[] =>
+  readAdminArray(payload) ?? [];
 
 const isSuccessfulResponse = (payload: unknown) => {
-  if (!payload || typeof payload !== 'object' || !('success' in payload)) {
+  if (!payload || typeof payload !== 'object' || !('success' in payload))
     return true;
-  }
-
   return Boolean((payload as { success?: boolean }).success);
 };
 
 const readAdminRecord = (value: unknown): AdminRecord | null => {
-  if (!value || typeof value !== 'object' || Array.isArray(value)) {
-    return null;
-  }
-
+  if (!value || typeof value !== 'object' || Array.isArray(value)) return null;
   const candidate = value as Record<string, unknown>;
-
-  if ('ID_ADMINISTRADOR' in candidate) {
+  if ('ID_ADMINISTRADOR' in candidate)
     return candidate as unknown as AdminRecord;
-  }
-
-  if ('data' in candidate) {
-    return readAdminRecord(candidate.data);
-  }
-
-  if ('admin' in candidate) {
-    return readAdminRecord(candidate.admin);
-  }
-
+  if ('data' in candidate) return readAdminRecord(candidate.data);
+  if ('admin' in candidate) return readAdminRecord(candidate.admin);
   return null;
 };
 
@@ -103,19 +77,19 @@ const buildAdminPayload = (formData: AdminFormState): AdminPayload => {
     Telefono: formData.Telefono.trim(),
     usuario: formData.usuario.trim(),
   };
-
   if (formData.contrasena.trim()) {
     payload.contrasena = formData.contrasena.trim();
   } else if (formData.contrasenaActual.trim()) {
     payload.contrasena = formData.contrasenaActual.trim();
   }
-
   return payload;
 };
 
 function Admins() {
   const [admins, setAdmins] = useState<AdminRecord[]>([]);
+  const [filteredAdmins, setFilteredAdmins] = useState<AdminRecord[]>([]);
   const [loading, setLoading] = useState(true);
+  const [searchTerm, setSearchTerm] = useState('');
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [showEditModal, setShowEditModal] = useState(false);
   const [currentAdmin, setCurrentAdmin] = useState<AdminRecord | null>(null);
@@ -125,32 +99,61 @@ function Admins() {
     void cargarAdmins();
   }, []);
 
+  const showAlert = (title: string, text: string, icon: 'success' | 'error' | 'warning') => {
+    return Swal.fire({
+      title,
+      text,
+      icon,
+      confirmButtonColor: '#ff6600',
+      background: '#101010',
+      color: '#f5f5f5',
+    });
+  };
+
   const cargarAdmins = async () => {
     try {
       setLoading(true);
       const response = await obtenerAdmins();
-      setAdmins(extractAdmins(response.data));
+      const data = extractAdmins(response.data);
+      setAdmins(data);
+      setFilteredAdmins(data);
     } catch (error) {
       console.error('Error al obtener admins:', error);
       setAdmins([]);
-      alert('No se pudieron cargar los administradores.');
+      setFilteredAdmins([]);
+      showAlert('Error', 'No se pudieron cargar los administradores.', 'error');
     } finally {
       setLoading(false);
     }
   };
 
+  const handleSearch = () => {
+    if (!searchTerm.trim()) {
+      setFilteredAdmins(admins);
+      return;
+    }
+    const term = searchTerm.toLowerCase();
+    const filtered = admins.filter(admin =>
+      admin.Nombre.toLowerCase().includes(term) ||
+      admin.Correo.toLowerCase().includes(term) ||
+      admin.usuario.toLowerCase().includes(term) ||
+      String(admin.ID_ADMINISTRADOR).toLowerCase().includes(term)
+    );
+    setFilteredAdmins(filtered);
+  };
+
+  const handleReset = () => {
+    setSearchTerm('');
+    setFilteredAdmins(admins);
+  };
+
   const handleInputChange = (event: ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     const { name, value } = event.target;
-
-    setFormData(previousData => ({
-      ...previousData,
-      [name]: value,
-    }));
+    setFormData(prev => ({ ...prev, [name]: value }));
   };
 
   const openEditModal = async (admin: AdminRecord) => {
     const originalId = String(admin.ID_ADMINISTRADOR ?? '').trim();
-
     if (!originalId) {
       setCurrentAdmin(admin);
       setFormData({
@@ -166,11 +169,9 @@ function Admins() {
       setShowEditModal(true);
       return;
     }
-
     try {
       const response = await obtenerAdminPorId(originalId);
       const adminActualizado = readAdminRecord(response.data) ?? admin;
-
       setCurrentAdmin(adminActualizado);
       setFormData({
         ID_ADMINISTRADOR: adminActualizado.ID_ADMINISTRADOR,
@@ -219,167 +220,181 @@ function Admins() {
 
   const handleCreate = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-
     try {
       const payload = buildAdminPayload(formData);
-
       if (!payload.contrasena) {
-        alert('La contrasena es obligatoria para crear un administrador.');
+        showAlert('Atención', 'La contraseña es obligatoria para crear un administrador.', 'warning');
         return;
       }
-
       const response = await crearAdmin(payload);
-
       if (isSuccessfulResponse(response.data)) {
-        await Swal.fire({
-          title: 'Administrador creado',
-          text: 'El nuevo administrador fue registrado correctamente.',
-          icon: 'success',
-          confirmButtonColor: '#ff6600',
-          background: '#101010',
-          color: '#f5f5f5',
-        });
+        await showAlert('Administrador creado', 'El nuevo administrador fue registrado correctamente.', 'success');
         closeCreateModal();
         await cargarAdmins();
       } else {
-        alert('No se pudo crear el administrador');
+        showAlert('Error', 'No se pudo crear el administrador.', 'error');
       }
     } catch (error) {
       console.error('Error al crear administrador:', error);
-      alert('Ocurrio un error al crear el administrador.');
+      showAlert('Error', 'Ocurrió un error al crear el administrador.', 'error');
     }
   };
 
   const handleUpdate = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-
-    if (!currentAdmin) {
-      return;
-    }
-
+    if (!currentAdmin) return;
     try {
       const payload = buildAdminPayload(formData);
-
       if (!payload.contrasena) {
-        alert('Ingresa una contraseña o carga primero la contraseña actual antes de guardar.');
+        showAlert('Atención', 'Ingresa una contraseña o carga primero la contraseña actual antes de guardar.', 'warning');
         return;
       }
-
       const response = await actualizarAdmin(currentAdmin.ID_ADMINISTRADOR, payload);
-
       if (isSuccessfulResponse(response.data)) {
-        await Swal.fire({
-          title: 'Cambios guardados',
-          text: 'El administrador fue actualizado correctamente.',
-          icon: 'success',
-          confirmButtonColor: '#ff6600',
-          background: '#101010',
-          color: '#f5f5f5',
-        });
+        await showAlert('Cambios guardados', 'El administrador fue actualizado correctamente.', 'success');
         closeEditModal();
         await cargarAdmins();
       } else {
-        alert('No se pudo actualizar el administrador');
+        showAlert('Error', 'No se pudo actualizar el administrador.', 'error');
       }
     } catch (error) {
       console.error('Error al actualizar:', error);
-      alert('Ocurrio un error al actualizar el administrador.');
+      showAlert('Error', 'Ocurrió un error al actualizar el administrador.', 'error');
     }
   };
 
   const borrarAdmin = async (admin: AdminRecord) => {
-    if (!window.confirm(`Estas seguro de eliminar a ${admin.Nombre}?`)) {
-      return;
-    }
-
+    const result = await Swal.fire({
+      title: `¿Estás seguro de eliminar a ${admin.Nombre}?`,
+      text: "Esta acción no se puede deshacer.",
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#a51f1f',
+      cancelButtonColor: '#2a2a2a',
+      confirmButtonText: 'Sí, eliminar',
+      cancelButtonText: 'Cancelar',
+      background: '#101010',
+      color: '#f5f5f5',
+    });
+    if (!result.isConfirmed) return;
     try {
       await eliminarAdmin(admin.ID_ADMINISTRADOR);
-      setAdmins(previousAdmins =>
-        previousAdmins.filter(item => item.ID_ADMINISTRADOR !== admin.ID_ADMINISTRADOR)
-      );
+      setAdmins(prev => prev.filter(item => item.ID_ADMINISTRADOR !== admin.ID_ADMINISTRADOR));
+      setFilteredAdmins(prev => prev.filter(item => item.ID_ADMINISTRADOR !== admin.ID_ADMINISTRADOR));
+      Swal.fire({
+        title: 'Eliminado',
+        text: 'El administrador ha sido eliminado.',
+        icon: 'success',
+        confirmButtonColor: '#ff6600',
+        background: '#101010',
+        color: '#f5f5f5',
+      });
     } catch (error) {
       console.error('Error al eliminar:', error);
-      alert('Ocurrio un error al eliminar el administrador.');
+      showAlert('Error', 'Ocurrió un error al eliminar el administrador.', 'error');
     }
   };
 
   return (
     <div className="admin-page">
       <div className="admin-section">
-        <h1 className="admin-title">Panel de Administracion</h1>
+        <h1 className="admin-title">Panel de Administración</h1>
         <div className="action-bar">
-          <button className="btn-create" onClick={openCreateModal}>
-            <i className="bi bi-plus-circle"></i> Nuevo Administrador
-          </button>
+          {/* Lado izquierdo: búsqueda */}
+          <div className="search-area">
+            <input
+              type="text"
+              className="search-input"
+              placeholder="Buscar por nombre, correo, usuario o ID"
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              onKeyPress={(e) => e.key === 'Enter' && handleSearch()}
+            />
+            <button className="btn-search" onClick={handleSearch} title="Buscar">
+              <i className="bi bi-search"></i>
+            </button>
+          </div>
+
+          {/* Lado derecho: botones apilados */}
+          <div className="right-actions">
+            <button className="btn-create" onClick={openCreateModal}>
+              <i className="bi bi-plus-circle"></i> Nuevo Administrador
+            </button>
+            <button className="btn-reset" onClick={handleReset}>
+              <i className="bi bi-arrow-repeat"></i> Reset
+            </button>
+          </div>
         </div>
 
-        <table className="table-ktm">
-          <thead>
-            <tr>
-              <th>ID</th>
-              <th>Nombre</th>
-              <th>Correo</th>
-              <th>Documento</th>
-              <th>Telefono</th>
-              <th>Usuario</th>
-              <th>Acciones</th>
-            </tr>
-          </thead>
-          <tbody>
-            {loading ? (
+        <div className="table-responsive">
+          <table className="table-ktm">
+            <thead>
               <tr>
-                <td colSpan={7} className="loading-row">
-                  Cargando datos...
-                </td>
+                <th>ID</th>
+                <th>Nombre</th>
+                <th>Correo</th>
+                <th>Documento</th>
+                <th>Teléfono</th>
+                <th>Usuario</th>
+                <th>Acciones</th>
               </tr>
-            ) : admins.length > 0 ? (
-              admins.map(admin => (
-                <tr key={admin.ID_ADMINISTRADOR}>
-                  <td>{admin.ID_ADMINISTRADOR}</td>
-                  <td>{admin.Nombre}</td>
-                  <td>{admin.Correo}</td>
-                  <td>{admin.TipoDocumento}</td>
-                  <td>{admin.Telefono}</td>
-                  <td>{admin.usuario}</td>
-                  <td className="actions-cell">
-                    <button
-                      className="btn-edit-ktm"
-                      onClick={() => openEditModal(admin)}
-                      title="Editar Administrador"
-                    >
-                      <i className="bi bi-pencil-square"></i> Editar
-                    </button>
-                    <button
-                      className="btn-eliminar-ktm"
-                      onClick={() => borrarAdmin(admin)}
-                      title="Eliminar Administrador"
-                    >
-                      <i className="bi bi-trash3"></i> Eliminar
-                    </button>
+              </thead>
+            <tbody>
+              {loading ? (
+                <tr>
+                  <td colSpan={7} className="loading-row">
+                    Cargando datos...
                   </td>
                 </tr>
-              ))
-            ) : (
-              <tr>
-                <td colSpan={7} className="loading-row">
-                  No hay administradores registrados.
-                </td>
-              </tr>
-            )}
-          </tbody>
-        </table>
+              ) : filteredAdmins.length > 0 ? (
+                filteredAdmins.map(admin => (
+                  <tr key={admin.ID_ADMINISTRADOR}>
+                    <td>{admin.ID_ADMINISTRADOR}</td>
+                    <td>{admin.Nombre}</td>
+                    <td>{admin.Correo}</td>
+                    <td>{admin.TipoDocumento}</td>
+                    <td>{admin.Telefono}</td>
+                    <td>{admin.usuario}</td>
+                    <td className="actions-cell">
+                      <button
+                        className="btn-edit-ktm"
+                        onClick={() => openEditModal(admin)}
+                        title="Editar Administrador"
+                      >
+                        <i className="bi bi-pencil-square"></i> Editar
+                      </button>
+                      <button
+                        className="btn-eliminar-ktm"
+                        onClick={() => borrarAdmin(admin)}
+                        title="Eliminar Administrador"
+                      >
+                        <i className="bi bi-trash3"></i> Eliminar
+                      </button>
+                    </td>
+                  </tr>
+                ))
+              ) : (
+                <tr>
+                  <td colSpan={7} className="loading-row">
+                    No hay administradores registrados.
+                  </td>
+                </tr>
+              )}
+            </tbody>
+          </table>
+        </div>
       </div>
 
+      {/* Modal Crear */}
       {showCreateModal && (
         <div className="modal-overlay" onClick={closeCreateModal}>
-          <div className="modal-container" onClick={event => event.stopPropagation()}>
+          <div className="modal-container" onClick={e => e.stopPropagation()}>
             <div className="modal-header">
               <h3>Crear Administrador</h3>
               <button type="button" className="close-btn" onClick={closeCreateModal}>
                 &times;
               </button>
             </div>
-
             <form onSubmit={handleCreate}>
               <div className="form-group">
                 <label>ID Administrador</label>
@@ -391,7 +406,6 @@ function Admins() {
                   required
                 />
               </div>
-
               <div className="form-group">
                 <label>Nombre</label>
                 <input
@@ -402,7 +416,6 @@ function Admins() {
                   required
                 />
               </div>
-
               <div className="form-group">
                 <label>Correo</label>
                 <input
@@ -413,7 +426,6 @@ function Admins() {
                   required
                 />
               </div>
-
               <div className="form-group">
                 <label>Tipo de documento</label>
                 <select
@@ -430,9 +442,8 @@ function Admins() {
                   ))}
                 </select>
               </div>
-
               <div className="form-group">
-                <label>Telefono</label>
+                <label>Teléfono</label>
                 <input
                   type="text"
                   name="Telefono"
@@ -441,7 +452,6 @@ function Admins() {
                   required
                 />
               </div>
-
               <div className="form-group">
                 <label>Usuario</label>
                 <input
@@ -452,19 +462,17 @@ function Admins() {
                   required
                 />
               </div>
-
               <div className="form-group">
-                <label>Contrasena</label>
+                <label>Contraseña</label>
                 <input
                   type="password"
                   name="contrasena"
                   value={formData.contrasena}
                   onChange={handleInputChange}
-                  placeholder="Ingresa la contrasena del administrador"
+                  placeholder="Ingresa la contraseña del administrador"
                   required
                 />
               </div>
-
               <div className="modal-footer">
                 <button type="button" onClick={closeCreateModal}>
                   Cancelar
@@ -476,16 +484,16 @@ function Admins() {
         </div>
       )}
 
+      {/* Modal Editar */}
       {showEditModal && currentAdmin && (
         <div className="modal-overlay" onClick={closeEditModal}>
-          <div className="modal-container" onClick={event => event.stopPropagation()}>
+          <div className="modal-container" onClick={e => e.stopPropagation()}>
             <div className="modal-header">
               <h3>Editar Administrador</h3>
               <button type="button" className="close-btn" onClick={closeEditModal}>
                 &times;
               </button>
             </div>
-
             <form onSubmit={handleUpdate}>
               <div className="form-group">
                 <label>ID Administrador</label>
@@ -493,11 +501,10 @@ function Admins() {
                   type="text"
                   name="ID_ADMINISTRADOR"
                   value={formData.ID_ADMINISTRADOR}
-                  onChange={handleInputChange}
-                  required
+                  readOnly
+                  title="El ID no se puede modificar"
                 />
               </div>
-
               <div className="form-group">
                 <label>Nombre</label>
                 <input
@@ -508,7 +515,6 @@ function Admins() {
                   required
                 />
               </div>
-
               <div className="form-group">
                 <label>Correo</label>
                 <input
@@ -519,7 +525,6 @@ function Admins() {
                   required
                 />
               </div>
-
               <div className="form-group">
                 <label>Tipo de documento</label>
                 <select
@@ -540,9 +545,8 @@ function Admins() {
                     )}
                 </select>
               </div>
-
               <div className="form-group">
-                <label>Telefono</label>
+                <label>Teléfono</label>
                 <input
                   type="text"
                   name="Telefono"
@@ -551,7 +555,6 @@ function Admins() {
                   required
                 />
               </div>
-
               <div className="form-group">
                 <label>Usuario</label>
                 <input
@@ -562,18 +565,16 @@ function Admins() {
                   required
                 />
               </div>
-
               <div className="form-group">
-                <label>Nueva contrasena</label>
+                <label>Nueva contraseña</label>
                 <input
                   type="password"
                   name="contrasena"
                   value={formData.contrasena}
                   onChange={handleInputChange}
-                  placeholder="Dejala vacia para mantener la actual"
+                  placeholder="Déjala vacía para mantener la actual"
                 />
               </div>
-
               <div className="modal-footer">
                 <button type="button" onClick={closeEditModal}>
                   Cancelar

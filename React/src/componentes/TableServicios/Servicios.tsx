@@ -1,5 +1,4 @@
 import { useEffect, useState, type ChangeEvent, type FormEvent } from 'react';
-import { useNavigate } from 'react-router-dom';
 import Swal from 'sweetalert2';
 import {
   actualizarServicio,
@@ -18,85 +17,122 @@ const createInitialFormData = (): ServicioPayload => ({
   ID_SERVICIOS: '',
   Nombre: '',
   Categoria: '',
-  Garantia: '',
+  Garantia: 0,
   Estado: 'Disponible',
-  Precio: '',
+  Precio: 0,
 });
 
-const buildServicioPayload = (formData: ServicioPayload): ServicioPayload => ({
-  ID_SERVICIOS: String(formData.ID_SERVICIOS ?? '').trim(),
-  Nombre: String(formData.Nombre ?? '').trim(),
-  Categoria: String(formData.Categoria ?? '').trim(),
-  Garantia: String(formData.Garantia ?? '').trim(),
-  Estado: String(formData.Estado ?? '').trim(),
-  Precio: formData.Precio === '' ? 0 : Number(formData.Precio),
-});
+const buildServicioPayload = (formData: ServicioPayload): ServicioPayload => {
+  const id = String(formData.ID_SERVICIOS ?? '').trim();
+  const nombre = String(formData.Nombre ?? '').trim();
+  const categoria = String(formData.Categoria ?? '').trim();
+  const garantiaNum = Number(formData.Garantia);
+  const estado = String(formData.Estado ?? '').trim();
+  const precio = formData.Precio === '' ? 0 : Number(formData.Precio);
 
-const readServicioArray = (value: unknown): ServicioPayload[] | null => {
-  if (Array.isArray(value)) {
-    return value as ServicioPayload[];
+  if (isNaN(garantiaNum)) {
+    throw new Error('La garantía debe ser un número válido');
   }
+
+  const payload: ServicioPayload = {
+    ID_SERVICIOS: id,
+    Nombre: nombre,
+    Categoria: categoria,
+    Garantia: garantiaNum,
+    Estado: estado,
+    Precio: precio,
+  };
+
+  return payload;
+};
+const readServicioArray = (value: unknown): ServicioPayload[] | null => {
+  if (Array.isArray(value)) return value as ServicioPayload[];
   if (value && typeof value === 'object') {
-    const nestedValue = value as Record<string, unknown>;
-    const nestedData = readServicioArray(nestedValue.data);
-    if (nestedData) return nestedData;
-    const nestedServicios = readServicioArray(nestedValue.servicios);
-    if (nestedServicios) return nestedServicios;
+    const nested = value as Record<string, unknown>;
+    const fromData = readServicioArray(nested.data);
+    if (fromData) return fromData;
+    const fromServicios = readServicioArray(nested.servicios);
+    if (fromServicios) return fromServicios;
   }
   return null;
 };
 
-const extractServicios = (payload: unknown): ServicioPayload[] => {
-  return readServicioArray(payload) ?? [];
-};
+const extractServicios = (payload: unknown): ServicioPayload[] =>
+  readServicioArray(payload) ?? [];
 
 const isSuccessfulResponse = (payload: unknown) => {
-  if (!payload || typeof payload !== 'object' || !('success' in payload)) {
+  if (!payload || typeof payload !== 'object' || !('success' in payload))
     return true;
-  }
   return Boolean((payload as { success?: boolean }).success);
 };
 
 const formatPrecio = (precio: ServicioPayload['Precio']) => {
   const numericValue = Number(precio);
-  if (Number.isFinite(numericValue)) {
-    return numericValue.toLocaleString();
-  }
+  if (Number.isFinite(numericValue)) return numericValue.toLocaleString();
   return precio;
 };
 
 function Servicios() {
   const [servicios, setServicios] = useState<ServicioPayload[]>([]);
+  const [filteredServicios, setFilteredServicios] = useState<ServicioPayload[]>([]);
   const [loading, setLoading] = useState(false);
+  const [searchTerm, setSearchTerm] = useState('');
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [showEditModal, setShowEditModal] = useState(false);
   const [currentServicio, setCurrentServicio] = useState<ServicioPayload | null>(null);
   const [formData, setFormData] = useState<ServicioPayload>(createInitialFormData());
-  const navigate = useNavigate();
 
   useEffect(() => {
     void cargarServicios();
   }, []);
 
+  const showAlert = (title: string, text: string, icon: 'success' | 'error' | 'warning') => {
+    return Swal.fire({
+      title,
+      text,
+      icon,
+      confirmButtonColor: '#ff6600',
+      background: '#101010',
+      color: '#f5f5f5',
+    });
+  };
+
   const cargarServicios = async () => {
     try {
       setLoading(true);
       const response = await obtenerServicios();
-      setServicios(extractServicios(response.data));
+      const data = extractServicios(response.data);
+      setServicios(data);
+      setFilteredServicios(data);
     } catch (error) {
       console.error('Error al obtener servicios:', error);
       setServicios([]);
-      await Swal.fire({
-        title: 'Error',
-        text: 'No se pudieron cargar los servicios.',
-        icon: 'error',
-        confirmButtonColor: '#ff6600',
-        background: '#101010',
-        color: '#f5f5f5',
-      });
+      setFilteredServicios([]);
+      showAlert('Error', 'No se pudieron cargar los servicios.', 'error');
     } finally {
       setLoading(false);
     }
+  };
+
+  // Búsqueda y filtrado
+  const handleSearch = () => {
+    if (!searchTerm.trim()) {
+      setFilteredServicios(servicios);
+      return;
+    }
+    const term = searchTerm.toLowerCase();
+    const filtered = servicios.filter(servicio =>
+      String(servicio.Nombre).toLowerCase().includes(term) ||
+      String(servicio.Categoria).toLowerCase().includes(term) ||
+      String(servicio.ID_SERVICIOS).toLowerCase().includes(term) ||
+      String(servicio.Estado).toLowerCase().includes(term)
+    );
+    setFilteredServicios(filtered);
+  };
+
+  const handleReset = () => {
+    setSearchTerm('');
+    setFilteredServicios(servicios);
   };
 
   const handleInputChange = (event: ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
@@ -154,118 +190,55 @@ function Servicios() {
 
   const handleCreate = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-
-    const validationError = validateForm();
-    if (validationError) {
-      await Swal.fire({
-        title: 'Datos incompletos',
-        text: validationError,
-        icon: 'warning',
-        confirmButtonColor: '#ff6600',
-        background: '#101010',
-        color: '#f5f5f5',
-      });
+    const error = validateForm();
+    if (error) {
+      showAlert('Datos incompletos', error, 'warning');
       return;
     }
-
     try {
-      const response = await crearServicio(buildServicioPayload(formData));
+      const payload = buildServicioPayload(formData);
+      const response = await crearServicio(payload);
       if (isSuccessfulResponse(response.data)) {
-        await Swal.fire({
-          title: 'Servicio creado',
-          text: 'El servicio fue registrado correctamente.',
-          icon: 'success',
-          confirmButtonColor: '#ff6600',
-          background: '#101010',
-          color: '#f5f5f5',
-        });
+        showAlert('Servicio creado', 'El servicio fue registrado correctamente.', 'success');
         closeCreateModal();
         await cargarServicios();
       } else {
-        await Swal.fire({
-          title: 'Error',
-          text: 'No se pudo crear el servicio.',
-          icon: 'error',
-          confirmButtonColor: '#ff6600',
-          background: '#101010',
-          color: '#f5f5f5',
-        });
+        showAlert('Error', 'No se pudo crear el servicio.', 'error');
       }
-    } catch (error) {
-      console.error('Error al crear:', error);
-      await Swal.fire({
-        title: 'Error',
-        text: 'Ocurrió un error al crear el servicio.',
-        icon: 'error',
-        confirmButtonColor: '#ff6600',
-        background: '#101010',
-        color: '#f5f5f5',
-      });
+    } catch (err) {
+      console.error('Error al crear:', err);
+      showAlert('Error', 'Ocurrió un error al crear el servicio.', 'error');
     }
   };
 
   const handleUpdate = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-
     if (!currentServicio) return;
-
-    const validationError = validateForm();
-    if (validationError) {
-      await Swal.fire({
-        title: 'Datos incompletos',
-        text: validationError,
-        icon: 'warning',
-        confirmButtonColor: '#ff6600',
-        background: '#101010',
-        color: '#f5f5f5',
-      });
+    const error = validateForm();
+    if (error) {
+      showAlert('Datos incompletos', error, 'warning');
       return;
     }
-
     try {
-      const response = await actualizarServicio(
-        currentServicio.ID_SERVICIOS,
-        buildServicioPayload(formData)
-      );
-
+      const payload = buildServicioPayload(formData);
+      const response = await actualizarServicio(currentServicio.ID_SERVICIOS, payload);
       if (isSuccessfulResponse(response.data)) {
-        await Swal.fire({
-          title: 'Cambios guardados',
-          text: 'El servicio fue actualizado correctamente.',
-          icon: 'success',
-          confirmButtonColor: '#ff6600',
-          background: '#101010',
-          color: '#f5f5f5',
-        });
+        showAlert('Cambios guardados', 'El servicio fue actualizado correctamente.', 'success');
         closeEditModal();
         await cargarServicios();
       } else {
-        await Swal.fire({
-          title: 'Error',
-          text: 'No se pudo actualizar el servicio.',
-          icon: 'error',
-          confirmButtonColor: '#ff6600',
-          background: '#101010',
-          color: '#f5f5f5',
-        });
+        showAlert('Error', 'No se pudo actualizar el servicio.', 'error');
       }
-    } catch (error) {
-      console.error('Error al actualizar:', error);
-      await Swal.fire({
-        title: 'Error',
-        text: 'Ocurrió un error al actualizar el servicio. Verifica los datos ingresados.',
-        icon: 'error',
-        confirmButtonColor: '#ff6600',
-        background: '#101010',
-        color: '#f5f5f5',
-      });
+    } catch (err) {
+      console.error('Error al actualizar:', err);
+      showAlert('Error', 'Ocurrió un error al actualizar el servicio.', 'error');
     }
   };
 
   const borrarServicio = async (servicio: ServicioPayload) => {
     const result = await Swal.fire({
-      title: '¿Estás seguro?',
-      text: `Eliminarás el servicio "${servicio.Nombre}". Esta acción no se puede deshacer.`,
+      title: `¿Estás seguro de eliminar "${servicio.Nombre}"?`,
+      text: 'Esta acción no se puede deshacer.',
       icon: 'warning',
       showCancelButton: true,
       confirmButtonColor: '#ff6600',
@@ -275,13 +248,12 @@ function Servicios() {
       background: '#101010',
       color: '#f5f5f5',
     });
-
     if (!result.isConfirmed) return;
-
     try {
       await eliminarServicio(servicio.ID_SERVICIOS);
-      setServicios(prev => prev.filter(item => item.ID_SERVICIOS !== servicio.ID_SERVICIOS));
-      await Swal.fire({
+      setServicios(prev => prev.filter(s => s.ID_SERVICIOS !== servicio.ID_SERVICIOS));
+      setFilteredServicios(prev => prev.filter(s => s.ID_SERVICIOS !== servicio.ID_SERVICIOS));
+      Swal.fire({
         title: 'Eliminado',
         text: 'El servicio fue eliminado correctamente.',
         icon: 'success',
@@ -291,94 +263,102 @@ function Servicios() {
         timer: 2000,
         showConfirmButton: false,
       });
-    } catch (error) {
-      console.error('Error al eliminar:', error);
-      await Swal.fire({
-        title: 'Error',
-        text: 'No se pudo eliminar el servicio.',
-        icon: 'error',
-        confirmButtonColor: '#ff6600',
-        background: '#101010',
-        color: '#f5f5f5',
-      });
+    } catch (err) {
+      console.error('Error al eliminar:', err);
+      showAlert('Error', 'No se pudo eliminar el servicio.', 'error');
     }
-  };
-
-  const cerrarSesion = () => {
-    navigate('/login');
   };
 
   return (
     <div className="servicios-page">
       <div className="header-admin">
-        <button className="btn-logout" onClick={cerrarSesion}>
-          Cerrar sesión
-        </button>
+        {/* Puedes agregar el botón de logout aquí si lo deseas */}
       </div>
 
       <div className="admin-section">
         <h1 className="admin-title">Gestión de Servicios</h1>
+
         <div className="action-bar">
-          <button className="btn-create" onClick={openCreateModal}>
-            <i className="bi bi-plus-circle"></i> Nuevo Servicio
-          </button>
+          <div className="search-area">
+            <input
+              type="text"
+              className="search-input"
+              placeholder="Buscar por nombre, categoría o ID"
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              onKeyDown={(e) => e.key === 'Enter' && handleSearch()}
+            />
+            <button className="btn-search" onClick={handleSearch} title="Buscar">
+              <i className="bi bi-search"></i>
+            </button>
+          </div>
+          <div className="right-actions">
+            <button className="btn-create" onClick={openCreateModal}>
+              <i className="bi bi-plus-circle"></i> Nuevo Servicio
+            </button>
+            <button className="btn-reset" onClick={handleReset}>
+              <i className="bi bi-arrow-repeat"></i> Reset
+            </button>
+          </div>
         </div>
 
-        <table className="table-ktm">
-          <thead>
-            <tr>
-              <th>ID</th>
-              <th>Nombre</th>
-              <th>Categoría</th>
-              <th>Garantía (días)</th>
-              <th>Estado</th>
-              <th>Precio</th>
-              <th>Acciones</th>
-            </tr>
-          </thead>
-          <tbody>
-            {loading ? (
+        <div className="table-responsive-container">
+          <table className="table-ktm">
+            <thead>
               <tr>
-                <td colSpan={7} className="loading-row">
-                  Cargando servicios...
-                </td>
+                <th>ID</th>
+                <th>Nombre</th>
+                <th>Categoría</th>
+                <th>Garantía (días)</th>
+                <th>Estado</th>
+                <th>Precio</th>
+                <th>Acciones</th>
               </tr>
-            ) : servicios.length > 0 ? (
-              servicios.map(servicio => (
-                <tr key={servicio.ID_SERVICIOS}>
-                  <td>{servicio.ID_SERVICIOS}</td>
-                  <td>{servicio.Nombre}</td>
-                  <td>{servicio.Categoria}</td>
-                  <td>{servicio.Garantia}</td>
-                  <td>{servicio.Estado}</td>
-                  <td>${formatPrecio(servicio.Precio)}</td>
-                  <td className="actions-cell">
-                    <button
-                      className="btn-edit-ktm"
-                      onClick={() => openEditModal(servicio)}
-                      title="Editar"
-                    >
-                      <i className="bi bi-pencil-square"></i> Editar
-                    </button>
-                    <button
-                      className="btn-eliminar-ktm"
-                      onClick={() => borrarServicio(servicio)}
-                      title="Eliminar"
-                    >
-                      <i className="bi bi-trash3"></i> Eliminar
-                    </button>
+            </thead>
+            <tbody>
+              {loading ? (
+                <tr>
+                  <td colSpan={7} className="loading-row">
+                    Cargando servicios...
                   </td>
                 </tr>
-              ))
-            ) : (
-              <tr>
-                <td colSpan={7} className="loading-row">
-                  No hay servicios registrados.
-                </td>
-              </tr>
-            )}
-          </tbody>
-        </table>
+              ) : filteredServicios.length > 0 ? (
+                filteredServicios.map(servicio => (
+                  <tr key={servicio.ID_SERVICIOS}>
+                    <td>{servicio.ID_SERVICIOS}</td>
+                    <td>{servicio.Nombre}</td>
+                    <td>{servicio.Categoria}</td>
+                    <td>{servicio.Garantia}</td>
+                    <td>{servicio.Estado}</td>
+                    <td>${formatPrecio(servicio.Precio)}</td>
+                    <td className="actions-cell">
+                      <button
+                        className="btn-edit-ktm"
+                        onClick={() => openEditModal(servicio)}
+                        title="Editar"
+                      >
+                        <i className="bi bi-pencil-square"></i> Editar
+                      </button>
+                      <button
+                        className="btn-eliminar-ktm"
+                        onClick={() => borrarServicio(servicio)}
+                        title="Eliminar"
+                      >
+                        <i className="bi bi-trash3"></i> Eliminar
+                      </button>
+                    </td>
+                  </tr>
+                ))
+              ) : (
+                <tr>
+                  <td colSpan={7} className="loading-row">
+                    No hay servicios registrados.
+                  </td>
+                </tr>
+              )}
+            </tbody>
+          </table>
+        </div>
       </div>
 
       {/* Modal Crear */}
@@ -422,9 +402,7 @@ function Servicios() {
                 >
                   <option value="">Seleccione</option>
                   {CATEGORIAS.map(cat => (
-                    <option key={cat} value={cat}>
-                      {cat}
-                    </option>
+                    <option key={cat} value={cat}>{cat}</option>
                   ))}
                 </select>
               </div>
@@ -448,9 +426,7 @@ function Servicios() {
                   required
                 >
                   {ESTADOS.map(est => (
-                    <option key={est} value={est}>
-                      {est}
-                    </option>
+                    <option key={est} value={est}>{est}</option>
                   ))}
                 </select>
               </div>
@@ -480,7 +456,7 @@ function Servicios() {
       )}
 
       {/* Modal Editar */}
-      {showEditModal && (
+      {showEditModal && currentServicio && (
         <div className="modal-overlay" onClick={closeEditModal}>
           <div className="modal-container" onClick={e => e.stopPropagation()}>
             <div className="modal-header">
@@ -496,9 +472,8 @@ function Servicios() {
                   type="text"
                   name="ID_SERVICIOS"
                   value={formData.ID_SERVICIOS}
-                  onChange={handleInputChange}
-                  required
                   readOnly
+                  title="El ID no se puede modificar"
                 />
               </div>
               <div className="form-group">
@@ -520,9 +495,7 @@ function Servicios() {
                   required
                 >
                   {CATEGORIAS.map(cat => (
-                    <option key={cat} value={cat}>
-                      {cat}
-                    </option>
+                    <option key={cat} value={cat}>{cat}</option>
                   ))}
                 </select>
               </div>
@@ -545,9 +518,7 @@ function Servicios() {
                   required
                 >
                   {ESTADOS.map(est => (
-                    <option key={est} value={est}>
-                      {est}
-                    </option>
+                    <option key={est} value={est}>{est}</option>
                   ))}
                 </select>
               </div>

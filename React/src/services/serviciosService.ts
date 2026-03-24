@@ -8,7 +8,7 @@ export interface ServicioPayload {
   ID_SERVICIOS: ServicioId;
   Nombre: string;
   Categoria: string;
-  Garantia: string;
+  Garantia: number;
   Estado: 'Activo' | 'Inactivo' | string;
   Precio: number | string;
 }

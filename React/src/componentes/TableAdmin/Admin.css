@@ -1,275 +1,345 @@
-/* Admin.css - Estilo para el panel de administración */
+/* Admin.css - Estilo KTM con nueva disposición de botones */
 .admin-page {
   --table-black: #050505;
   --table-surface: #0d0d0d;
-  --table-surface-alt: #141414;
   --table-border: #262626;
   --table-text: #f5f5f5;
   --table-muted: #aaaaaa;
   --table-accent: #ff6600;
-  --table-accent-soft: rgba(255, 102, 0, 0.18);
+
   width: 100%;
-  max-width: 1240px;
+  max-width: 1300px;
   margin: 0 auto;
   padding: 1.5rem;
 }
 
 .admin-page .admin-section {
-  background:
-    linear-gradient(180deg, rgba(255, 102, 0, 0.06), transparent 18%),
-    linear-gradient(145deg, #090909, #111111 55%, #0a0a0a);
-  border: 1px solid var(--table-border);
-  border-radius: 24px;
-  box-shadow: 0 24px 48px rgba(0, 0, 0, 0.45);
-  padding: 1.75rem;
+  background-color: #0a0a0a;
+  border-radius: 16px;
+  padding: 1.5rem;
+  border: 1px solid #1a1a1a;
+  overflow: hidden;
 }
 
 .admin-page .admin-title {
-  color: var(--table-text);
-  font-size: clamp(1.8rem, 3vw, 2.4rem);
+  color: #fff;
+  font-size: 2.2rem;
+  font-weight: 600;
+  margin-bottom: 1rem;
+}
+
+/* Barra de acciones: izquierda (búsqueda) + derecha (botones apilados) */
+.admin-page .action-bar {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  flex-wrap: wrap;
+  gap: 1rem;
+  margin-bottom: 2rem;
+}
+
+/* Área de búsqueda (input + botón Buscar) */
+.admin-page .search-area {
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+  flex: 1;
+  min-width: 250px;
+}
+
+.admin-page .search-input {
+  flex: 1;
+  background-color: #141414;
+  border: 1px solid #2a2a2a;
+  border-radius: 999px;
+  padding: 0.6rem 1rem;
+  color: #fff;
+  font-size: 0.9rem;
+  outline: none;
+}
+
+.admin-page .search-input:focus {
+  border-color: var(--table-accent);
+}
+
+.admin-page .btn-search {
+  background: var(--table-accent);
+  border: none;
+  color: #000;
+  font-weight: 700;
+  padding: 0.6rem 1.2rem;
+  border-radius: 999px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  white-space: nowrap;
+}
+
+.admin-page .btn-search:hover {
+  filter: brightness(1.1);
+  transform: scale(1.02);
+}
+
+/* Contenedor de botones de la derecha (apilados verticalmente) */
+.admin-page .right-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  align-items: flex-end;
+}
+
+.admin-page .btn-create {
+  background: var(--table-accent);
+  color: #000;
+  border: none;
+  padding: 0.7rem 1.4rem;
+  border-radius: 50px;
   font-weight: 800;
-  letter-spacing: 0.08em;
-  margin: 0 0 1.5rem;
-  padding-bottom: 0.9rem;
-  text-transform: uppercase;
-  border-bottom: 1px solid rgba(255, 102, 0, 0.25);
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  cursor: pointer;
+  transition: transform 0.2s ease;
+  white-space: nowrap;
+}
+
+.admin-page .btn-create:hover {
+  transform: scale(1.05);
+}
+
+.admin-page .btn-reset {
+  background-color: #2a2a2a;
+  border: none;
+  color: #fff;
+  font-weight: 700;
+  padding: 0.5rem 1rem;
+  border-radius: 999px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  white-space: nowrap;
+}
+
+.admin-page .btn-reset:hover {
+  background-color: #3a3a3a;
+  transform: scale(1.02);
+}
+
+/* Tabla */
+.admin-page .table-responsive {
+  width: 100%;
+  overflow-x: auto;
+  border-radius: 12px;
+  border: 1px solid var(--table-border);
 }
 
 .admin-page .table-ktm {
   width: 100%;
   border-collapse: collapse;
-  overflow: hidden;
-  border-radius: 18px;
   background-color: var(--table-black);
-  border: 1px solid var(--table-border);
-}
-
-.admin-page .table-ktm thead {
-  background: linear-gradient(180deg, #1a1a1a, #101010);
+  min-width: 900px;
 }
 
 .admin-page .table-ktm th {
+  background-color: #050505;
   color: var(--table-accent);
-  font-size: 0.86rem;
-  font-weight: 800;
-  letter-spacing: 0.08em;
-  padding: 1rem 1.1rem;
-  text-align: left;
   text-transform: uppercase;
-  border-bottom: 1px solid rgba(255, 102, 0, 0.22);
+  font-size: 0.75rem;
+  font-weight: 800;
+  padding: 1.2rem 0.8rem;
+  text-align: left;
+  border-bottom: 2px solid #1a1a1a;
 }
 
 .admin-page .table-ktm td {
+  padding: 1rem 0.8rem;
   color: var(--table-text);
-  padding: 1rem 1.1rem;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
-  background-color: transparent;
+  font-size: 0.85rem;
+  border-bottom: 1px solid #151515;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
-.admin-page .table-ktm tbody tr:nth-child(even) td {
-  background-color: rgba(255, 255, 255, 0.015);
-}
-
-.admin-page .table-ktm tbody tr:hover td {
-  background-color: var(--table-accent-soft);
-}
-
-.admin-page .loading-row {
-  color: var(--table-muted);
-  font-style: italic;
-  padding: 2rem 1rem;
-  text-align: center;
+.admin-page .table-ktm td:nth-child(3) {
+  max-width: 200px;
 }
 
 .admin-page .actions-cell {
   display: flex;
-  gap: 0.65rem;
-  flex-wrap: nowrap;
-  align-items: center;
-  white-space: nowrap;
+  gap: 0.5rem;
 }
 
 .admin-page .btn-edit-ktm,
 .admin-page .btn-eliminar-ktm {
-  border: 0;
-  border-radius: 999px;
-  color: #fff;
-  cursor: pointer;
+  border: none;
+  color: white;
+  padding: 0.4rem 0.8rem;
+  border-radius: 6px;
   display: inline-flex;
   align-items: center;
-  gap: 0.45rem;
-  font-size: 0.82rem;
-  font-weight: 700;
-  letter-spacing: 0.03em;
-  padding: 0.6rem 1rem;
-  transition:
-    transform 0.2s ease,
-    box-shadow 0.2s ease,
-    background-color 0.2s ease;
+  gap: 0.4rem;
+  font-size: 0.75rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s ease;
 }
 
 .admin-page .btn-edit-ktm {
-  background: linear-gradient(135deg, #303030, #1d1d1d);
-  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.08);
+  background-color: #1e1e1e;
+  border: 1px solid #333;
 }
 
 .admin-page .btn-edit-ktm:hover {
-  transform: translateY(-1px);
-  box-shadow:
-    inset 0 0 0 1px rgba(255, 255, 255, 0.1),
-    0 0 0 1px rgba(255, 102, 0, 0.2);
+  background-color: #2a2a2a;
 }
 
 .admin-page .btn-eliminar-ktm {
-  background: linear-gradient(135deg, #a51f1f, #6f1111);
+  background-color: #6d1010;
 }
 
 .admin-page .btn-eliminar-ktm:hover {
-  transform: translateY(-1px);
-  box-shadow: 0 10px 24px rgba(165, 31, 31, 0.28);
+  background-color: #8a1414;
 }
 
-/* Botón de nuevo registro (similar al de crear servicio) */
-.admin-page .btn-create {
-  background: linear-gradient(135deg, #ff7b22, #ff6600);
-  color: #121212;
-  border: 0;
-  padding: 0.75rem 1.2rem;
-  border-radius: 999px;
-  cursor: pointer;
-  font-weight: 800;
-  display: inline-flex;
-  align-items: center;
-  gap: 0.55rem;
-  transition:
-    transform 0.2s ease,
-    box-shadow 0.2s ease;
-}
-
-.admin-page .btn-create:hover {
-  transform: translateY(-1px);
-  box-shadow: 0 14px 28px rgba(255, 102, 0, 0.22);
-}
-
-/* Barra de acciones (botón + búsqueda) */
-.admin-page .action-bar {
-  display: flex;
-  justify-content: flex-end;
-  margin-bottom: 1.25rem;
+.admin-page .loading-row {
+  text-align: center;
+  padding: 2rem;
+  color: var(--table-muted);
+  font-style: italic;
 }
 
 /* Modales */
 .admin-page .modal-overlay {
   position: fixed;
   inset: 0;
+  background-color: rgba(0, 0, 0, 0.75);
+  backdrop-filter: blur(4px);
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 1.25rem;
-  background-color: rgba(0, 0, 0, 0.72);
-  backdrop-filter: blur(8px);
   z-index: 1000;
+  padding: 1rem;
 }
 
 .admin-page .modal-container {
-  width: min(100%, 620px);
-  max-height: 92vh;
+  background: linear-gradient(145deg, #111111, #080808);
+  border: 1px solid #2a2a2a;
+  border-radius: 24px;
+  width: 100%;
+  max-width: 560px;
+  max-height: 90vh;
   overflow-y: auto;
-  background: linear-gradient(180deg, #101010, #080808);
-  border: 1px solid var(--table-border);
-  border-radius: 22px;
-  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.45);
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.5);
 }
 
 .admin-page .modal-header {
   display: flex;
-  align-items: center;
   justify-content: space-between;
-  padding: 1.1rem 1.35rem;
-  color: #fff;
-  border-bottom: 1px solid rgba(255, 102, 0, 0.22);
-  background: linear-gradient(135deg, #1b1b1b, #111111);
+  align-items: center;
+  padding: 1.2rem 1.5rem;
+  border-bottom: 1px solid #2a2a2a;
+  background: #0c0c0c;
+  border-radius: 24px 24px 0 0;
 }
 
 .admin-page .modal-header h3 {
   margin: 0;
-  font-size: 1.1rem;
-  letter-spacing: 0.04em;
+  color: var(--table-accent);
+  font-size: 1.3rem;
+  font-weight: 700;
 }
 
 .admin-page .close-btn {
-  background: transparent;
-  border: 0;
+  width: 38px;
+  height: 38px;
+  padding: 0;
+  border-radius: 50%;
+  justify-content: center;
+  
+}
+
+.admin-page .close-btn:hover {
   color: #fff;
-  cursor: pointer;
-  font-size: 1.7rem;
-  line-height: 1;
 }
 
 .admin-page .form-group {
-  padding: 0 1.35rem;
-  margin-bottom: 1rem;
-}
-
-.admin-page .form-group:first-of-type {
-  margin-top: 1.2rem;
+  margin: 1.2rem 1.5rem;
 }
 
 .admin-page .form-group label {
   display: block;
-  margin-bottom: 0.45rem;
-  color: #d6d6d6;
+  margin-bottom: 0.4rem;
+  color: #ddd;
+  font-weight: 600;
   font-size: 0.9rem;
-  font-weight: 700;
 }
 
 .admin-page .form-group input,
 .admin-page .form-group select {
   width: 100%;
-  padding: 0.85rem 0.95rem;
-  border-radius: 14px;
-  border: 1px solid #2e2e2e;
-  background-color: var(--table-surface-alt);
-  color: var(--table-text);
+  padding: 0.75rem 1rem;
+  background-color: #141414;
+  border: 1px solid #2a2a2a;
+  border-radius: 12px;
+  color: #fff;
+  font-size: 0.9rem;
   outline: none;
+  transition: border-color 0.2s;
 }
 
 .admin-page .form-group input:focus,
 .admin-page .form-group select:focus {
-  border-color: rgba(255, 102, 0, 0.72);
-  box-shadow: 0 0 0 3px rgba(255, 102, 0, 0.12);
-}
-
-.admin-page .form-group input[readonly] {
-  color: var(--table-muted);
-  cursor: not-allowed;
+  border-color: var(--table-accent);
 }
 
 .admin-page .modal-footer {
   display: flex;
   justify-content: flex-end;
-  gap: 0.75rem;
-  padding: 1.2rem 1.35rem 1.35rem;
-  margin-top: 0.5rem;
-  border-top: 1px solid rgba(255, 255, 255, 0.06);
+  gap: 1rem;
+  padding: 1.2rem 1.5rem;
+  border-top: 1px solid #2a2a2a;
+  background: #0c0c0c;
+  border-radius: 0 0 24px 24px;
 }
 
 .admin-page .modal-footer button {
-  border: 0;
-  border-radius: 999px;
+  padding: 0.6rem 1.2rem;
+  border-radius: 40px;
+  border: none;
+  font-weight: 600;
   cursor: pointer;
-  font-weight: 700;
-  padding: 0.75rem 1.2rem;
+  transition: all 0.2s;
 }
 
 .admin-page .modal-footer button:first-child {
   background-color: #2a2a2a;
-  color: #f5f5f5;
+  color: #fff;
 }
 
 .admin-page .modal-footer button:last-child {
-  background: linear-gradient(135deg, #ff7b22, #ff6600);
-  color: #101010;
+  background: var(--table-accent);
+  color: #000;
+}
+
+.admin-page .modal-footer button:hover {
+  transform: translateY(-1px);
+  filter: brightness(1.05);
+}
+
+.admin-page .modal-container::-webkit-scrollbar {
+  width: 6px;
+}
+.admin-page .modal-container::-webkit-scrollbar-track {
+  background: #1a1a1a;
+}
+.admin-page .modal-container::-webkit-scrollbar-thumb {
+  background: #444;
+  border-radius: 10px;
 }
 
 /* Responsive */
@@ -277,22 +347,32 @@
   .admin-page {
     padding: 1rem;
   }
-
-  .admin-page .admin-section {
-    padding: 1.1rem;
-  }
-
-  .admin-page .table-ktm {
-    display: block;
-    overflow-x: auto;
-  }
-
-  .admin-page .actions-cell {
-    flex-wrap: wrap;
-    min-width: 180px;
-  }
-
-  .admin-page .modal-footer {
+  .admin-page .action-bar {
     flex-direction: column;
+    align-items: stretch;
+  }
+  .admin-page .search-area {
+    width: 100%;
+  }
+  .admin-page .right-actions {
+    width: 100%;
+    align-items: stretch;
+  }
+  .admin-page .btn-create,
+  .admin-page .btn-reset {
+    justify-content: center;
+  }
+  .admin-page .table-responsive {
+    border-radius: 8px;
+  }
+  .admin-page .table-ktm th,
+  .admin-page .table-ktm td {
+    padding: 0.8rem 0.6rem;
+    font-size: 0.75rem;
+  }
+  .admin-page .btn-edit-ktm,
+  .admin-page .btn-eliminar-ktm {
+    padding: 0.3rem 0.6rem;
+    font-size: 0.7rem;
   }
 }
