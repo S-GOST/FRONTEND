@@ -9,9 +9,9 @@ import {
 } from '../../services/serviciosService';
 import './Servicios.css';
 
-// Valores según la base de datos
 const CATEGORIAS = ['Mantenimientos', 'Reparaciones', 'Instalaciones', 'Diagnosticos'];
-const ESTADOS = ['Disponible', 'No disponible'];
+const ESTADOS = ['Disponible', 'No disponible'] as const;
+type EstadoType = (typeof ESTADOS)[number]; // 'Disponible' | 'No disponible'
 
 const createInitialFormData = (): ServicioPayload => ({
   ID_SERVICIOS: '',
@@ -22,29 +22,32 @@ const createInitialFormData = (): ServicioPayload => ({
   Precio: 0,
 });
 
+/**
+ * Construye el payload asegurando que los tipos coincidan con la API.
+ * @throws {Error} Si la garantía no es un número válido.
+ */
 const buildServicioPayload = (formData: ServicioPayload): ServicioPayload => {
   const id = String(formData.ID_SERVICIOS ?? '').trim();
   const nombre = String(formData.Nombre ?? '').trim();
   const categoria = String(formData.Categoria ?? '').trim();
   const garantiaNum = Number(formData.Garantia);
-  const estado = String(formData.Estado ?? '').trim();
-  const precio = formData.Precio === '' ? 0 : Number(formData.Precio);
+  const estado = String(formData.Estado ?? '').trim() as EstadoType;
+  const precio = Number(formData.Precio);
 
   if (isNaN(garantiaNum)) {
     throw new Error('La garantía debe ser un número válido');
   }
 
-  const payload: ServicioPayload = {
+  return {
     ID_SERVICIOS: id,
     Nombre: nombre,
     Categoria: categoria,
     Garantia: garantiaNum,
-    Estado: estado,
+    Estado: estado, // ✅ Corregido: asignación directa después de castear
     Precio: precio,
   };
-
-  return payload;
 };
+
 const readServicioArray = (value: unknown): ServicioPayload[] | null => {
   if (Array.isArray(value)) return value as ServicioPayload[];
   if (value && typeof value === 'object') {
@@ -61,8 +64,7 @@ const extractServicios = (payload: unknown): ServicioPayload[] =>
   readServicioArray(payload) ?? [];
 
 const isSuccessfulResponse = (payload: unknown) => {
-  if (!payload || typeof payload !== 'object' || !('success' in payload))
-    return true;
+  if (!payload || typeof payload !== 'object' || !('success' in payload)) return true;
   return Boolean((payload as { success?: boolean }).success);
 };
 
@@ -114,18 +116,18 @@ function Servicios() {
     }
   };
 
-  // Búsqueda y filtrado
   const handleSearch = () => {
     if (!searchTerm.trim()) {
       setFilteredServicios(servicios);
       return;
     }
     const term = searchTerm.toLowerCase();
-    const filtered = servicios.filter(servicio =>
-      String(servicio.Nombre).toLowerCase().includes(term) ||
-      String(servicio.Categoria).toLowerCase().includes(term) ||
-      String(servicio.ID_SERVICIOS).toLowerCase().includes(term) ||
-      String(servicio.Estado).toLowerCase().includes(term)
+    const filtered = servicios.filter(
+      (servicio) =>
+        String(servicio.Nombre).toLowerCase().includes(term) ||
+        String(servicio.Categoria).toLowerCase().includes(term) ||
+        String(servicio.ID_SERVICIOS).toLowerCase().includes(term) ||
+        String(servicio.Estado).toLowerCase().includes(term)
     );
     setFilteredServicios(filtered);
   };
@@ -137,7 +139,7 @@ function Servicios() {
 
   const handleInputChange = (event: ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     const { name, value } = event.target;
-    setFormData(prev => ({ ...prev, [name]: value }) as ServicioPayload);
+    setFormData((prev) => ({ ...prev, [name]: value }) as ServicioPayload);
   };
 
   const openCreateModal = () => {
@@ -174,15 +176,14 @@ function Servicios() {
     const id = String(formData.ID_SERVICIOS ?? '').trim();
     const nombre = String(formData.Nombre ?? '').trim();
     const categoria = String(formData.Categoria ?? '').trim();
-    const garantia = String(formData.Garantia ?? '').trim();
+    const garantiaNum = Number(formData.Garantia);
     const estado = String(formData.Estado ?? '').trim();
     const precio = formData.Precio;
 
     if (!id) return 'El ID del servicio es obligatorio.';
     if (!nombre) return 'El nombre del servicio es obligatorio.';
     if (!categoria) return 'Debe seleccionar una categoría.';
-    if (!garantia) return 'La garantía es obligatoria (ej: 30).';
-    if (isNaN(Number(garantia))) return 'La garantía debe ser un número (ej: 30).';
+    if (!garantiaNum || isNaN(garantiaNum)) {return 'La garantía debe ser un número (ej: 30).';}
     if (!estado) return 'Debe seleccionar un estado.';
     if (!precio || Number(precio) <= 0) return 'Debe ingresar un precio válido mayor a 0.';
     return null;
@@ -207,7 +208,8 @@ function Servicios() {
       }
     } catch (err) {
       console.error('Error al crear:', err);
-      showAlert('Error', 'Ocurrió un error al crear el servicio.', 'error');
+      const message = err instanceof Error ? err.message : 'Ocurrió un error al crear el servicio.';
+      showAlert('Error', message, 'error');
     }
   };
 
@@ -231,7 +233,8 @@ function Servicios() {
       }
     } catch (err) {
       console.error('Error al actualizar:', err);
-      showAlert('Error', 'Ocurrió un error al actualizar el servicio.', 'error');
+      const message = err instanceof Error ? err.message : 'Ocurrió un error al actualizar el servicio.';
+      showAlert('Error', message, 'error');
     }
   };
 
@@ -251,8 +254,10 @@ function Servicios() {
     if (!result.isConfirmed) return;
     try {
       await eliminarServicio(servicio.ID_SERVICIOS);
-      setServicios(prev => prev.filter(s => s.ID_SERVICIOS !== servicio.ID_SERVICIOS));
-      setFilteredServicios(prev => prev.filter(s => s.ID_SERVICIOS !== servicio.ID_SERVICIOS));
+      setServicios((prev) => prev.filter((s) => s.ID_SERVICIOS !== servicio.ID_SERVICIOS));
+      setFilteredServicios((prev) =>
+        prev.filter((s) => s.ID_SERVICIOS !== servicio.ID_SERVICIOS)
+      );
       Swal.fire({
         title: 'Eliminado',
         text: 'El servicio fue eliminado correctamente.',
@@ -271,9 +276,7 @@ function Servicios() {
 
   return (
     <div className="servicios-page">
-      <div className="header-admin">
-        {/* Puedes agregar el botón de logout aquí si lo deseas */}
-      </div>
+      <div className="header-admin">{/* Botón de logout si se desea */}</div>
 
       <div className="admin-section">
         <h1 className="admin-title">Gestión de Servicios</h1>
@@ -323,7 +326,7 @@ function Servicios() {
                   </td>
                 </tr>
               ) : filteredServicios.length > 0 ? (
-                filteredServicios.map(servicio => (
+                filteredServicios.map((servicio) => (
                   <tr key={servicio.ID_SERVICIOS}>
                     <td>{servicio.ID_SERVICIOS}</td>
                     <td>{servicio.Nombre}</td>
@@ -364,7 +367,7 @@ function Servicios() {
       {/* Modal Crear */}
       {showCreateModal && (
         <div className="modal-overlay" onClick={closeCreateModal}>
-          <div className="modal-container" onClick={e => e.stopPropagation()}>
+          <div className="modal-container" onClick={(e) => e.stopPropagation()}>
             <div className="modal-header">
               <h3>Crear Servicio</h3>
               <button type="button" className="close-btn" onClick={closeCreateModal}>
@@ -401,8 +404,10 @@ function Servicios() {
                   required
                 >
                   <option value="">Seleccione</option>
-                  {CATEGORIAS.map(cat => (
-                    <option key={cat} value={cat}>{cat}</option>
+                  {CATEGORIAS.map((cat) => (
+                    <option key={cat} value={cat}>
+                      {cat}
+                    </option>
                   ))}
                 </select>
               </div>
@@ -425,8 +430,10 @@ function Servicios() {
                   onChange={handleInputChange}
                   required
                 >
-                  {ESTADOS.map(est => (
-                    <option key={est} value={est}>{est}</option>
+                  {ESTADOS.map((est) => (
+                    <option key={est} value={est}>
+                      {est}
+                    </option>
                   ))}
                 </select>
               </div>
@@ -458,7 +465,7 @@ function Servicios() {
       {/* Modal Editar */}
       {showEditModal && currentServicio && (
         <div className="modal-overlay" onClick={closeEditModal}>
-          <div className="modal-container" onClick={e => e.stopPropagation()}>
+          <div className="modal-container" onClick={(e) => e.stopPropagation()}>
             <div className="modal-header">
               <h3>Editar Servicio</h3>
               <button type="button" className="close-btn" onClick={closeEditModal}>
@@ -494,8 +501,10 @@ function Servicios() {
                   onChange={handleInputChange}
                   required
                 >
-                  {CATEGORIAS.map(cat => (
-                    <option key={cat} value={cat}>{cat}</option>
+                  {CATEGORIAS.map((cat) => (
+                    <option key={cat} value={cat}>
+                      {cat}
+                    </option>
                   ))}
                 </select>
               </div>
@@ -517,8 +526,10 @@ function Servicios() {
                   onChange={handleInputChange}
                   required
                 >
-                  {ESTADOS.map(est => (
-                    <option key={est} value={est}>{est}</option>
+                  {ESTADOS.map((est) => (
+                    <option key={est} value={est}>
+                      {est}
+                    </option>
                   ))}
                 </select>
               </div>

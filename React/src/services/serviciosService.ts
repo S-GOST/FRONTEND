@@ -9,8 +9,8 @@ export interface ServicioPayload {
   Nombre: string;
   Categoria: string;
   Garantia: number;
-  Estado: 'Activo' | 'Inactivo' | string;
-  Precio: number | string;
+  Estado: 'Disponible' | 'No disponible';
+  Precio: number;
 }
 
 export interface ApiResponse<T> {
