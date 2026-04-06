@@ -10,16 +10,26 @@ import {
 } from '../../services/productosService';
 import './Productos.css';
 
-// Opciones para categorías (ajústalas según tu base de datos)
-const CATEGORIAS = ['Accesorios', 'Repuestos', 'Herramientas', 'Lubricantes', 'Neumáticos'];
+const CATEGORIAS = [
+  'Accesorios',
+  'Repuestos',
+  'Herramientas',
+  'Lubricantes',
+  'Neumáticos',
+];
+
+const ESTADOS = ['Disponibles', 'Agotados', 'Próximamente'] as const;
+type EstadoType = (typeof ESTADOS)[number];
 
 const createInitialFormData = (): ProductoPayload => ({
   ID_PRODUCTOS: '',
   Nombre: '',
   Marca: '',
   Categoria: '',
-  Cantidad: 0,
+  Garantia: 0,
   Precio: 0,
+  Cantidad: 0,
+  Estado: 'Disponibles',
 });
 
 const buildProductoPayload = (formData: ProductoPayload): ProductoPayload => {
@@ -27,62 +37,68 @@ const buildProductoPayload = (formData: ProductoPayload): ProductoPayload => {
   const nombre = String(formData.Nombre ?? '').trim();
   const marca = String(formData.Marca ?? '').trim();
   const categoria = String(formData.Categoria ?? '').trim();
-  const cantidad = Number(formData.Cantidad);
+  const garantia = Number(formData.Garantia);
   const precio = Number(formData.Precio);
+  const cantidad = Number(formData.Cantidad);
+  const estado = String(formData.Estado ?? 'Disponibles').trim() as EstadoType;
 
   if (!id) throw new Error('El ID del producto es obligatorio.');
   if (!nombre) throw new Error('El nombre del producto es obligatorio.');
   if (!marca) throw new Error('La marca del producto es obligatoria.');
   if (!categoria) throw new Error('Debe seleccionar una categoría.');
-  if (isNaN(cantidad) || cantidad < 0) throw new Error('La cantidad debe ser un número válido >= 0');
-  if (isNaN(precio) || precio <= 0) throw new Error('El precio debe ser un número válido > 0');
+  if (Number.isNaN(garantia) || garantia < 0) {
+    throw new Error('La garantía debe ser un número mayor o igual a 0.');
+  }
+  if (Number.isNaN(precio) || precio <= 0) {
+    throw new Error('El precio debe ser mayor a 0.');
+  }
+  if (Number.isNaN(cantidad) || cantidad < 0) {
+    throw new Error('La cantidad debe ser mayor o igual a 0.');
+  }
+  if (!estado) throw new Error('Debe seleccionar un estado.');
 
   return {
     ID_PRODUCTOS: id,
     Nombre: nombre,
     Marca: marca,
     Categoria: categoria,
-    Cantidad: cantidad,
+    Garantia: garantia,
     Precio: precio,
+    Cantidad: cantidad,
+    Estado: estado,
   };
 };
 
-// Extracción robusta de datos desde la respuesta del backend
 const readProductoArray = (value: unknown): ProductoRecord[] | null => {
   if (Array.isArray(value)) return value as ProductoRecord[];
   if (value && typeof value === 'object') {
     const nested = value as Record<string, unknown>;
-    if ('data' in nested) {
-      const fromData = readProductoArray(nested.data);
-      if (fromData) return fromData;
-    }
-    if ('productos' in nested) {
-      const fromProductos = readProductoArray(nested.productos);
-      if (fromProductos) return fromProductos;
-    }
+    const fromData = readProductoArray(nested.data);
+    if (fromData) return fromData;
+    const fromProductos = readProductoArray(nested.productos);
+    if (fromProductos) return fromProductos;
   }
   return null;
 };
 
-const extractProductos = (payload: unknown): ProductoRecord[] => {
-  if (Array.isArray(payload)) return payload as ProductoRecord[];
-  if (payload && typeof payload === 'object') {
-    const obj = payload as Record<string, unknown>;
-    if (Array.isArray(obj.data)) return obj.data as ProductoRecord[];
-    if (Array.isArray(obj.productos)) return obj.productos as ProductoRecord[];
-  }
-  return readProductoArray(payload) ?? [];
+const extractProductos = (payload: unknown): ProductoRecord[] =>
+  readProductoArray(payload) ?? [];
+
+const isSuccessfulResponse = (payload: unknown) => {
+  if (!payload || typeof payload !== 'object' || !('success' in payload)) return true;
+  return Boolean((payload as { success?: boolean }).success);
 };
 
-const isSuccessfulResponse = (payload: unknown): boolean => {
-  if (!payload || typeof payload !== 'object') return true;
-  if ('success' in payload) return Boolean((payload as { success?: boolean }).success);
-  return true;
+const formatPrecio = (precio: ProductoPayload['Precio']) => {
+  const numericValue = Number(precio);
+  if (Number.isFinite(numericValue)) return numericValue.toLocaleString();
+  return precio;
 };
 
-const formatPrecio = (precio: number | string): string => {
-  const num = Number(precio);
-  return isNaN(num) ? '0' : num.toLocaleString();
+const getEstadoBadgeClass = (estado?: string) => {
+  if (estado === 'Disponibles') return 'bg-success';
+  if (estado === 'Próximamente') return 'bg-warning';
+  return 'bg-danger';
 };
 
 function TableProductos() {
@@ -99,7 +115,11 @@ function TableProductos() {
     void cargarProductos();
   }, []);
 
-  const showAlert = (title: string, text: string, icon: 'success' | 'error' | 'warning') => {
+  const showAlert = (
+    title: string,
+    text: string,
+    icon: 'success' | 'error' | 'warning'
+  ) => {
     return Swal.fire({
       title,
       text,
@@ -132,13 +152,17 @@ function TableProductos() {
       setFilteredProductos(productos);
       return;
     }
+
     const term = searchTerm.toLowerCase();
-    const filtered = productos.filter(prod =>
-      prod.Nombre.toLowerCase().includes(term) ||
-      prod.Marca.toLowerCase().includes(term) ||
-      prod.Categoria.toLowerCase().includes(term) ||
-      String(prod.ID_PRODUCTOS).toLowerCase().includes(term)
+    const filtered = productos.filter(
+      (producto) =>
+        String(producto.Nombre).toLowerCase().includes(term) ||
+        String(producto.Marca).toLowerCase().includes(term) ||
+        String(producto.Categoria).toLowerCase().includes(term) ||
+        String(producto.Estado ?? '').toLowerCase().includes(term) ||
+        String(producto.ID_PRODUCTOS).toLowerCase().includes(term)
     );
+
     setFilteredProductos(filtered);
   };
 
@@ -147,9 +171,11 @@ function TableProductos() {
     setFilteredProductos(productos);
   };
 
-  const handleInputChange = (event: ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
+  const handleInputChange = (
+    event: ChangeEvent<HTMLInputElement | HTMLSelectElement>
+  ) => {
     const { name, value } = event.target;
-    setFormData(prev => ({ ...prev, [name]: value }) as ProductoPayload);
+    setFormData((prev) => ({ ...prev, [name]: value }) as ProductoPayload);
   };
 
   const openCreateModal = () => {
@@ -165,8 +191,10 @@ function TableProductos() {
       Nombre: producto.Nombre,
       Marca: producto.Marca,
       Categoria: producto.Categoria,
-      Cantidad: producto.Cantidad,
+      Garantia: producto.Garantia ?? 0,
       Precio: producto.Precio,
+      Cantidad: producto.Cantidad,
+      Estado: (producto.Estado as EstadoType) ?? 'Disponibles',
     });
     setShowEditModal(true);
   };
@@ -187,17 +215,25 @@ function TableProductos() {
     const nombre = String(formData.Nombre ?? '').trim();
     const marca = String(formData.Marca ?? '').trim();
     const categoria = String(formData.Categoria ?? '').trim();
-    const cantidad = formData.Cantidad;
-    const precio = formData.Precio;
+    const garantia = Number(formData.Garantia);
+    const precio = Number(formData.Precio);
+    const cantidad = Number(formData.Cantidad);
+    const estado = String(formData.Estado ?? '').trim();
 
     if (!id) return 'El ID del producto es obligatorio.';
     if (!nombre) return 'El nombre del producto es obligatorio.';
     if (!marca) return 'La marca del producto es obligatoria.';
-    if (!categoria) return 'Debe seleccionar una categoría.';
-    if (isNaN(Number(cantidad)) || Number(cantidad) < 0)
-      return 'La cantidad debe ser un número válido mayor o igual a 0.';
-    if (isNaN(Number(precio)) || Number(precio) <= 0)
+    if (!categoria) return 'Debe seleccionar una categoria.';
+    if (Number.isNaN(garantia) || garantia < 0) {
+      return 'La garantía debe ser un número válido mayor o igual a 0.';
+    }
+    if (Number.isNaN(precio) || precio <= 0) {
       return 'El precio debe ser un número válido mayor a 0.';
+    }
+    if (Number.isNaN(cantidad) || cantidad < 0) {
+      return 'La cantidad debe ser un número válido mayor o igual a 0.';
+    }
+    if (!estado) return 'Debe seleccionar un estado.';
     return null;
   };
 
@@ -208,43 +244,64 @@ function TableProductos() {
       showAlert('Datos incompletos', error, 'warning');
       return;
     }
+
     try {
       const payload = buildProductoPayload(formData);
       const response = await crearProducto(payload);
+
       if (isSuccessfulResponse(response.data)) {
-        showAlert('Producto creado', 'El producto fue registrado correctamente.', 'success');
+        await showAlert(
+          'Producto creado',
+          'El producto fue registrado correctamente.',
+          'success'
+        );
         closeCreateModal();
         await cargarProductos();
       } else {
         showAlert('Error', 'No se pudo crear el producto.', 'error');
       }
-    } catch (err) {
-      console.error('Error al crear:', err);
-      showAlert('Error', 'Ocurrió un error al crear el producto.', 'error');
+    } catch (error) {
+      console.error('Error al crear:', error);
+      const message =
+        error instanceof Error
+          ? error.message
+          : 'Ocurrió un error al crear el producto.';
+      showAlert('Error', message, 'error');
     }
   };
 
   const handleUpdate = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     if (!currentProducto) return;
+
     const error = validateForm();
     if (error) {
       showAlert('Datos incompletos', error, 'warning');
       return;
     }
+
     try {
       const payload = buildProductoPayload(formData);
       const response = await actualizarProducto(currentProducto.ID_PRODUCTOS, payload);
+
       if (isSuccessfulResponse(response.data)) {
-        showAlert('Cambios guardados', 'El producto fue actualizado correctamente.', 'success');
+        await showAlert(
+          'Cambios guardados',
+          'El producto fue actualizado correctamente.',
+          'success'
+        );
         closeEditModal();
         await cargarProductos();
       } else {
         showAlert('Error', 'No se pudo actualizar el producto.', 'error');
       }
-    } catch (err) {
-      console.error('Error al actualizar:', err);
-      showAlert('Error', 'Ocurrió un error al actualizar el producto.', 'error');
+    } catch (error) {
+      console.error('Error al actualizar:', error);
+      const message =
+        error instanceof Error
+          ? error.message
+          : 'Ocurrió un error al actualizar el producto.';
+      showAlert('Error', message, 'error');
     }
   };
 
@@ -261,11 +318,17 @@ function TableProductos() {
       background: '#101010',
       color: '#f5f5f5',
     });
+
     if (!result.isConfirmed) return;
+
     try {
       await eliminarProducto(producto.ID_PRODUCTOS);
-      setProductos(prev => prev.filter(p => p.ID_PRODUCTOS !== producto.ID_PRODUCTOS));
-      setFilteredProductos(prev => prev.filter(p => p.ID_PRODUCTOS !== producto.ID_PRODUCTOS));
+      setProductos((prev) =>
+        prev.filter((item) => item.ID_PRODUCTOS !== producto.ID_PRODUCTOS)
+      );
+      setFilteredProductos((prev) =>
+        prev.filter((item) => item.ID_PRODUCTOS !== producto.ID_PRODUCTOS)
+      );
       Swal.fire({
         title: 'Eliminado',
         text: 'El producto fue eliminado correctamente.',
@@ -276,8 +339,8 @@ function TableProductos() {
         timer: 2000,
         showConfirmButton: false,
       });
-    } catch (err) {
-      console.error('Error al eliminar:', err);
+    } catch (error) {
+      console.error('Error al eliminar:', error);
       showAlert('Error', 'No se pudo eliminar el producto.', 'error');
     }
   };
@@ -285,22 +348,23 @@ function TableProductos() {
   return (
     <div className="productos-page">
       <div className="admin-section">
-        <h1 className="admin-title">Inventario de Productos</h1>
+        <h1 className="admin-title">Gestión de Productos</h1>
 
         <div className="action-bar">
           <div className="search-area">
             <input
               type="text"
               className="search-input"
-              placeholder="Buscar por nombre, marca, categoría o ID"
+              placeholder="Buscar por nombre, marca, categoría, estado o ID"
               value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              onKeyDown={(e) => e.key === 'Enter' && handleSearch()}
+              onChange={(event) => setSearchTerm(event.target.value)}
+              onKeyDown={(event) => event.key === 'Enter' && handleSearch()}
             />
             <button className="btn-search" onClick={handleSearch} title="Buscar">
               <i className="bi bi-search"></i>
             </button>
           </div>
+
           <div className="right-actions">
             <button className="btn-create" onClick={openCreateModal}>
               <i className="bi bi-plus-circle"></i> Nuevo Producto
@@ -313,35 +377,47 @@ function TableProductos() {
 
         <div className="table-responsive-container">
           <table className="table-ktm">
-                <thead>
-                <tr>
-                    <th>ID</th>
-                    <th>Nombre</th>
-                    <th>Marca</th>
-                    <th>Categoría</th>
-                    <th>Cantidad</th>
-                    <th>Precio</th>
-                    <th>Acciones</th>
-                </tr>
-                </thead>
+            <thead>
+              <tr>
+                <th>ID</th>
+                <th>Nombre</th>
+                <th>Marca</th>
+                <th>Categoría</th>
+                <th>Garantía (días)</th>
+                <th>Precio</th>
+                <th>Cantidad</th>
+                <th>Estado</th>
+                <th>Acciones</th>
+              </tr>
+            </thead>
             <tbody>
               {loading ? (
                 <tr>
-                  <td colSpan={7} className="loading-row">
+                  <td colSpan={9} className="loading-row">
                     Cargando productos...
                   </td>
                 </tr>
               ) : filteredProductos.length > 0 ? (
-                filteredProductos.map(producto => (
+                filteredProductos.map((producto) => (
                   <tr key={producto.ID_PRODUCTOS}>
                     <td>{producto.ID_PRODUCTOS}</td>
                     <td>{producto.Nombre}</td>
                     <td>{producto.Marca}</td>
                     <td>{producto.Categoria}</td>
+                    <td>{producto.Garantia ?? 0}</td>
+                    <td>${formatPrecio(producto.Precio)}</td>
                     <td className={producto.Cantidad < 5 ? 'stock-bajo' : ''}>
                       {producto.Cantidad}
                     </td>
-                    <td>${formatPrecio(producto.Precio)}</td>
+                    <td>
+                      <span
+                        className={`estado-badge ${getEstadoBadgeClass(
+                          producto.Estado
+                        )}`}
+                      >
+                        {producto.Estado}
+                      </span>
+                    </td>
                     <td className="actions-cell">
                       <button
                         className="btn-edit-ktm"
@@ -362,7 +438,7 @@ function TableProductos() {
                 ))
               ) : (
                 <tr>
-                  <td colSpan={7} className="loading-row">
+                  <td colSpan={9} className="loading-row">
                     No hay productos registrados.
                   </td>
                 </tr>
@@ -372,16 +448,16 @@ function TableProductos() {
         </div>
       </div>
 
-      {/* Modal Crear */}
       {showCreateModal && (
         <div className="modal-overlay" onClick={closeCreateModal}>
-          <div className="modal-container" onClick={e => e.stopPropagation()}>
+          <div className="modal-container" onClick={(event) => event.stopPropagation()}>
             <div className="modal-header">
               <h3>Crear Producto</h3>
               <button type="button" className="close-btn" onClick={closeCreateModal}>
                 &times;
               </button>
             </div>
+
             <form onSubmit={handleCreate}>
               <div className="form-group">
                 <label>ID Producto</label>
@@ -422,18 +498,20 @@ function TableProductos() {
                   required
                 >
                   <option value="">Seleccione</option>
-                  {CATEGORIAS.map(cat => (
-                    <option key={cat} value={cat}>{cat}</option>
+                  {CATEGORIAS.map((categoria) => (
+                    <option key={categoria} value={categoria}>
+                      {categoria}
+                    </option>
                   ))}
                 </select>
               </div>
               <div className="form-group">
-                <label>Cantidad</label>
+                <label>Garantía (días)</label>
                 <input
                   type="number"
                   step="1"
-                  name="Cantidad"
-                  value={formData.Cantidad}
+                  name="Garantia"
+                  value={formData.Garantia}
                   onChange={handleInputChange}
                   required
                 />
@@ -452,6 +530,33 @@ function TableProductos() {
                   />
                 </div>
               </div>
+              <div className="form-group">
+                <label>Cantidad</label>
+                <input
+                  type="number"
+                  step="1"
+                  name="Cantidad"
+                  value={formData.Cantidad}
+                  onChange={handleInputChange}
+                  required
+                />
+              </div>
+              <div className="form-group">
+                <label>Estado</label>
+                <select
+                  name="Estado"
+                  value={formData.Estado}
+                  onChange={handleInputChange}
+                  required
+                >
+                  <option value="">Seleccione</option>
+                  {ESTADOS.map((estado) => (
+                    <option key={estado} value={estado}>
+                      {estado}
+                    </option>
+                  ))}
+                </select>
+              </div>
               <div className="modal-footer">
                 <button type="button" onClick={closeCreateModal}>
                   Cancelar
@@ -463,16 +568,16 @@ function TableProductos() {
         </div>
       )}
 
-      {/* Modal Editar */}
       {showEditModal && currentProducto && (
         <div className="modal-overlay" onClick={closeEditModal}>
-          <div className="modal-container" onClick={e => e.stopPropagation()}>
+          <div className="modal-container" onClick={(event) => event.stopPropagation()}>
             <div className="modal-header">
               <h3>Editar Producto</h3>
               <button type="button" className="close-btn" onClick={closeEditModal}>
                 &times;
               </button>
             </div>
+
             <form onSubmit={handleUpdate}>
               <div className="form-group">
                 <label>ID Producto</label>
@@ -513,18 +618,20 @@ function TableProductos() {
                   required
                 >
                   <option value="">Seleccione</option>
-                  {CATEGORIAS.map(cat => (
-                    <option key={cat} value={cat}>{cat}</option>
+                  {CATEGORIAS.map((categoria) => (
+                    <option key={categoria} value={categoria}>
+                      {categoria}
+                    </option>
                   ))}
                 </select>
               </div>
               <div className="form-group">
-                <label>Cantidad</label>
+                <label>Garantía (días)</label>
                 <input
                   type="number"
                   step="1"
-                  name="Cantidad"
-                  value={formData.Cantidad}
+                  name="Garantia"
+                  value={formData.Garantia}
                   onChange={handleInputChange}
                   required
                 />
@@ -542,6 +649,33 @@ function TableProductos() {
                     required
                   />
                 </div>
+              </div>
+              <div className="form-group">
+                <label>Cantidad</label>
+                <input
+                  type="number"
+                  step="1"
+                  name="Cantidad"
+                  value={formData.Cantidad}
+                  onChange={handleInputChange}
+                  required
+                />
+              </div>
+              <div className="form-group">
+                <label>Estado</label>
+                <select
+                  name="Estado"
+                  value={formData.Estado}
+                  onChange={handleInputChange}
+                  required
+                >
+                  <option value="">Seleccione</option>
+                  {ESTADOS.map((estado) => (
+                    <option key={estado} value={estado}>
+                      {estado}
+                    </option>
+                  ))}
+                </select>
               </div>
               <div className="modal-footer">
                 <button type="button" onClick={closeEditModal}>

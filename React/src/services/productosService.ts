@@ -2,17 +2,17 @@ import axios, { type AxiosResponse } from 'axios';
 
 const API_URL = 'http://localhost:3000/api/productos';
 
-// --- Tipos ---
 export type ProductoId = string | number;
 
 export interface ProductoPayload {
-  ID_PRODUCTOS: ProductoId; // 🔥 ahora obligatorio
+  ID_PRODUCTOS: ProductoId;
   Nombre: string;
   Marca: string;
   Categoria: string;
+  Garantia: number;
   Cantidad: number;
-  Precio: number; // 🔥 solo number (clave)
-  Estado?: 'Activo' | 'Inactivo' | string;
+  Precio: number;
+  Estado?: 'Disponibles' | 'Agotados' | 'Próximamente' | string;
 }
 
 export type ProductoRecord = ProductoPayload;
@@ -23,7 +23,6 @@ export interface ApiResponse<T> {
   message?: string;
 }
 
-// --- Respuestas ---
 type ProductoCollectionResponse =
   | ApiResponse<ProductoRecord[]>
   | { data?: ProductoRecord[]; productos?: ProductoRecord[] }
@@ -34,7 +33,6 @@ type ProductoMutationResponse =
   | ProductoRecord
   | null;
 
-// --- Helpers ---
 const getAuthHeaders = () => {
   const token = localStorage.getItem('user_token');
   return token ? { headers: { Authorization: `Bearer ${token}` } } : {};
@@ -57,7 +55,6 @@ const requestWithFallback = async <T>(
   }
 };
 
-// --- API ---
 export const obtenerProductos = async () => {
   return requestWithFallback(
     () => axios.get<ProductoCollectionResponse>(`${API_URL}/obtener`, getAuthHeaders()),
@@ -68,6 +65,7 @@ export const obtenerProductos = async () => {
 export const crearProducto = async (data: ProductoPayload) => {
   const payload = {
     ...data,
+    Garantia: Number(data.Garantia),
     Cantidad: Number(data.Cantidad),
     Precio: Number(data.Precio),
   };
@@ -81,12 +79,18 @@ export const crearProducto = async (data: ProductoPayload) => {
 export const actualizarProducto = async (id: ProductoId, data: ProductoPayload) => {
   const payload = {
     ...data,
+    Garantia: Number(data.Garantia),
     Cantidad: Number(data.Cantidad),
     Precio: Number(data.Precio),
   };
 
   return requestWithFallback(
-    () => axios.put<ProductoMutationResponse>(`${API_URL}/actualizar/${id}`, payload, getAuthHeaders()),
+    () =>
+      axios.put<ProductoMutationResponse>(
+        `${API_URL}/actualizar/${id}`,
+        payload,
+        getAuthHeaders()
+      ),
     () => axios.put<ProductoMutationResponse>(`${API_URL}/${id}`, payload, getAuthHeaders())
   );
 };

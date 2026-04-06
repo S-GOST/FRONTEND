@@ -12,6 +12,7 @@ import Admins from './componentes/TableAdmin/Admin';
 import Servicios from './componentes/TableServicios/Servicios';
 import { servicesData, searchSuggestionsData } from './utils/constants';
 import { Service, SearchSuggestion, CartItem } from './types';
+import TableProductos from './componentes/TableProductos/productos';
 
 const HomePage: React.FC<{ addToCart: (service: Service) => void }> = ({ addToCart }) => {
   const categories = ['Mantenimiento', 'Reparaciones', 'Diagnósticos', 'Instalaciones'];
@@ -187,6 +188,7 @@ function App() {
           <Route path="dashboard" element={<DashboardHome />} />
           <Route path="administradores" element={<Admins />} />
           <Route path="servicios" element={<Servicios />} />
+          <Route path="productos" element={<TableProductos   />} />
           <Route path="motos" element={<AdminMotosPage />} />
           <Route path="*" element={<Navigate to="/admin/dashboard" replace />} />
         </Route>
