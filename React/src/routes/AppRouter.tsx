@@ -1,25 +1,22 @@
-import { BrowserRouter, Route, Routes } from 'react-router-dom';
+import { Routes, Route } from 'react-router-dom';
 import App from '../App';
-import Admins from '../componentes/TableAdmin/Admin';
-import Servicio from '../componentes/TableServicios/Servicios';
-import Productos from '../componentes/TableProductos/productos';
+import TecnicoDashboard from '../componentes/TableTecnico/TecnicoDashboard';
 import Login from '../pages/Login';
-import ProtectedRoute from './ProtectedRoute';
+import ProtectedTecnicoRoute from './ProtectedTecnicoRoute';
 
 const AppRouter = () => {
   return (
-    <BrowserRouter>
-      <Routes>
-        <Route path="/" element={<App />} />
-        <Route path="/login" element={<Login />} />
+    <Routes>
+      <Route path="/" element={<App />} />
+      <Route path="/login" element={<Login />} />
 
-        <Route element={<ProtectedRoute />}>
-          <Route path="/admin/usuarios" element={<Admins />} />
-          <Route path="/admin/servicios" element={<Servicio />} />
-          <Route path="/admin/productos" element={<Productos/>} />
-        </Route>
-      </Routes>
-    </BrowserRouter>
+      <Route element={<ProtectedTecnicoRoute />}>
+        <Route path="/tecnico/dashboard" element={<TecnicoDashboard />} />
+      </Route>
+
+      {/* Ruta temporal para probar sin login */}
+      <Route path="/prueba-tecnico" element={<div><h1>Dashboard de Técnico</h1><p>Funciona correctamente</p></div>} />
+    </Routes>
   );
 };
 

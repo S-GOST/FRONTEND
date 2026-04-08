@@ -79,9 +79,8 @@ const buildAdminPayload = (formData: AdminFormState): AdminPayload => {
   };
   if (formData.contrasena.trim()) {
     payload.contrasena = formData.contrasena.trim();
-  } else if (formData.contrasenaActual.trim()) {
-    payload.contrasena = formData.contrasenaActual.trim();
-  }
+  } 
+
   return payload;
 };
 
@@ -104,7 +103,7 @@ function Admins() {
       title,
       text,
       icon,
-      confirmButtonColor: '#ff6600',
+      confirmButtonColor: '#060504',
       background: '#101010',
       color: '#f5f5f5',
     });
@@ -501,8 +500,8 @@ function Admins() {
                   type="text"
                   name="ID_ADMINISTRADOR"
                   value={formData.ID_ADMINISTRADOR}
-                  readOnly
-                  title="El ID no se puede modificar"
+                  onChange={handleInputChange}
+                  required
                 />
               </div>
               <div className="form-group">

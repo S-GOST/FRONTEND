@@ -1,12 +1,14 @@
 import axios, { type AxiosResponse } from 'axios';
 
 const API_URL = 'http://localhost:3000/api/admins';
+const TECNICO_API_URL = 'http://localhost:3000/api/tecnicos';
 
 export type AdminId = string | number;
 
 interface LoginResponse {
   token?: string;
   nombre?: string;
+  rol?: 'admin' | 'tecnico';
 }
 
 export interface AdminPayload {
@@ -67,23 +69,59 @@ const requestWithFallback = async <T>(
   }
 };
 
-export const loginService = async (usuario: string, contrasena: string) => {
-  const response = await axios.post<LoginResponse>(`${API_URL}/login`, { usuario, contrasena });
-
-  if (response.data.token) {
-    localStorage.setItem('user_token', response.data.token);
-    localStorage.setItem('user_name', response.data.nombre ?? '');
+const storeSession = (data: LoginResponse, role: 'admin' | 'tecnico') => {
+  if (data.token) {
+    localStorage.setItem('user_token', data.token);
+    localStorage.setItem('user_name', data.nombre ?? '');
+    localStorage.setItem('user_role', role);
+    console.log('Saved role to localStorage:', role);
   }
 
+  return { ...data, rol: role };
+};
+
+const tryLogin = async (url: string, usuario: string, contrasena: string) => {
+  const response = await axios.post<LoginResponse>(url, { usuario, contrasena });
   return response.data;
+};
+
+export const loginService = async (usuario: string, contrasena: string) => {
+  try {
+    const tecnicoData = await tryLogin(`${TECNICO_API_URL}/login`, usuario, contrasena);
+    console.log('Login tecnico success:', tecnicoData);
+    return storeSession(tecnicoData, 'tecnico');
+  } catch (error) {
+    if (axios.isAxiosError(error) && error.response?.status === 401) {
+      const adminData = await tryLogin(`${API_URL}/login`, usuario, contrasena);
+      console.log('Login admin success:', adminData);
+      return storeSession(adminData, 'admin');
+    }
+    throw error;
+  }
 };
 
 export const logout = () => {
   localStorage.removeItem('user_token');
   localStorage.removeItem('user_name');
+  localStorage.removeItem('user_role');
   window.location.href = '/login';
 };
+axios.interceptors.response.use(
+  response => response,
+  error => {
+    const isLoginRequest =
+      axios.isAxiosError(error) &&
+      error.config?.url?.endsWith('/login');
 
+    if (!isLoginRequest && error.response && (error.response.status === 401 || error.response.status === 403)) {
+      // El token murió o no existe
+      localStorage.removeItem('user_token');
+      window.location.href = '/login'; // Lo sacamos de la app
+    }
+
+    return Promise.reject(error);
+  }
+);
 export const obtenerAdmins = async () => {
   return requestWithFallback(
     () => axios.get<AdminCollectionResponse>(`${API_URL}/obtener`, getAuthHeaders()),

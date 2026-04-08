@@ -44,8 +44,16 @@ const Login: React.FC = () => {
     setLoading(true);
 
     try {
-      await loginService(data.usuario, data.contrasena);
-      window.location.replace('/admin/dashboard');
+      const response = await loginService(data.usuario, data.contrasena);
+      console.log('Login response:', response);
+      const userRole = response.rol ?? localStorage.getItem('user_role') ?? 'admin';
+      console.log('User role:', userRole);
+
+      if (userRole === 'tecnico') {
+        window.location.replace('/tecnico/dashboard');
+      } else {
+        window.location.replace('/admin/dashboard');
+      }
     } catch (err) {
       const error = err as AxiosError<LoginErrorResponse>;
       console.error('Error en login:', err);

@@ -8,6 +8,7 @@ import './Panel.css';
 const Panel: React.FC = () => {
     // Obtener nombre del usuario desde localStorage (de la BD)
     const userName = localStorage.getItem('user_name') || 'ADMIN KTM';
+    const userRole = localStorage.getItem('user_role') || 'admin';
 
 
 
@@ -53,29 +54,47 @@ const Panel: React.FC = () => {
             <div className="wrapper">
                 {/* SIDEBAR */}
                 <nav id="sidebar">
-                    <h5 className="text-center">MENÚ DE GESTIÓN</h5>
+                    <h5 className="text-center">
+                        {userRole === 'admin' ? 'MENÚ DE GESTIÓN' : 'PANEL TÉCNICO'}
+                    </h5>
                     <div className="menu-links-container">
-                        <NavLink to="/admin/dashboard" className={({ isActive }) => `menu-link ${isActive ? 'active' : ''}`}>
-                            <i className="fa-solid fa-gauge"></i> Dashboard
-                        </NavLink>
-                        <NavLink to="/admin/administradores" className={({ isActive }) => `menu-link ${isActive ? 'active' : ''}`}>
-                            <i className="fa-solid fa-user-shield"></i> Administradores
-                        </NavLink>
-                        <NavLink to="/admin/tecnicos" className={({ isActive }) => `menu-link ${isActive ? 'active' : ''}`}>
-                            <i className="fa-solid fa-user-gear"></i> Técnicos
-                        </NavLink>
-                        <NavLink to="/admin/clientes" className={({ isActive }) => `menu-link ${isActive ? 'active' : ''}`}>
-                            <i className="fa-solid fa-users"></i> Clientes
-                        </NavLink>
-                        <NavLink to="/admin/motos" className={({ isActive }) => `menu-link ${isActive ? 'active' : ''}`}>
-                            <i className="fa-solid fa-motorcycle"></i> Motos
-                        </NavLink>
-                        <NavLink to="/admin/servicios" className={({ isActive }) => `menu-link ${isActive ? 'active' : ''}`}>
-                            <i className="fa-solid fa-screwdriver-wrench"></i> Servicios
-                        </NavLink>
-                        <NavLink to="/admin/productos" className={({ isActive }) => `menu-link ${isActive ? 'active' : ''}`}>
-                            <i className="fa-solid fa-box"></i> Productos
-                        </NavLink>
+                        {userRole === 'admin' ? (
+                            <>
+                                <NavLink to="/admin/dashboard" className={({ isActive }) => `menu-link ${isActive ? 'active' : ''}`}>
+                                    <i className="fa-solid fa-gauge"></i> Dashboard
+                                </NavLink>
+                                <NavLink to="/admin/administradores" className={({ isActive }) => `menu-link ${isActive ? 'active' : ''}`}>
+                                    <i className="fa-solid fa-user-shield"></i> Administradores
+                                </NavLink>
+                                <NavLink to="/admin/tecnicos" className={({ isActive }) => `menu-link ${isActive ? 'active' : ''}`}>
+                                    <i className="fa-solid fa-user-gear"></i> Técnicos
+                                </NavLink>
+                                <NavLink to="/admin/clientes" className={({ isActive }) => `menu-link ${isActive ? 'active' : ''}`}>
+                                    <i className="fa-solid fa-users"></i> Clientes
+                                </NavLink>
+                                <NavLink to="/admin/motos" className={({ isActive }) => `menu-link ${isActive ? 'active' : ''}`}>
+                                    <i className="fa-solid fa-motorcycle"></i> Motos
+                                </NavLink>
+                                <NavLink to="/admin/servicios" className={({ isActive }) => `menu-link ${isActive ? 'active' : ''}`}>
+                                    <i className="fa-solid fa-screwdriver-wrench"></i> Servicios
+                                </NavLink>
+                                <NavLink to="/admin/productos" className={({ isActive }) => `menu-link ${isActive ? 'active' : ''}`}>
+                                    <i className="fa-solid fa-box"></i> Productos
+                                </NavLink>
+                            </>
+                        ) : (
+                            <>
+                                <NavLink to="/tecnico/dashboard" className={({ isActive }) => `menu-link ${isActive ? 'active' : ''}`}>
+                                    <i className="fa-solid fa-gauge"></i> Dashboard
+                                </NavLink>
+                                <NavLink to="/tecnico/productos" className={({ isActive }) => `menu-link ${isActive ? 'active' : ''}`}>
+                                    <i className="fa-solid fa-box"></i> Productos
+                                </NavLink>
+                                <NavLink to="/tecnico/servicios" className={({ isActive }) => `menu-link ${isActive ? 'active' : ''}`}>
+                                    <i className="fa-solid fa-screwdriver-wrench"></i> Servicios
+                                </NavLink>
+                            </>
+                        )}
                     </div>
                 </nav>
 

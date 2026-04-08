@@ -8,7 +8,7 @@ import {
   eliminarMoto,
   type MotoPayload,
   type MotoRecord,
-} from '../../services/motosService'; // ← Cambia a esta ruta
+} from '../../services/motosService'; 
 import './Motos.css';
 
 const createInitialFormData = (): MotoPayload => ({
@@ -132,8 +132,8 @@ function TableMotos() {
     }
     const term = searchTerm.toLowerCase();
     const filtered = motos.filter(moto =>
-      moto.ID_MOTOS.toLowerCase().includes(term) ||
-      moto.ID_CLIENTES.toLowerCase().includes(term) ||
+      String(moto.ID_MOTOS).toLowerCase().includes(term) ||
+      String(moto.ID_CLIENTES).toLowerCase().includes(term) ||
       moto.Placa.toLowerCase().includes(term) ||
       moto.Modelo.toLowerCase().includes(term) ||
       moto.Marca.toLowerCase().includes(term)
@@ -148,7 +148,7 @@ function TableMotos() {
 
   const handleInputChange = (event: ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     const { name, value } = event.target;
-    setFormData(prev => ({ ...prev, [name]: value }) as MotoPayload);
+    setFormData((prev: MotoPayload) => ({ ...prev, [name]: value }) as MotoPayload);
   };
 
   const openCreateModal = () => {

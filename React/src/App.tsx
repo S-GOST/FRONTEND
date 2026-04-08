@@ -13,6 +13,10 @@ import Servicios from './componentes/TableServicios/Servicios';
 import { servicesData, searchSuggestionsData } from './utils/constants';
 import { Service, SearchSuggestion, CartItem } from './types';
 import TableProductos from './componentes/TableProductos/productos';
+import Dashboard from './componentes/TableAdmin/Dashboard';
+import Tecnicos from './componentes/TableTecnico/Tecnico';
+import TecnicoDashboard from './componentes/TableTecnico/TecnicoDashboard';
+import ProtectedTecnicoRoute from './routes/ProtectedTecnicoRoute';
 
 const HomePage: React.FC<{ addToCart: (service: Service) => void }> = ({ addToCart }) => {
   const categories = ['Mantenimiento', 'Reparaciones', 'Diagnósticos', 'Instalaciones'];
@@ -68,14 +72,6 @@ const StorefrontPage: React.FC<{
         <Footer />
       </div>
     </>
-  );
-};
-
-const DashboardHome: React.FC = () => {
-  return (
-    <div style={{ padding: '1rem' }}>
-      <h2 style={{ color: '#fff', margin: 0 }}>Dashboard KTM Activo</h2>
-    </div>
   );
 };
 
@@ -178,19 +174,36 @@ function App() {
         />
         <Route
           path="/login"
-          element={isAuthenticated ? <Navigate to="/admin/dashboard" replace /> : <Login />}
+          element={
+            isAuthenticated ? (
+              <Navigate
+                to={
+                  localStorage.getItem('user_role') === 'tecnico'
+                    ? '/tecnico/dashboard'
+                    : '/admin/dashboard'
+                }
+                replace
+              />
+            ) : (
+              <Login />
+            )
+          }
         />
         <Route
           path="/admin"
           element={isAuthenticated ? <Panel /> : <Navigate to="/login" replace />}
         >
           <Route index element={<Navigate to="/admin/dashboard" replace />} />
-          <Route path="dashboard" element={<DashboardHome />} />
+          <Route path="dashboard" element={<Dashboard />} />
           <Route path="administradores" element={<Admins />} />
+          <Route path="tecnicos" element={<Tecnicos />} />
           <Route path="servicios" element={<Servicios />} />
           <Route path="productos" element={<TableProductos   />} />
           <Route path="motos" element={<AdminMotosPage />} />
           <Route path="*" element={<Navigate to="/admin/dashboard" replace />} />
+        </Route>
+        <Route element={<ProtectedTecnicoRoute />}>
+          <Route path="/tecnico/dashboard" element={<TecnicoDashboard />} />
         </Route>
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
