@@ -39,13 +39,13 @@ type AdminUpdatePayload = AdminPayload & {
   ID_ADMINISTRADOR_ORIGINAL?: AdminId;
 };
 
-const getAuthHeaders = () => {
+export const getAuthHeaders = () => {
   const token = localStorage.getItem('user_token');
 
   return token
     ? {
         headers: {
-          Authorization: `Bearer ${token}`,
+          Authorization: `Bearer ${token}`,// Lo usamos para todas las requests
         },
       }
     : {};
@@ -54,7 +54,7 @@ const getAuthHeaders = () => {
 const shouldFallback = (error: unknown) =>
   axios.isAxiosError(error) && error.response?.status === 404;
 
-const requestWithFallback = async <T>(
+export const requestWithFallback = async <T>(
   primaryRequest: () => Promise<AxiosResponse<T>>,
   fallbackRequest: () => Promise<AxiosResponse<T>>
 ) => {

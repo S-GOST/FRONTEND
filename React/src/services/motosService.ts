@@ -29,8 +29,9 @@ type MotoCollectionResponse =
 type MotoMutationResponse = ApiResponse<MotoRecord | null> | MotoRecord | null;
 
 const getAuthHeaders = () => {
-  const token = localStorage.getItem('user_token');
-  return token ? { headers: { Authorization: `Bearer ${token}` } } : {};
+  // const token = localStorage.getItem('user_token');
+  // return token ? { headers: { Authorization: `Bearer ${token}` } } : {};
+  return {}; // Temporalmente sin autenticación para desarrollo
 };
 
 const shouldFallback = (error: unknown) =>
@@ -66,7 +67,7 @@ export const obtenerMotoPorId = async (id: MotoId) => {
 
 export const crearMoto = async (datosMotor: MotoPayload) => {
   return requestWithFallback(
-    () => axios.post<MotoMutationResponse>(`${API_URL}/crear`, datosMotor, getAuthHeaders()),
+    () => axios.post<MotoMutationResponse>(`${API_URL}/insertar`, datosMotor, getAuthHeaders()),
     () => axios.post<MotoMutationResponse>(API_URL, datosMotor, getAuthHeaders())
   );
 };

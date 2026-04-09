@@ -9,6 +9,8 @@ import Footer from './componentes/Footer';
 import Login from './pages/Login';
 import Panel from './componentes/TableAdmin/Panel';
 import Admins from './componentes/TableAdmin/Admin';
+import OrdenesServicio from './componentes/TableAdmin/OrdenesServicio';
+import DetallesOrden from './componentes/TableAdmin/DetallesOrden';
 import Servicios from './componentes/TableServicios/Servicios';
 import { servicesData, searchSuggestionsData } from './utils/constants';
 import { Service, SearchSuggestion, CartItem } from './types';
@@ -17,6 +19,8 @@ import Dashboard from './componentes/TableAdmin/Dashboard';
 import Tecnicos from './componentes/TableTecnico/Tecnico';
 import TecnicoDashboard from './componentes/TableTecnico/TecnicoDashboard';
 import ProtectedTecnicoRoute from './routes/ProtectedTecnicoRoute';
+import Clientes from './componentes/TableAdmin/Clientes';
+import Motos from './componentes/TableMotos/Motos';
 
 const HomePage: React.FC<{ addToCart: (service: Service) => void }> = ({ addToCart }) => {
   const categories = ['Mantenimiento', 'Reparaciones', 'Diagnósticos', 'Instalaciones'];
@@ -72,14 +76,6 @@ const StorefrontPage: React.FC<{
         <Footer />
       </div>
     </>
-  );
-};
-
-const AdminMotosPage: React.FC = () => {
-  return (
-    <div style={{ padding: '1rem' }}>
-      <h2 style={{ color: '#fff', margin: 0 }}>Gestion de Motos</h2>
-    </div>
   );
 };
 
@@ -196,10 +192,13 @@ function App() {
           <Route index element={<Navigate to="/admin/dashboard" replace />} />
           <Route path="dashboard" element={<Dashboard />} />
           <Route path="administradores" element={<Admins />} />
+          <Route path="ordenes_servicio" element={<OrdenesServicio />} />
+          <Route path="detalles-orden" element={<DetallesOrden />} />
           <Route path="tecnicos" element={<Tecnicos />} />
+          <Route path="clientes" element={<Clientes />} />
           <Route path="servicios" element={<Servicios />} />
           <Route path="productos" element={<TableProductos   />} />
-          <Route path="motos" element={<AdminMotosPage />} />
+          <Route path ="motos" element={<Motos />} />
           <Route path="*" element={<Navigate to="/admin/dashboard" replace />} />
         </Route>
         <Route element={<ProtectedTecnicoRoute />}>

@@ -1,0 +1,396 @@
+/* OrdenesServicio.css - Estilo KTM idéntico a Admin.css */
+.ordenes-servicio-page {
+  --table-black: #050505;
+  --table-surface: #0d0d0d;
+  --table-border: #262626;
+  --table-text: #f5f5f5;
+  --table-muted: #aaaaaa;
+  --table-accent: #ff6600;
+
+  width: 100%;
+  max-width: 1300px;
+  margin: 0 auto;
+  padding: 1.5rem;
+}
+
+.ordenes-servicio-page .ordenes-servicio-section {
+  background-color: #0a0a0a;
+  border-radius: 16px;
+  padding: 1.5rem;
+  border: 1px solid #1a1a1a;
+  overflow: hidden;
+}
+
+.ordenes-servicio-page .ordenes-servicio-title {
+  color: #fff;
+  font-size: 2.2rem;
+  font-weight: 600;
+  margin-bottom: 1rem;
+}
+
+/* Barra de acciones: izquierda (búsqueda) + derecha (botones apilados) */
+.ordenes-servicio-page .action-bar {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  flex-wrap: wrap;
+  gap: 1rem;
+  margin-bottom: 2rem;
+}
+
+/* Área de búsqueda (input + botón Buscar) */
+.ordenes-servicio-page .search-area {
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+  flex: 1;
+  min-width: 250px;
+}
+
+.ordenes-servicio-page .search-input {
+  flex: 1;
+  background-color: #141414;
+  border: 1px solid #2a2a2a;
+  border-radius: 999px;
+  padding: 0.6rem 1rem;
+  color: #fff;
+  font-size: 0.9rem;
+  outline: none;
+}
+
+.ordenes-servicio-page .search-input:focus {
+  border-color: var(--table-accent);
+}
+
+.ordenes-servicio-page .btn-search {
+  background: var(--table-accent);
+  border: none;
+  color: #000;
+  font-weight: 700;
+  padding: 0.6rem 1.2rem;
+  border-radius: 999px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  white-space: nowrap;
+}
+
+.ordenes-servicio-page .btn-search:hover {
+  filter: brightness(1.1);
+  transform: scale(1.02);
+}
+
+/* Contenedor de botones de la derecha (apilados verticalmente) */
+.ordenes-servicio-page .right-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  align-items: flex-end;
+}
+
+.ordenes-servicio-page .btn-create {
+  background: var(--table-accent);
+  color: #000;
+  border: none;
+  padding: 0.7rem 1.4rem;
+  border-radius: 50px;
+  font-weight: 800;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  cursor: pointer;
+  transition: transform 0.2s ease;
+  white-space: nowrap;
+}
+
+.ordenes-servicio-page .btn-create:hover {
+  transform: scale(1.05);
+}
+
+.ordenes-servicio-page .btn-reset {
+  background-color: #2a2a2a;
+  border: none;
+  color: #fff;
+  font-weight: 700;
+  padding: 0.5rem 1rem;
+  border-radius: 999px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  white-space: nowrap;
+}
+
+.ordenes-servicio-page .btn-reset:hover {
+  background-color: #3a3a3a;
+  transform: scale(1.02);
+}
+
+/* Tabla */
+.ordenes-servicio-page .table-responsive {
+  width: 100%;
+  overflow-x: auto;
+  border-radius: 12px;
+  border: 1px solid var(--table-border);
+}
+
+.ordenes-servicio-page .table-ktm {
+  width: 100%;
+  border-collapse: collapse;
+  background-color: var(--table-black);
+  min-width: 900px;
+}
+
+.ordenes-servicio-page .table-ktm th {
+  background-color: #050505;
+  color: var(--table-accent);
+  text-transform: uppercase;
+  font-size: 0.75rem;
+  font-weight: 800;
+  padding: 1.2rem 0.8rem;
+  text-align: left;
+  border-bottom: 2px solid #1a1a1a;
+}
+
+.ordenes-servicio-page .table-ktm td {
+  padding: 1rem 0.8rem;
+  color: var(--table-text);
+  font-size: 0.85rem;
+  border-bottom: 1px solid #151515;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.ordenes-servicio-page .orden-id {
+  font-weight: 700;
+  color: var(--table-accent);
+  font-family: monospace;
+}
+
+.ordenes-servicio-page .estado-select {
+  background: #1e1e1e;
+  border: 1px solid #333;
+  color: white;
+  padding: 0.3rem 0.6rem;
+  border-radius: 30px;
+  font-size: 0.8rem;
+}
+
+.ordenes-servicio-page .actions-cell {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.ordenes-servicio-page .btn-edit-ktm,
+.ordenes-servicio-page .btn-eliminar-ktm {
+  border: none;
+  color: white;
+  padding: 0.4rem 0.8rem;
+  border-radius: 6px;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-size: 0.75rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s ease;
+}
+
+.ordenes-servicio-page .btn-edit-ktm {
+  background-color: #1e1e1e;
+  border: 1px solid #333;
+}
+
+.ordenes-servicio-page .btn-edit-ktm:hover {
+  background-color: #2a2a2a;
+}
+
+.ordenes-servicio-page .btn-eliminar-ktm {
+  background-color: #6d1010;
+}
+
+.ordenes-servicio-page .btn-eliminar-ktm:hover {
+  background-color: #8a1414;
+}
+
+.ordenes-servicio-page .loading-row {
+  text-align: center;
+  padding: 2rem;
+  color: var(--table-muted);
+  font-style: italic;
+}
+
+/* Modales */
+.ordenes-servicio-page .modal-overlay {
+  position: fixed;
+  inset: 0;
+  background-color: rgba(0, 0, 0, 0.75);
+  backdrop-filter: blur(4px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  padding: 1rem;
+}
+
+.ordenes-servicio-page .modal-container {
+  background: linear-gradient(145deg, #111111, #080808);
+  border: 1px solid #2a2a2a;
+  border-radius: 24px;
+  width: 100%;
+  max-width: 560px;
+  max-height: 90vh;
+  overflow-y: auto;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.5);
+}
+
+.ordenes-servicio-page .modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1.2rem 1.5rem;
+  border-bottom: 1px solid #2a2a2a;
+  background: #0c0c0c;
+  border-radius: 24px 24px 0 0;
+}
+
+.ordenes-servicio-page .modal-header h3 {
+  margin: 0;
+  color: var(--table-accent);
+  font-size: 1.3rem;
+  font-weight: 700;
+}
+
+.ordenes-servicio-page .close-btn {
+  width: 38px;
+  height: 38px;
+  padding: 0;
+  border-radius: 50%;
+  background: none;
+  border: none;
+  font-size: 2rem;
+  cursor: pointer;
+  color: #aaa;
+  transition: 0.2s;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.ordenes-servicio-page .close-btn:hover {
+  color: #fff;
+}
+
+.ordenes-servicio-page .form-group {
+  margin: 1.2rem 1.5rem;
+}
+
+.ordenes-servicio-page .form-group label {
+  display: block;
+  margin-bottom: 0.4rem;
+  color: #ddd;
+  font-weight: 600;
+  font-size: 0.9rem;
+}
+
+.ordenes-servicio-page .form-group input,
+.ordenes-servicio-page .form-group select {
+  width: 100%;
+  padding: 0.75rem 1rem;
+  background-color: #141414;
+  border: 1px solid #2a2a2a;
+  border-radius: 12px;
+  color: #fff;
+  font-size: 0.9rem;
+  outline: none;
+  transition: border-color 0.2s;
+}
+
+.ordenes-servicio-page .form-group input:focus,
+.ordenes-servicio-page .form-group select:focus {
+  border-color: var(--table-accent);
+}
+
+.ordenes-servicio-page .modal-footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: 1rem;
+  padding: 1.2rem 1.5rem;
+  border-top: 1px solid #2a2a2a;
+  background: #0c0c0c;
+  border-radius: 0 0 24px 24px;
+}
+
+.ordenes-servicio-page .modal-footer button {
+  padding: 0.6rem 1.2rem;
+  border-radius: 40px;
+  border: none;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.ordenes-servicio-page .modal-footer button:first-child {
+  background-color: #2a2a2a;
+  color: #fff;
+}
+
+.ordenes-servicio-page .modal-footer button:last-child {
+  background: var(--table-accent);
+  color: #000;
+}
+
+.ordenes-servicio-page .modal-footer button:hover {
+  transform: translateY(-1px);
+  filter: brightness(1.05);
+}
+
+.ordenes-servicio-page .modal-container::-webkit-scrollbar {
+  width: 6px;
+}
+.ordenes-servicio-page .modal-container::-webkit-scrollbar-track {
+  background: #1a1a1a;
+}
+.ordenes-servicio-page .modal-container::-webkit-scrollbar-thumb {
+  background: #444;
+  border-radius: 10px;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .ordenes-servicio-page {
+    padding: 1rem;
+  }
+  .ordenes-servicio-page .action-bar {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  .ordenes-servicio-page .search-area {
+    width: 100%;
+  }
+  .ordenes-servicio-page .right-actions {
+    width: 100%;
+    align-items: stretch;
+  }
+  .ordenes-servicio-page .btn-create,
+  .ordenes-servicio-page .btn-reset {
+    justify-content: center;
+  }
+  .ordenes-servicio-page .table-responsive {
+    border-radius: 8px;
+  }
+  .ordenes-servicio-page .table-ktm th,
+  .ordenes-servicio-page .table-ktm td {
+    padding: 0.8rem 0.6rem;
+    font-size: 0.75rem;
+  }
+  .ordenes-servicio-page .btn-edit-ktm,
+  .ordenes-servicio-page .btn-eliminar-ktm {
+    padding: 0.3rem 0.6rem;
+    font-size: 0.7rem;
+  }
+}

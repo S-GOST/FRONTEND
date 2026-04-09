@@ -13,6 +13,8 @@ export interface ServicioPayload {
   Precio: number;
 }
 
+export type ServicioRecord = ServicioPayload;
+
 export interface ApiResponse<T> {
   success?: boolean;
   data: T;

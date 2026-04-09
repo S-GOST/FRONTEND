@@ -72,8 +72,8 @@ const Panel: React.FC = () => {
                                 <NavLink to="/admin/clientes" className={({ isActive }) => `menu-link ${isActive ? 'active' : ''}`}>
                                     <i className="fa-solid fa-users"></i> Clientes
                                 </NavLink>
-                                <NavLink to="/admin/orden-servicio" className={({ isActive }) => `menu-link ${isActive ? 'active' : ''}`}>
-                                    <i className="fa-solid fa-clipboard-list"></i> Orden Servicio
+                                <NavLink to="/admin/ordenes_servicio" className={({ isActive }) => `menu-link ${isActive ? 'active' : ''}`}>
+                                    <i className="fa-solid fa-clipboard-list"></i> Ordenes Servicio
                                 </NavLink>
                                 <NavLink to="/admin/motos" className={({ isActive }) => `menu-link ${isActive ? 'active' : ''}`}>
                                     <i className="fa-solid fa-motorcycle"></i> Motos
