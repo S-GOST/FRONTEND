@@ -518,7 +518,7 @@ function Clientes() {
                   name="ID_CLIENTES"
                   value={formData.ID_CLIENTES}
                   onChange={handleInputChange}
-                  disabled
+                  required
                 />
               </div>
               <div className="form-group">
