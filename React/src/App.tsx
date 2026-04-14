@@ -21,6 +21,7 @@ import TecnicoDashboard from './componentes/TableTecnico/TecnicoDashboard';
 import ProtectedTecnicoRoute from './routes/ProtectedTecnicoRoute';
 import Clientes from './componentes/TableAdmin/Clientes';
 import Motos from './componentes/TableMotos/Motos';
+import ClientePanel from './componentes/TableCliente/ClientePanel'; // Importa el panel de cliente
 
 const HomePage: React.FC<{ addToCart: (service: Service) => void }> = ({ addToCart }) => {
   const categories = ['Mantenimiento', 'Reparaciones', 'Diagnósticos', 'Instalaciones'];
@@ -153,6 +154,14 @@ function App() {
     [cart]
   );
 
+  // Determinar la ruta de redirección según el rol
+  const getRedirectPath = () => {
+    const role = localStorage.getItem('user_role');
+    if (role === 'tecnico') return '/tecnico/dashboard';
+    if (role === 'cliente') return '/cliente/dashboard';
+    return '/admin/dashboard';
+  };
+
   return (
     <div className="app">
       <Routes>
@@ -172,14 +181,7 @@ function App() {
           path="/login"
           element={
             isAuthenticated ? (
-              <Navigate
-                to={
-                  localStorage.getItem('user_role') === 'tecnico'
-                    ? '/tecnico/dashboard'
-                    : '/admin/dashboard'
-                }
-                replace
-              />
+              <Navigate to={getRedirectPath()} replace />
             ) : (
               <Login />
             )
@@ -197,12 +199,31 @@ function App() {
           <Route path="tecnicos" element={<Tecnicos />} />
           <Route path="clientes" element={<Clientes />} />
           <Route path="servicios" element={<Servicios />} />
-          <Route path="productos" element={<TableProductos   />} />
-          <Route path ="motos" element={<Motos />} />
+          <Route path="productos" element={<TableProductos />} />
+          <Route path="motos" element={<Motos />} />
           <Route path="*" element={<Navigate to="/admin/dashboard" replace />} />
         </Route>
         <Route element={<ProtectedTecnicoRoute />}>
           <Route path="/tecnico/dashboard" element={<TecnicoDashboard />} />
+        </Route>
+        {/* Ruta protegida para cliente */}
+        <Route
+          path="/cliente"
+          element={
+            isAuthenticated && localStorage.getItem('user_role') === 'cliente' ? (
+              <ClientePanel />
+            ) : (
+              <Navigate to="/login" replace />
+            )
+          }
+        >
+          <Route index element={<Navigate to="/cliente/dashboard" replace />} />
+          <Route path="dashboard" element={<div>Dashboard Cliente (próximamente)</div>} />
+          <Route path="mis-ordenes" element={<div>Mis Órdenes</div>} />
+          <Route path="mis-motos" element={<div>Mis Motos</div>} />
+          <Route path="servicios" element={<div>Servicios</div>} />
+          <Route path="perfil" element={<div>Mi Perfil</div>} />
+          <Route path="*" element={<Navigate to="/cliente/dashboard" replace />} />
         </Route>
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>

@@ -5,6 +5,7 @@ const TECNICO_API_URL = 'http://localhost:3000/api/tecnicos';
 
 export type AdminId = string | number;
 
+// --- Interfaces ---
 interface LoginResponse {
   token?: string;
   nombre?: string;
@@ -35,21 +36,47 @@ type AdminCollectionResponse =
   | AdminRecord[];
 
 type AdminMutationResponse = ApiResponse<AdminRecord | null> | AdminRecord | null;
+
 type AdminUpdatePayload = AdminPayload & {
   ID_ADMINISTRADOR_ORIGINAL?: AdminId;
 };
 
+// --- Helpers ---
+
 export const getAuthHeaders = () => {
   const token = localStorage.getItem('user_token');
-
   return token
     ? {
         headers: {
-          Authorization: `Bearer ${token}`,// Lo usamos para todas las requests
+          Authorization: `Bearer ${token}`,
         },
       }
     : {};
 };
+
+// Interceptor corregido: Solo redirige si NO es una petición de login 
+// y el error es de autenticación real.
+axios.interceptors.response.use(
+  (response) => response,
+  (error) => {
+    const isLoginRequest = error.config?.url?.includes('/login');
+
+    if (!isLoginRequest && error.response) {
+      if (error.response.status === 401 || error.response.status === 403) {
+        console.warn("Sesión inválida o expirada. Redirigiendo...");
+        localStorage.removeItem('user_token');
+        localStorage.removeItem('user_name');
+        localStorage.removeItem('user_role');
+        
+        // Evitar bucle de redirección si ya estamos en login
+        if (!window.location.pathname.includes('/login')) {
+          window.location.href = '/login';
+        }
+      }
+    }
+    return Promise.reject(error);
+  }
+);
 
 const shouldFallback = (error: unknown) =>
   axios.isAxiosError(error) && error.response?.status === 404;
@@ -64,64 +91,43 @@ export const requestWithFallback = async <T>(
     if (shouldFallback(error)) {
       return await fallbackRequest();
     }
-
     throw error;
   }
 };
+
+// --- Servicios de Sesión ---
 
 const storeSession = (data: LoginResponse, role: 'admin' | 'tecnico') => {
   if (data.token) {
     localStorage.setItem('user_token', data.token);
     localStorage.setItem('user_name', data.nombre ?? '');
     localStorage.setItem('user_role', role);
-    console.log('Saved role to localStorage:', role);
   }
-
   return { ...data, rol: role };
-};
-
-const tryLogin = async (url: string, usuario: string, contrasena: string) => {
-  const response = await axios.post<LoginResponse>(url, { usuario, contrasena });
-  return response.data;
 };
 
 export const loginService = async (usuario: string, contrasena: string) => {
   try {
-    const tecnicoData = await tryLogin(`${TECNICO_API_URL}/login`, usuario, contrasena);
-    console.log('Login tecnico success:', tecnicoData);
-    return storeSession(tecnicoData, 'tecnico');
+    // Intento 1: Técnico
+    const tecnicoRes = await axios.post<LoginResponse>(`${TECNICO_API_URL}/login`, { usuario, contrasena });
+    return storeSession(tecnicoRes.data, 'tecnico');
   } catch (error) {
+    // Intento 2: Admin (si el anterior falló con 401)
     if (axios.isAxiosError(error) && error.response?.status === 401) {
-      const adminData = await tryLogin(`${API_URL}/login`, usuario, contrasena);
-      console.log('Login admin success:', adminData);
-      return storeSession(adminData, 'admin');
+      const adminRes = await axios.post<LoginResponse>(`${API_URL}/login`, { usuario, contrasena });
+      return storeSession(adminRes.data, 'admin');
     }
     throw error;
   }
 };
 
 export const logout = () => {
-  localStorage.removeItem('user_token');
-  localStorage.removeItem('user_name');
-  localStorage.removeItem('user_role');
+  localStorage.clear();
   window.location.href = '/login';
 };
-axios.interceptors.response.use(
-  response => response,
-  error => {
-    const isLoginRequest =
-      axios.isAxiosError(error) &&
-      error.config?.url?.endsWith('/login');
 
-    if (!isLoginRequest && error.response && (error.response.status === 401 || error.response.status === 403)) {
-      // El token murió o no existe
-      localStorage.removeItem('user_token');
-      window.location.href = '/login'; // Lo sacamos de la app
-    }
+// --- CRUD de Administradores ---
 
-    return Promise.reject(error);
-  }
-);
 export const obtenerAdmins = async () => {
   return requestWithFallback(
     () => axios.get<AdminCollectionResponse>(`${API_URL}/obtener`, getAuthHeaders()),
@@ -130,13 +136,15 @@ export const obtenerAdmins = async () => {
 };
 
 export const obtenerAdminPorId = async (id: AdminId) => {
+  const cleanId = String(id).trim();
   return requestWithFallback(
-    () => axios.get<ApiResponse<AdminRecord>>(`${API_URL}/buscar/${id}`, getAuthHeaders()),
-    () => axios.get<ApiResponse<AdminRecord>>(`${API_URL}/${id}`, getAuthHeaders())
+    () => axios.get<ApiResponse<AdminRecord>>(`${API_URL}/buscar/${cleanId}`, getAuthHeaders()),
+    () => axios.get<ApiResponse<AdminRecord>>(`${API_URL}/${cleanId}`, getAuthHeaders())
   );
 };
 
 export const crearAdmin = async (datosAdmin: AdminPayload) => {
+  // Aseguramos que los headers se envíen correctamente
   return requestWithFallback(
     () => axios.post<AdminMutationResponse>(`${API_URL}/insertar`, datosAdmin, getAuthHeaders()),
     () => axios.post<AdminMutationResponse>(API_URL, datosAdmin, getAuthHeaders())
@@ -150,10 +158,6 @@ export const actualizarAdmin = async (id: AdminId, datosActualizados: AdminPaylo
     ID_ADMINISTRADOR_ORIGINAL: originalId,
   };
 
-  if (!originalId) {
-    return axios.put<AdminMutationResponse>(`${API_URL}/actualizar`, payload, getAuthHeaders());
-  }
-
   return requestWithFallback(
     () => axios.put<AdminMutationResponse>(`${API_URL}/actualizar/${originalId}`, payload, getAuthHeaders()),
     () => axios.put<AdminMutationResponse>(`${API_URL}/${originalId}`, payload, getAuthHeaders())
@@ -161,8 +165,9 @@ export const actualizarAdmin = async (id: AdminId, datosActualizados: AdminPaylo
 };
 
 export const eliminarAdmin = async (id: AdminId) => {
+  const cleanId = String(id).trim();
   return requestWithFallback(
-    () => axios.delete<AdminMutationResponse>(`${API_URL}/eliminar/${id}`, getAuthHeaders()),
-    () => axios.delete<AdminMutationResponse>(`${API_URL}/${id}`, getAuthHeaders())
+    () => axios.delete<AdminMutationResponse>(`${API_URL}/eliminar/${cleanId}`, getAuthHeaders()),
+    () => axios.delete<AdminMutationResponse>(`${API_URL}/${cleanId}`, getAuthHeaders())
   );
 };

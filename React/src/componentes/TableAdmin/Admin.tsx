@@ -79,8 +79,7 @@ const buildAdminPayload = (formData: AdminFormState): AdminPayload => {
   };
   if (formData.contrasena.trim()) {
     payload.contrasena = formData.contrasena.trim();
-  } 
-
+  }
   return payload;
 };
 
@@ -124,6 +123,35 @@ function Admins() {
     } finally {
       setLoading(false);
     }
+  };
+
+  // Función para actualizar el estado local después de crear o editar
+  const updateAdminInState = (updatedAdmin: AdminRecord) => {
+    setAdmins(prev => {
+      const exists = prev.some(a => a.ID_ADMINISTRADOR === updatedAdmin.ID_ADMINISTRADOR);
+      if (exists) {
+        return prev.map(a => a.ID_ADMINISTRADOR === updatedAdmin.ID_ADMINISTRADOR ? updatedAdmin : a);
+      } else {
+        return [...prev, updatedAdmin];
+      }
+    });
+
+    setFilteredAdmins(prev => {
+      let newFiltered = prev.some(a => a.ID_ADMINISTRADOR === updatedAdmin.ID_ADMINISTRADOR)
+        ? prev.map(a => a.ID_ADMINISTRADOR === updatedAdmin.ID_ADMINISTRADOR ? updatedAdmin : a)
+        : [...prev, updatedAdmin];
+
+      if (searchTerm.trim()) {
+        const term = searchTerm.toLowerCase();
+        newFiltered = newFiltered.filter(admin =>
+          admin.Nombre.toLowerCase().includes(term) ||
+          admin.Correo.toLowerCase().includes(term) ||
+          admin.usuario.toLowerCase().includes(term) ||
+          String(admin.ID_ADMINISTRADOR).toLowerCase().includes(term)
+        );
+      }
+      return newFiltered;
+    });
   };
 
   const handleSearch = () => {
@@ -227,9 +255,21 @@ function Admins() {
       }
       const response = await crearAdmin(payload);
       if (isSuccessfulResponse(response.data)) {
+        let newAdmin = readAdminRecord(response.data);
+        if (!newAdmin) {
+          newAdmin = {
+            ID_ADMINISTRADOR: formData.ID_ADMINISTRADOR,
+            Nombre: formData.Nombre,
+            Correo: formData.Correo,
+            TipoDocumento: formData.TipoDocumento,
+            Telefono: formData.Telefono,
+            usuario: formData.usuario,
+            contrasena: formData.contrasena,
+          };
+        }
+        updateAdminInState(newAdmin);
         await showAlert('Administrador creado', 'El nuevo administrador fue registrado correctamente.', 'success');
         closeCreateModal();
-        await cargarAdmins();
       } else {
         showAlert('Error', 'No se pudo crear el administrador.', 'error');
       }
@@ -244,15 +284,20 @@ function Admins() {
     if (!currentAdmin) return;
     try {
       const payload = buildAdminPayload(formData);
-      if (!payload.contrasena) {
-        showAlert('Atención', 'Ingresa una contraseña o carga primero la contraseña actual antes de guardar.', 'warning');
-        return;
-      }
+      // La contraseña es opcional en la edición
       const response = await actualizarAdmin(currentAdmin.ID_ADMINISTRADOR, payload);
       if (isSuccessfulResponse(response.data)) {
+        let updatedAdmin = readAdminRecord(response.data);
+        if (!updatedAdmin) {
+          updatedAdmin = {
+            ...currentAdmin,
+            ...payload,
+            contrasena: payload.contrasena ?? currentAdmin.contrasena,
+          };
+        }
+        updateAdminInState(updatedAdmin);
         await showAlert('Cambios guardados', 'El administrador fue actualizado correctamente.', 'success');
         closeEditModal();
-        await cargarAdmins();
       } else {
         showAlert('Error', 'No se pudo actualizar el administrador.', 'error');
       }
@@ -299,7 +344,6 @@ function Admins() {
       <div className="admin-section">
         <h1 className="admin-title">Panel de Administración</h1>
         <div className="action-bar">
-          {/* Lado izquierdo: búsqueda */}
           <div className="search-area">
             <input
               type="text"
@@ -314,7 +358,6 @@ function Admins() {
             </button>
           </div>
 
-          {/* Lado derecho: botones apilados */}
           <div className="right-actions">
             <button className="btn-create" onClick={openCreateModal}>
               <i className="bi bi-plus-circle"></i> Nuevo Administrador

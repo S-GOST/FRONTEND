@@ -32,16 +32,16 @@ type TecnicoUpdatePayload = TecnicoPayload & {
   ID_TECNICOS_ORIGINAL?: TecnicoId;
 };
 
+// tecnicoService.ts
 const getAuthHeaders = () => {
-  // const token = localStorage.getItem('user_token');
-  // return token
-  //   ? {
-  //       headers: {
-  //         Authorization: `Bearer ${token}`,
-  //       },
-  //     }
-  //   : {};
-  return {}; // Temporalmente sin autenticación para desarrollo
+  const token = localStorage.getItem('user_token');
+  return token
+    ? {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    : {};
 };
 
 const shouldFallback = (error: unknown) =>

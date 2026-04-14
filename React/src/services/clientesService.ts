@@ -34,16 +34,16 @@ type ClienteUpdatePayload = ClientePayload & {
   ID_CLIENTES_ORIGINAL?: ClienteId;
 };
 
+// clienteService.ts
 const getAuthHeaders = () => {
-  // const token = localStorage.getItem('user_token');
-  // return token
-  //   ? {
-  //       headers: {
-  //         Authorization: `Bearer ${token}`,
-  //       },
-  //     }
-  //   : {};
-  return {}; // Temporalmente sin autenticación para desarrollo
+  const token = localStorage.getItem('user_token');
+  return token
+    ? {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    : {};
 };
 
 const shouldFallback = (error: unknown) =>
