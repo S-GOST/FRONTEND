@@ -585,7 +585,7 @@ function TableProductos() {
                   type="text"
                   name="ID_PRODUCTOS"
                   value={formData.ID_PRODUCTOS}
-                  readOnly
+                  required
                   title="El ID no se puede modificar"
                 />
               </div>

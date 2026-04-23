@@ -138,8 +138,26 @@ const DetallesOrden = () => {
     setFormData(prev => ({ ...prev, [name]: value }));
   };
 
+  // Validación de existencia antes de guardar
+  const validarIDsExistentes = (): boolean => {
+    const servicioId = formData.ID_SERVICIOS;
+    if (servicioId && !servicios.some(s => s.ID_SERVICIOS === servicioId)) {
+      showAlert('Error', `El servicio con ID "${servicioId}" no existe`, 'error');
+      return false;
+    }
+    const productoId = formData.ID_PRODUCTOS;
+    if (productoId && !productos.some(p => p.ID_PRODUCTOS === productoId)) {
+      showAlert('Error', `El producto con ID "${productoId}" no existe`, 'error');
+      return false;
+    }
+    return true;
+  };
+
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
+
+    if (!validarIDsExistentes()) return;
+
     try {
       if (editMode && currentDetalle) {
         await actualizarDetalleOrden(currentDetalle.ID_DETALLES_ORDEN_SERVICIO, formData);
@@ -289,28 +307,47 @@ const DetallesOrden = () => {
                     required
                   />
                 </div>
+
+                {/* Servicio - input con datalist */}
                 <div className="form-group">
                   <label>Servicio</label>
-                  <select name="ID_SERVICIOS" value={formData.ID_SERVICIOS} onChange={handleFormChange}>
-                    <option value="">Seleccione un servicio</option>
+                  <input
+                    list="servicios-list"
+                    name="ID_SERVICIOS"
+                    value={formData.ID_SERVICIOS}
+                    onChange={handleFormChange}
+                    placeholder="Escribe o selecciona un ID de servicio"
+                    autoComplete="off"
+                  />
+                  <datalist id="servicios-list">
                     {servicios.map(serv => (
                       <option key={serv.ID_SERVICIOS} value={serv.ID_SERVICIOS}>
                         {serv.Nombre} ({serv.ID_SERVICIOS})
                       </option>
                     ))}
-                  </select>
+                  </datalist>
                 </div>
+
+                {/* Producto - input con datalist */}
                 <div className="form-group">
                   <label>Producto</label>
-                  <select name="ID_PRODUCTOS" value={formData.ID_PRODUCTOS} onChange={handleFormChange}>
-                    <option value="">Seleccione un producto</option>
+                  <input
+                    list="productos-list"
+                    name="ID_PRODUCTOS"
+                    value={formData.ID_PRODUCTOS}
+                    onChange={handleFormChange}
+                    placeholder="Escribe o selecciona un ID de producto"
+                    autoComplete="off"
+                  />
+                  <datalist id="productos-list">
                     {productos.map(prod => (
                       <option key={prod.ID_PRODUCTOS} value={prod.ID_PRODUCTOS}>
                         {prod.Nombre} ({prod.ID_PRODUCTOS})
                       </option>
                     ))}
-                  </select>
+                  </datalist>
                 </div>
+
                 <div className="form-group">
                   <label>Garantía (meses)</label>
                   <input

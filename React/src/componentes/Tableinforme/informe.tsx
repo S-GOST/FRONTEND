@@ -1,5 +1,4 @@
-// src/components/TableInformes/Informe.tsx
-import { useState, useEffect, type ChangeEvent, type FormEvent } from 'react';
+import { useEffect, useState, type ChangeEvent, type FormEvent } from 'react';
 import Swal from 'sweetalert2';
 import {
   obtenerInformes,
@@ -8,120 +7,105 @@ import {
   eliminarInforme,
   type InformePayload,
   type InformeRecord,
-} from '../../services/informeService'; 
+} from '../../services/informeService';
+// Servicios para obtener las tablas relacionadas
+import { obtenerDetallesOrdenes, type DetalleOrdenServicioRecord } from '../../services/detalleOrdenServicioService';
+import { obtenerAdmins, type AdminRecord } from '../../services/adminService';
+import { obtenerTecnicos, type TecnicoRecord } from '../../services/tecnicosService';
 import './Informe.css';
 
-const createInitialFormData = (): InformePayload => ({
-  ID_INFORMES: '',
-  ID_MOTOS: '',
-  Fecha: '',
+// Función para generar el próximo ID_INFORME (INF1, INF2, ...)
+const generarIdInforme = async (): Promise<string> => {
+  try {
+    const response = await obtenerInformes();
+    const informes = Array.isArray(response.data) ? response.data : response.data?.data || [];
+    if (informes.length === 0) return 'INF1';
+    const ids = informes.map((inf: InformeRecord) => inf.ID_INFORME);
+    const numeros = ids
+      .map(id => parseInt(id.replace('INF', ''), 10))
+      .filter(num => !isNaN(num));
+    const maxNum = Math.max(...numeros, 0);
+    return `INF${maxNum + 1}`;
+  } catch {
+    return 'INF1';
+  }
+};
+
+// Estado inicial del formulario
+const initialFormState: InformePayload = {
+  ID_INFORME: '',
+  ID_DETALLES_ORDEN_SERVICIO: '',
+  ID_ADMINISTRADOR: '',
+  ID_TECNICOS: '',
   Descripcion: '',
-  Diagnostico: '',
-  Costo: 0,
-});
-
-const buildInformePayload = (formData: InformePayload): InformePayload => {
-  const id = String(formData.ID_INFORMES ?? '').trim();
-  const idMoto = String(formData.ID_MOTOS ?? '').trim();
-  const fecha = String(formData.Fecha ?? '').trim();
-  const descripcion = String(formData.Descripcion ?? '').trim();
-  const diagnostico = String(formData.Diagnostico ?? '').trim();
-  const costo = Number(formData.Costo);
-
-  if (!id) throw new Error('El ID del informe es obligatorio.');
-  if (!idMoto) throw new Error('El ID de la moto es obligatorio.');
-  if (!fecha) throw new Error('La fecha es obligatoria.');
-  if (!descripcion) throw new Error('La descripción es obligatoria.');
-  if (isNaN(costo) || costo < 0) {
-    throw new Error('El costo debe ser un número válido >= 0');
-  }
-
-  return {
-    ID_INFORMES: id,
-    ID_MOTOS: idMoto,
-    Fecha: fecha,
-    Descripcion: descripcion,
-    Diagnostico: diagnostico,
-    Costo: costo,
-  };
+  Fecha: '',
+  Estado: 'Pendiente',
 };
 
-const extractInformes = (payload: unknown): InformeRecord[] => {
-  if (Array.isArray(payload)) return payload as InformeRecord[];
-  if (payload && typeof payload === 'object') {
-    const obj = payload as Record<string, unknown>;
-    if (Array.isArray(obj.data)) return obj.data as InformeRecord[];
-  }
-  return [];
-};
-
-const isSuccessfulResponse = (payload: unknown): boolean => {
-  if (!payload || typeof payload !== 'object') return true;
-  if ('success' in payload) return Boolean((payload as { success?: boolean }).success);
-  return true;
-};
-
-const formatMoneda = (valor: number): string => {
-  return new Intl.NumberFormat('es-CO', {
-    style: 'currency',
-    currency: 'COP',
-    minimumFractionDigits: 0,
-  }).format(valor);
-};
-
-function TableInformes() {
+const TableInformes = () => {
   const [informes, setInformes] = useState<InformeRecord[]>([]);
   const [filteredInformes, setFilteredInformes] = useState<InformeRecord[]>([]);
   const [loading, setLoading] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
-  const [showCreateModal, setShowCreateModal] = useState(false);
-  const [showEditModal, setShowEditModal] = useState(false);
+  const [showModal, setShowModal] = useState(false);
+  const [editMode, setEditMode] = useState(false);
   const [currentInforme, setCurrentInforme] = useState<InformeRecord | null>(null);
-  const [formData, setFormData] = useState<InformePayload>(createInitialFormData());
+  const [formData, setFormData] = useState<InformePayload>(initialFormState);
 
-  useEffect(() => {
-    void cargarInformes();
-  }, []);
+  // Datos para los selects/datalist
+  const [detallesOrdenes, setDetallesOrdenes] = useState<DetalleOrdenServicioRecord[]>([]);
+  const [administradores, setAdministradores] = useState<AdminRecord[]>([]);
+  const [tecnicos, setTecnicos] = useState<TecnicoRecord[]>([]);
 
-  const showAlert = (title: string, text: string, icon: 'success' | 'error' | 'warning') => {
-    return Swal.fire({
-      title,
-      text,
-      icon,
-      confirmButtonColor: '#ff6600',
-      background: '#101010',
-      color: '#f5f5f5',
-    });
-  };
-
-  const cargarInformes = async () => {
+  // Cargar todos los datos necesarios
+  const cargarDatos = async () => {
+    setLoading(true);
     try {
-      setLoading(true);
-      const response = await obtenerInformes();
-      const data = extractInformes(response.data);
-      setInformes(data);
-      setFilteredInformes(data);
+      const [informesRes, detallesRes, adminsRes, tecnicosRes] = await Promise.all([
+        obtenerInformes(),
+        obtenerDetallesOrdenes(),
+        obtenerAdmins(),
+        obtenerTecnicos(),
+      ]);
+
+      const informesData = Array.isArray(informesRes.data)
+        ? informesRes.data
+        : informesRes.data?.data || [];
+      setInformes(informesData);
+      setFilteredInformes(informesData);
+
+      setDetallesOrdenes(Array.isArray(detallesRes.data) ? detallesRes.data : detallesRes.data?.data || []);
+      setAdministradores(Array.isArray(adminsRes.data) ? adminsRes.data : adminsRes.data?.data || []);
+      setTecnicos(Array.isArray(tecnicosRes.data) ? tecnicosRes.data : tecnicosRes.data?.data || []);
     } catch (error) {
-      console.error('Error al obtener informes:', error);
-      setInformes([]);
-      setFilteredInformes([]);
-      showAlert('Error', 'No se pudieron cargar los informes.', 'error');
+      console.error(error);
+      Swal.fire({ title: 'Error', text: 'No se pudieron cargar los datos', icon: 'error', background: '#101010', color: '#f5f5f5' });
     } finally {
       setLoading(false);
     }
   };
 
+  useEffect(() => {
+    cargarDatos();
+  }, []);
+
+  const showAlert = (title: string, text: string, icon: 'success' | 'error' | 'warning') => {
+    return Swal.fire({ title, text, icon, confirmButtonColor: '#ff6600', background: '#101010', color: '#f5f5f5' });
+  };
+
   const handleSearch = () => {
-    if (!searchTerm.trim()) {
+    const term = searchTerm.toLowerCase();
+    if (!term) {
       setFilteredInformes(informes);
       return;
     }
-    const term = searchTerm.toLowerCase();
     const filtered = informes.filter(inf =>
-      String(inf.ID_INFORMES).toLowerCase().includes(term) ||
-      String(inf.ID_MOTOS).toLowerCase().includes(term) ||
+      inf.ID_INFORME.toLowerCase().includes(term) ||
+      inf.ID_DETALLES_ORDEN_SERVICIO.toLowerCase().includes(term) ||
+      inf.ID_ADMINISTRADOR.toLowerCase().includes(term) ||
+      (inf.ID_TECNICOS && inf.ID_TECNICOS.toLowerCase().includes(term)) ||
       inf.Descripcion.toLowerCase().includes(term) ||
-      inf.Diagnostico.toLowerCase().includes(term)
+      inf.Estado.toLowerCase().includes(term)
     );
     setFilteredInformes(filtered);
   };
@@ -131,116 +115,77 @@ function TableInformes() {
     setFilteredInformes(informes);
   };
 
-  const handleInputChange = (event: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-  const { name, value } = event.target;
-  
-  // Definimos que 'prev' es de tipo InformePayload
-  setFormData((prev: InformePayload) => ({ 
-    ...prev, 
-    [name]: value 
-  }));
-};
-  const openCreateModal = () => {
+  const handleInputChange = (e: ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
+    const { name, value } = e.target;
+    setFormData(prev => ({ ...prev, [name]: value }));
+  };
+
+  const openCreateModal = async () => {
+    setEditMode(false);
     setCurrentInforme(null);
-    setFormData(createInitialFormData());
-    setShowCreateModal(true);
+    const nuevoId = await generarIdInforme();
+    setFormData({ ...initialFormState, ID_INFORME: nuevoId, Fecha: new Date().toISOString().split('T')[0] });
+    setShowModal(true);
   };
 
   const openEditModal = (informe: InformeRecord) => {
+    setEditMode(true);
     setCurrentInforme(informe);
     setFormData({
-      ID_INFORMES: informe.ID_INFORMES,
-      ID_MOTOS: informe.ID_MOTOS,
-      Fecha: informe.Fecha.split('T')[0], // Ajuste para input type="date"
-      Descripcion: informe.Descripcion,
-      Diagnostico: informe.Diagnostico,
-      Costo: informe.Costo,
+      ...informe,
+      Fecha: informe.Fecha.split('T')[0], // para input date
     });
-    setShowEditModal(true);
+    setShowModal(true);
   };
 
-  const closeCreateModal = () => {
-    setShowCreateModal(false);
-    setFormData(createInitialFormData());
-  };
-
-  const closeEditModal = () => {
-    setShowEditModal(false);
+  const closeModal = () => {
+    setShowModal(false);
+    setFormData(initialFormState);
     setCurrentInforme(null);
-    setFormData(createInitialFormData());
   };
 
-  const validateForm = (): string | null => {
-    if (!formData.ID_INFORMES) return 'El ID del informe es obligatorio.';
-    if (!formData.ID_MOTOS) return 'El ID de la moto es obligatorio.';
-    if (!formData.Fecha) return 'La fecha es obligatoria.';
-    if (!formData.Descripcion) return 'La descripción es obligatoria.';
-    if (isNaN(Number(formData.Costo)) || Number(formData.Costo) < 0) {
-      return 'El costo debe ser un número válido.';
-    }
-    return null;
-  };
-
-  const handleCreate = async (event: FormEvent<HTMLFormElement>) => {
-    event.preventDefault();
-    const error = validateForm();
-    if (error) {
-      showAlert('Datos incompletos', error, 'warning');
+  const handleSubmit = async (e: FormEvent) => {
+    e.preventDefault();
+    // Validaciones básicas
+    if (!formData.ID_DETALLES_ORDEN_SERVICIO || !formData.ID_ADMINISTRADOR || !formData.Fecha || !formData.Descripcion) {
+      showAlert('Campos incompletos', 'Completa los campos obligatorios.', 'warning');
       return;
     }
+
     try {
-      const payload = buildInformePayload(formData);
-      const response = await crearInforme(payload);
-      if (isSuccessfulResponse(response.data)) {
-        showAlert('Informe creado', 'El informe técnico fue registrado.', 'success');
-        closeCreateModal();
-        await cargarInformes();
+      if (editMode && currentInforme) {
+        await actualizarInforme(currentInforme.ID_INFORME, formData);
+        showAlert('Actualizado', 'El informe se actualizó correctamente', 'success');
+      } else {
+        await crearInforme(formData);
+        showAlert('Creado', 'Informe técnico registrado', 'success');
       }
+      closeModal();
+      await cargarDatos();
     } catch (err) {
-      showAlert('Error', 'No se pudo registrar el informe.', 'error');
+      console.error(err);
+      showAlert('Error', 'No se pudo guardar el informe', 'error');
     }
   };
 
-  const handleUpdate = async (event: FormEvent<HTMLFormElement>) => {
-    event.preventDefault();
-    if (!currentInforme) return;
-    const error = validateForm();
-    if (error) {
-      showAlert('Datos incompletos', error, 'warning');
-      return;
-    }
-    try {
-      const payload = buildInformePayload(formData);
-      const response = await actualizarInforme(currentInforme.ID_INFORMES, payload);
-      if (isSuccessfulResponse(response.data)) {
-        showAlert('Actualizado', 'Informe actualizado correctamente.', 'success');
-        closeEditModal();
-        await cargarInformes();
-      }
-    } catch (err) {
-      showAlert('Error', 'Ocurrió un error al actualizar.', 'error');
-    }
-  };
-
-  const borrarInforme = async (informe: InformeRecord) => {
+  const handleDelete = async (informe: InformeRecord) => {
     const result = await Swal.fire({
-      title: `¿Eliminar informe ${informe.ID_INFORMES}?`,
-      text: 'Esta acción no se puede deshacer.',
+      title: `¿Eliminar informe ${informe.ID_INFORME}?`,
+      text: 'Esta acción es irreversible.',
       icon: 'warning',
       showCancelButton: true,
-      confirmButtonColor: '#ff6600',
-      cancelButtonColor: '#6c757d',
+      confirmButtonColor: '#a51f1f',
       confirmButtonText: 'Sí, eliminar',
       background: '#101010',
       color: '#f5f5f5',
     });
     if (!result.isConfirmed) return;
     try {
-      await eliminarInforme(informe.ID_INFORMES);
-      await cargarInformes();
-      Swal.fire({ title: 'Eliminado', icon: 'success', background: '#101010', color: '#f5f5f5', timer: 1500, showConfirmButton: false });
+      await eliminarInforme(informe.ID_INFORME);
+      await cargarDatos();
+      showAlert('Eliminado', 'Informe eliminado', 'success');
     } catch (err) {
-      showAlert('Error', 'No se pudo eliminar el informe.', 'error');
+      showAlert('Error', 'No se pudo eliminar', 'error');
     }
   };
 
@@ -254,7 +199,7 @@ function TableInformes() {
             <input
               type="text"
               className="search-input"
-              placeholder="Buscar por ID, moto, descripción o diagnóstico"
+              placeholder="Buscar por ID, orden, admin, técnico, descripción"
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
               onKeyDown={(e) => e.key === 'Enter' && handleSearch()}
@@ -278,78 +223,147 @@ function TableInformes() {
             <thead>
               <tr>
                 <th>ID Informe</th>
-                <th>Moto</th>
-                <th>Fecha</th>
+                <th>Detalle Orden</th>
+                <th>Administrador</th>
+                <th>Técnico</th>
                 <th>Descripción</th>
-                <th>Costo</th>
+                <th>Fecha</th>
+                <th>Estado</th>
                 <th>Acciones</th>
               </tr>
             </thead>
             <tbody>
               {loading ? (
-                <tr><td colSpan={6} className="loading-row">Cargando informes...</td></tr>
-              ) : filteredInformes.length > 0 ? (
+                <tr><td colSpan={8} className="loading-row">Cargando...</td></tr>
+              ) : filteredInformes.length === 0 ? (
+                <tr><td colSpan={8} className="loading-row">No hay informes registrados</td></tr>
+              ) : (
                 filteredInformes.map(inf => (
-                  <tr key={inf.ID_INFORMES}>
-                    <td>{inf.ID_INFORMES}</td>
-                    <td>{inf.ID_MOTOS}</td>
+                  <tr key={inf.ID_INFORME}>
+                    <td>{inf.ID_INFORME}</td>
+                    <td>{inf.ID_DETALLES_ORDEN_SERVICIO}</td>
+                    <td>{inf.ID_ADMINISTRADOR}</td>
+                    <td>{inf.ID_TECNICOS || '-'}</td>
+                    <td>{inf.Descripcion.substring(0, 40)}...</td>
                     <td>{new Date(inf.Fecha).toLocaleDateString()}</td>
-                    <td>{inf.Descripcion.substring(0, 30)}...</td>
-                    <td>{formatMoneda(inf.Costo)}</td>
+                    <td>{inf.Estado}</td>
                     <td className="actions-cell">
                       <button className="btn-edit-ktm" onClick={() => openEditModal(inf)}>
                         <i className="bi bi-pencil-square"></i>
                       </button>
-                      <button className="btn-eliminar-ktm" onClick={() => borrarInforme(inf)}>
+                      <button className="btn-eliminar-ktm" onClick={() => handleDelete(inf)}>
                         <i className="bi bi-trash3"></i>
                       </button>
                     </td>
                   </tr>
                 ))
-              ) : (
-                <tr><td colSpan={6} className="loading-row">No hay informes registrados.</td></tr>
               )}
             </tbody>
           </table>
         </div>
       </div>
 
-      {/* Modal Crear/Editar */}
-      {(showCreateModal || showEditModal) && (
-        <div className="modal-overlay" onClick={showCreateModal ? closeCreateModal : closeEditModal}>
+      {/* Modal de creación/edición */}
+      {showModal && (
+        <div className="modal-overlay" onClick={closeModal}>
           <div className="modal-container" onClick={e => e.stopPropagation()}>
             <div className="modal-header">
-              <h3>{showCreateModal ? 'Nuevo Informe Técnico' : 'Editar Informe'}</h3>
-              <button className="close-btn" onClick={showCreateModal ? closeCreateModal : closeEditModal}>&times;</button>
+              <h3>{editMode ? 'Editar Informe' : 'Nuevo Informe Técnico'}</h3>
+              <button className="close-btn" onClick={closeModal}>&times;</button>
             </div>
-            <form onSubmit={showCreateModal ? handleCreate : handleUpdate}>
-              <div className="form-group">
-                <label>ID Informe</label>
-                <input type="text" name="ID_INFORMES" value={formData.ID_INFORMES} onChange={handleInputChange} readOnly={showEditModal} required />
-              </div>
-              <div className="form-group">
-                <label>ID Moto</label>
-                <input type="text" name="ID_MOTOS" value={formData.ID_MOTOS} onChange={handleInputChange} required />
-              </div>
-              <div className="form-group">
-                <label>Fecha</label>
-                <input type="date" name="Fecha" value={formData.Fecha} onChange={handleInputChange} required />
-              </div>
-              <div className="form-group">
-                <label>Descripción</label>
-                <textarea name="Descripcion" value={formData.Descripcion} onChange={handleInputChange} required />
-              </div>
-              <div className="form-group">
-                <label>Diagnóstico</label>
-                <textarea name="Diagnostico" value={formData.Diagnostico} onChange={handleInputChange} />
-              </div>
-              <div className="form-group">
-                <label>Costo del Servicio</label>
-                <input type="number" name="Costo" value={formData.Costo} onChange={handleInputChange} required />
+            <form onSubmit={handleSubmit}>
+              <div className="modal-body">
+                {/* ID_INFORME - solo lectura en edición */}
+                <div className="form-group">
+                  <label>ID Informe</label>
+                  <input type="text" name="ID_INFORME" value={formData.ID_INFORME} readOnly disabled />
+                </div>
+
+                {/* Detalle de Orden - input con datalist */}
+                <div className="form-group">
+                  <label>Detalle de Orden *</label>
+                  <input
+                    list="detalles-list"
+                    name="ID_DETALLES_ORDEN_SERVICIO"
+                    value={formData.ID_DETALLES_ORDEN_SERVICIO}
+                    onChange={handleInputChange}
+                    required
+                    autoComplete="off"
+                  />
+                  <datalist id="detalles-list">
+                    {detallesOrdenes.map(det => (
+                      <option key={det.ID_DETALLES_ORDEN_SERVICIO} value={det.ID_DETALLES_ORDEN_SERVICIO}>
+                        {det.ID_DETALLES_ORDEN_SERVICIO} - Orden: {det.ID_ORDEN_SERVICIO}
+                      </option>
+                    ))}
+                  </datalist>
+                </div>
+
+                {/* Administrador - input con datalist */}
+                <div className="form-group">
+                  <label>Administrador *</label>
+                  <input
+                    list="admins-list"
+                    name="ID_ADMINISTRADOR"
+                    value={formData.ID_ADMINISTRADOR}
+                    onChange={handleInputChange}
+                    required
+                    autoComplete="off"
+                  />
+                  <datalist id="admins-list">
+                    {administradores.map(adm => (
+                      <option key={adm.ID_ADMINISTRADOR} value={adm.ID_ADMINISTRADOR}>
+                        {adm.Nombre} ({adm.ID_ADMINISTRADOR})
+                      </option>
+                    ))}
+                  </datalist>
+                </div>
+
+                {/* Técnico - opcional con datalist */}
+                <div className="form-group">
+                  <label>Técnico</label>
+                  <input
+                    list="tecnicos-list"
+                    name="ID_TECNICOS"
+                    value={formData.ID_TECNICOS || ''}
+                    onChange={handleInputChange}
+                    autoComplete="off"
+                  />
+                  <datalist id="tecnicos-list">
+                    {tecnicos.map(tec => (
+                      <option key={tec.ID_TECNICOS} value={tec.ID_TECNICOS}>
+                        {tec.Nombre} ({tec.ID_TECNICOS})
+                      </option>
+                    ))}
+                  </datalist>
+                </div>
+
+                {/* Fecha */}
+                <div className="form-group">
+                  <label>Fecha *</label>
+                  <input type="date" name="Fecha" value={formData.Fecha} onChange={handleInputChange} required />
+                </div>
+
+                {/* Descripción (texto largo) */}
+                <div className="form-group">
+                  <label>Descripción *</label>
+                  <textarea name="Descripcion" value={formData.Descripcion} onChange={handleInputChange} required rows={4} />
+                </div>
+
+                {/* Estado */}
+                <div className="form-group">
+                  <label>Estado *</label>
+                  <select name="Estado" value={formData.Estado} onChange={handleInputChange} required>
+                    <option value="Pendiente">Pendiente</option>
+                    <option value="En espera de repuestos">En espera de repuestos</option>
+                    <option value="Completado">Completado</option>
+                    <option value="Cancelado">Cancelado</option>
+                  </select>
+                </div>
               </div>
               <div className="modal-footer">
-                <button type="button" onClick={showCreateModal ? closeCreateModal : closeEditModal}>Cancelar</button>
-                <button type="submit">{showCreateModal ? 'Guardar Informe' : 'Actualizar'}</button>
+                <button type="button" onClick={closeModal}>Cancelar</button>
+                <button type="submit">{editMode ? 'Actualizar' : 'Crear Informe'}</button>
               </div>
             </form>
           </div>
@@ -357,6 +371,6 @@ function TableInformes() {
       )}
     </div>
   );
-}
+};
 
 export default TableInformes;

@@ -475,7 +475,7 @@ function TableMotos() {
                   type="text"
                   name="ID_MOTOS"
                   value={formData.ID_MOTOS}
-                  readOnly
+                  required
                   title="El ID no se puede modificar"
                 />
               </div>

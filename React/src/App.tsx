@@ -22,6 +22,9 @@ import ProtectedTecnicoRoute from './routes/ProtectedTecnicoRoute';
 import Clientes from './componentes/TableAdmin/Clientes';
 import Motos from './componentes/TableMotos/Motos';
 import ClientePanel from './componentes/TableCliente/ClientePanel'; // Importa el panel de cliente
+import Tableinforme from './componentes/Tableinforme/informe';
+import Historial from './componentes/Tablehistorial/historial';
+import Comprobantes from './componentes/TableComprobante/Comprobante';
 
 const HomePage: React.FC<{ addToCart: (service: Service) => void }> = ({ addToCart }) => {
   const categories = ['Mantenimiento', 'Reparaciones', 'Diagnósticos', 'Instalaciones'];
@@ -201,6 +204,9 @@ function App() {
           <Route path="servicios" element={<Servicios />} />
           <Route path="productos" element={<TableProductos />} />
           <Route path="motos" element={<Motos />} />
+          <Route path='informe' element={<Tableinforme />} />
+          <Route path='comprobantes' element={<Comprobantes />} />
+          <Route path='historial' element={<Historial />} />
           <Route path="*" element={<Navigate to="/admin/dashboard" replace />} />
         </Route>
         <Route element={<ProtectedTecnicoRoute />}>

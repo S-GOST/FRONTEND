@@ -479,7 +479,7 @@ function Servicios() {
                   type="text"
                   name="ID_SERVICIOS"
                   value={formData.ID_SERVICIOS}
-                  readOnly
+                  required
                   title="El ID no se puede modificar"
                 />
               </div>

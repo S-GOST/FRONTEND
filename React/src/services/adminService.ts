@@ -144,7 +144,6 @@ export const obtenerAdminPorId = async (id: AdminId) => {
 };
 
 export const crearAdmin = async (datosAdmin: AdminPayload) => {
-  // Aseguramos que los headers se envíen correctamente
   return requestWithFallback(
     () => axios.post<AdminMutationResponse>(`${API_URL}/insertar`, datosAdmin, getAuthHeaders()),
     () => axios.post<AdminMutationResponse>(API_URL, datosAdmin, getAuthHeaders())
