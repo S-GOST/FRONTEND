@@ -14,6 +14,7 @@ import ProtectedTecnicoRoute from './ProtectedTecnicoRoute';
 import ProtectedAdminRoute from './ProtectedAdminRoute';
 import ProtectedClienteRoute from './ProtectedClienteRoute';
 
+
 const AppRouter = () => {
   return (
     <Routes>

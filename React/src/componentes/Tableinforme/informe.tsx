@@ -276,7 +276,7 @@ const TableInformes = () => {
                 {/* ID_INFORME - solo lectura en edición */}
                 <div className="form-group">
                   <label>ID Informe</label>
-                  <input type="text" name="ID_INFORME" value={formData.ID_INFORME} readOnly disabled />
+                  <input type="text" name="ID_INFORME" value={formData.ID_INFORME} required/>
                 </div>
 
                 {/* Detalle de Orden - input con datalist */}

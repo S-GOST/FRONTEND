@@ -4,18 +4,18 @@ const API_URL = 'http://localhost:3000/api/comprobantes';
 
 export type ComprobanteId = string | number;
 
-// Interfaz para los datos que se envían y reciben
+// Interfaz para los datos que se envían y reciben (coincide con la BD)
 export interface ComprobantePayload {
   ID_COMPROBANTE: ComprobanteId;
+  ID_INFORME?: string | null;
+  ID_CLIENTES: string | number;
+  ID_ADMINISTRADOR?: string | null;
+  Monto: number;
   Fecha: string;
-  Valor_Total: number;
-  ID_CLIENTE: string | number;
-  ID_MOTOS?: string | number;
-  ID_SERVICIOS?: string | number;
-  Estado: string;
+  Estado_pago: string;
 }
 
-export interface ComprobanteRecord extends ComprobantePayload {}
+export interface ComprobanteRecord extends Required<ComprobantePayload> {}
 
 export interface ApiResponse<T> {
   success?: boolean;
@@ -31,13 +31,13 @@ type ComprobanteCollectionResponse =
 
 type ComprobanteMutationResponse = ApiResponse<ComprobanteRecord | null> | ComprobanteRecord | null;
 
-// Configuración de cabeceras con Token
+// Configuración de cabeceras con Token (usamos 'token' o 'user_token' según tu almacenamiento)
 const getAuthHeaders = () => {
-  const token = localStorage.getItem('user_token');
+  const token = localStorage.getItem('token') || localStorage.getItem('user_token');
   return token ? { headers: { Authorization: `Bearer ${token}` } } : {};
 };
 
-// Lógica de fallback para rutas (si falla /obtener, intenta en la raíz /)
+// Lógica de fallback para rutas
 const shouldFallback = (error: unknown) =>
   axios.isAxiosError(error) && error.response?.status === 404;
 
@@ -75,7 +75,7 @@ export const obtenerComprobantePorId = async (id: ComprobanteId) => {
 
 export const crearComprobante = async (datos: ComprobantePayload) => {
   return requestWithFallback(
-    () => axios.post<ComprobanteMutationResponse>(`${API_URL}/crear`, datos, getAuthHeaders()),
+    () => axios.post<ComprobanteMutationResponse>(`${API_URL}/insertar`, datos, getAuthHeaders()),
     () => axios.post<ComprobanteMutationResponse>(API_URL, datos, getAuthHeaders())
   );
 };

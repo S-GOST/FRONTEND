@@ -9,56 +9,68 @@ import {
   type ComprobantePayload,
   type ComprobanteRecord,
 } from '../../services/comprobanteService';
+import { obtenerInformes, type InformeRecord } from '../../services/informeService';
+import { obtenerClientes, type ClienteRecord } from '../../services/clientesService';
+import { obtenerAdmins, type AdminRecord } from '../../services/adminService';
 import './Comprobante.css';
+
+// Helper para extraer arrays anidados
+const extractArray = <T,>(payload: unknown, fallback: T[] = []): T[] => {
+  if (Array.isArray(payload)) return payload;
+  if (payload && typeof payload === 'object') {
+    const obj = payload as Record<string, unknown>;
+    if (Array.isArray(obj.data)) return obj.data as T[];
+    if (Array.isArray(obj.records)) return obj.records as T[];
+    if (Array.isArray(obj.items)) return obj.items as T[];
+  }
+  return fallback;
+};
 
 const createInitialFormData = (): ComprobantePayload => ({
   ID_COMPROBANTE: '',
-  Fecha: new Date().toISOString().split('T')[0], // Fecha actual por defecto
-  Valor_Total: 0,
-  ID_CLIENTE: '',
-  ID_MOTOS: '',
-  ID_SERVICIOS: '',
-  Estado: 'Pendiente',
+  ID_INFORME: '',
+  ID_CLIENTES: '',
+  ID_ADMINISTRADOR: '',
+  Monto: 0,
+  Fecha: new Date().toISOString().split('T')[0],
+  Estado_pago: 'Pendiente',
 });
 
 const buildComprobantePayload = (formData: ComprobantePayload): ComprobantePayload => {
   const id = String(formData.ID_COMPROBANTE ?? '').trim();
-  const fecha = String(formData.Fecha ?? '').trim();
-  const valorTotal = Number(formData.Valor_Total);
-  const idCliente = String(formData.ID_CLIENTE ?? '').trim();
-  const idMoto = String(formData.ID_MOTOS ?? '').trim();
-  const idServicio = String(formData.ID_SERVICIOS ?? '').trim();
-  const estado = String(formData.Estado ?? '').trim();
-
   if (!id) throw new Error('El ID del comprobante es obligatorio.');
-  if (!fecha) throw new Error('La fecha es obligatoria.');
-  if (isNaN(valorTotal) || valorTotal < 0) throw new Error('El valor total debe ser un número válido.');
-  if (!idCliente) throw new Error('El ID del cliente es obligatorio.');
+  if (!formData.ID_CLIENTES) throw new Error('El ID del cliente es obligatorio.');
+  const monto = typeof formData.Monto === 'string' ? parseFloat(formData.Monto) : formData.Monto;
+  if (isNaN(monto) || monto < 0) {
+    throw new Error('El monto debe ser un número válido mayor o igual a 0.');
+  }
+  if (!formData.Fecha) throw new Error('La fecha es obligatoria.');
 
   return {
     ID_COMPROBANTE: id,
-    Fecha: fecha,
-    Valor_Total: valorTotal,
-    ID_CLIENTE: idCliente,
-    ID_MOTOS: idMoto,
-    ID_SERVICIOS: idServicio,
-    Estado: estado,
+    ID_INFORME: formData.ID_INFORME?.trim() || null,
+    ID_CLIENTES: String(formData.ID_CLIENTES).trim(),
+    ID_ADMINISTRADOR: formData.ID_ADMINISTRADOR?.trim() || null,
+    Monto: monto,
+    Fecha: formData.Fecha,
+    Estado_pago: formData.Estado_pago,
   };
 };
 
 const extractComprobantes = (payload: unknown): ComprobanteRecord[] => {
-  if (Array.isArray(payload)) return payload as ComprobanteRecord[];
+  if (Array.isArray(payload)) return payload;
   if (payload && typeof payload === 'object') {
     const obj = payload as Record<string, unknown>;
-    if (Array.isArray(obj.data)) return obj.data as ComprobanteRecord[];
-    if (Array.isArray(obj.comprobantes)) return obj.comprobantes as ComprobanteRecord[];
+    if (Array.isArray(obj.data)) return obj.data;
+    if (Array.isArray(obj.comprobantes)) return obj.comprobantes;
   }
   return [];
 };
 
-const isSuccessfulResponse = (payload: unknown): boolean => {
-  if (!payload || typeof payload !== 'object') return true;
-  if ('success' in payload) return Boolean((payload as { success?: boolean }).success);
+const isSuccessResponse = (response: unknown): boolean => {
+  if (response && typeof response === 'object' && 'success' in response) {
+    return (response as { success?: boolean }).success === true;
+  }
   return true;
 };
 
@@ -80,8 +92,12 @@ function TableComprobantes() {
   const [currentComprobante, setCurrentComprobante] = useState<ComprobanteRecord | null>(null);
   const [formData, setFormData] = useState<ComprobantePayload>(createInitialFormData());
 
+  const [informes, setInformes] = useState<InformeRecord[]>([]);
+  const [clientes, setClientes] = useState<ClienteRecord[]>([]);
+  const [administradores, setAdministradores] = useState<AdminRecord[]>([]);
+
   useEffect(() => {
-    void cargarComprobantes();
+    void cargarDatosIniciales();
   }, []);
 
   const showAlert = (title: string, text: string, icon: 'success' | 'error' | 'warning') => {
@@ -95,16 +111,23 @@ function TableComprobantes() {
     });
   };
 
-  const cargarComprobantes = async () => {
+  const cargarDatosIniciales = async () => {
     try {
       setLoading(true);
-      const response = await obtenerComprobantes();
-      const data = extractComprobantes(response.data);
-      setComprobantes(data);
-      setFilteredComprobantes(data);
+      const [comprobantesRes, informesRes, clientesRes, adminsRes] = await Promise.all([
+        obtenerComprobantes(),
+        obtenerInformes(),
+        obtenerClientes(),
+        obtenerAdmins(),
+      ]);
+      setComprobantes(extractComprobantes(comprobantesRes.data));
+      setFilteredComprobantes(extractComprobantes(comprobantesRes.data));
+      setInformes(extractArray(informesRes.data, []));
+      setClientes(extractArray(clientesRes.data, []));
+      setAdministradores(extractArray(adminsRes.data, []));
     } catch (error) {
-      console.error('Error al obtener comprobantes:', error);
-      showAlert('Error', 'No se pudieron cargar los comprobantes.', 'error');
+      console.error(error);
+      showAlert('Error', 'No se pudieron cargar los datos.', 'error');
     } finally {
       setLoading(false);
     }
@@ -116,11 +139,12 @@ function TableComprobantes() {
       return;
     }
     const term = searchTerm.toLowerCase();
-    const filtered = comprobantes.filter(comp =>
-      String(comp.ID_COMPROBANTE).toLowerCase().includes(term) ||
-      String(comp.ID_CLIENTE).toLowerCase().includes(term) ||
-      comp.Estado.toLowerCase().includes(term)
-    );
+    const filtered = comprobantes.filter(c => {
+      const id = String(c.ID_COMPROBANTE).toLowerCase();
+      const cliente = c.ID_CLIENTES ? String(c.ID_CLIENTES).toLowerCase() : '';
+      const estado = c.Estado_pago.toLowerCase();
+      return id.includes(term) || cliente.includes(term) || estado.includes(term);
+    });
     setFilteredComprobantes(filtered);
   };
 
@@ -131,7 +155,7 @@ function TableComprobantes() {
 
   const handleInputChange = (event: ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     const { name, value } = event.target;
-    setFormData((prev) => ({ ...prev, [name]: value }));
+    setFormData(prev => ({ ...prev, [name]: value }));
   };
 
   const openCreateModal = () => {
@@ -144,12 +168,12 @@ function TableComprobantes() {
     setCurrentComprobante(comp);
     setFormData({
       ID_COMPROBANTE: comp.ID_COMPROBANTE,
-      Fecha: comp.Fecha,
-      Valor_Total: comp.Valor_Total,
-      ID_CLIENTE: comp.ID_CLIENTE,
-      ID_MOTOS: comp.ID_MOTOS,
-      ID_SERVICIOS: comp.ID_SERVICIOS,
-      Estado: comp.Estado,
+      ID_INFORME: comp.ID_INFORME || '',
+      ID_CLIENTES: comp.ID_CLIENTES,
+      ID_ADMINISTRADOR: comp.ID_ADMINISTRADOR || '',
+      Monto: comp.Monto,
+      Fecha: comp.Fecha.split('T')[0],
+      Estado_pago: comp.Estado_pago,
     });
     setShowEditModal(true);
   };
@@ -159,13 +183,15 @@ function TableComprobantes() {
     try {
       const payload = buildComprobantePayload(formData);
       const response = await crearComprobante(payload);
-      if (isSuccessfulResponse(response.data)) {
-        showAlert('Éxito', 'Comprobante generado.', 'success');
+      if (isSuccessResponse(response.data)) {
+        showAlert('Éxito', 'Comprobante registrado correctamente.', 'success');
         setShowCreateModal(false);
-        await cargarComprobantes();
+        await cargarDatosIniciales();
+      } else {
+        showAlert('Error', 'No se pudo crear el comprobante.', 'error');
       }
     } catch (err: any) {
-      showAlert('Error', err.message || 'Error al crear', 'error');
+      showAlert('Error', err.message || 'Error al crear el comprobante.', 'error');
     }
   };
 
@@ -175,17 +201,19 @@ function TableComprobantes() {
     try {
       const payload = buildComprobantePayload(formData);
       const response = await actualizarComprobante(currentComprobante.ID_COMPROBANTE, payload);
-      if (isSuccessfulResponse(response.data)) {
+      if (isSuccessResponse(response.data)) {
         showAlert('Actualizado', 'Comprobante actualizado correctamente.', 'success');
         setShowEditModal(false);
-        await cargarComprobantes();
+        await cargarDatosIniciales();
+      } else {
+        showAlert('Error', 'No se pudo actualizar el comprobante.', 'error');
       }
     } catch (err: any) {
-      showAlert('Error', err.message || 'Error al actualizar', 'error');
+      showAlert('Error', err.message || 'Error al actualizar.', 'error');
     }
   };
 
-  const borrarComprobante = async (id: string) => {
+  const borrarComprobante = async (id: string | number) => {
     const result = await Swal.fire({
       title: '¿Eliminar comprobante?',
       text: 'Esta acción es irreversible.',
@@ -196,17 +224,20 @@ function TableComprobantes() {
       background: '#101010',
       color: '#f5f5f5',
     });
-
     if (result.isConfirmed) {
       try {
         await eliminarComprobante(id);
-        await cargarComprobantes();
+        await cargarDatosIniciales();
         showAlert('Eliminado', 'Registro borrado.', 'success');
       } catch (error) {
         showAlert('Error', 'No se pudo eliminar.', 'error');
       }
     }
   };
+
+  const getClienteKey = (c: ClienteRecord) => String(c.ID_CLIENTES);
+  const getInformeKey = (i: InformeRecord) => String(i.ID_INFORME);
+  const getAdminKey = (a: AdminRecord) => String(a.ID_ADMINISTRADOR);
 
   return (
     <div className="comprobantes-page">
@@ -239,9 +270,9 @@ function TableComprobantes() {
               <tr>
                 <th>ID</th>
                 <th>Fecha</th>
-                <th>Valor Total</th>
-                <th>ID Cliente</th>
-                <th>ID Moto</th>
+                <th>Monto</th>
+                <th>Cliente</th>
+                <th>Informe</th>
                 <th>Estado</th>
                 <th>Acciones</th>
               </tr>
@@ -251,70 +282,147 @@ function TableComprobantes() {
                 <tr><td colSpan={7} className="loading-row">Cargando...</td></tr>
               ) : filteredComprobantes.length > 0 ? (
                 filteredComprobantes.map(comp => (
-                  <tr key={comp.ID_COMPROBANTE}>
-                    <td>{comp.ID_COMPROBANTE}</td>
+                  <tr key={String(comp.ID_COMPROBANTE)}>
+                    <td className="orden-id">{comp.ID_COMPROBANTE}</td>
                     <td>{comp.Fecha}</td>
-                    <td>{formatMoneda(comp.Valor_Total)}</td>
-                    <td>{comp.ID_CLIENTE}</td>
-                    <td>{comp.ID_MOTOS}</td>
-                    <td><span className={`badge-${comp.Estado.toLowerCase()}`}>{comp.Estado}</span></td>
+                    <td>{formatMoneda(comp.Monto)}</td>
+                    <td>{comp.ID_CLIENTES}</td>
+                    <td>{comp.ID_INFORME || '-'}</td>
+                    <td>
+                      <span className={`badge-${comp.Estado_pago.toLowerCase()}`}>
+                        {comp.Estado_pago}
+                      </span>
+                    </td>
                     <td className="actions-cell">
-                      <button className="btn-edit-ktm" onClick={() => openEditModal(comp)}><i className="bi bi-pencil-square"></i></button>
-                      <button className="btn-eliminar-ktm" onClick={() => borrarComprobante(String(comp.ID_COMPROBANTE))}></button>
+                      <button className="btn-edit-ktm" onClick={() => openEditModal(comp)}>
+                        <i className="bi bi-pencil-square"></i>
+                      </button>
+                      <button className="btn-eliminar-ktm" onClick={() => borrarComprobante(comp.ID_COMPROBANTE)}>
+                        <i className="bi bi-trash3"></i>
+                      </button>
                     </td>
                   </tr>
                 ))
               ) : (
-                <tr><td colSpan={7} className="loading-row">No hay registros.</td></tr>
+                <tr><td colSpan={7} className="loading-row">No hay comprobantes registrados.</td></tr>
               )}
             </tbody>
           </table>
         </div>
       </div>
 
-      {/* Modal Crear */}
+      {/* Modal CREAR con scroll */}
       {showCreateModal && (
         <div className="modal-overlay" onClick={() => setShowCreateModal(false)}>
           <div className="modal-container" onClick={e => e.stopPropagation()}>
-            <div className="modal-header"><h3>Nuevo Comprobante</h3></div>
+            <div className="modal-header">
+              <h3>Nuevo Comprobante</h3>
+              <button className="close-btn" onClick={() => setShowCreateModal(false)}>&times;</button>
+            </div>
             <form onSubmit={handleCreate}>
-              <div className="form-group"><label>ID Comprobante</label><input type="text" name="ID_COMPROBANTE" onChange={handleInputChange} required /></div>
-              <div className="form-group"><label>Fecha</label><input type="date" name="Fecha" value={formData.Fecha} onChange={handleInputChange} required /></div>
-              <div className="form-group"><label>Valor Total</label><input type="number" name="Valor_Total" onChange={handleInputChange} required /></div>
-              <div className="form-group"><label>ID Cliente</label><input type="text" name="ID_CLIENTE" onChange={handleInputChange} required /></div>
-              <div className="form-group"><label>ID Moto</label><input type="text" name="ID_MOTOS" onChange={handleInputChange} /></div>
-              <div className="form-group">
-                <label>Estado</label>
-                <select name="Estado" value={formData.Estado} onChange={handleInputChange}>
-                  <option value="Pendiente">Pendiente</option>
-                  <option value="Pagado">Pagado</option>
-                  <option value="Anulado">Anulado</option>
-                </select>
+              <div className="modal-body">
+                <div className="form-group">
+                  <label>ID Comprobante *</label>
+                  <input type="text" name="ID_COMPROBANTE" value={formData.ID_COMPROBANTE} onChange={handleInputChange} required />
+                </div>
+                <div className="form-group">
+                  <label>Cliente *</label>
+                  <input list="clientes-list" name="ID_CLIENTES" value={formData.ID_CLIENTES} onChange={handleInputChange} required />
+                  <datalist id="clientes-list">
+                    {clientes.map(c => <option key={getClienteKey(c)} value={String(c.ID_CLIENTES)}>{c.Nombre}</option>)}
+                  </datalist>
+                </div>
+                <div className="form-group">
+                  <label>Informe (opcional)</label>
+                  <input list="informes-list" name="ID_INFORME" value={formData.ID_INFORME || ''} onChange={handleInputChange} />
+                  <datalist id="informes-list">
+                    {informes.map(i => <option key={getInformeKey(i)} value={String(i.ID_INFORME)} />)}
+                  </datalist>
+                </div>
+                <div className="form-group">
+                  <label>Administrador (opcional)</label>
+                  <input list="admins-list" name="ID_ADMINISTRADOR" value={formData.ID_ADMINISTRADOR || ''} onChange={handleInputChange} />
+                  <datalist id="admins-list">
+                    {administradores.map(a => <option key={getAdminKey(a)} value={String(a.ID_ADMINISTRADOR)} />)}
+                  </datalist>
+                </div>
+                <div className="form-group">
+                  <label>Monto *</label>
+                  <input type="number" name="Monto" value={formData.Monto} onChange={handleInputChange} min="0" step="100" required />
+                </div>
+                <div className="form-group">
+                  <label>Fecha *</label>
+                  <input type="date" name="Fecha" value={formData.Fecha} onChange={handleInputChange} required />
+                </div>
+                <div className="form-group">
+                  <label>Estado Pago *</label>
+                  <select name="Estado_pago" value={formData.Estado_pago} onChange={handleInputChange} required>
+                    <option value="Pendiente">Pendiente</option>
+                    <option value="Pagado">Pagado</option>
+                    <option value="Anulado">Anulado</option>
+                  </select>
+                </div>
               </div>
               <div className="modal-footer">
                 <button type="button" onClick={() => setShowCreateModal(false)}>Cancelar</button>
-                <button type="submit">Generar</button>
+                <button type="submit">Crear Comprobante</button>
               </div>
             </form>
           </div>
         </div>
       )}
 
-      {/* Modal Editar */}
+      {/* Modal EDITAR con scroll */}
       {showEditModal && currentComprobante && (
         <div className="modal-overlay" onClick={() => setShowEditModal(false)}>
           <div className="modal-container" onClick={e => e.stopPropagation()}>
-            <div className="modal-header"><h3>Editar Comprobante</h3></div>
+            <div className="modal-header">
+              <h3>Editar Comprobante</h3>
+              <button className="close-btn" onClick={() => setShowEditModal(false)}>&times;</button>
+            </div>
             <form onSubmit={handleUpdate}>
-              <div className="form-group"><label>ID Comprobante</label><input type="text" name="ID_COMPROBANTE" value={formData.ID_COMPROBANTE} readOnly /></div>
-              <div className="form-group"><label>Valor Total</label><input type="number" name="Valor_Total" value={formData.Valor_Total} onChange={handleInputChange} required /></div>
-              <div className="form-group">
-                <label>Estado</label>
-                <select name="Estado" value={formData.Estado} onChange={handleInputChange}>
-                  <option value="Pendiente">Pendiente</option>
-                  <option value="Pagado">Pagado</option>
-                  <option value="Anulado">Anulado</option>
-                </select>
+              <div className="modal-body">
+                <div className="form-group">
+                  <label>ID Comprobante</label>
+                  <input type="text" name="ID_COMPROBANTE" value={formData.ID_COMPROBANTE} readOnly disabled />
+                </div>
+                <div className="form-group">
+                  <label>Cliente *</label>
+                  <input list="clientes-list-edit" name="ID_CLIENTES" value={formData.ID_CLIENTES} onChange={handleInputChange} required />
+                  <datalist id="clientes-list-edit">
+                    {clientes.map(c => <option key={getClienteKey(c)} value={String(c.ID_CLIENTES)}>{c.Nombre}</option>)}
+                  </datalist>
+                </div>
+                <div className="form-group">
+                  <label>Informe</label>
+                  <input list="informes-list-edit" name="ID_INFORME" value={formData.ID_INFORME || ''} onChange={handleInputChange} />
+                  <datalist id="informes-list-edit">
+                    {informes.map(i => <option key={getInformeKey(i)} value={String(i.ID_INFORME)} />)}
+                  </datalist>
+                </div>
+                <div className="form-group">
+                  <label>Administrador</label>
+                  <input list="admins-list-edit" name="ID_ADMINISTRADOR" value={formData.ID_ADMINISTRADOR || ''} onChange={handleInputChange} />
+                  <datalist id="admins-list-edit">
+                    {administradores.map(a => <option key={getAdminKey(a)} value={String(a.ID_ADMINISTRADOR)} />)}
+                  </datalist>
+                </div>
+                <div className="form-group">
+                  <label>Monto *</label>
+                  <input type="number" name="Monto" value={formData.Monto} onChange={handleInputChange} min="0" step="100" required />
+                </div>
+                <div className="form-group">
+                  <label>Fecha *</label>
+                  <input type="date" name="Fecha" value={formData.Fecha} onChange={handleInputChange} required />
+                </div>
+                <div className="form-group">
+                  <label>Estado Pago *</label>
+                  <select name="Estado_pago" value={formData.Estado_pago} onChange={handleInputChange} required>
+                    <option value="Pendiente">Pendiente</option>
+                    <option value="Pagado">Pagado</option>
+                    <option value="Anulado">Anulado</option>
+                  </select>
+                </div>
               </div>
               <div className="modal-footer">
                 <button type="button" onClick={() => setShowEditModal(false)}>Cancelar</button>

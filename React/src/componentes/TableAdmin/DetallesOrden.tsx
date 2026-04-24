@@ -11,21 +11,26 @@ import {
 } from '../../services/detalleOrdenServicioService';
 import { obtenerServicios, type ServicioRecord } from '../../services/serviciosService';
 import { obtenerProductos, type ProductoRecord } from '../../services/productosService';
+import { obtenerOrdenes, type OrdenServicioRecord } from '../../services/ordenServicioService';
 import './OrdenesServicio.css';
 
-const extractDetalles = (payload: unknown): DetalleOrdenServicioRecord[] => {
+const extractArray = <T,>(payload: unknown, fallback: T[] = []): T[] => {
   if (Array.isArray(payload)) return payload;
   if (payload && typeof payload === 'object') {
-    const nested = payload as Record<string, unknown>;
-    const fromData = extractDetalles(nested.data);
-    if (fromData.length) return fromData;
-    const fromDetalles = extractDetalles(nested.detalles);
-    if (fromDetalles.length) return fromDetalles;
+    const obj = payload as Record<string, unknown>;
+    if (Array.isArray(obj.data)) return obj.data as T[];
+    if (Array.isArray(obj.records)) return obj.records as T[];
+    if (Array.isArray(obj.items)) return obj.items as T[];
+    for (const key of Object.keys(obj)) {
+      const nested = extractArray(obj[key], fallback);
+      if (nested.length) return nested;
+    }
   }
-  return [];
+  return fallback;
 };
 
-const initialFormState: DetalleOrdenServicioPayload = {
+const initialFormState: DetalleOrdenServicioPayload & { ID_DETALLES_ORDEN_SERVICIO?: string } = {
+  ID_DETALLES_ORDEN_SERVICIO: '',
   ID_ORDEN_SERVICIO: '',
   ID_SERVICIOS: '',
   ID_PRODUCTOS: '',
@@ -42,13 +47,14 @@ const DetallesOrden = () => {
   const [filtroEstado, setFiltroEstado] = useState('todas');
   const [error, setError] = useState<string | null>(null);
 
-  // Estados para CRUD
   const [modalFormOpen, setModalFormOpen] = useState(false);
   const [editMode, setEditMode] = useState(false);
   const [currentDetalle, setCurrentDetalle] = useState<DetalleOrdenServicioRecord | null>(null);
-  const [formData, setFormData] = useState<DetalleOrdenServicioPayload>(initialFormState);
+  const [formData, setFormData] = useState(initialFormState);
+  
   const [servicios, setServicios] = useState<ServicioRecord[]>([]);
   const [productos, setProductos] = useState<ProductoRecord[]>([]);
+  const [ordenes, setOrdenes] = useState<OrdenServicioRecord[]>([]);
 
   useEffect(() => {
     void cargarDatosIniciales();
@@ -68,16 +74,23 @@ const DetallesOrden = () => {
   const cargarDatosIniciales = async () => {
     try {
       setLoading(true);
-      const [detallesRes, serviciosRes, productosRes] = await Promise.all([
+      const [detallesRes, ordenesRes, serviciosRes, productosRes] = await Promise.all([
         obtenerDetallesOrdenes(),
+        obtenerOrdenes(),
         obtenerServicios(),
         obtenerProductos(),
       ]);
-      const detallesData = extractDetalles(detallesRes.data);
+
+      const detallesData = extractArray<DetalleOrdenServicioRecord>(detallesRes.data, []);
+      const ordenesData = extractArray<OrdenServicioRecord>(ordenesRes.data, []);
+      const serviciosData = extractArray<ServicioRecord>(serviciosRes.data, []);
+      const productosData = extractArray<ProductoRecord>(productosRes.data, []);
+
       setDetalles(detallesData);
       setFilteredDetalles(detallesData);
-      setServicios(Array.isArray(serviciosRes.data) ? serviciosRes.data : []);
-      setProductos(Array.isArray(productosRes.data) ? productosRes.data : []);
+      setOrdenes(ordenesData);
+      setServicios(serviciosData);
+      setProductos(productosData);
       setError(null);
     } catch (err) {
       console.error(err);
@@ -111,11 +124,10 @@ const DetallesOrden = () => {
     setFilteredDetalles(detalles);
   };
 
-  // CRUD: Abrir modales
   const openCreateModal = () => {
     setEditMode(false);
     setCurrentDetalle(null);
-    setFormData(initialFormState);
+    setFormData({ ...initialFormState });
     setModalFormOpen(true);
   };
 
@@ -123,6 +135,7 @@ const DetallesOrden = () => {
     setEditMode(true);
     setCurrentDetalle(detalle);
     setFormData({
+      ID_DETALLES_ORDEN_SERVICIO: detalle.ID_DETALLES_ORDEN_SERVICIO,
       ID_ORDEN_SERVICIO: detalle.ID_ORDEN_SERVICIO,
       ID_SERVICIOS: detalle.ID_SERVICIOS || '',
       ID_PRODUCTOS: detalle.ID_PRODUCTOS || '',
@@ -135,42 +148,106 @@ const DetallesOrden = () => {
 
   const handleFormChange = (e: ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
-    setFormData(prev => ({ ...prev, [name]: value }));
+    setFormData(prev => ({
+      ...prev,
+      [name]: name === 'Garantia' || name === 'Precio' ? (value === '' ? 0 : Number(value)) : value,
+    }));
   };
 
-  // Validación de existencia antes de guardar
-  const validarIDsExistentes = (): boolean => {
-    const servicioId = formData.ID_SERVICIOS;
-    if (servicioId && !servicios.some(s => s.ID_SERVICIOS === servicioId)) {
-      showAlert('Error', `El servicio con ID "${servicioId}" no existe`, 'error');
+  const validarFormulario = (): boolean => {
+    // Validar ID_DETALLES_ORDEN_SERVICIO en creación
+    const detalleId = formData.ID_DETALLES_ORDEN_SERVICIO?.trim();
+    if (!editMode && (!detalleId || detalleId === '')) {
+      showAlert('Error', 'El ID del detalle es obligatorio', 'error');
       return false;
     }
-    const productoId = formData.ID_PRODUCTOS;
-    if (productoId && !productos.some(p => p.ID_PRODUCTOS === productoId)) {
-      showAlert('Error', `El producto con ID "${productoId}" no existe`, 'error');
+    if (!editMode && detalleId) {
+      const yaExiste = detalles.some(d => d.ID_DETALLES_ORDEN_SERVICIO === detalleId);
+      if (yaExiste) {
+        showAlert('Error', `El ID "${detalleId}" ya existe. Use uno diferente.`, 'error');
+        return false;
+      }
+    }
+
+    // Validar orden
+    const ordenId = formData.ID_ORDEN_SERVICIO;
+    if (!ordenId) {
+      showAlert('Error', 'El ID de la orden de servicio es obligatorio', 'error');
       return false;
     }
+    const ordenExiste = ordenes.some(o => o.ID_ORDEN_SERVICIO === ordenId);
+    if (!ordenExiste) {
+      showAlert('Error', `La orden con ID "${ordenId}" no existe en la base de datos`, 'error');
+      return false;
+    }
+
+    // Al menos un servicio o producto
+    const tieneServicio = formData.ID_SERVICIOS && formData.ID_SERVICIOS.trim() !== '';
+    const tieneProducto = formData.ID_PRODUCTOS && formData.ID_PRODUCTOS.trim() !== '';
+    if (!tieneServicio && !tieneProducto) {
+      showAlert('Error', 'Debe seleccionar al menos un servicio o un producto', 'error');
+      return false;
+    }
+
+    // Validar servicio
+    if (tieneServicio) {
+      const servicioId = formData.ID_SERVICIOS!;
+      const existe = servicios.some(s => s.ID_SERVICIOS === servicioId);
+      const esMismoQueOriginal = editMode && currentDetalle && currentDetalle.ID_SERVICIOS === servicioId;
+      if (!existe && !esMismoQueOriginal) {
+        showAlert('Error', `El servicio con ID "${servicioId}" no existe`, 'error');
+        return false;
+      }
+    }
+
+    // Validar producto
+    if (tieneProducto) {
+      const productoId = formData.ID_PRODUCTOS!;
+      const existe = productos.some(p => p.ID_PRODUCTOS === productoId);
+      const esMismoQueOriginal = editMode && currentDetalle && currentDetalle.ID_PRODUCTOS === productoId;
+      if (!existe && !esMismoQueOriginal) {
+        showAlert('Error', `El producto con ID "${productoId}" no existe`, 'error');
+        return false;
+      }
+    }
+
     return true;
   };
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
+    if (!validarFormulario()) return;
 
-    if (!validarIDsExistentes()) return;
+    // Preparar payload (sin el campo ID si el backend no lo requiere en actualización)
+    const payload: any = {
+      ID_ORDEN_SERVICIO: formData.ID_ORDEN_SERVICIO,
+      ID_SERVICIOS: formData.ID_SERVICIOS,
+      ID_PRODUCTOS: formData.ID_PRODUCTOS,
+      Garantia: formData.Garantia,
+      Estado: formData.Estado,
+      Precio: formData.Precio,
+    };
+    if (!editMode) {
+      payload.ID_DETALLES_ORDEN_SERVICIO = formData.ID_DETALLES_ORDEN_SERVICIO;
+    }
 
     try {
       if (editMode && currentDetalle) {
-        await actualizarDetalleOrden(currentDetalle.ID_DETALLES_ORDEN_SERVICIO, formData);
+        await actualizarDetalleOrden(currentDetalle.ID_DETALLES_ORDEN_SERVICIO, payload);
         showAlert('Actualizado', 'El detalle se actualizó correctamente', 'success');
       } else {
-        await crearDetalleOrden(formData);
+        await crearDetalleOrden(payload);
         showAlert('Creado', 'Nuevo detalle de orden creado', 'success');
       }
       setModalFormOpen(false);
       await cargarDatosIniciales();
-    } catch (err) {
+    } catch (err: any) {
       console.error(err);
-      showAlert('Error', 'No se pudo guardar el detalle', 'error');
+      let errorMsg = 'No se pudo guardar el detalle';
+      if (err.response?.data?.message) errorMsg = err.response.data.message;
+      else if (err.response?.data?.error) errorMsg = err.response.data.error;
+      else if (err.message) errorMsg = err.message;
+      showAlert('Error', errorMsg, 'error');
     }
   };
 
@@ -192,9 +269,11 @@ const DetallesOrden = () => {
       await eliminarDetalleOrden(detalle.ID_DETALLES_ORDEN_SERVICIO);
       showAlert('Eliminado', 'El detalle ha sido eliminado', 'success');
       await cargarDatosIniciales();
-    } catch (err) {
+    } catch (err: any) {
       console.error(err);
-      showAlert('Error', 'No se pudo eliminar el detalle', 'error');
+      let errorMsg = 'No se pudo eliminar el detalle';
+      if (err.response?.data?.message) errorMsg = err.response.data.message;
+      showAlert('Error', errorMsg, 'error');
     }
   };
 
@@ -208,7 +287,6 @@ const DetallesOrden = () => {
         <h1 className="ordenes-servicio-title">Detalles de Orden de Servicio</h1>
         <p className="ordenes-servicio-subtitle">Gestión completa de los detalles (CRUD)</p>
 
-        {/* Barra de acciones estilo Admin */}
         <div className="action-bar">
           <div className="search-area">
             <input
@@ -223,7 +301,6 @@ const DetallesOrden = () => {
               <i className="bi bi-search"></i> Buscar
             </button>
           </div>
-
           <div className="right-actions">
             <button className="btn-create" onClick={openCreateModal}>
               <i className="bi bi-plus-circle"></i> Nuevo Detalle
@@ -287,7 +364,7 @@ const DetallesOrden = () => {
         </div>
       </div>
 
-      {/* Modal de formulario (Crear/Editar) */}
+      {/* Modal con el nuevo campo ID_DETALLES_ORDEN_SERVICIO */}
       {modalFormOpen && (
         <div className="modal-overlay" onClick={() => setModalFormOpen(false)}>
           <div className="modal-container" onClick={(e) => e.stopPropagation()}>
@@ -297,20 +374,45 @@ const DetallesOrden = () => {
             </div>
             <form onSubmit={handleSubmit}>
               <div className="modal-body">
+                {/* Campo ID_DETALLES_ORDEN_SERVICIO */}
+                <div className="form-group">
+                  <label>ID Detalle *</label>
+                  <input
+                    type="text"
+                    name="ID_DETALLES_ORDEN_SERVICIO"
+                    value={formData.ID_DETALLES_ORDEN_SERVICIO}
+                    onChange={handleFormChange}
+                    required={!editMode}
+                    disabled={editMode}
+                    placeholder="Ej: DET001"
+                    autoComplete="off"
+                  />
+                  {editMode && <small className="text-muted">El ID no se puede modificar</small>}
+                </div>
+
                 <div className="form-group">
                   <label>ID Orden de Servicio *</label>
                   <input
+                    list="ordenes-list"
                     type="text"
                     name="ID_ORDEN_SERVICIO"
                     value={formData.ID_ORDEN_SERVICIO}
                     onChange={handleFormChange}
                     required
+                    placeholder="Escribe o selecciona una orden"
+                    autoComplete="off"
                   />
+                  <datalist id="ordenes-list">
+                    {ordenes.map(ord => (
+                      <option key={ord.ID_ORDEN_SERVICIO} value={ord.ID_ORDEN_SERVICIO}>
+                        {ord.ID_ORDEN_SERVICIO} - {ord.ClienteNombre || ''}
+                      </option>
+                    ))}
+                  </datalist>
                 </div>
 
-                {/* Servicio - input con datalist */}
                 <div className="form-group">
-                  <label>Servicio</label>
+                  <label>Servicio (opcional, pero al menos uno)</label>
                   <input
                     list="servicios-list"
                     name="ID_SERVICIOS"
@@ -328,9 +430,8 @@ const DetallesOrden = () => {
                   </datalist>
                 </div>
 
-                {/* Producto - input con datalist */}
                 <div className="form-group">
-                  <label>Producto</label>
+                  <label>Producto (opcional, pero al menos uno)</label>
                   <input
                     list="productos-list"
                     name="ID_PRODUCTOS"
@@ -351,13 +452,16 @@ const DetallesOrden = () => {
                 <div className="form-group">
                   <label>Garantía (meses)</label>
                   <input
-                    type="text"
+                    type="number"
                     name="Garantia"
                     value={formData.Garantia}
                     onChange={handleFormChange}
-                    placeholder="Ej: 6 meses"
+                    placeholder="Ej: 6"
+                    min="0"
+                    step="1"
                   />
                 </div>
+
                 <div className="form-group">
                   <label>Estado *</label>
                   <select name="Estado" value={formData.Estado} onChange={handleFormChange} required>
@@ -367,6 +471,7 @@ const DetallesOrden = () => {
                     <option value="Cancelado">Cancelado</option>
                   </select>
                 </div>
+
                 <div className="form-group">
                   <label>Precio *</label>
                   <input

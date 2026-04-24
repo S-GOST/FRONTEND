@@ -8,41 +8,51 @@ import {
   eliminarHistorial,
   type HistorialPayload,
   type HistorialRecord,
-} from '../../services/historialService'; 
+} from '../../services/historialService';
+import { obtenerOrdenes, type OrdenServicioRecord } from '../../services/ordenServicioService';
+import { obtenerComprobantes, type ComprobanteRecord } from '../../services/comprobanteService';
+import { obtenerInformes, type InformeRecord } from '../../services/informeService';
+import { obtenerTecnicos, type TecnicoRecord } from '../../services/tecnicosService';
+import { obtenerClientes, type ClienteRecord } from '../../services/clientesService';
 import './Historial.css';
+
+// Helper para extraer arrays anidados
+const extractArray = <T,>(payload: unknown, fallback: T[] = []): T[] => {
+  if (Array.isArray(payload)) return payload;
+  if (payload && typeof payload === 'object') {
+    const obj = payload as Record<string, unknown>;
+    if (Array.isArray(obj.data)) return obj.data as T[];
+    if (Array.isArray(obj.records)) return obj.records as T[];
+    if (Array.isArray(obj.items)) return obj.items as T[];
+  }
+  return fallback;
+};
 
 const createInitialFormData = (): HistorialPayload => ({
   ID_HISTORIAL: '',
-  ID_MOTOS: '',
-  Fecha: '',
-  Descripcion: '',
-  Diagnostico: '',
-  Costo: 0,
+  ID_ORDEN_SERVICIO: '',
+  ID_COMPROBANTE: '',
+  ID_INFORME: '',
+  ID_TECNICOS: '',
+  ID_CLIENTES: '',
+  Descripcion: '',        // ← sin acento (coincide con BD)
+  Fecha_registro: '',
 });
 
 const buildHistorialPayload = (formData: HistorialPayload): HistorialPayload => {
   const id = String(formData.ID_HISTORIAL ?? '').trim();
-  const idMoto = String(formData.ID_MOTOS ?? '').trim();
-  const fecha = String(formData.Fecha ?? '').trim();
-  const descripcion = String(formData.Descripcion ?? '').trim();
-  const diagnostico = String(formData.Diagnostico ?? '').trim();
-  const costo = Number(formData.Costo);
-
   if (!id) throw new Error('El ID del historial es obligatorio.');
-  if (!idMoto) throw new Error('El ID de la moto es obligatorio.');
-  if (!fecha) throw new Error('La fecha es obligatoria.');
-  if (!descripcion) throw new Error('La descripción es obligatoria.');
-  if (isNaN(costo) || costo < 0) {
-    throw new Error('El costo debe ser un número válido >= 0');
-  }
+  if (!formData.Descripcion?.trim()) throw new Error('La descripción es obligatoria.');
 
   return {
     ID_HISTORIAL: id,
-    ID_MOTOS: idMoto,
-    Fecha: fecha,
-    Descripcion: descripcion,
-    Diagnostico: diagnostico,
-    Costo: costo,
+    ID_ORDEN_SERVICIO: formData.ID_ORDEN_SERVICIO || null,
+    ID_COMPROBANTE: formData.ID_COMPROBANTE || null,
+    ID_INFORME: formData.ID_INFORME || null,
+    ID_TECNICOS: formData.ID_TECNICOS || null,
+    ID_CLIENTES: formData.ID_CLIENTES || null,
+    Descripcion: formData.Descripcion.trim(),
+    Fecha_registro: formData.Fecha_registro || new Date().toISOString().split('T')[0],
   };
 };
 
@@ -61,14 +71,6 @@ const isSuccessfulResponse = (payload: unknown): boolean => {
   return true;
 };
 
-const formatMoneda = (valor: number): string => {
-  return new Intl.NumberFormat('es-CO', {
-    style: 'currency',
-    currency: 'COP',
-    minimumFractionDigits: 0,
-  }).format(valor);
-};
-
 function TableHistorial() {
   const [historial, setHistorial] = useState<HistorialRecord[]>([]);
   const [filteredHistorial, setFilteredHistorial] = useState<HistorialRecord[]>([]);
@@ -79,8 +81,15 @@ function TableHistorial() {
   const [currentHistorial, setCurrentHistorial] = useState<HistorialRecord | null>(null);
   const [formData, setFormData] = useState<HistorialPayload>(createInitialFormData());
 
+  // Listas para datalist
+  const [ordenes, setOrdenes] = useState<OrdenServicioRecord[]>([]);
+  const [comprobantes, setComprobantes] = useState<ComprobanteRecord[]>([]);
+  const [informes, setInformes] = useState<InformeRecord[]>([]);
+  const [tecnicos, setTecnicos] = useState<TecnicoRecord[]>([]);
+  const [clientes, setClientes] = useState<ClienteRecord[]>([]);
+
   useEffect(() => {
-    void cargarHistorial();
+    void cargarDatosIniciales();
   }, []);
 
   const showAlert = (title: string, text: string, icon: 'success' | 'error' | 'warning') => {
@@ -94,18 +103,28 @@ function TableHistorial() {
     });
   };
 
-  const cargarHistorial = async () => {
+  const cargarDatosIniciales = async () => {
     try {
       setLoading(true);
-      const response = await obtenerHistorial();
-      const data = extractHistorial(response.data);
-      setHistorial(data);
-      setFilteredHistorial(data);
+      const [historialRes, ordenesRes, comprobantesRes, informesRes, tecnicosRes, clientesRes] = await Promise.all([
+        obtenerHistorial(),
+        obtenerOrdenes(),
+        obtenerComprobantes(),
+        obtenerInformes(),
+        obtenerTecnicos(),
+        obtenerClientes(),
+      ]);
+      const historialData = extractHistorial(historialRes.data);
+      setHistorial(historialData);
+      setFilteredHistorial(historialData);
+      setOrdenes(extractArray(ordenesRes.data, []));
+      setComprobantes(extractArray(comprobantesRes.data, []));
+      setInformes(extractArray(informesRes.data, []));
+      setTecnicos(extractArray(tecnicosRes.data, []));
+      setClientes(extractArray(clientesRes.data, []));
     } catch (error) {
-      console.error('Error al obtener historial:', error);
-      setHistorial([]);
-      setFilteredHistorial([]);
-      showAlert('Error', 'No se pudo cargar el historial.', 'error');
+      console.error(error);
+      showAlert('Error', 'No se pudieron cargar los datos necesarios.', 'error');
     } finally {
       setLoading(false);
     }
@@ -119,9 +138,9 @@ function TableHistorial() {
     const term = searchTerm.toLowerCase();
     const filtered = historial.filter(h =>
       String(h.ID_HISTORIAL).toLowerCase().includes(term) ||
-      String(h.ID_MOTOS).toLowerCase().includes(term) ||
-      h.Descripcion.toLowerCase().includes(term) ||
-      h.Diagnostico.toLowerCase().includes(term)
+      (h.ID_ORDEN_SERVICIO?.toLowerCase().includes(term) ?? false) ||
+      (h.ID_CLIENTES?.toLowerCase().includes(term) ?? false) ||
+      h.Descripcion.toLowerCase().includes(term)
     );
     setFilteredHistorial(filtered);
   };
@@ -131,12 +150,9 @@ function TableHistorial() {
     setFilteredHistorial(historial);
   };
 
-  const handleInputChange = (event: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+  const handleInputChange = (event: ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     const { name, value } = event.target;
-    setFormData((prev: HistorialPayload) => ({ 
-      ...prev, 
-      [name]: value 
-    }));
+    setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
   const openCreateModal = () => {
@@ -149,11 +165,13 @@ function TableHistorial() {
     setCurrentHistorial(h);
     setFormData({
       ID_HISTORIAL: h.ID_HISTORIAL,
-      ID_MOTOS: h.ID_MOTOS,
-      Fecha: h.Fecha.split('T')[0],
+      ID_ORDEN_SERVICIO: h.ID_ORDEN_SERVICIO || '',
+      ID_COMPROBANTE: h.ID_COMPROBANTE || '',
+      ID_INFORME: h.ID_INFORME || '',
+      ID_TECNICOS: h.ID_TECNICOS || '',
+      ID_CLIENTES: h.ID_CLIENTES || '',
       Descripcion: h.Descripcion,
-      Diagnostico: h.Diagnostico,
-      Costo: h.Costo,
+      Fecha_registro: h.Fecha_registro?.split('T')[0] || '',
     });
     setShowEditModal(true);
   };
@@ -171,12 +189,7 @@ function TableHistorial() {
 
   const validateForm = (): string | null => {
     if (!formData.ID_HISTORIAL) return 'El ID del historial es obligatorio.';
-    if (!formData.ID_MOTOS) return 'El ID de la moto es obligatorio.';
-    if (!formData.Fecha) return 'La fecha es obligatoria.';
-    if (!formData.Descripcion) return 'La descripción es obligatoria.';
-    if (isNaN(Number(formData.Costo)) || Number(formData.Costo) < 0) {
-      return 'El costo debe ser un número válido.';
-    }
+    if (!formData.Descripcion?.trim()) return 'La descripción es obligatoria.';
     return null;
   };
 
@@ -191,12 +204,12 @@ function TableHistorial() {
       const payload = buildHistorialPayload(formData);
       const response = await crearHistorial(payload);
       if (isSuccessfulResponse(response.data)) {
-        showAlert('Registro exitoso', 'El historial técnico fue registrado.', 'success');
+        showAlert('Registro exitoso', 'El historial fue registrado.', 'success');
         closeCreateModal();
-        await cargarHistorial();
+        await cargarDatosIniciales();
       }
-    } catch (err) {
-      showAlert('Error', 'No se pudo registrar el historial.', 'error');
+    } catch (err: any) {
+      showAlert('Error', err.message || 'No se pudo registrar el historial.', 'error');
     }
   };
 
@@ -214,10 +227,10 @@ function TableHistorial() {
       if (isSuccessfulResponse(response.data)) {
         showAlert('Actualizado', 'Historial actualizado correctamente.', 'success');
         closeEditModal();
-        await cargarHistorial();
+        await cargarDatosIniciales();
       }
-    } catch (err) {
-      showAlert('Error', 'Ocurrió un error al actualizar.', 'error');
+    } catch (err: any) {
+      showAlert('Error', err.message || 'Ocurrió un error al actualizar.', 'error');
     }
   };
 
@@ -236,7 +249,7 @@ function TableHistorial() {
     if (!result.isConfirmed) return;
     try {
       await eliminarHistorial(h.ID_HISTORIAL);
-      await cargarHistorial();
+      await cargarDatosIniciales();
       Swal.fire({ title: 'Eliminado', icon: 'success', background: '#101010', color: '#f5f5f5', timer: 1500, showConfirmButton: false });
     } catch (err) {
       showAlert('Error', 'No se pudo eliminar el registro.', 'error');
@@ -253,7 +266,7 @@ function TableHistorial() {
             <input
               type="text"
               className="search-input"
-              placeholder="Buscar por ID, moto, descripción o diagnóstico"
+              placeholder="Buscar por ID, orden, cliente o descripción"
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
               onKeyDown={(e) => e.key === 'Enter' && handleSearch()}
@@ -277,24 +290,26 @@ function TableHistorial() {
             <thead>
               <tr>
                 <th>ID Historial</th>
-                <th>Moto</th>
-                <th>Fecha</th>
+                <th>Orden</th>
+                <th>Cliente</th>
+                <th>Fecha Registro</th>
                 <th>Descripción</th>
-                <th>Costo</th>
                 <th>Acciones</th>
               </tr>
             </thead>
             <tbody>
               {loading ? (
-                <tr><td colSpan={6} className="loading-row">Cargando historial...</td></tr>
+                <tr>
+                  <td colSpan={6} className="loading-row">Cargando historial...</td>
+                </tr>
               ) : filteredHistorial.length > 0 ? (
-                filteredHistorial.map(h => (
+                filteredHistorial.map((h) => (
                   <tr key={h.ID_HISTORIAL}>
-                    <td>{h.ID_HISTORIAL}</td>
-                    <td>{h.ID_MOTOS}</td>
-                    <td>{new Date(h.Fecha).toLocaleDateString()}</td>
-                    <td>{h.Descripcion.substring(0, 30)}...</td>
-                    <td>{formatMoneda(h.Costo)}</td>
+                    <td className="orden-id">{h.ID_HISTORIAL}</td>
+                    <td>{h.ID_ORDEN_SERVICIO || '-'}</td>
+                    <td>{h.ID_CLIENTES || '-'}</td>
+                    <td>{h.Fecha_registro ? new Date(h.Fecha_registro).toLocaleDateString() : '-'}</td>
+                    <td>{h.Descripcion.substring(0, 40)}...</td>
                     <td className="actions-cell">
                       <button className="btn-edit-ktm" onClick={() => openEditModal(h)}>
                         <i className="bi bi-pencil-square"></i>
@@ -306,7 +321,9 @@ function TableHistorial() {
                   </tr>
                 ))
               ) : (
-                <tr><td colSpan={6} className="loading-row">No hay registros en el historial.</td></tr>
+                <tr>
+                  <td colSpan={6} className="loading-row">No hay registros en el historial.</td>
+                </tr>
               )}
             </tbody>
           </table>
@@ -316,38 +333,112 @@ function TableHistorial() {
       {/* Modal Crear/Editar */}
       {(showCreateModal || showEditModal) && (
         <div className="modal-overlay" onClick={showCreateModal ? closeCreateModal : closeEditModal}>
-          <div className="modal-container" onClick={e => e.stopPropagation()}>
+          <div className="modal-container" onClick={(e) => e.stopPropagation()}>
             <div className="modal-header">
               <h3>{showCreateModal ? 'Nuevo Registro de Historial' : 'Editar Historial'}</h3>
-              <button className="close-btn" onClick={showCreateModal ? closeCreateModal : closeEditModal}>&times;</button>
+              <button className="close-btn" onClick={showCreateModal ? closeCreateModal : closeEditModal}>
+                &times;
+              </button>
             </div>
             <form onSubmit={showCreateModal ? handleCreate : handleUpdate}>
               <div className="form-group">
-                <label>ID Historial</label>
-                <input type="text" name="ID_HISTORIAL" value={formData.ID_HISTORIAL} onChange={handleInputChange} readOnly={showEditModal} required />
+                <label>ID Historial *</label>
+                <input
+                  type="text"
+                  name="ID_HISTORIAL"
+                  value={formData.ID_HISTORIAL}
+                  onChange={handleInputChange}
+                  readOnly={showEditModal}
+                  required
+                />
               </div>
               <div className="form-group">
-                <label>ID Moto</label>
-                <input type="text" name="ID_MOTOS" value={formData.ID_MOTOS} onChange={handleInputChange} required />
+                <label>Orden de Servicio</label>
+                <input
+                  list="ordenes-list"
+                  name="ID_ORDEN_SERVICIO"
+                  value={formData.ID_ORDEN_SERVICIO || ''}
+                  onChange={handleInputChange}
+                />
+                <datalist id="ordenes-list">
+                  {ordenes.map((ord) => (
+                    <option key={ord.ID_ORDEN_SERVICIO} value={ord.ID_ORDEN_SERVICIO} />
+                  ))}
+                </datalist>
               </div>
               <div className="form-group">
-                <label>Fecha</label>
-                <input type="date" name="Fecha" value={formData.Fecha} onChange={handleInputChange} required />
+                <label>Comprobante</label>
+                <input
+                  list="comprobantes-list"
+                  name="ID_COMPROBANTE"
+                  value={formData.ID_COMPROBANTE || ''}
+                  onChange={handleInputChange}
+                />
+                <datalist id="comprobantes-list">
+                  {comprobantes.map((c) => (
+                    <option key={c.ID_COMPROBANTE} value={c.ID_COMPROBANTE} />
+                  ))}
+                </datalist>
               </div>
               <div className="form-group">
-                <label>Descripción</label>
+                <label>Informe</label>
+                <input
+                  list="informes-list"
+                  name="ID_INFORME"
+                  value={formData.ID_INFORME || ''}
+                  onChange={handleInputChange}
+                />
+                <datalist id="informes-list">
+                  {informes.map((i) => (
+                    <option key={i.ID_INFORME} value={i.ID_INFORME} />
+                  ))}
+                </datalist>
+              </div>
+              <div className="form-group">
+                <label>Técnico</label>
+                <input
+                  list="tecnicos-list"
+                  name="ID_TECNICOS"
+                  value={formData.ID_TECNICOS || ''}
+                  onChange={handleInputChange}
+                />
+                <datalist id="tecnicos-list">
+                  {tecnicos.map((t) => (
+                    <option key={t.ID_TECNICOS} value={t.ID_TECNICOS} />
+                  ))}
+                </datalist>
+              </div>
+              <div className="form-group">
+                <label>Cliente</label>
+                <input
+                  list="clientes-list"
+                  name="ID_CLIENTES"
+                  value={formData.ID_CLIENTES || ''}
+                  onChange={handleInputChange}
+                />
+                <datalist id="clientes-list">
+                  {clientes.map((c) => (
+                    <option key={c.ID_CLIENTES} value={c.ID_CLIENTES} />
+                  ))}
+                </datalist>
+              </div>
+              <div className="form-group">
+                <label>Descripción *</label>
                 <textarea name="Descripcion" value={formData.Descripcion} onChange={handleInputChange} required />
               </div>
               <div className="form-group">
-                <label>Diagnóstico</label>
-                <textarea name="Diagnostico" value={formData.Diagnostico} onChange={handleInputChange} />
-              </div>
-              <div className="form-group">
-                <label>Costo del Servicio</label>
-                <input type="number" name="Costo" value={formData.Costo} onChange={handleInputChange} required />
+                <label>Fecha de Registro</label>
+                <input
+                  type="date"
+                  name="Fecha_registro"
+                  value={formData.Fecha_registro}
+                  onChange={handleInputChange}
+                />
               </div>
               <div className="modal-footer">
-                <button type="button" onClick={showCreateModal ? closeCreateModal : closeEditModal}>Cancelar</button>
+                <button type="button" onClick={showCreateModal ? closeCreateModal : closeEditModal}>
+                  Cancelar
+                </button>
                 <button type="submit">{showCreateModal ? 'Guardar Registro' : 'Actualizar'}</button>
               </div>
             </form>

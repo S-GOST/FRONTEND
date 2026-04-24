@@ -3,6 +3,7 @@ import axios, { type AxiosResponse } from 'axios';
 const API_URL = 'http://localhost:3000/api/ordenes_servicio';
 
 export interface OrdenServicioRecord {
+  ClienteNombre: string
   ID_ORDEN_SERVICIO: string;
   ID_CLIENTES: string;
   ID_ADMINISTRADOR?: string;
@@ -30,9 +31,8 @@ type OrdenesCollectionResponse =
   | OrdenServicioRecord[];
 
 const getAuthHeaders = () => {
-  // const token = localStorage.getItem('user_token');
-  // return token ? { headers: { Authorization: `Bearer ${token}` } } : {};
-  return {}; // Temporalmente sin autenticación para desarrollo
+  const token = localStorage.getItem('user_token');
+  return token ? { headers: { Authorization: `Bearer ${token}` } } : {};
 };
 
 const shouldFallback = (error: unknown) =>

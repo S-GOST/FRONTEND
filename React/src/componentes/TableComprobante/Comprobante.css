@@ -1,4 +1,5 @@
 /* Comprobante.css - Estilo KTM para gestión de comprobantes */
+
 .comprobantes-page {
   --panel-black: #050505;
   --panel-surface: #0c0c0c;
@@ -286,3 +287,4 @@
   .comprobantes-page .admin-title { font-size: 1.5rem; }
   .comprobantes-page .action-bar { flex-direction: column; }
 }
+ 

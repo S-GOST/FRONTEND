@@ -94,7 +94,7 @@ const Panel: React.FC = () => {
                                     <i className="fa-solid fa-receipt"></i> Comprobantes
                                 </NavLink>
                                 <NavLink to="/admin/historial" className={({ isActive }) => `menu-link ${isActive ? 'active' : ''}`}>
-                                    <i className="fa-solid fa-clock-rotate-left"></i> Historiales
+                                    <i className="fa-solid fa-clock-rotate-left"></i> Historial
                                 </NavLink>
                             </>
                         ) : (
