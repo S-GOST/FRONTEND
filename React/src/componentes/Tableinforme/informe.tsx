@@ -10,8 +10,9 @@ import {
 } from '../../services/informeService';
 // Servicios para obtener las tablas relacionadas
 import { obtenerDetallesOrdenes, type DetalleOrdenServicioRecord } from '../../services/detalleOrdenServicioService';
-import { obtenerAdmins, type AdminRecord } from '../../services/adminService';
-import { obtenerTecnicos, type TecnicoRecord } from '../../services/tecnicosService';
+import { obtenerAdmins, type AdminRecord } from '../../services/admin.service';
+import { obtenerTecnicos, type TecnicoRecord } from '../../services/tecnico.service';
+import { FormattedId } from '../../componentes/FormattedId';
 import './Informe.css';
 
 // Función para generar el próximo ID_INFORME (INF1, INF2, ...)
@@ -240,10 +241,10 @@ const TableInformes = () => {
               ) : (
                 filteredInformes.map(inf => (
                   <tr key={inf.ID_INFORME}>
-                    <td>{inf.ID_INFORME}</td>
-                    <td>{inf.ID_DETALLES_ORDEN_SERVICIO}</td>
-                    <td>{inf.ID_ADMINISTRADOR}</td>
-                    <td>{inf.ID_TECNICOS || '-'}</td>
+                    <td><FormattedId entity="informe" value={inf.ID_INFORME} /></td>
+                    <td><FormattedId entity="detalleorden" value={inf.ID_DETALLES_ORDEN_SERVICIO} /></td>
+                    <td><FormattedId entity="admin" value={inf.ID_ADMINISTRADOR} /></td>
+                    <td>{inf.ID_TECNICOS ? <FormattedId entity="tecnico" value={inf.ID_TECNICOS} /> : '-'}</td>
                     <td>{inf.Descripcion.substring(0, 40)}...</td>
                     <td>{new Date(inf.Fecha).toLocaleDateString()}</td>
                     <td>{inf.Estado}</td>

@@ -9,8 +9,8 @@ import {
   type DetalleOrdenServicioRecord,
   type DetalleOrdenServicioPayload,
 } from '../../services/detalleOrdenServicioService';
-import { obtenerServicios, type ServicioRecord } from '../../services/serviciosService';
-import { obtenerProductos, type ProductoRecord } from '../../services/productosService';
+import { obtenerServicios, type ServicioRecord } from '../../services/servicio.service';
+import { obtenerProductos, type ProductoRecord } from '../../services/producto.service';
 import { obtenerOrdenes, type OrdenServicioRecord } from '../../services/ordenServicioService';
 import './OrdenesServicio.css';
 

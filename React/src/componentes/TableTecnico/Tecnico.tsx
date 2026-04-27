@@ -8,7 +8,8 @@ import {
   obtenerTecnicos,
   type TecnicoPayload,
   type TecnicoRecord,
-} from '../../services/tecnicosService';
+} from '../../services/tecnico.service';
+import { FormattedId } from '../../componentes/FormattedId';
 import '../TableAdmin/Admin.css';
 
 type TecnicoFormState = TecnicoPayload & {
@@ -349,7 +350,7 @@ function Tecnicos() {
               ) : filteredTecnicos.length > 0 ? (
                 filteredTecnicos.map(tecnico => (
                   <tr key={tecnico.ID_TECNICOS}>
-                    <td>{tecnico.ID_TECNICOS}</td>
+                    <td><FormattedId entity="tecnico" value={tecnico.ID_TECNICOS} /></td>
                     <td>{tecnico.Nombre}</td>
                     <td>{tecnico.Correo}</td>
                     <td>{tecnico.TipoDocumento}</td>

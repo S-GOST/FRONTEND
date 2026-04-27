@@ -8,7 +8,8 @@ import {
   obtenerAdmins,
   type AdminPayload,
   type AdminRecord,
-} from '../../services/adminService';
+} from '../../services/admin.service';
+import { FormattedId } from '../../componentes/FormattedId';
 import './Admin.css';
 
 type AdminFormState = AdminPayload & {
@@ -391,7 +392,7 @@ function Admins() {
               ) : filteredAdmins.length > 0 ? (
                 filteredAdmins.map(admin => (
                   <tr key={admin.ID_ADMINISTRADOR}>
-                    <td>{admin.ID_ADMINISTRADOR}</td>
+                    <td><FormattedId entity="admin" value={admin.ID_ADMINISTRADOR} /></td>
                     <td>{admin.Nombre}</td>
                     <td>{admin.Correo}</td>
                     <td>{admin.TipoDocumento}</td>

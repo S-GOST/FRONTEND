@@ -1,553 +1,450 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import Swal from 'sweetalert2';
+import { 
+  obtenerOrdenes, 
+  actualizarOrden, 
+  type OrdenServicioRecord 
+} from '../../services/ordenServicioService';
+import { 
+  obtenerClientes, 
+  type ClienteRecord 
+} from '../../services/cliente.service';
+import { 
+  obtenerDetallesOrdenes, 
+  crearDetalleOrden, 
+  type DetalleOrdenServicioPayload 
+} from '../../services/detalleOrdenServicioService';
+import { clearSession } from '../../services/auth.services';
+import { formatId } from '../../utils/formatIds';
 import './TecnicoDashboard.css';
 
-// ==================== TIPOS ====================
-interface Cliente {
-  id: string;
-  nombre: string;
-  telefono: string;
-  email: string;
-  direccion: string;
+// ==================== TIPOS UI ====================
+interface OrdenUI extends OrdenServicioRecord {
+  ClienteNombre: string;
 }
 
-interface DetalleOrden {
-  servicio: string;
-  cantidad: number;
-  precio: number;
+interface ClienteUI extends ClienteRecord {
+  ID_CLIENTES: string | number;
+  Nombre: string;
+  Telefono: string;
+  Correo: string;
+  Ubicacion: string;
 }
 
-interface OrdenServicio {
-  id: string;
-  clienteId: string;
-  vehiculo: string;
-  descripcion: string;
-  estado: 'Pendiente' | 'En Proceso' | 'Completado' | 'Cancelado';
-  fechaCreacion: string;
-  tecnicoAsignado: string;
-  detalles: DetalleOrden[];
+interface DetalleUI extends DetalleOrdenServicioPayload {
+  ID_DETALLES_ORDEN_SERVICIO?: string | number;
+  NombreConcepto?: string;
+  PrecioUnitario?: number;
 }
 
-// ==================== SERVICIOS SIMULADOS ====================
-const inicializarDatos = () => {
-  // Clientes por defecto
-  const clientesStorage = localStorage.getItem('clientes_mock');
-  if (!clientesStorage) {
-    const clientesMock: Cliente[] = [
-      { id: 'c1', nombre: 'Juan Pérez', telefono: '3001234567', email: 'juan@example.com', direccion: 'Calle 1 #2-3' },
-      { id: 'c2', nombre: 'María González', telefono: '3109876543', email: 'maria@example.com', direccion: 'Carrera 4 #5-6' },
-      { id: 'c3', nombre: 'Luis Rodríguez', telefono: '3204567890', email: 'luis@example.com', direccion: 'Avenida 7 #8-9' },
-    ];
-    localStorage.setItem('clientes_mock', JSON.stringify(clientesMock));
-  }
-
-  // Órdenes por defecto
-  const ordenesStorage = localStorage.getItem('ordenes_mock');
-  if (!ordenesStorage) {
-    const ordenesMock: OrdenServicio[] = [
-      {
-        id: 'OS-001',
-        clienteId: 'c1',
-        vehiculo: 'KTM Duke 390',
-        descripcion: 'Cambio de aceite y filtro',
-        estado: 'Pendiente',
-        fechaCreacion: '2025-03-15',
-        tecnicoAsignado: 'Carlos López',
-        detalles: [
-          { servicio: 'Cambio de aceite', cantidad: 1, precio: 50000 },
-          { servicio: 'Filtro de aceite', cantidad: 1, precio: 25000 },
-        ],
-      },
-      {
-        id: 'OS-002',
-        clienteId: 'c2',
-        vehiculo: 'KTM RC 200',
-        descripcion: 'Revisión de frenos y luces',
-        estado: 'En Proceso',
-        fechaCreacion: '2025-03-14',
-        tecnicoAsignado: 'Ana Martínez',
-        detalles: [
-          { servicio: 'Revisión frenos delanteros', cantidad: 1, precio: 35000 },
-          { servicio: 'Cambio bombilla luz trasera', cantidad: 1, precio: 15000 },
-        ],
-      },
-      {
-        id: 'OS-003',
-        clienteId: 'c3',
-        vehiculo: 'KTM Adventure 790',
-        descripcion: 'Ajuste de suspensión',
-        estado: 'Completado',
-        fechaCreacion: '2025-03-10',
-        tecnicoAsignado: 'Carlos López',
-        detalles: [
-          { servicio: 'Ajuste de suspensión delantera', cantidad: 1, precio: 80000 },
-        ],
-      },
-    ];
-    localStorage.setItem('ordenes_mock', JSON.stringify(ordenesMock));
-  }
-};
-
-const obtenerClientes = async (): Promise<Cliente[]> => {
-  return new Promise((resolve) => {
-    setTimeout(() => {
-      const data = localStorage.getItem('clientes_mock');
-      resolve(data ? JSON.parse(data) : []);
-    }, 300);
-  });
-};
-
-const guardarClientes = async (clientes: Cliente[]) => {
-  localStorage.setItem('clientes_mock', JSON.stringify(clientes));
-};
-
-const obtenerOrdenes = async (): Promise<OrdenServicio[]> => {
-  return new Promise((resolve) => {
-    setTimeout(() => {
-      const data = localStorage.getItem('ordenes_mock');
-      resolve(data ? JSON.parse(data) : []);
-    }, 300);
-  });
-};
-
-const guardarOrdenes = async (ordenes: OrdenServicio[]) => {
-  localStorage.setItem('ordenes_mock', JSON.stringify(ordenes));
-};
-
-const actualizarEstadoOrden = async (id: string, nuevoEstado: OrdenServicio['estado']) => {
-  const ordenes = await obtenerOrdenes();
-  const index = ordenes.findIndex(o => o.id === id);
-  if (index !== -1) {
-    ordenes[index].estado = nuevoEstado;
-    await guardarOrdenes(ordenes);
-  } else {
-    throw new Error('Orden no encontrada');
-  }
-};
-
-const agregarCliente = async (cliente: Omit<Cliente, 'id'>): Promise<Cliente> => {
-  const clientes = await obtenerClientes();
-  const nuevoId = `c${Date.now()}`;
-  const nuevoCliente = { ...cliente, id: nuevoId };
-  clientes.push(nuevoCliente);
-  await guardarClientes(clientes);
-  return nuevoCliente;
-};
-
-const actualizarCliente = async (cliente: Cliente) => {
-  const clientes = await obtenerClientes();
-  const index = clientes.findIndex(c => c.id === cliente.id);
-  if (index !== -1) {
-    clientes[index] = cliente;
-    await guardarClientes(clientes);
-  } else {
-    throw new Error('Cliente no encontrado');
-  }
-};
-
-const eliminarCliente = async (id: string) => {
-  let clientes = await obtenerClientes();
-  clientes = clientes.filter(c => c.id !== id);
-  await guardarClientes(clientes);
-};
-
-// ==================== COMPONENTE PRINCIPAL ====================
+// ==================== COMPONENTE ====================
 const TecnicoDashboard = () => {
   const navigate = useNavigate();
-  const [activeTab, setActiveTab] = useState<'ordenes' | 'clientes' | 'informe'>('ordenes');
+  const tecnicoId = localStorage.getItem('user_id') || localStorage.getItem('user_name');
+  const tecnicoNombre = localStorage.getItem('user_name') || 'Técnico';
+
+  const [activeTab, setActiveTab] = useState<'activas' | 'historial' | 'clientes'>('activas');
   
-  // Estados para órdenes
-  const [ordenes, setOrdenes] = useState<OrdenServicio[]>([]);
-  const [filtroEstado, setFiltroEstado] = useState<string>('todas');
-  const [loadingOrdenes, setLoadingOrdenes] = useState(true);
-  const [actualizando, setActualizando] = useState<string | null>(null);
-  const [ordenSeleccionada, setOrdenSeleccionada] = useState<OrdenServicio | null>(null);
-  const [modalDetallesAbierto, setModalDetallesAbierto] = useState(false);
+  const [ordenes, setOrdenes] = useState<OrdenUI[]>([]);
+  const [clientes, setClientes] = useState<ClienteUI[]>([]);
+  const [detallesOrden, setDetallesOrden] = useState<DetalleUI[]>([]);
   
-  // Estados para clientes
-  const [clientes, setClientes] = useState<Cliente[]>([]);
-  const [loadingClientes, setLoadingClientes] = useState(true);
-  const [modalClienteAbierto, setModalClienteAbierto] = useState(false);
-  const [clienteEditando, setClienteEditando] = useState<Cliente | null>(null);
-  const [formCliente, setFormCliente] = useState({ nombre: '', telefono: '', email: '', direccion: '' });
-  
+  const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  
+  const [modalAbierto, setModalAbierto] = useState(false);
+  const [ordenActual, setOrdenActual] = useState<OrdenUI | null>(null);
+  const [detalleForm, setDetalleForm] = useState<DetalleOrdenServicioPayload>({
+    ID_ORDEN_SERVICIO: '',
+    ID_SERVICIOS: '',
+    ID_PRODUCTOS: '',
+    Garantia: 0,
+    Estado: 'Pendiente',
+    Precio: 0
+  });
 
-  // Carga inicial de datos
-  useEffect(() => {
-    inicializarDatos();
-    cargarOrdenes();
-    cargarClientes();
-  }, []);
-
-  const cargarOrdenes = async () => {
+  // ==================== FETCH ====================
+  const cargarDatos = async () => {
+    setLoading(true);
+    setError(null);
     try {
-      setLoadingOrdenes(true);
-      const data = await obtenerOrdenes();
-      setOrdenes(data);
-    } catch (err) {
-      setError('Error al cargar órdenes');
+      const [resOrdenes, resClientes] = await Promise.all([
+        obtenerOrdenes(),
+        obtenerClientes()
+      ]);
+      const todasOrdenes = extraerDatos<OrdenServicioRecord>(resOrdenes.data) || [];
+      const todosClientes = extraerDatos<ClienteUI>(resClientes.data) || [];
+      
+      // Enriquecer órdenes con nombre del cliente
+      const misOrdenes: OrdenUI[] = todasOrdenes
+        .filter(o => String(o.ID_TECNICOS) === String(tecnicoId))
+        .map(o => {
+          const cliente = todosClientes.find(c => String(c.ID_CLIENTES) === String(o.ID_CLIENTES));
+          return {
+            ...o,
+            ClienteNombre: cliente?.Nombre || ''
+          } as OrdenUI;
+        });
+      
+      setOrdenes(misOrdenes);
+      setClientes(todosClientes);
+    } catch (err: any) {
+      setError(err.response?.data?.message || 'Error al cargar datos');
+      Swal.fire('Error', 'No se pudieron cargar las órdenes asignadas.', 'error');
     } finally {
-      setLoadingOrdenes(false);
+      setLoading(false);
     }
   };
 
-  const cargarClientes = async () => {
-    try {
-      setLoadingClientes(true);
-      const data = await obtenerClientes();
-      setClientes(data);
-    } catch (err) {
-      setError('Error al cargar clientes');
-    } finally {
-      setLoadingClientes(false);
+  useEffect(() => { cargarDatos(); }, []);
+
+  // ==================== HELPERS ====================
+  const extraerDatos = <T,>(payload: unknown): T[] | null => {
+    if (Array.isArray(payload)) return payload as T[];
+    if (payload && typeof payload === 'object') {
+      const obj = payload as Record<string, unknown>;
+      return (obj.data || obj.ordenes || obj.clientes || obj.detalles || null) as T[] | null;
     }
+    return null;
   };
 
-  const handleCambiarEstado = async (id: string, nuevoEstado: OrdenServicio['estado']) => {
-    setActualizando(id);
-    try {
-      await actualizarEstadoOrden(id, nuevoEstado);
-      await cargarOrdenes(); // Recargar para sincronizar
-    } catch (err) {
-      alert('No se pudo actualizar el estado');
-    } finally {
-      setActualizando(null);
-    }
+  const formatDate = (dateStr: string | null | undefined) => {
+    if (!dateStr) return '—';
+    return new Date(dateStr).toLocaleDateString('es-CO', { day: '2-digit', month: '2-digit', year: 'numeric' });
   };
 
-  const verDetallesOrden = (orden: OrdenServicio) => {
-    setOrdenSeleccionada(orden);
-    setModalDetallesAbierto(true);
+  const getEstadoConfig = (estado: string) => {
+    const e = estado.toLowerCase();
+    if (e.includes('pendiente')) return { class: 'estado-pendiente', icon: 'bi-clock', label: 'Pendiente', next: 'En Proceso' };
+    if (e.includes('proceso')) return { class: 'estado-proceso', icon: 'bi-arrow-repeat', label: 'En Proceso', next: 'Completado' };
+    if (e.includes('completado') || e.includes('terminado')) return { class: 'estado-completado', icon: 'bi-check-circle', label: 'Completado', next: '' };
+    if (e.includes('cancelado')) return { class: 'estado-cancelado', icon: 'bi-x-circle', label: 'Cancelado', next: '' };
+    return { class: 'estado-desconocido', icon: 'bi-question-circle', label: estado, next: '' };
   };
 
-  // CRUD Clientes
-  const abrirModalNuevoCliente = () => {
-    setClienteEditando(null);
-    setFormCliente({ nombre: '', telefono: '', email: '', direccion: '' });
-    setModalClienteAbierto(true);
-  };
-
-  const abrirModalEditarCliente = (cliente: Cliente) => {
-    setClienteEditando(cliente);
-    setFormCliente({
-      nombre: cliente.nombre,
-      telefono: cliente.telefono,
-      email: cliente.email,
-      direccion: cliente.direccion,
+  // ==================== ACCIONES TÉCNICAS ====================
+  const actualizarEstado = async (id: string, nuevoEstado: string) => {
+    const result = await Swal.fire({
+      title: '¿Actualizar estado?',
+      html: `Se marcará como: <strong>${nuevoEstado}</strong>`,
+      icon: 'question',
+      showCancelButton: true,
+      confirmButtonColor: '#ff6600',
+      cancelButtonColor: '#555',
+      confirmButtonText: 'Sí, actualizar',
     });
-    setModalClienteAbierto(true);
+    if (!result.isConfirmed) return;
+
+    try {
+      await actualizarOrden(id, { Estado: nuevoEstado, Fecha_fin: nuevoEstado === 'Completado' ? new Date().toISOString() : undefined });
+      await cargarDatos();
+      Swal.fire('Actualizado', 'Estado registrado correctamente.', 'success');
+    } catch (err: any) {
+      Swal.fire('Error', err.response?.data?.message || 'No se pudo actualizar', 'error');
+    }
   };
 
-  const guardarCliente = async () => {
-    if (!formCliente.nombre.trim()) {
-      alert('El nombre es obligatorio');
+  const abrirOrden = async (orden: OrdenUI) => {
+    setOrdenActual(orden);
+    setModalAbierto(true);
+    setDetalleForm({ 
+      ...detalleForm, 
+      ID_ORDEN_SERVICIO: String(orden.ID_ORDEN_SERVICIO),
+      ID_SERVICIOS: '',
+      ID_PRODUCTOS: '',
+      Garantia: 0,
+      Precio: 0 
+    });
+    
+    try {
+      const res = await obtenerDetallesOrdenes();
+      const todosDetalles = extraerDatos<DetalleUI>(res.data) || [];
+      const detallesOrden = todosDetalles.filter(d => String(d.ID_ORDEN_SERVICIO) === String(orden.ID_ORDEN_SERVICIO));
+      setDetallesOrden(detallesOrden);
+    } catch {
+      setDetallesOrden([]);
+    }
+  };
+
+  const agregarDetalle = async () => {
+    if (!detalleForm.ID_SERVICIOS && !detalleForm.ID_PRODUCTOS) {
+      Swal.fire('Atención', 'Selecciona un servicio o producto.', 'warning');
       return;
     }
-    try {
-      if (clienteEditando) {
-        const clienteActualizado: Cliente = { ...clienteEditando, ...formCliente };
-        await actualizarCliente(clienteActualizado);
-      } else {
-        await agregarCliente(formCliente);
-      }
-      await cargarClientes();
-      setModalClienteAbierto(false);
-    } catch (err) {
-      alert('Error al guardar el cliente');
-    }
-  };
 
-  const handleEliminarCliente = async (id: string) => {
-    if (window.confirm('¿Eliminar este cliente? Se perderán sus datos.')) {
-      try {
-        await eliminarCliente(id);
-        await cargarClientes();
-      } catch (err) {
-        alert('Error al eliminar cliente');
-      }
+    try {
+      // 🔢 Conversión segura a INT para compatibilidad con la BD migrada
+      const payload = {
+        ID_ORDEN_SERVICIO: parseInt(String(detalleForm.ID_ORDEN_SERVICIO), 10),
+        ID_SERVICIOS: detalleForm.ID_SERVICIOS ? parseInt(String(detalleForm.ID_SERVICIOS), 10) : null,
+        ID_PRODUCTOS: detalleForm.ID_PRODUCTOS ? parseInt(String(detalleForm.ID_PRODUCTOS), 10) : null,
+        Garantia: Number(detalleForm.Garantia) || 0,
+        Estado: 'Pendiente',
+        Precio: Number(detalleForm.Precio) || 0
+      };
+
+      await crearDetalleOrden(payload as any);
+      Swal.fire('✅ Agregado', 'Detalle registrado en la orden.', 'success');
+      await abrirOrden(ordenActual!);
+    } catch (err: any) {
+      const msg = err.response?.data?.message || err.message || 'Error desconocido';
+      Swal.fire('❌ Error', msg, 'error');
+      console.error('Error al crear detalle:', err);
     }
   };
 
   const handleLogout = () => {
-    if (window.confirm('¿Cerrar sesión?')) {
-      localStorage.removeItem('user_token');
-      localStorage.removeItem('user_name');
-      navigate('/login');
-    }
+    Swal.fire({
+      title: '¿Cerrar sesión?',
+      text: 'Serás redirigido al login.',
+      icon: 'question',
+      showCancelButton: true,
+      confirmButtonColor: '#ff6600',
+      cancelButtonColor: '#555',
+      confirmButtonText: 'Sí, salir',
+    }).then((r) => { if (r.isConfirmed) clearSession(); });
   };
 
-  // Filtrar órdenes
-  const ordenesFiltradas = filtroEstado === 'todas'
-    ? ordenes
-    : ordenes.filter(o => o.estado === filtroEstado);
-
-  const getEstadoClass = (estado: OrdenServicio['estado']) => {
-    switch (estado) {
-      case 'Pendiente': return 'estado-pendiente';
-      case 'En Proceso': return 'estado-proceso';
-      case 'Completado': return 'estado-completado';
-      case 'Cancelado': return 'estado-cancelado';
-      default: return '';
-    }
+  const stats = {
+    activas: ordenes.filter(o => o.Estado.toLowerCase().includes('proceso')).length,
+    pendientes: ordenes.filter(o => o.Estado.toLowerCase().includes('pendiente')).length,
+    completadasHoy: ordenes.filter(o => {
+      if (!o.Fecha_fin) return false;
+      return new Date(o.Fecha_fin).toDateString() === new Date().toDateString();
+    }).length
   };
 
-  const getBadgeIcon = (estado: OrdenServicio['estado']) => {
-    switch (estado) {
-      case 'Pendiente': return 'bi-clock-history';
-      case 'En Proceso': return 'bi-arrow-repeat';
-      case 'Completado': return 'bi-check-circle';
-      case 'Cancelado': return 'bi-x-circle';
-      default: return 'bi-question-circle';
-    }
-  };
-
-  // Datos para el informe
-  const obtenerInforme = () => {
-    const totalOrdenes = ordenes.length;
-    const porEstado = {
-      Pendiente: ordenes.filter(o => o.estado === 'Pendiente').length,
-      EnProceso: ordenes.filter(o => o.estado === 'En Proceso').length,
-      Completado: ordenes.filter(o => o.estado === 'Completado').length,
-      Cancelado: ordenes.filter(o => o.estado === 'Cancelado').length,
-    };
-    const porCliente = clientes.map(cliente => {
-      const ordenesCliente = ordenes.filter(o => o.clienteId === cliente.id);
-      const estados = ordenesCliente.map(o => o.estado);
-      const estadoFrecuente = estados.sort((a,b) =>
-        estados.filter(v => v===a).length - estados.filter(v => v===b).length
-      ).pop() || 'Ninguna';
-      return {
-        cliente: cliente.nombre,
-        total: ordenesCliente.length,
-        estadoFrecuente,
-      };
-    }).filter(c => c.total > 0);
-    return { totalOrdenes, porEstado, porCliente };
-  };
-
-  const imprimirInforme = () => {
-    const contenido = document.getElementById('informe-contenido');
-    if (!contenido) return;
-    const ventana = window.open('', '_blank');
-    ventana?.document.write(`
-      <html>
-        <head><title>Informe de Órdenes</title>
-        <style>
-          body { font-family: Arial; margin: 20px; }
-          table { border-collapse: collapse; width: 100%; margin-top: 10px; }
-          th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
-          th { background-color: #f2f2f2; }
-        </style>
-        </head>
-        <body>${contenido.innerHTML}</body>
-      </html>
-    `);
-    ventana?.document.close();
-    ventana?.print();
-  };
-
-  // Helper para obtener nombre de cliente por ID
-  const obtenerNombreCliente = (clienteId: string) => {
-    const cliente = clientes.find(c => c.id === clienteId);
-    return cliente ? cliente.nombre : 'Desconocido';
-  };
+  // ==================== RENDER ====================
+  if (loading && !ordenes.length) return <div className="dashboard-loader">Cargando panel técnico...</div>;
 
   return (
     <div className="tecnico-dashboard">
-      {/* Header */}
       <header className="dashboard-header">
         <div className="header-content">
           <div className="header-title">
-            <h1><i className="bi bi-wrench"></i> Panel Técnico</h1>
-            <p>Gestión de órdenes, clientes e informes</p>
+            <h1><i className="bi bi-wrench"></i> Panel de {tecnicoNombre}</h1>
+            <p>Gestión técnica de órdenes asignadas</p>
           </div>
           <div className="header-actions">
+            <button className="nav-btn" onClick={() => navigate('/tecnico/menu')} title="Menú principal">
+              <i className="bi bi-grid"></i> Menú
+            </button>
             <button className="logout-btn" onClick={handleLogout}>
-              <i className="bi bi-box-arrow-right"></i>
-              <span>Cerrar Sesión</span>
+              <i className="bi bi-box-arrow-right"></i> Salir
             </button>
           </div>
         </div>
       </header>
 
-      {/* Tabs */}
+      <div className="tech-stats-bar">
+        <div className="tech-stat"><span className="tech-stat-val">{stats.activas}</span><span className="tech-stat-label">En Proceso</span></div>
+        <div className="tech-stat"><span className="tech-stat-val">{stats.pendientes}</span><span className="tech-stat-label">Pendientes</span></div>
+        <div className="tech-stat"><span className="tech-stat-val">{stats.completadasHoy}</span><span className="tech-stat-label">Completadas Hoy</span></div>
+      </div>
+
       <div className="tabs-container">
-        <button className={`tab-btn ${activeTab === 'ordenes' ? 'active' : ''}`} onClick={() => setActiveTab('ordenes')}>
-          <i className="bi bi-card-list"></i> Órdenes de Servicio
-        </button>
-        <button className={`tab-btn ${activeTab === 'clientes' ? 'active' : ''}`} onClick={() => setActiveTab('clientes')}>
-          <i className="bi bi-people"></i> Clientes
-        </button>
-        <button className={`tab-btn ${activeTab === 'informe' ? 'active' : ''}`} onClick={() => setActiveTab('informe')}>
-          <i className="bi bi-graph-up"></i> Informe
-        </button>
+        {['activas', 'historial', 'clientes'].map(tab => (
+          <button key={tab} className={`tab-btn ${activeTab === tab ? 'active' : ''}`} onClick={() => setActiveTab(tab as any)}>
+            <i className={`bi ${tab === 'activas' ? 'bi-lightning' : tab === 'historial' ? 'bi-clock-history' : 'bi-people'}`}></i>
+            {tab.charAt(0).toUpperCase() + tab.slice(1)}
+          </button>
+        ))}
       </div>
 
       <main className="dashboard-main">
         {error && <div className="error-banner">{error}</div>}
 
-        {/* Pestaña Órdenes */}
-        {activeTab === 'ordenes' && (
-          <>
-            <div className="filter-bar">
-              <div className="filter-group">
-                <label><i className="bi bi-funnel"></i> Filtrar por estado:</label>
-                <select value={filtroEstado} onChange={(e) => setFiltroEstado(e.target.value)} className="filter-select">
-                  <option value="todas">Todas</option>
-                  <option value="Pendiente">Pendientes</option>
-                  <option value="En Proceso">En Proceso</option>
-                  <option value="Completado">Completadas</option>
-                  <option value="Cancelado">Canceladas</option>
-                </select>
-              </div>
-              <button className="refresh-btn" onClick={cargarOrdenes}>
-                <i className="bi bi-arrow-clockwise"></i> Actualizar
-              </button>
-            </div>
-
-            {loadingOrdenes ? (
-              <div className="loading-spinner">Cargando órdenes...</div>
-            ) : (
-              <div className="table-container">
-                <table className="ordenes-table">
-                  <thead>
-                    <tr><th>ID</th><th>Cliente</th><th>Vehículo</th><th>Descripción</th><th>Fecha</th><th>Estado</th><th>Acciones</th></tr>
-                  </thead>
-                  <tbody>
-                    {ordenesFiltradas.length === 0 ? (
-                      <tr><td colSpan={7} className="empty-row">No hay órdenes con este estado</td></tr>
-                    ) : (
-                      ordenesFiltradas.map(orden => (
-                        <tr key={orden.id}>
-                          <td className="orden-id">{orden.id}</td>
-                          <td>{obtenerNombreCliente(orden.clienteId)}</td>
-                          <td>{orden.vehiculo}</td>
-                          <td className="descripcion-cell">{orden.descripcion}</td>
-                          <td>{orden.fechaCreacion}</td>
-                          <td><span className={`estado-badge ${getEstadoClass(orden.estado)}`}><i className={`bi ${getBadgeIcon(orden.estado)}`}></i> {orden.estado}</span></td>
-                          <td>
-                            <div className="acciones-botones">
-                              <select value={orden.estado} onChange={(e) => handleCambiarEstado(orden.id, e.target.value as any)} disabled={actualizando === orden.id} className="estado-select-small">
-                                <option value="Pendiente">Pendiente</option>
-                                <option value="En Proceso">En Proceso</option>
-                                <option value="Completado">Completado</option>
-                                <option value="Cancelado">Cancelado</option>
-                              </select>
-                              <button className="btn-detalles" onClick={() => verDetallesOrden(orden)}><i className="bi bi-eye"></i> Ver</button>
-                            </div>
+        {activeTab === 'activas' && (
+          <section className="tab-content">
+            <div className="table-container" style={{ overflowX: 'auto' }}>
+              <table className="ordenes-table">
+                <thead>
+                  <tr>
+                    <th>ID Orden</th>
+                    <th>ID Cliente</th>
+                    <th>Cliente</th>
+                    <th>Moto</th>
+                    <th>Inicio</th>
+                    <th>Estado</th>
+                    <th>Acciones Técnicas</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {ordenes.filter(o => 
+                    !o.Estado.toLowerCase().includes('completado') && 
+                    !o.Estado.toLowerCase().includes('cancelado') && 
+                    o.ClienteNombre && o.ClienteNombre.trim() !== ''
+                  ).length === 0 ? (
+                    <tr><td colSpan={7} className="empty-row">No tienes órdenes activas. ¡Descansa!</td></tr>
+                  ) : (
+                    ordenes.filter(o => 
+                      !o.Estado.toLowerCase().includes('completado') && 
+                      !o.Estado.toLowerCase().includes('cancelado') && 
+                      o.ClienteNombre && o.ClienteNombre.trim() !== ''
+                    ).map(orden => {
+                      const cfg = getEstadoConfig(orden.Estado);
+                      return (
+                        <tr key={orden.ID_ORDEN_SERVICIO}>
+                          <td className="orden-id" onClick={() => abrirOrden(orden)} style={{ cursor: 'pointer', color: '#ff6600' }}>
+                            {formatId('orden', orden.ID_ORDEN_SERVICIO)}
+                          </td>
+                          <td className="font-mono text-blue-400 font-semibold tracking-wide">
+                            {formatId('cliente', orden.ID_CLIENTES)}
+                          </td>
+                          <td>{orden.ClienteNombre}</td>
+                          <td>{orden.ID_MOTOS ? formatId('moto', orden.ID_MOTOS) : 'Sin moto'}</td>
+                          <td>{formatDate(orden.Fecha_inicio)}</td>
+                          <td><span className={`estado-badge ${cfg.class}`}><i className={`bi ${cfg.icon}`}></i> {cfg.label}</span></td>
+                          <td className="acciones-cell">
+                            {cfg.next && (
+                              <button className="btn-flujo" onClick={() => actualizarEstado(orden.ID_ORDEN_SERVICIO, cfg.next)}>
+                                <i className="bi bi-arrow-right-circle"></i> {cfg.next === 'En Proceso' ? 'Iniciar' : cfg.next === 'Completado' ? 'Completar' : cfg.next}
+                              </button>
+                            )}
+                            {cfg.label === 'Pendiente' && (
+                              <button className="btn-flujo btn-cancelar" onClick={() => actualizarEstado(orden.ID_ORDEN_SERVICIO, 'Cancelado')}>
+                                <i className="bi bi-x-circle"></i> Cancelar
+                              </button>
+                            )}
+                            <button className="btn-detalles" onClick={() => abrirOrden(orden)} title="Gestionar orden"><i className="bi bi-gear"></i></button>
                           </td>
                         </tr>
-                      ))
-                    )}
-                  </tbody>
-                </table>
-              </div>
-            )}
-          </>
-        )}
-
-        {/* Pestaña Clientes */}
-        {activeTab === 'clientes' && (
-          <>
-            <div className="filter-bar">
-              <button className="btn-primary" onClick={abrirModalNuevoCliente}><i className="bi bi-plus-circle"></i> Nuevo Cliente</button>
-            </div>
-            {loadingClientes ? (
-              <div className="loading-spinner">Cargando clientes...</div>
-            ) : (
-              <div className="table-container">
-                <table className="clientes-table">
-                  <thead><tr><th>Nombre</th><th>Teléfono</th><th>Email</th><th>Dirección</th><th>Acciones</th></tr></thead>
-                  <tbody>
-                    {clientes.map(cliente => (
-                      <tr key={cliente.id}>
-                        <td><strong>{cliente.nombre}</strong></td>
-                        <td>{cliente.telefono}</td>
-                        <td>{cliente.email}</td>
-                        <td>{cliente.direccion}</td>
-                        <td>
-                          <button className="btn-editar" onClick={() => abrirModalEditarCliente(cliente)}><i className="bi bi-pencil"></i> Editar</button>
-                          <button className="btn-eliminar" onClick={() => handleEliminarCliente(cliente.id)}><i className="bi bi-trash"></i> Eliminar</button>
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-            )}
-          </>
-        )}
-
-        {/* Pestaña Informe */}
-        {activeTab === 'informe' && (
-          <div id="informe-contenido" className="informe-contenido">
-            <h2><i className="bi bi-bar-chart-steps"></i> Informe de Gestión</h2>
-            {(() => {
-              const { totalOrdenes, porEstado, porCliente } = obtenerInforme();
-              return (
-                <>
-                  <div className="stats-grid-informe">
-                    <div className="stat-card-informe"><h3>Total Órdenes</h3><p className="big-number">{totalOrdenes}</p></div>
-                    <div className="stat-card-informe"><h3>Pendientes</h3><p className="big-number">{porEstado.Pendiente}</p></div>
-                    <div className="stat-card-informe"><h3>En Proceso</h3><p className="big-number">{porEstado.EnProceso}</p></div>
-                    <div className="stat-card-informe"><h3>Completadas</h3><p className="big-number">{porEstado.Completado}</p></div>
-                  </div>
-                  <h3>Resumen por Cliente</h3>
-                  <table className="informe-table">
-                    <thead><tr><th>Cliente</th><th>Total Órdenes</th><th>Estado más frecuente</th></tr></thead>
-                    <tbody>
-                      {porCliente.map((item, idx) => (
-                        <tr key={idx}><td>{item.cliente}</td><td>{item.total}</td><td>{item.estadoFrecuente}</td></tr>
-                      ))}
-                    </tbody>
-                  </table>
-                  <button className="btn-imprimir" onClick={imprimirInforme}><i className="bi bi-printer"></i> Imprimir Informe</button>
-                </>
-              );
-            })()}
-          </div>
-        )}
-      </main>
-
-      {/* Modal Detalles de Orden */}
-      {modalDetallesAbierto && ordenSeleccionada && (
-        <div className="modal-overlay" onClick={() => setModalDetallesAbierto(false)}>
-          <div className="modal-content" onClick={e => e.stopPropagation()}>
-            <div className="modal-header"><h3><i className="bi bi-file-text"></i> Detalles de Orden {ordenSeleccionada.id}</h3><button className="modal-close" onClick={() => setModalDetallesAbierto(false)}>×</button></div>
-            <div className="modal-body">
-              <p><strong>Cliente:</strong> {obtenerNombreCliente(ordenSeleccionada.clienteId)}</p>
-              <p><strong>Vehículo:</strong> {ordenSeleccionada.vehiculo}</p>
-              <p><strong>Descripción:</strong> {ordenSeleccionada.descripcion}</p>
-              <p><strong>Fecha:</strong> {ordenSeleccionada.fechaCreacion}</p>
-              <p><strong>Técnico:</strong> {ordenSeleccionada.tecnicoAsignado}</p>
-              <p><strong>Estado:</strong> <span className={`estado-badge ${getEstadoClass(ordenSeleccionada.estado)}`}>{ordenSeleccionada.estado}</span></p>
-              <h4>Servicios/Productos realizados</h4>
-              <table className="detalles-table">
-                <thead><tr><th>Concepto</th><th>Cantidad</th><th>Precio unit.</th><th>Subtotal</th></tr></thead>
-                <tbody>
-                  {ordenSeleccionada.detalles.map((d, i) => (
-                    <tr key={i}><td>{d.servicio}</td><td>{d.cantidad}</td><td>${d.precio.toLocaleString()}</td><td>${(d.cantidad * d.precio).toLocaleString()}</td></tr>
-                  ))}
-                  <tr className="total-row"><td colSpan={3}><strong>Total</strong></td><td><strong>${ordenSeleccionada.detalles.reduce((sum, d) => sum + d.cantidad * d.precio, 0).toLocaleString()}</strong></td></tr>
+                      );
+                    })
+                  )}
                 </tbody>
               </table>
             </div>
-          </div>
-        </div>
-      )}
+          </section>
+        )}
 
-      {/* Modal Cliente (nuevo/editar) */}
-      {modalClienteAbierto && (
-        <div className="modal-overlay" onClick={() => setModalClienteAbierto(false)}>
-          <div className="modal-content" onClick={e => e.stopPropagation()}>
-            <div className="modal-header"><h3>{clienteEditando ? 'Editar Cliente' : 'Nuevo Cliente'}</h3><button className="modal-close" onClick={() => setModalClienteAbierto(false)}>×</button></div>
+        {activeTab === 'historial' && (
+          <section className="tab-content">
+            <div className="table-container" style={{ overflowX: 'auto' }}>
+              <table className="ordenes-table">
+                <thead>
+                  <tr>
+                    <th>ID Orden</th>
+                    <th>ID Cliente</th>
+                    <th>Cliente</th>
+                    <th>Fin</th>
+                    <th>Estado</th>
+                    <th>Detalles</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {ordenes.filter(o => 
+                    (o.Estado.toLowerCase().includes('completado') || o.Estado.toLowerCase().includes('cancelado')) && 
+                    o.ClienteNombre && o.ClienteNombre.trim() !== ''
+                  ).map(orden => (
+                    <tr key={orden.ID_ORDEN_SERVICIO}>
+                      <td className="orden-id">{formatId('orden', orden.ID_ORDEN_SERVICIO)}</td>
+                      <td className="font-mono text-blue-400 font-semibold">{formatId('cliente', orden.ID_CLIENTES)}</td>
+                      <td>{orden.ClienteNombre}</td>
+                      <td>{formatDate(orden.Fecha_fin)}</td>
+                      <td><span className={`estado-badge ${getEstadoConfig(orden.Estado).class}`}>{orden.Estado}</span></td>
+                      <td><button className="btn-detalles" onClick={() => abrirOrden(orden)}><i className="bi bi-eye"></i></button></td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </section>
+        )}
+
+        {activeTab === 'clientes' && (
+          <section className="tab-content">
+            <p className="info-text">Consulta de referencia de clientes. Para registros/contactos: <strong>Administración</strong>.</p>
+            <div className="table-container" style={{ overflowX: 'auto' }}>
+              <table className="clientes-table">
+                <thead><tr><th>ID Cliente</th><th>Nombre</th><th>Teléfono</th><th>Correo</th><th>Ubicación</th></tr></thead>
+                <tbody>
+                  {clientes.map(c => (
+                    <tr key={c.ID_CLIENTES}>
+                      <td className="font-mono text-blue-400 font-semibold">{formatId('cliente', c.ID_CLIENTES)}</td>
+                      <td><strong>{c.Nombre}</strong></td>
+                      <td>{c.Telefono}</td>
+                      <td>{c.Correo}</td>
+                      <td>{c.Ubicacion}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </section>
+        )}
+      </main>
+
+      {modalAbierto && ordenActual && (
+        <div className="modal-overlay" onClick={() => setModalAbierto(false)}>
+          <div className="modal-content modal-tecnico" onClick={e => e.stopPropagation()}>
+            <div className="modal-header">
+              <h3><i className="bi bi-tools"></i> Orden {formatId('orden', ordenActual.ID_ORDEN_SERVICIO)}</h3>
+              <button className="modal-close" onClick={() => setModalAbierto(false)}>×</button>
+            </div>
             <div className="modal-body">
-              <div className="form-group"><label>Nombre *</label><input type="text" value={formCliente.nombre} onChange={e => setFormCliente({...formCliente, nombre: e.target.value})} /></div>
-              <div className="form-group"><label>Teléfono</label><input type="text" value={formCliente.telefono} onChange={e => setFormCliente({...formCliente, telefono: e.target.value})} /></div>
-              <div className="form-group"><label>Email</label><input type="email" value={formCliente.email} onChange={e => setFormCliente({...formCliente, email: e.target.value})} /></div>
-              <div className="form-group"><label>Dirección</label><input type="text" value={formCliente.direccion} onChange={e => setFormCliente({...formCliente, direccion: e.target.value})} /></div>
-              <button className="btn-guardar" onClick={guardarCliente}>Guardar</button>
+              <div className="detail-grid">
+                <div><strong>ID Cliente:</strong> <span className="font-mono text-blue-400">{formatId('cliente', ordenActual.ID_CLIENTES)}</span></div>
+                <div><strong>Cliente:</strong> {ordenActual.ClienteNombre}</div>
+                <div><strong>Moto:</strong> {ordenActual.ID_MOTOS ? formatId('moto', ordenActual.ID_MOTOS) : 'Sin asignar'}</div>
+                <div><strong>Inicio:</strong> {formatDate(ordenActual.Fecha_inicio)}</div>
+                <div><strong>Estado:</strong> <span className={`estado-badge ${getEstadoConfig(ordenActual.Estado).class}`}>{ordenActual.Estado}</span></div>
+              </div>
+
+              <h4 style={{ marginTop: '1.5rem', color: '#ff6600' }}>➕ Registrar Trabajo</h4>
+              <div className="detalle-form">
+                <div className="form-row">
+                  <div className="form-group">
+                    <label>Servicio/Producto</label>
+                    <select 
+                      value={detalleForm.ID_SERVICIOS} 
+                      onChange={e => {
+                        const val = e.target.value;
+                        const precios: Record<string, number> = { '1': 50000, '2': 35000, '3': 80000 };
+                        setDetalleForm({
+                          ...detalleForm,
+                          ID_SERVICIOS: val,
+                          ID_PRODUCTOS: '',
+                          Precio: precios[val] || 0
+                        });
+                      }}
+                    >
+                      <option value="">Seleccionar servicio...</option>
+                      <option value="1">Cambio Aceite ($50.000)</option>
+                      <option value="2">Revisión Frenos ($35.000)</option>
+                      <option value="3">Ajuste Suspensión ($80.000)</option>
+                    </select>
+                  </div>
+                  <div className="form-group">
+                    <label>Garantía (meses)</label>
+                    <input type="number" value={detalleForm.Garantia} onChange={e => setDetalleForm({...detalleForm, Garantia: Number(e.target.value)})} />
+                  </div>
+                </div>
+                <button className="btn-guardar" onClick={agregarDetalle}>Agregar Detalle</button>
+              </div>
+
+              <h4 style={{ marginTop: '1rem', color: '#aaa' }}>📋 Registro de Trabajo</h4>
+              <table className="detalles-table">
+                <thead><tr><th>Concepto</th><th>Garantía</th><th>Estado</th></tr></thead>
+                <tbody>
+                  {detallesOrden.length === 0 ? (
+                    <tr><td colSpan={3} style={{ color: '#777' }}>Sin detalles registrados</td></tr>
+                  ) : (
+                    detallesOrden.map((d, i) => (
+                      <tr key={i}>
+                        <td>
+                          {d.ID_SERVICIOS ? `Servicio ${formatId('servicio', d.ID_SERVICIOS)}` : 
+                           d.ID_PRODUCTOS ? `Producto ${formatId('producto', d.ID_PRODUCTOS)}` : 
+                           'Concepto'}
+                        </td>
+                        <td>{d.Garantia} meses</td>
+                        <td>{d.Estado}</td>
+                      </tr>
+                    ))
+                  )}
+                </tbody>
+              </table>
             </div>
           </div>
         </div>

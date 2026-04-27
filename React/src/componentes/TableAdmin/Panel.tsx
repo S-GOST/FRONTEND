@@ -1,7 +1,7 @@
 import React from 'react';
 import { NavLink, Outlet, Link } from 'react-router-dom';
 import Swal from 'sweetalert2';
-import { logout } from '../../services/adminService';
+import { clearSession } from '../../services/auth.services';
 import rock from "../../assets/icons/rock.png";
 import './Panel.css';
 
@@ -24,7 +24,7 @@ const Panel: React.FC = () => {
             cancelButtonText: "Cancelar"
         }).then((result) => {
             if (result.isConfirmed) {
-                logout();
+                clearSession();
             }
         });
     };

@@ -8,8 +8,9 @@ import {
   obtenerClientes,
   type ClientePayload,
   type ClienteRecord,
-} from '../../services/clientesService';
-import './Admin.css';
+} from '../../services/cliente.service';
+import { FormattedId } from '../../componentes/FormattedId';
+import './Cliente.css';
 
 type ClienteFormState = ClientePayload & {
   contrasena: string;
@@ -354,7 +355,7 @@ function Clientes() {
               ) : filteredClientes.length > 0 ? (
                 filteredClientes.map(cliente => (
                   <tr key={cliente.ID_CLIENTES}>
-                    <td>{cliente.ID_CLIENTES}</td>
+                    <td><FormattedId entity="cliente" value={cliente.ID_CLIENTES} /></td>
                     <td>{cliente.Nombre}</td>
                     <td>{cliente.Correo}</td>
                     <td>{cliente.TipoDocumento}</td>

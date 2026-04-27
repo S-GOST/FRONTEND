@@ -8,9 +8,9 @@ import {
   eliminarMoto,
   type MotoPayload,
   type MotoRecord,
-} from '../../services/motosService'; 
+} from '../../services/moto.service'; 
 import './Motos.css';
-
+import { FormattedId } from '../../componentes/FormattedId';
 const createInitialFormData = (): MotoPayload => ({
   ID_MOTOS: '',
   ID_CLIENTES: '',
@@ -310,6 +310,11 @@ function TableMotos() {
           </div>
         </div>
 
+        {loading ? (
+          <div style={{ textAlign: 'center', padding: '2rem', color: '#ff6600' }}>
+            <p>Cargando motos...</p>
+          </div>
+        ) : (
         <div className="table-responsive-container">
           <table className="table-ktm">
             <thead>
@@ -323,50 +328,37 @@ function TableMotos() {
                 <th>Acciones</th>
               </tr>
             </thead>
-            <tbody>
-              {loading ? (
-                <tr>
-                  <td colSpan={7} className="loading-row">
-                    Cargando motos...
-                  </td>
-                </tr>
-              ) : filteredMotos.length > 0 ? (
-                filteredMotos.map(moto => (
-                  <tr key={moto.ID_MOTOS}>
-                    <td>{moto.ID_MOTOS}</td>
-                    <td>{moto.ID_CLIENTES}</td>
-                    <td>{moto.Placa}</td>
-                    <td>{moto.Modelo}</td>
-                    <td>{moto.Marca}</td>
-                    <td>{formatRecorrido(moto.Recorrido)} km</td>
-                    <td className="actions-cell">
-                      <button
-                        className="btn-edit-ktm"
-                        onClick={() => openEditModal(moto)}
-                        title="Editar"
-                      >
-                        <i className="bi bi-pencil-square"></i> Editar
-                      </button>
-                      <button
-                        className="btn-eliminar-ktm"
-                        onClick={() => borrarMoto(moto)}
-                        title="Eliminar"
-                      >
-                        <i className="bi bi-trash3"></i> Eliminar
-                      </button>
-                    </td>
-                  </tr>
-                ))
-              ) : (
-                <tr>
-                  <td colSpan={7} className="loading-row">
-                    No hay motos registradas.
-                  </td>
-                </tr>
-              )}
-            </tbody>
+           <tbody>
+  {filteredMotos.map((moto) => (
+    <tr key={moto.ID_MOTOS} className="hover:bg-orange-900/20 transition-colors">
+      
+      {/* ✅ ID MOTO FORMATEADO */}
+      <td className="font-mono text-orange-400 font-semibold tracking-wide">
+        <FormattedId entity="moto" value={moto.ID_MOTOS} />
+      </td>
+
+      {/* ✅ ID CLIENTE FORMATEADO */}
+      <td className="font-mono text-blue-400 font-semibold tracking-wide">
+        <FormattedId entity="cliente" value={moto.ID_CLIENTES} />
+      </td>
+
+      {/* Las demás columnas se mantienen igual */}
+      <td className="text-gray-200">{moto.Placa}</td>
+      <td className="text-gray-200">{moto.Modelo}</td>
+      <td className="text-gray-200">{moto.Marca}</td>
+      <td className="text-gray-300">{formatRecorrido(moto.Recorrido)} km</td>
+      
+      <td className="flex gap-2">
+        {/* Tus botones de Editar/Eliminar */}
+        <button className="btn-editar" onClick={() => openEditModal(moto)}>✏️ Editar</button>
+        <button className="btn-eliminar" onClick={() => borrarMoto(moto)}>🗑️ Eliminar</button>
+      </td>
+    </tr>
+  ))}
+</tbody>
           </table>
         </div>
+        )}
       </div>
 
       {/* Modal Crear Moto */}

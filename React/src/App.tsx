@@ -9,8 +9,8 @@ import Footer from './componentes/Footer';
 import Login from './pages/Login';
 import Panel from './componentes/TableAdmin/Panel';
 import Admins from './componentes/TableAdmin/Admin';
-import OrdenesServicio from './componentes/TableAdmin/OrdenesServicio';
-import DetallesOrden from './componentes/TableAdmin/DetallesOrden';
+import OrdenesServicio from './componentes/TableOrdenServicios/OrdenesServicio';
+import DetallesOrden from './componentes/TableOrdenServicios/DetallesOrden';
 import Servicios from './componentes/TableServicios/Servicios';
 import { servicesData, searchSuggestionsData } from './utils/constants';
 import { Service, SearchSuggestion, CartItem } from './types';
@@ -19,12 +19,12 @@ import Dashboard from './componentes/TableAdmin/Dashboard';
 import Tecnicos from './componentes/TableTecnico/Tecnico';
 import TecnicoDashboard from './componentes/TableTecnico/TecnicoDashboard';
 import ProtectedTecnicoRoute from './routes/ProtectedTecnicoRoute';
-import Clientes from './componentes/TableAdmin/Clientes';
+import Clientes from './componentes/TableCliente/Clientes';
 import Motos from './componentes/TableMotos/Motos';
-import ClientePanel from './componentes/TableCliente/ClientePanel'; // Importa el panel de cliente
 import Tableinforme from './componentes/Tableinforme/informe';
 import Tablehistorial from './componentes/Tablehistorial/historial';
 import TableComprobante from './componentes/TableComprobante/Comprobante';
+import ClienteDashboard from './componentes/TableCliente/ClienteDashboard';
 
 const HomePage: React.FC<{ addToCart: (service: Service) => void }> = ({ addToCart }) => {
   const categories = ['Mantenimiento', 'Reparaciones', 'Diagnósticos', 'Instalaciones'];
@@ -217,7 +217,7 @@ function App() {
           path="/cliente"
           element={
             isAuthenticated && localStorage.getItem('user_role') === 'cliente' ? (
-              <ClientePanel />
+              <ClienteDashboard />
             ) : (
               <Navigate to="/login" replace />
             )

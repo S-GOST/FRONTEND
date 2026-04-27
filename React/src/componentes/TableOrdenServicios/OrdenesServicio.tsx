@@ -8,10 +8,11 @@ import {
   type OrdenServicioRecord,
   type OrdenServicioPayload,
 } from '../../services/ordenServicioService';
-import { obtenerClientes, type ClienteRecord } from '../../services/clientesService';
-import { obtenerTecnicos, type TecnicoRecord } from '../../services/tecnicosService';
-import { obtenerMotos, type MotoRecord } from '../../services/motosService';
-import { obtenerAdmins, type AdminRecord } from '../../services/adminService';
+import { obtenerClientes, type ClienteRecord } from '../../services/cliente.service';
+import { obtenerTecnicos, type TecnicoRecord } from '../../services/tecnico.service';
+import { obtenerMotos, type MotoRecord } from '../../services/moto.service';
+import { obtenerAdmins, type AdminRecord } from '../../services/admin.service';
+import { FormattedId } from '../../componentes/FormattedId';
 import './OrdenesServicio.css';
 
 // Extractor de datos
@@ -37,6 +38,7 @@ const initialFormState: OrdenServicioPayload = {
   Fecha_estimada: '',
   Fecha_fin: '',
   Estado: 'Pendiente',
+  ClienteNombre: '',
 };
 
 const OrdenesServicio = () => {
@@ -139,6 +141,7 @@ const OrdenesServicio = () => {
       Fecha_estimada: orden.Fecha_estimada,
       Fecha_fin: orden.Fecha_fin || '',
       Estado: orden.Estado,
+      ClienteNombre: orden.ClienteNombre || '',
     });
     setSelectedOrder(orden);
     setModalFormOpen(true);
@@ -256,11 +259,11 @@ const OrdenesServicio = () => {
               ) : (
                 filteredOrdenes.map((orden) => (
                   <tr key={orden.ID_ORDEN_SERVICIO}>
-                    <td className="orden-id">{orden.ID_ORDEN_SERVICIO}</td>
-                    <td>{orden.ID_CLIENTES}</td>
-                    <td>{orden.ID_ADMINISTRADOR ?? '-'}</td>
-                    <td>{orden.ID_TECNICOS ?? '-'}</td>
-                    <td>{orden.ID_MOTOS ?? '-'}</td>
+                    <td className="orden-id"><FormattedId entity="orden" value={orden.ID_ORDEN_SERVICIO} /></td>
+                    <td><FormattedId entity="cliente" value={orden.ID_CLIENTES} /></td>
+                    <td>{orden.ID_ADMINISTRADOR ? <FormattedId entity="admin" value={orden.ID_ADMINISTRADOR} /> : '-'}</td>
+                    <td>{orden.ID_TECNICOS ? <FormattedId entity="tecnico" value={orden.ID_TECNICOS} /> : '-'}</td>
+                    <td>{orden.ID_MOTOS ? <FormattedId entity="moto" value={orden.ID_MOTOS} /> : '-'}</td>
                     <td>{orden.Fecha_inicio}</td>
                     <td>{orden.Fecha_estimada}</td>
                     <td>{orden.Fecha_fin || '-'}</td>

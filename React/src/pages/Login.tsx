@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import type { AxiosError } from 'axios';
 import { Link } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
-import { loginService } from '../services/adminService';
+import { loginService, loginClienteService } from '../services/auth.services';
 import logo from '../assets/icons/rock.png';
 import './Login.css';
 
@@ -23,8 +23,14 @@ const Login: React.FC = () => {
   const {
     register,
     handleSubmit,
+    reset,
     formState: { errors },
   } = useForm<LoginFormInputs>();
+
+  // 🔹 Limpia los campos automáticamente al montar el componente
+  useEffect(() => {
+    reset({ usuario: '', contrasena: '' });
+  }, [reset]);
 
   useEffect(() => {
     const previousBodyOverflow = document.body.style.overflow;
@@ -44,22 +50,29 @@ const Login: React.FC = () => {
     setLoading(true);
 
     try {
+      // Primero intenta admin/tecnico
       const response = await loginService(data.usuario, data.contrasena);
-      console.log('Login response:', response);
       const userRole = response.rol ?? localStorage.getItem('user_role') ?? 'admin';
-      console.log('User role:', userRole);
-
       if (userRole === 'tecnico') {
         window.location.replace('/tecnico/dashboard');
       } else {
         window.location.replace('/admin/dashboard');
       }
     } catch (err) {
+      // Si falla, intenta login de cliente
       const error = err as AxiosError<LoginErrorResponse>;
-      console.error('Error en login:', err);
-
       if (error.response?.status === 401) {
-        setServerError('Credenciales incorrectas. Verifica tu rider ID.');
+        try {
+          const clienteRes = await loginClienteService(data.usuario, data.contrasena);
+          if (clienteRes.token) {
+            window.location.replace('/cliente/dashboard');
+            return;
+          } else {
+            setServerError('Credenciales incorrectas. Verifica tu usuario y contraseña.');
+          }
+        } catch (clienteErr) {
+          setServerError('Credenciales incorrectas. Verifica tu usuario y contraseña.');
+        }
       } else {
         setServerError('Error de conexión con el servidor KTM.');
       }
@@ -169,80 +182,80 @@ const Login: React.FC = () => {
               </div>
             )}
 
-            <form className="login-form" onSubmit={handleSubmit(onSubmit)}>
-              <div className="form-group">
-                <label className="form-label" htmlFor="usuario">
-                  Rider ID
-                </label>
-                <div className={`input-shell ${errors.usuario ? 'has-error' : ''}`}>
-                  <i className="bi bi-person-badge input-icon"></i>
-                  <input
-                    id="usuario"
-                    type="text"
-                    className="login-input"
-                    placeholder="Ingresa tu usuario"
-                    autoComplete="username"
-                    {...register('usuario', { required: 'Campo obligatorio' })}
-                  />
-                </div>
-                {errors.usuario && (
-                  <p className="field-error">{errors.usuario.message}</p>
-                )}
-              </div>
+<form className="login-form" onSubmit={handleSubmit(onSubmit)} key="login-form-clean">
+  <div className="form-group">
+    <label className="form-label" htmlFor="usuario">
+      Rider ID
+    </label>
+    <div className={`input-shell ${errors.usuario ? 'has-error' : ''}`}>
+      <i className="bi bi-person-badge input-icon"></i>
+      <input
+        id="usuario"
+        type="text"
+        className="login-input"
+        placeholder="Ingresa tu usuario"
+        autoComplete="off"
+        {...register('usuario', { required: 'Campo obligatorio' })}
+      />
+    </div>
+    {errors.usuario && (
+      <p className="field-error">{errors.usuario.message}</p>
+    )}
+  </div>
 
-              <div className="form-group">
-                <label className="form-label" htmlFor="contrasena">
-                  Clave de acceso
-                </label>
-                <div className={`input-shell ${errors.contrasena ? 'has-error' : ''}`}>
-                  <i className="bi bi-shield-lock input-icon"></i>
-                  <input
-                    id="contrasena"
-                    type={showPassword ? 'text' : 'password'}
-                    className="login-input"
-                    placeholder="Ingresa tu contraseña"
-                    autoComplete="current-password"
-                    {...register('contrasena', { required: 'Campo obligatorio' })}
-                  />
-                  <button
-                    type="button"
-                    className="password-toggle"
-                    onClick={() => setShowPassword(prev => !prev)}
-                    aria-label={showPassword ? 'Ocultar contraseña' : 'Mostrar contraseña'}
-                  >
-                    <i className={`bi ${showPassword ? 'bi-eye-slash' : 'bi-eye'}`}></i>
-                  </button>
-                </div>
-                {errors.contrasena && (
-                  <p className="field-error">{errors.contrasena.message}</p>
-                )}
-              </div>
+  <div className="form-group">
+    <label className="form-label" htmlFor="contrasena">
+      Clave de acceso
+    </label>
+    <div className={`input-shell ${errors.contrasena ? 'has-error' : ''}`}>
+      <i className="bi bi-shield-lock input-icon"></i>
+      <input
+        id="contrasena"
+        type={showPassword ? 'text' : 'password'}
+        className="login-input"
+        placeholder="Ingresa tu contraseña"
+        autoComplete="new-password"
+        {...register('contrasena', { required: 'Campo obligatorio' })}
+      />
+      <button
+        type="button"
+        className="password-toggle"
+        onClick={() => setShowPassword(prev => !prev)}
+        aria-label={showPassword ? 'Ocultar contraseña' : 'Mostrar contraseña'}
+      >
+        <i className={`bi ${showPassword ? 'bi-eye-slash' : 'bi-eye'}`}></i>
+      </button>
+    </div>
+    {errors.contrasena && (
+      <p className="field-error">{errors.contrasena.message}</p>
+    )}
+  </div>
 
-              <div className="login-meta-row">
-                <span className="meta-chip">
-                  <i className="bi bi-cpu"></i>
-                  Acceso administrativo
-                </span>
-                <span className="meta-chip">
-                  <i className="bi bi-lock"></i>
-                  Sesión segura
-                </span>
-              </div>
+  <div className="login-meta-row">
+    <span className="meta-chip">
+      <i className="bi bi-cpu"></i>
+      Acceso administrativo
+    </span>
+    <span className="meta-chip">
+      <i className="bi bi-lock"></i>
+      Sesión segura
+    </span>
+  </div>
 
-              <button type="submit" className="btn-ktm login-submit" disabled={loading}>
-                {loading ? (
-                  <>
-                    <span className="button-spinner"></span>
-                    Conectando...
-                  </>
-                ) : (
-                  <>
-                    <i className="bi bi-box-arrow-in-right"></i>
-                    Ingresar al panel
-                  </>
-                )}
-              </button>
-            </form>
+  <button type="submit" className="btn-ktm login-submit" disabled={loading}>
+    {loading ? (
+      <>
+        <span className="button-spinner"></span>
+        Conectando...
+      </>
+    ) : (
+      <>
+        <i className="bi bi-box-arrow-in-right"></i>
+        Ingresar al panel
+      </>
+    )}
+  </button>
+</form>
 
             <div className="login-card-footer">
               <p>Solo personal autorizado con credenciales KTM Rocket Service.</p>

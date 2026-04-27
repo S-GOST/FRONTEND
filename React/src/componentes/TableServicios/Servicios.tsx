@@ -6,7 +6,8 @@ import {
   eliminarServicio,
   obtenerServicios,
   type ServicioPayload,
-} from '../../services/serviciosService';
+} from '../../services/servicio.service';
+import { FormattedId } from '../../componentes/FormattedId';
 import './Servicios.css';
 
 const CATEGORIAS = ['Mantenimientos', 'Reparaciones', 'Instalaciones', 'Diagnosticos'];
@@ -328,7 +329,7 @@ function Servicios() {
               ) : filteredServicios.length > 0 ? (
                 filteredServicios.map((servicio) => (
                   <tr key={servicio.ID_SERVICIOS}>
-                    <td>{servicio.ID_SERVICIOS}</td>
+                    <td><FormattedId entity="servicio" value={servicio.ID_SERVICIOS} /></td>
                     <td>{servicio.Nombre}</td>
                     <td>{servicio.Categoria}</td>
                     <td>{servicio.Garantia}</td>

@@ -8,12 +8,13 @@ import {
   eliminarHistorial,
   type HistorialPayload,
   type HistorialRecord,
-} from '../../services/historialService';
+} from '../../services/historial.service';
 import { obtenerOrdenes, type OrdenServicioRecord } from '../../services/ordenServicioService';
 import { obtenerComprobantes, type ComprobanteRecord } from '../../services/comprobanteService';
 import { obtenerInformes, type InformeRecord } from '../../services/informeService';
-import { obtenerTecnicos, type TecnicoRecord } from '../../services/tecnicosService';
-import { obtenerClientes, type ClienteRecord } from '../../services/clientesService';
+import { obtenerTecnicos, type TecnicoRecord } from '../../services/tecnico.service';
+import { obtenerClientes, type ClienteRecord } from '../../services/cliente.service';
+import { FormattedId } from '../../componentes/FormattedId';
 import './Historial.css';
 
 // Helper para extraer arrays anidados
@@ -305,9 +306,9 @@ function TableHistorial() {
               ) : filteredHistorial.length > 0 ? (
                 filteredHistorial.map((h) => (
                   <tr key={h.ID_HISTORIAL}>
-                    <td className="orden-id">{h.ID_HISTORIAL}</td>
-                    <td>{h.ID_ORDEN_SERVICIO || '-'}</td>
-                    <td>{h.ID_CLIENTES || '-'}</td>
+                    <td className="orden-id"><FormattedId entity="historial" value={h.ID_HISTORIAL} /></td>
+                    <td>{h.ID_ORDEN_SERVICIO ? <FormattedId entity="orden" value={h.ID_ORDEN_SERVICIO} /> : '-'}</td>
+                    <td>{h.ID_CLIENTES ? <FormattedId entity="cliente" value={h.ID_CLIENTES} /> : '-'}</td>
                     <td>{h.Fecha_registro ? new Date(h.Fecha_registro).toLocaleDateString() : '-'}</td>
                     <td>{h.Descripcion.substring(0, 40)}...</td>
                     <td className="actions-cell">

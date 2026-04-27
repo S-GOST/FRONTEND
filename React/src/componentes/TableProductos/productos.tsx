@@ -7,7 +7,8 @@ import {
   eliminarProducto,
   type ProductoPayload,
   type ProductoRecord,
-} from '../../services/productosService';
+} from '../../services/producto.service';
+import { FormattedId } from '../../componentes/FormattedId';
 import './Productos.css';
 
 const CATEGORIAS = [
@@ -400,7 +401,7 @@ function TableProductos() {
               ) : filteredProductos.length > 0 ? (
                 filteredProductos.map((producto) => (
                   <tr key={producto.ID_PRODUCTOS}>
-                    <td>{producto.ID_PRODUCTOS}</td>
+                    <td><FormattedId entity="producto" value={producto.ID_PRODUCTOS} /></td>
                     <td>{producto.Nombre}</td>
                     <td>{producto.Marca}</td>
                     <td>{producto.Categoria}</td>

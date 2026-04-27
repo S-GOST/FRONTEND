@@ -10,8 +10,9 @@ import {
   type ComprobanteRecord,
 } from '../../services/comprobanteService';
 import { obtenerInformes, type InformeRecord } from '../../services/informeService';
-import { obtenerClientes, type ClienteRecord } from '../../services/clientesService';
-import { obtenerAdmins, type AdminRecord } from '../../services/adminService';
+import { obtenerClientes, type ClienteRecord } from '../../services/cliente.service';
+import { obtenerAdmins, type AdminRecord } from '../../services/admin.service';
+import { FormattedId } from '../../componentes/FormattedId';
 import './Comprobante.css';
 
 // Helper para extraer arrays anidados
@@ -283,11 +284,11 @@ function TableComprobantes() {
               ) : filteredComprobantes.length > 0 ? (
                 filteredComprobantes.map(comp => (
                   <tr key={String(comp.ID_COMPROBANTE)}>
-                    <td className="orden-id">{comp.ID_COMPROBANTE}</td>
+                    <td className="orden-id"><FormattedId entity="comprobante" value={comp.ID_COMPROBANTE} /></td>
                     <td>{comp.Fecha}</td>
                     <td>{formatMoneda(comp.Monto)}</td>
-                    <td>{comp.ID_CLIENTES}</td>
-                    <td>{comp.ID_INFORME || '-'}</td>
+                    <td><FormattedId entity="cliente" value={comp.ID_CLIENTES} /></td>
+                    <td>{comp.ID_INFORME ? <FormattedId entity="informe" value={comp.ID_INFORME} /> : '-'}</td>
                     <td>
                       <span className={`badge-${comp.Estado_pago.toLowerCase()}`}>
                         {comp.Estado_pago}
