@@ -7,7 +7,7 @@ export interface LoginResponse {
   [key: string]: any;
 }
 
-// 🔐 Decodificación segura de JWT en el navegador (sin Node.js Buffer)
+//  Decodificación segura de JWT en el navegador (sin Node.js Buffer)
 const decodeJwt = (token: string): any => {
   try {
     const base64Url = token.split('.')[1];

@@ -10,8 +10,9 @@ import {
   type DetalleOrdenServicioPayload,
 } from '../../services/detalleOrdenServicioService';
 import { obtenerServicios, type ServicioRecord } from '../../services/servicio.service';
-import { obtenerProductos, type ProductoRecord } from '../../services/producto.service';
+import { obtenerProductos, type ProductoPayload } from '../../services/producto.service';
 import { obtenerOrdenes, type OrdenServicioRecord } from '../../services/ordenServicioService';
+import { FormattedId } from '../../componentes/FormattedId';
 import './OrdenesServicio.css';
 
 const extractArray = <T,>(payload: unknown, fallback: T[] = []): T[] => {
@@ -53,7 +54,7 @@ const DetallesOrden = () => {
   const [formData, setFormData] = useState(initialFormState);
   
   const [servicios, setServicios] = useState<ServicioRecord[]>([]);
-  const [productos, setProductos] = useState<ProductoRecord[]>([]);
+  const [productos, setProductos] = useState<ProductoPayload[]>([]);
   const [ordenes, setOrdenes] = useState<OrdenServicioRecord[]>([]);
 
   useEffect(() => {
@@ -84,7 +85,7 @@ const DetallesOrden = () => {
       const detallesData = extractArray<DetalleOrdenServicioRecord>(detallesRes.data, []);
       const ordenesData = extractArray<OrdenServicioRecord>(ordenesRes.data, []);
       const serviciosData = extractArray<ServicioRecord>(serviciosRes.data, []);
-      const productosData = extractArray<ProductoRecord>(productosRes.data, []);
+      const productosData = extractArray<ProductoPayload>(productosRes.data, []);
 
       setDetalles(detallesData);
       setFilteredDetalles(detallesData);
@@ -335,10 +336,10 @@ const DetallesOrden = () => {
               ) : (
                 filteredDetalles.map((detalle) => (
                   <tr key={detalle.ID_DETALLES_ORDEN_SERVICIO}>
-                    <td className="orden-id">{detalle.ID_DETALLES_ORDEN_SERVICIO}</td>
-                    <td>{detalle.ID_ORDEN_SERVICIO}</td>
-                    <td>{detalle.ID_SERVICIOS ?? '-'}</td>
-                    <td>{detalle.ID_PRODUCTOS ?? '-'}</td>
+                    <td className="orden-id"><FormattedId entity="detalle" value={detalle.ID_DETALLES_ORDEN_SERVICIO} /></td>
+                    <td><FormattedId entity="orden" value={detalle.ID_ORDEN_SERVICIO} /></td>
+                    <td>{detalle.ID_SERVICIOS ? <FormattedId entity="servicio" value={detalle.ID_SERVICIOS} /> : '-'}</td>
+                    <td>{detalle.ID_PRODUCTOS ? <FormattedId entity="producto" value={detalle.ID_PRODUCTOS} /> : '-'}</td>
                     <td>{detalle.Garantia ?? '-'}</td>
                     <td>{detalle.Estado}</td>
                     <td>{detalle.Precio != null ? detalle.Precio.toLocaleString('es-CO') : '-'}</td>
