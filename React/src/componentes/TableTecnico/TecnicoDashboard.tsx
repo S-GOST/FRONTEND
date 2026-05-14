@@ -12,7 +12,7 @@ import {
 } from '../../services/cliente.service';
 import { 
   obtenerDetallesOrdenes, 
-  crearDetalleOrden, 
+  insertarDetalleOrden, 
   type DetalleOrdenServicioPayload 
 } from '../../services/detalleOrdenServicioService';
 import { clearSession } from '../../services/auth.services';
@@ -184,7 +184,7 @@ const TecnicoDashboard = () => {
         Precio: Number(detalleForm.Precio) || 0
       };
 
-      await crearDetalleOrden(payload as any);
+      await insertarDetalleOrden(payload as any);
       Swal.fire('✅ Agregado', 'Detalle registrado en la orden.', 'success');
       await abrirOrden(ordenActual!);
     } catch (err: any) {

@@ -2,7 +2,7 @@ import { useEffect, useState, type ChangeEvent, type FormEvent } from 'react';
 import Swal from 'sweetalert2';
 import {
   obtenerInformes,
-  crearInforme,
+  insertarInforme,
   actualizarInforme,
   eliminarInforme,
   type InformePayload,
@@ -23,8 +23,6 @@ const generarIdInforme = async (): Promise<string> => {
     if (informes.length === 0) return 'INF1';
     const ids = informes.map((inf: InformeRecord) => inf.ID_INFORME);
     const numeros = ids
-      .map(id => parseInt(id.replace('INF', ''), 10))
-      .filter(num => !isNaN(num));
     const maxNum = Math.max(...numeros, 0);
     return `INF${maxNum + 1}`;
   } catch {
@@ -158,7 +156,7 @@ const TableInformes = () => {
         await actualizarInforme(currentInforme.ID_INFORME, formData);
         showAlert('Actualizado', 'El informe se actualizó correctamente', 'success');
       } else {
-        await crearInforme(formData);
+        await insertarInforme(formData);
         showAlert('Creado', 'Informe técnico registrado', 'success');
       }
       closeModal();

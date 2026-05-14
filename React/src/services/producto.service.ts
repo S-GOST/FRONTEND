@@ -10,12 +10,15 @@ export interface ProductoPayload {
   Precio: number;
   Estado?: string;
 }
-
+// Al final del archivo, después de las interfaces
+export type ProductoRecord = ProductoPayload;   // 👈 Agrega esta línea
 // 👉 Sobreescribimos SOLO lo que cambia
 export const productoService = new BaseApiService<ProductoPayload>({
   baseUrl: '/productos',
   routes: {
-    createPrimary: '/crear', // Backend usa /crear en vez de /insertar
+    createPrimary: '/insertar',   // 👈 nuevo endpoint para creación
+    deletePrimary: '/eliminar/:id',   // 👈 nuevo endpoint para eliminación
+    deleteFallback: ''
   }
 });
 
@@ -27,7 +30,7 @@ const normalizarProducto = (p: ProductoPayload) => ({
   Precio: Number(p.Precio)
 });
 
-export const crearProducto = (data: ProductoPayload) => productoService.crear(normalizarProducto(data));
+export const insertarProducto = (data: ProductoPayload) => productoService.crear(normalizarProducto(data));
 export const actualizarProducto = (id: string | number, data: ProductoPayload) => 
   productoService.actualizar(id, normalizarProducto(data));
 

@@ -12,10 +12,13 @@ export interface ClientePayload {
 }
 export interface ClienteRecord extends ClientePayload {}
 
-export const clienteService = new BaseApiService<ClientePayload>({ baseUrl: '/clientes' });
+export const clienteService = new BaseApiService<ClientePayload>({
+  baseUrl: '/clientes',
+  routes: { deletePrimary: '/eliminar/:id', deleteFallback: '' }
+});
 
 export const obtenerClientes = () => clienteService.obtenerTodos();
 export const obtenerClientePorId = (id: string | number) => clienteService.obtenerPorId(id);
-export const crearCliente = (data: ClientePayload) => clienteService.crear(data);
+export const insertarCliente = (data: ClientePayload) => clienteService.crear(data);
 export const actualizarCliente = (id: string | number, data: ClientePayload) => clienteService.actualizar(id, data);
 export const eliminarCliente = (id: string | number) => clienteService.eliminar(id);

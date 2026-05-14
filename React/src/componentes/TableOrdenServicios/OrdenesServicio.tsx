@@ -2,7 +2,7 @@ import { useEffect, useState, type ChangeEvent, type FormEvent } from 'react';
 import Swal from 'sweetalert2';
 import {
   obtenerOrdenes,
-  crearOrden,
+  insertarOrden,
   actualizarOrden,
   eliminarOrden,
   type OrdenServicioRecord,
@@ -159,7 +159,7 @@ const OrdenesServicio = () => {
         await actualizarOrden(selectedOrder.ID_ORDEN_SERVICIO, formData);
         showAlert('Actualizada', 'La orden se actualizó correctamente', 'success');
       } else {
-        await crearOrden(formData);
+        await insertarOrden(formData);
         showAlert('Creada', 'Nueva orden de servicio creada', 'success');
       }
       setModalFormOpen(false);

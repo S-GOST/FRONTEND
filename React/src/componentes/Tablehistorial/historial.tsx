@@ -3,7 +3,7 @@ import { useState, useEffect, type ChangeEvent, type FormEvent } from 'react';
 import Swal from 'sweetalert2';
 import {
   obtenerHistorial,
-  crearHistorial,
+  insertarHistorial,
   actualizarHistorial,
   eliminarHistorial,
   type HistorialPayload,
@@ -203,7 +203,7 @@ function TableHistorial() {
     }
     try {
       const payload = buildHistorialPayload(formData);
-      const response = await crearHistorial(payload);
+      const response = await insertarHistorial(payload);
       if (isSuccessfulResponse(response.data)) {
         showAlert('Registro exitoso', 'El historial fue registrado.', 'success');
         closeCreateModal();

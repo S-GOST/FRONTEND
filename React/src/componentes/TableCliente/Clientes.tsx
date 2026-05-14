@@ -1,7 +1,7 @@
 import { useEffect, useState, type ChangeEvent, type FormEvent } from 'react';
 import Swal from 'sweetalert2';
 import {
-  crearCliente,
+  insertarCliente,
   actualizarCliente,
   eliminarCliente,
   obtenerClientePorId,
@@ -224,27 +224,33 @@ function Clientes() {
   };
 
   const handleCreate = async (event: FormEvent<HTMLFormElement>) => {
-    event.preventDefault();
-    try {
-      const payload = buildClientePayload(formData);
-      if (!payload.contrasena) {
-        showAlert('Atención', 'La contraseña es obligatoria para crear un cliente.', 'warning');
-        return;
-      }
-      const response = await crearCliente(payload);
-      if (isSuccessfulResponse(response.data)) {
-        await showAlert('Cliente creado', 'El nuevo cliente fue registrado correctamente.', 'success');
-        closeCreateModal();
-        await cargarClientes();
-      } else {
-        showAlert('Error', 'No se pudo crear el cliente.', 'error');
-      }
-    } catch (error) {
-      console.error('Error al crear cliente:', error);
+  event.preventDefault();
+  try {
+    const payload = buildClientePayload(formData);
+    if (!payload.contrasena) {
+      showAlert('Atención', 'La contraseña es obligatoria para crear un cliente.', 'warning');
+      return;
+    }
+    const response = await insertarCliente(payload);
+    if (isSuccessfulResponse(response.data)) {
+      await showAlert('Cliente creado', 'El nuevo cliente fue registrado correctamente.', 'success');
+      closeCreateModal();
+      await cargarClientes();
+    } else {
+      showAlert('Error', 'No se pudo crear el cliente.', 'error');
+    }
+  } catch (error: any) {
+    console.error('Error al crear cliente:', error);
+    
+    // ✅ Nuevo manejo de errores
+    const msg = error.response?.data?.message || error.message;
+    if (msg.includes('Duplicate entry') || error.response?.status === 409) {
+      showAlert('Error', 'Ya existe un cliente con ese ID, correo o usuario. Verifica los datos.', 'warning');
+    } else {
       showAlert('Error', 'Ocurrió un error al crear el cliente.', 'error');
     }
-  };
-
+  }
+};
   const handleUpdate = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     if (!currentCliente) return;

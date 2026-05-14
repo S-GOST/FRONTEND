@@ -3,7 +3,7 @@ import { useState, useEffect, type ChangeEvent, type FormEvent } from 'react';
 import Swal from 'sweetalert2';
 import {
   obtenerComprobantes,
-  crearComprobante,
+  insertarComprobante,
   actualizarComprobante,
   eliminarComprobante,
   type ComprobantePayload,
@@ -183,7 +183,7 @@ function TableComprobantes() {
     event.preventDefault();
     try {
       const payload = buildComprobantePayload(formData);
-      const response = await crearComprobante(payload);
+      const response = await insertarComprobante(payload);
       if (isSuccessResponse(response.data)) {
         showAlert('Éxito', 'Comprobante registrado correctamente.', 'success');
         setShowCreateModal(false);

@@ -3,7 +3,7 @@ import { useState, useEffect, type ChangeEvent, type FormEvent } from 'react';
 import Swal from 'sweetalert2';
 import {
   obtenerMotos,
-  crearMoto,
+  insertarMoto,
   actualizarMoto,
   eliminarMoto,
   type MotoPayload,
@@ -209,7 +209,7 @@ function TableMotos() {
     }
     try {
       const payload = buildMotoPayload(formData);
-      const response = await crearMoto(payload);
+      const response = await insertarMoto(payload);
       if (isSuccessfulResponse(response.data)) {
         showAlert('Moto registrada', 'La moto fue registrada correctamente.', 'success');
         closeCreateModal();

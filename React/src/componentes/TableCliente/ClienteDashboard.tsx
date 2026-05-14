@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Swal from 'sweetalert2';
-import { obtenerMotos, crearMoto, type MotoRecord, type MotoPayload } from '../../services/moto.service';
+import { obtenerMotos, insertarMoto, type MotoRecord, type MotoPayload } from '../../services/moto.service';
 import { obtenerOrdenes, type OrdenServicioRecord } from '../../services/ordenServicioService';
 import { clearSession } from '../../services/auth.services'; // Asegúrate que el archivo se llama así
 import '../TableAdmin/Dashboard.css';
@@ -133,7 +133,7 @@ function ClienteDashboard() {
       console.log("📤 Enviando payload a la API:", payload);
 
       // ✅ 2. Llamar a la API y capturar la respuesta completa
-      const res = await crearMoto(payload as any);
+      const res = await insertarMoto(payload as any);
 
       // ✅ 3. Extraer los datos de la moto creada (adaptable a cualquier estructura de respuesta)
       const nuevaMoto = res?.data?.data || res?.data || {};

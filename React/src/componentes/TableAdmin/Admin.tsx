@@ -1,7 +1,7 @@
 import { useEffect, useState, type ChangeEvent, type FormEvent } from 'react';
 import Swal from 'sweetalert2';
 import {
-  crearAdmin,
+  insertarAdmin,
   actualizarAdmin,
   eliminarAdmin,
   obtenerAdminPorId,
@@ -254,7 +254,7 @@ function Admins() {
         showAlert('Atención', 'La contraseña es obligatoria para crear un administrador.', 'warning');
         return;
       }
-      const response = await crearAdmin(payload);
+      const response = await insertarAdmin(payload);
       if (isSuccessfulResponse(response.data)) {
         let newAdmin = readAdminRecord(response.data);
         if (!newAdmin) {

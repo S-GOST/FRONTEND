@@ -15,11 +15,12 @@ export type DetalleOrdenServicioPayload = Omit<DetalleOrdenServicioRecord, 'ID_D
 // 👉 Instancia centralizada que hereda autenticación, fallbacks y CRUD genérico
 export const detalleOrdenServicioService = new BaseApiService<DetalleOrdenServicioPayload>({
   baseUrl: '/detalles_orden_servicio',
+  routes: { deletePrimary: '/eliminar/:id', deleteFallback: '' }
 });
 
 // 👉 Exportaciones idénticas para compatibilidad 100% con tus componentes
 export const obtenerDetallesOrdenes = () => detalleOrdenServicioService.obtenerTodos();
 export const obtenerDetalleOrdenPorId = (id: string) => detalleOrdenServicioService.obtenerPorId(id);
-export const crearDetalleOrden = (data: DetalleOrdenServicioPayload) => detalleOrdenServicioService.crear(data);
+export const insertarDetalleOrden = (data: DetalleOrdenServicioPayload) => detalleOrdenServicioService.crear(data);
 export const actualizarDetalleOrden = (id: string, data: DetalleOrdenServicioPayload) => detalleOrdenServicioService.actualizar(id, data);
 export const eliminarDetalleOrden = (id: string) => detalleOrdenServicioService.eliminar(id);

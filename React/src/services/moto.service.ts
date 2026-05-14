@@ -13,10 +13,11 @@ export interface MotoRecord extends MotoPayload {}
 
 export const motoService = new BaseApiService<MotoPayload>({
   baseUrl: '/motos',
+  routes: { deletePrimary: '/eliminar/:id', deleteFallback: '' }
 });
 
 export const obtenerMotos = () => motoService.obtenerTodos();
 export const obtenerMotoPorId = (id: string | number) => motoService.obtenerPorId(id);
-export const crearMoto = (data: MotoPayload) => motoService.crear(data);
+export const insertarMoto = (data: MotoPayload) => motoService.crear(data);
 export const actualizarMoto = (id: string | number, data: MotoPayload) => motoService.actualizar(id, data);
 export const eliminarMoto = (id: string | number) => motoService.eliminar(id);

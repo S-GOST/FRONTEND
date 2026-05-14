@@ -2,7 +2,7 @@ import { useEffect, useState, type ChangeEvent, type FormEvent } from 'react';
 import Swal from 'sweetalert2';
 import {
   actualizarServicio,
-  crearServicio,
+  insertarServicio,
   eliminarServicio,
   obtenerServicios,
   type ServicioPayload,
@@ -199,7 +199,7 @@ function Servicios() {
     }
     try {
       const payload = buildServicioPayload(formData);
-      const response = await crearServicio(payload);
+      const response = await insertarServicio(payload);
       if (isSuccessfulResponse(response.data)) {
         showAlert('Servicio creado', 'El servicio fue registrado correctamente.', 'success');
         closeCreateModal();

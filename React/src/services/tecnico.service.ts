@@ -11,10 +11,13 @@ export interface TecnicoPayload {
 }
 export interface TecnicoRecord extends TecnicoPayload {}
 
-export const tecnicoService = new BaseApiService<TecnicoPayload>({ baseUrl: '/tecnicos' });
+export const tecnicoService = new BaseApiService<TecnicoPayload>({
+  baseUrl: '/tecnicos',
+  routes: { deletePrimary: '/eliminar/:id', deleteFallback: '' }
+});
 
 export const obtenerTecnicos = () => tecnicoService.obtenerTodos();
 export const obtenerTecnicoPorId = (id: string | number) => tecnicoService.obtenerPorId(id);
-export const crearTecnico = (data: TecnicoPayload) => tecnicoService.crear(data);
+export const insertarTecnico = (data: TecnicoPayload) => tecnicoService.crear(data);
 export const actualizarTecnico = (id: string | number, data: TecnicoPayload) => tecnicoService.actualizar(id, data);
 export const eliminarTecnico = (id: string | number) => tecnicoService.eliminar(id);

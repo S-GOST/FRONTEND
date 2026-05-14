@@ -1,7 +1,7 @@
 import { useEffect, useState, type ChangeEvent, type FormEvent } from 'react';
 import Swal from 'sweetalert2';
 import {
-  crearTecnico,
+  insertarTecnico,
   actualizarTecnico,
   eliminarTecnico,
   obtenerTecnicoPorId,
@@ -227,7 +227,7 @@ function Tecnicos() {
         showAlert('Atención', 'La contraseña es obligatoria para crear un técnico.', 'warning');
         return;
       }
-      const response = await crearTecnico(payload);
+      const response = await insertarTecnico(payload);
       if (isSuccessfulResponse(response.data)) {
         await showAlert('Técnico creado', 'El nuevo técnico fue registrado correctamente.', 'success');
         closeCreateModal();

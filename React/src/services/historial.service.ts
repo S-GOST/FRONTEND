@@ -26,14 +26,14 @@ export const historialService = new BaseApiService<HistorialPayload>({
     createFallback: '/insertar',
     updatePrimary: '/:id',
     updateFallback: '/actualizar/:id',
-    deletePrimary: '/:id',
-    deleteFallback: '/eliminar/:id'
+    deletePrimary: '/eliminar/:id',
+    deleteFallback: ''
   }
 });
 
 // Exportar funciones para usar en los componentes
 export const obtenerHistorial = () => historialService.obtenerTodos();
 export const obtenerHistorialPorId = (id: string | number) => historialService.obtenerPorId(id);
-export const crearHistorial = (data: HistorialPayload) => historialService.crear(data);
+export const insertarHistorial = (data: HistorialPayload) => historialService.crear(data);
 export const actualizarHistorial = (id: string | number, data: HistorialPayload) => historialService.actualizar(id, data);
 export const eliminarHistorial = (id: string | number) => historialService.eliminar(id);

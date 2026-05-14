@@ -2,7 +2,7 @@ import { useEffect, useState, type ChangeEvent, type FormEvent } from 'react';
 import Swal from 'sweetalert2';
 import {
   obtenerProductos,
-  crearProducto,
+  insertarProducto,
   actualizarProducto,
   eliminarProducto,
   type ProductoPayload,
@@ -11,6 +11,7 @@ import {
 import { FormattedId } from '../../componentes/FormattedId';
 import './Productos.css';
 
+  
 const CATEGORIAS = [
   'Accesorios',
   'Repuestos',
@@ -248,7 +249,7 @@ function TableProductos() {
 
     try {
       const payload = buildProductoPayload(formData);
-      const response = await crearProducto(payload);
+      const response = await insertarProducto(payload);
 
       if (isSuccessfulResponse(response.data)) {
         await showAlert(

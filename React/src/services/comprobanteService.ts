@@ -17,12 +17,13 @@ export interface ComprobanteRecord extends Required<ComprobantePayload> {}
 // 👉 Instancia centralizada que hereda autenticación, fallbacks y CRUD genérico
 export const comprobanteService = new BaseApiService<ComprobantePayload>({
   baseUrl: '/comprobantes',
+  routes: { deletePrimary: '/eliminar/:id', deleteFallback: '' }
 });
 
 // 👉 Exportaciones idénticas para compatibilidad 100% con tus componentes
 export const obtenerComprobantes = () => comprobanteService.obtenerTodos();
 export const obtenerComprobantePorId = (id: ComprobanteId) => comprobanteService.obtenerPorId(id);
-export const crearComprobante = (datos: ComprobantePayload) => comprobanteService.crear(datos);
+export const insertarComprobante = (datos: ComprobantePayload) => comprobanteService.crear(datos);
 export const actualizarComprobante = (id: ComprobanteId, datosActualizados: ComprobantePayload) => 
   comprobanteService.actualizar(id, datosActualizados);
 export const eliminarComprobante = (id: ComprobanteId) => comprobanteService.eliminar(id);

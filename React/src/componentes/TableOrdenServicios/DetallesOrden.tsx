@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom';
 import Swal from 'sweetalert2';
 import {
   obtenerDetallesOrdenes,
-  crearDetalleOrden,
+  insertarDetalleOrden,
   actualizarDetalleOrden,
   eliminarDetalleOrden,
   type DetalleOrdenServicioRecord,
@@ -237,7 +237,7 @@ const DetallesOrden = () => {
         await actualizarDetalleOrden(currentDetalle.ID_DETALLES_ORDEN_SERVICIO, payload);
         showAlert('Actualizado', 'El detalle se actualizó correctamente', 'success');
       } else {
-        await crearDetalleOrden(payload);
+        await insertarDetalleOrden(payload);
         showAlert('Creado', 'Nuevo detalle de orden creado', 'success');
       }
       setModalFormOpen(false);

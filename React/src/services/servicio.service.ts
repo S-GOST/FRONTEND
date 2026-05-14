@@ -14,11 +14,12 @@ export interface ServicioRecord extends ServicioPayload {}
 // 👉 Instancia centralizada que hereda toda la lógica de la API Base
 export const servicioService = new BaseApiService<ServicioPayload>({
   baseUrl: '/servicios',
+  routes: { deletePrimary: '/eliminar/:id', deleteFallback: '' }
 });
 
 // 👉 Funciones exportadas con los mismos nombres para compatibilidad total
 export const obtenerServicios = () => servicioService.obtenerTodos();
 export const obtenerServicioPorId = (id: string | number) => servicioService.obtenerPorId(id);
-export const crearServicio = (data: ServicioPayload) => servicioService.crear(data);
+export const insertarServicio = (data: ServicioPayload) => servicioService.crear(data);
 export const actualizarServicio = (id: string | number, data: ServicioPayload) => servicioService.actualizar(id, data);
 export const eliminarServicio = (id: string | number) => servicioService.eliminar(id);
