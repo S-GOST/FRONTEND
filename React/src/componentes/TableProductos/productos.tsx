@@ -14,10 +14,7 @@ import './Productos.css';
   
 const CATEGORIAS = [
   'Accesorios',
-  'Repuestos',
-  'Herramientas',
-  'Lubricantes',
-  'Neumáticos',
+  'Lubricantes y refrigerantes',
 ];
 
 const ESTADOS = ['Disponibles', 'Agotados', 'Próximamente'] as const;

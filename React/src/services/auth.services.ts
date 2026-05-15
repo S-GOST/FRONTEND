@@ -7,7 +7,6 @@ export interface LoginResponse {
   [key: string]: any;
 }
 
-//  Decodificación segura de JWT en el navegador (sin Node.js Buffer)
 const decodeJwt = (token: string): any => {
   try {
     const base64Url = token.split('.')[1];
@@ -25,7 +24,6 @@ export const storeSession = (data: LoginResponse, role: 'admin' | 'tecnico' | 'c
   localStorage.setItem('user_name', data.nombre ?? 'Usuario');
   localStorage.setItem('user_role', role);
 
-  // 🔍 Buscar ID en las respuestas más comunes
   const posiblesIds = [
     data.id, data.ID_CLIENTES, data.usuario, data.email,
     data.data?.id, data.data?.ID_CLIENTES,
@@ -38,7 +36,6 @@ export const storeSession = (data: LoginResponse, role: 'admin' | 'tecnico' | 'c
     localStorage.setItem('user_id', String(userId));
     console.log('✅ [AUTH] user_id guardado:', userId);
   } else if (data.token) {
-    // 🔄 Fallback: Extraer ID del JWT si el backend no lo envía en el cuerpo
     const payload = decodeJwt(data.token);
     userId = payload?.id || payload?.sub || payload?.usuario || payload?.ID_CLIENTES;
     
@@ -58,20 +55,31 @@ export const clearSession = () => {
   window.location.replace('/login');
 };
 
+// 🚀 SERVICIO UNIFICADO DE LOGIN
 export const loginService = async (usuario: string, contrasena: string) => {
+  // 1. Limpieza crítica para evitar espacios invisibles
+  const user = usuario.trim();
+  const pass = contrasena.trim();
+
   try {
-    const res = await apiClient.post<LoginResponse>('/tecnicos/login', { usuario, contrasena });
-    return storeSession(res.data, 'tecnico');
+    // Intento 1: Técnicos
+    const resTec = await apiClient.post<LoginResponse>('/tecnicos/login', { usuario: user, contrasena: pass });
+    return storeSession(resTec.data, 'tecnico');
   } catch (error: any) {
     if (error.response?.status === 401) {
-      const res = await apiClient.post<LoginResponse>('/admins/login', { usuario, contrasena });
-      return storeSession(res.data, 'admin');
+      // Intento 2: Admins (solo si el error fue credenciales inválidas)
+      const resAdm = await apiClient.post<LoginResponse>('/admins/login', { usuario: user, contrasena: pass });
+      return storeSession(resAdm.data, 'admin');
     }
+    // Si no es 401 (ej: error de red, 500, etc.), lanzamos el error original
     throw error;
   }
 };
 
 export const loginClienteService = async (usuario: string, contrasena: string) => {
-  const res = await apiClient.post<LoginResponse>('/clientes/login', { usuario, contrasena });
+  const user = usuario.trim();
+  const pass = contrasena.trim();
+  
+  const res = await apiClient.post<LoginResponse>('/clientes/login', { usuario: user, contrasena: pass });
   return storeSession(res.data, 'cliente');
 };

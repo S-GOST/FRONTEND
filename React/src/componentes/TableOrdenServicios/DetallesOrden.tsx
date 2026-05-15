@@ -30,11 +30,11 @@ const extractArray = <T,>(payload: unknown, fallback: T[] = []): T[] => {
   return fallback;
 };
 
-const initialFormState: DetalleOrdenServicioPayload & { ID_DETALLES_ORDEN_SERVICIO?: string } = {
-  ID_DETALLES_ORDEN_SERVICIO: '',
-  ID_ORDEN_SERVICIO: '',
-  ID_SERVICIOS: '',
-  ID_PRODUCTOS: '',
+const initialFormState: DetalleOrdenServicioPayload & { ID_DETALLES_ORDEN_SERVICIO?: number } = {
+  ID_DETALLES_ORDEN_SERVICIO: 0,
+  ID_ORDEN_SERVICIO: 0,
+  ID_SERVICIOS: 0,
+  ID_PRODUCTOS: 0,
   Garantia: 0,
   Estado: 'Pendiente',
   Precio: 0,
@@ -109,11 +109,12 @@ const DetallesOrden = () => {
       results = results.filter(detalle => detalle.Estado === filtroEstado);
     }
     if (term) {
+      // FIX: Convertir a String para evitar crash si los IDs son números
       results = results.filter(detalle =>
-        detalle.ID_DETALLES_ORDEN_SERVICIO.toLowerCase().includes(term) ||
-        detalle.ID_ORDEN_SERVICIO.toLowerCase().includes(term) ||
-        (detalle.ID_SERVICIOS?.toLowerCase().includes(term) ?? false) ||
-        (detalle.ID_PRODUCTOS?.toLowerCase().includes(term) ?? false)
+        Number(detalle.ID_DETALLES_ORDEN_SERVICIO).toString().toLowerCase().includes(term) ||
+        Number(detalle.ID_ORDEN_SERVICIO).toString().toLowerCase().includes(term) ||
+        Number(detalle.ID_SERVICIOS || '').toString().toLowerCase().includes(term) ||
+        Number(detalle.ID_PRODUCTOS || '').toString().toLowerCase().includes(term)
       );
     }
     setFilteredDetalles(results);
@@ -135,11 +136,12 @@ const DetallesOrden = () => {
   const openEditModal = (detalle: DetalleOrdenServicioRecord) => {
     setEditMode(true);
     setCurrentDetalle(detalle);
+    // FIX: Asegurar que los IDs sean numbers para el input
     setFormData({
-      ID_DETALLES_ORDEN_SERVICIO: detalle.ID_DETALLES_ORDEN_SERVICIO,
-      ID_ORDEN_SERVICIO: detalle.ID_ORDEN_SERVICIO,
-      ID_SERVICIOS: detalle.ID_SERVICIOS || '',
-      ID_PRODUCTOS: detalle.ID_PRODUCTOS || '',
+      ID_DETALLES_ORDEN_SERVICIO: Number(detalle.ID_DETALLES_ORDEN_SERVICIO),
+      ID_ORDEN_SERVICIO: Number(detalle.ID_ORDEN_SERVICIO),
+      ID_SERVICIOS: detalle.ID_SERVICIOS ? Number(detalle.ID_SERVICIOS) : 0,
+      ID_PRODUCTOS: detalle.ID_PRODUCTOS ? Number(detalle.ID_PRODUCTOS) : 0,
       Garantia: detalle.Garantia ?? 0,
       Estado: detalle.Estado,
       Precio: detalle.Precio ?? 0,
@@ -157,8 +159,8 @@ const DetallesOrden = () => {
 
   const validarFormulario = (): boolean => {
     // Validar ID_DETALLES_ORDEN_SERVICIO en creación
-    const detalleId = formData.ID_DETALLES_ORDEN_SERVICIO?.trim();
-    if (!editMode && (!detalleId || detalleId === '')) {
+    const detalleId = formData.ID_DETALLES_ORDEN_SERVICIO;
+    if (!editMode && (!detalleId || detalleId === 0 || isNaN(detalleId))) {
       showAlert('Error', 'El ID del detalle es obligatorio', 'error');
       return false;
     }
@@ -171,20 +173,24 @@ const DetallesOrden = () => {
     }
 
     // Validar orden
-    const ordenId = formData.ID_ORDEN_SERVICIO;
-    if (!ordenId) {
+    const ordenIdStr = formData.ID_ORDEN_SERVICIO;
+    if (!ordenIdStr || ordenIdStr === 0 || isNaN(ordenIdStr)) {
       showAlert('Error', 'El ID de la orden de servicio es obligatorio', 'error');
       return false;
     }
-    const ordenExiste = ordenes.some(o => o.ID_ORDEN_SERVICIO === ordenId);
+    
+    // FIX: Comparar como números para evitar fallos de tipos (ej. 1 === "1" es falso)
+    const ordenIdNum = Number(ordenIdStr);
+    const ordenExiste = ordenes.some(o => Number(o.ID_ORDEN_SERVICIO) === ordenIdNum);
+    
     if (!ordenExiste) {
-      showAlert('Error', `La orden con ID "${ordenId}" no existe en la base de datos`, 'error');
+      showAlert('Error', `La orden con ID "${ordenIdStr}" no existe en la base de datos`, 'error');
       return false;
     }
 
     // Al menos un servicio o producto
-    const tieneServicio = formData.ID_SERVICIOS && formData.ID_SERVICIOS.trim() !== '';
-    const tieneProducto = formData.ID_PRODUCTOS && formData.ID_PRODUCTOS.trim() !== '';
+    const tieneServicio = formData.ID_SERVICIOS && formData.ID_SERVICIOS !== 0;
+    const tieneProducto = formData.ID_PRODUCTOS && formData.ID_PRODUCTOS !== 0;
     if (!tieneServicio && !tieneProducto) {
       showAlert('Error', 'Debe seleccionar al menos un servicio o un producto', 'error');
       return false;
@@ -193,7 +199,8 @@ const DetallesOrden = () => {
     // Validar servicio
     if (tieneServicio) {
       const servicioId = formData.ID_SERVICIOS!;
-      const existe = servicios.some(s => s.ID_SERVICIOS === servicioId);
+      // FIX: Comparación numérica segura
+      const existe = servicios.some(s => Number(s.ID_SERVICIOS) === Number(servicioId));
       const esMismoQueOriginal = editMode && currentDetalle && currentDetalle.ID_SERVICIOS === servicioId;
       if (!existe && !esMismoQueOriginal) {
         showAlert('Error', `El servicio con ID "${servicioId}" no existe`, 'error');
@@ -204,7 +211,8 @@ const DetallesOrden = () => {
     // Validar producto
     if (tieneProducto) {
       const productoId = formData.ID_PRODUCTOS!;
-      const existe = productos.some(p => p.ID_PRODUCTOS === productoId);
+      // FIX: Comparación numérica segura
+      const existe = productos.some(p => Number(p.ID_PRODUCTOS) === Number(productoId));
       const esMismoQueOriginal = editMode && currentDetalle && currentDetalle.ID_PRODUCTOS === productoId;
       if (!existe && !esMismoQueOriginal) {
         showAlert('Error', `El producto con ID "${productoId}" no existe`, 'error');
@@ -219,17 +227,18 @@ const DetallesOrden = () => {
     e.preventDefault();
     if (!validarFormulario()) return;
 
-    // Preparar payload (sin el campo ID si el backend no lo requiere en actualización)
+    // Preparar payload (Convertir IDs a Números explícitamente)
     const payload: any = {
-      ID_ORDEN_SERVICIO: formData.ID_ORDEN_SERVICIO,
-      ID_SERVICIOS: formData.ID_SERVICIOS,
-      ID_PRODUCTOS: formData.ID_PRODUCTOS,
+      ID_ORDEN_SERVICIO: Number(formData.ID_ORDEN_SERVICIO),
+      ID_SERVICIOS: formData.ID_SERVICIOS ? Number(formData.ID_SERVICIOS) : null,
+      ID_PRODUCTOS: formData.ID_PRODUCTOS ? Number(formData.ID_PRODUCTOS) : null,
       Garantia: formData.Garantia,
       Estado: formData.Estado,
       Precio: formData.Precio,
     };
+    
     if (!editMode) {
-      payload.ID_DETALLES_ORDEN_SERVICIO = formData.ID_DETALLES_ORDEN_SERVICIO;
+      payload.ID_DETALLES_ORDEN_SERVICIO = Number(formData.ID_DETALLES_ORDEN_SERVICIO);
     }
 
     try {
@@ -267,7 +276,8 @@ const DetallesOrden = () => {
     });
     if (!result.isConfirmed) return;
     try {
-      await eliminarDetalleOrden(detalle.ID_DETALLES_ORDEN_SERVICIO);
+      // FIX: Enviar número al borrar
+      await eliminarDetalleOrden(Number (detalle.ID_DETALLES_ORDEN_SERVICIO));
       showAlert('Eliminado', 'El detalle ha sido eliminado', 'success');
       await cargarDatosIniciales();
     } catch (err: any) {

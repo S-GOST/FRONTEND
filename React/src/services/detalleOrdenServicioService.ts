@@ -1,10 +1,10 @@
 import { BaseApiService } from './base.service';
 
 export interface DetalleOrdenServicioRecord {
-  ID_DETALLES_ORDEN_SERVICIO: string;
-  ID_ORDEN_SERVICIO: string;
-  ID_SERVICIOS?: string;
-  ID_PRODUCTOS?: string;
+  ID_DETALLES_ORDEN_SERVICIO: number;
+  ID_ORDEN_SERVICIO: number;
+  ID_SERVICIOS?: number;
+  ID_PRODUCTOS?: number;
   Garantia?: number;
   Estado: string;
   Precio?: number;
@@ -20,7 +20,7 @@ export const detalleOrdenServicioService = new BaseApiService<DetalleOrdenServic
 
 // 👉 Exportaciones idénticas para compatibilidad 100% con tus componentes
 export const obtenerDetallesOrdenes = () => detalleOrdenServicioService.obtenerTodos();
-export const obtenerDetalleOrdenPorId = (id: string) => detalleOrdenServicioService.obtenerPorId(id);
+export const obtenerDetalleOrdenPorId = (id: number) => detalleOrdenServicioService.obtenerPorId(id);
 export const insertarDetalleOrden = (data: DetalleOrdenServicioPayload) => detalleOrdenServicioService.crear(data);
-export const actualizarDetalleOrden = (id: string, data: DetalleOrdenServicioPayload) => detalleOrdenServicioService.actualizar(id, data);
-export const eliminarDetalleOrden = (id: string) => detalleOrdenServicioService.eliminar(id);
+export const actualizarDetalleOrden = (id: number, data: DetalleOrdenServicioPayload) => detalleOrdenServicioService.actualizar(id, data);
+export const eliminarDetalleOrden = (id: number) => detalleOrdenServicioService.eliminar(id);
