@@ -38,6 +38,11 @@ const createInitialFormData = (): AdminFormState => ({
   contrasenaActual: '',
 });
 
+// --- FUNCIÓN AUXILIAR: Filtra solo letras ---
+const filterOnlyLetters = (value: string): string => {
+  return value.replace(/[^a-zA-ZñÑ\s]/g, '');
+};
+
 const readAdminArray = (value: unknown): AdminRecord[] | null => {
   if (Array.isArray(value)) return value;
   if (value && typeof value === 'object') {
@@ -126,7 +131,6 @@ function Admins() {
     }
   };
 
-  // Función para actualizar el estado local después de crear o editar
   const updateAdminInState = (updatedAdmin: AdminRecord) => {
     setAdmins(prev => {
       const exists = prev.some(a => a.ID_ADMINISTRADOR === updatedAdmin.ID_ADMINISTRADOR);
@@ -178,6 +182,34 @@ function Admins() {
   const handleInputChange = (event: ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     const { name, value } = event.target;
     setFormData(prev => ({ ...prev, [name]: value }));
+  };
+
+  // ✅ FUNCIÓN CON AVISO FLOTANTE (TOAST)
+  const handleTextOnlyInput = (event: ChangeEvent<HTMLInputElement>) => {
+    const { name, value } = event.target;
+    const sanitizedValue = filterOnlyLetters(value);
+
+    // Si lo que escribió el usuario contiene números/símbolos, mostramos el aviso
+    if (value !== sanitizedValue) {
+      Swal.fire({
+        title: 'Solo letras permitidas',
+        text: 'No se permiten números ni símbolos en este campo.',
+        icon: 'warning',
+        toast: true,
+        position: 'top-end',
+        showConfirmButton: false,
+        timer: 1500,
+        timerProgressBar: true,
+        background: '#101010',
+        color: '#f5f5f5',
+        customClass: {
+          popup: 'swal2-toast'
+        }
+      });
+    }
+
+    // Actualizamos el estado solo con el texto limpio
+    setFormData(prev => ({ ...prev, [name]: sanitizedValue }));
   };
 
   const openEditModal = async (admin: AdminRecord) => {
@@ -285,7 +317,6 @@ function Admins() {
     if (!currentAdmin) return;
     try {
       const payload = buildAdminPayload(formData);
-      // La contraseña es opcional en la edición
       const response = await actualizarAdmin(currentAdmin.ID_ADMINISTRADOR, payload);
       if (isSuccessfulResponse(response.data)) {
         let updatedAdmin = readAdminRecord(response.data);
@@ -455,7 +486,7 @@ function Admins() {
                   type="text"
                   name="Nombre"
                   value={formData.Nombre}
-                  onChange={handleInputChange}
+                  onChange={handleTextOnlyInput}
                   required
                 />
               </div>
@@ -501,7 +532,7 @@ function Admins() {
                   type="text"
                   name="usuario"
                   value={formData.usuario}
-                  onChange={handleInputChange}
+                  onChange={handleTextOnlyInput}
                   required
                 />
               </div>
@@ -554,7 +585,7 @@ function Admins() {
                   type="text"
                   name="Nombre"
                   value={formData.Nombre}
-                  onChange={handleInputChange}
+                  onChange={handleTextOnlyInput}
                   required
                 />
               </div>
@@ -604,7 +635,7 @@ function Admins() {
                   type="text"
                   name="usuario"
                   value={formData.usuario}
-                  onChange={handleInputChange}
+                  onChange={handleTextOnlyInput}
                   required
                 />
               </div>
