@@ -8,9 +8,11 @@ import {
   eliminarMoto,
   type MotoPayload,
   type MotoRecord,
-} from '../../services/moto.service'; 
+} from '../../services/moto.service';
+import { obtenerClientes, type ClienteRecord } from '../../services/cliente.service'; // 👈 Importar servicio de clientes
 import './Motos.css';
 import { FormattedId } from '../../componentes/FormattedId';
+
 const createInitialFormData = (): MotoPayload => ({
   ID_MOTOS: '',
   ID_CLIENTES: '',
@@ -93,9 +95,29 @@ function TableMotos() {
   const [currentMoto, setCurrentMoto] = useState<MotoRecord | null>(null);
   const [formData, setFormData] = useState<MotoPayload>(createInitialFormData());
 
+  // 👇 Estado para clientes
+  const [clientes, setClientes] = useState<ClienteRecord[]>([]);
+  const [loadingClientes, setLoadingClientes] = useState(false);
+
   useEffect(() => {
     void cargarMotos();
   }, []);
+
+  // 👇 Función para cargar clientes desde la API
+  const cargarClientes = async () => {
+    try {
+      setLoadingClientes(true);
+      const response = await obtenerClientes();
+      // Ajusta según la estructura real de tu respuesta (similar a extractMotos)
+      const data = Array.isArray(response.data) ? response.data : response.data?.data || [];
+      setClientes(data);
+    } catch (error) {
+      console.error('Error al cargar clientes:', error);
+      showAlert('Error', 'No se pudieron cargar los clientes.', 'error');
+    } finally {
+      setLoadingClientes(false);
+    }
+  };
 
   const showAlert = (title: string, text: string, icon: 'success' | 'error' | 'warning') => {
     return Swal.fire({
@@ -151,12 +173,15 @@ function TableMotos() {
     setFormData((prev: MotoPayload) => ({ ...prev, [name]: value }) as MotoPayload);
   };
 
+  // 👇 Al abrir el modal de creación, cargar clientes y resetear formulario
   const openCreateModal = () => {
     setCurrentMoto(null);
     setFormData(createInitialFormData());
     setShowCreateModal(true);
+    void cargarClientes(); // Cargar lista de clientes
   };
 
+  // 👇 Al abrir el modal de edición, también cargar clientes y preseleccionar el actual
   const openEditModal = (moto: MotoRecord) => {
     setCurrentMoto(moto);
     setFormData({
@@ -168,17 +193,20 @@ function TableMotos() {
       Recorrido: moto.Recorrido,
     });
     setShowEditModal(true);
+    void cargarClientes(); // Cargar clientes para el selector
   };
 
   const closeCreateModal = () => {
     setShowCreateModal(false);
     setFormData(createInitialFormData());
+    setClientes([]); // Opcional: limpiar lista al cerrar
   };
 
   const closeEditModal = () => {
     setShowEditModal(false);
     setCurrentMoto(null);
     setFormData(createInitialFormData());
+    setClientes([]);
   };
 
   const validateForm = (): string | null => {
@@ -315,49 +343,41 @@ function TableMotos() {
             <p>Cargando motos...</p>
           </div>
         ) : (
-        <div className="table-responsive-container">
-          <table className="table-ktm">
-            <thead>
-              <tr>
-                <th>ID Moto</th>
-                <th>ID Cliente</th>
-                <th>Placa</th>
-                <th>Modelo</th>
-                <th>Marca</th>
-                <th>Recorrido (km)</th>
-                <th>Acciones</th>
-              </tr>
-            </thead>
-           <tbody>
-  {filteredMotos.map((moto) => (
-    <tr key={moto.ID_MOTOS} className="hover:bg-orange-900/20 transition-colors">
-      
-      {/* ✅ ID MOTO FORMATEADO */}
-      <td className="font-mono text-orange-400 font-semibold tracking-wide">
-        <FormattedId entity="moto" value={moto.ID_MOTOS} />
-      </td>
-
-      {/* ✅ ID CLIENTE FORMATEADO */}
-      <td className="font-mono text-blue-400 font-semibold tracking-wide">
-        <FormattedId entity="cliente" value={moto.ID_CLIENTES} />
-      </td>
-
-      {/* Las demás columnas se mantienen igual */}
-      <td className="text-gray-200">{moto.Placa}</td>
-      <td className="text-gray-200">{moto.Modelo}</td>
-      <td className="text-gray-200">{moto.Marca}</td>
-      <td className="text-gray-300">{formatRecorrido(moto.Recorrido)} km</td>
-      
-      <td className="flex gap-2">
-        {/* Tus botones de Editar/Eliminar */}
-        <button className="btn-editar" onClick={() => openEditModal(moto)}>✏️ Editar</button>
-        <button className="btn-eliminar" onClick={() => borrarMoto(moto)}>🗑️ Eliminar</button>
-      </td>
-    </tr>
-  ))}
-</tbody>
-          </table>
-        </div>
+          <div className="table-responsive-container">
+            <table className="table-ktm">
+              <thead>
+                <tr>
+                  <th>ID Moto</th>
+                  <th>ID Cliente</th>
+                  <th>Placa</th>
+                  <th>Modelo</th>
+                  <th>Marca</th>
+                  <th>Recorrido (km)</th>
+                  <th>Acciones</th>
+                </tr>
+              </thead>
+              <tbody>
+                {filteredMotos.map((moto) => (
+                  <tr key={moto.ID_MOTOS} className="hover:bg-orange-900/20 transition-colors">
+                    <td className="font-mono text-orange-400 font-semibold tracking-wide">
+                      <FormattedId entity="moto" value={moto.ID_MOTOS} />
+                    </td>
+                    <td className="font-mono text-blue-400 font-semibold tracking-wide">
+                      <FormattedId entity="cliente" value={moto.ID_CLIENTES} />
+                    </td>
+                    <td className="text-gray-200">{moto.Placa}</td>
+                    <td className="text-gray-200">{moto.Modelo}</td>
+                    <td className="text-gray-200">{moto.Marca}</td>
+                    <td className="text-gray-300">{formatRecorrido(moto.Recorrido)} km</td>
+                    <td className="flex gap-2">
+                      <button className="btn-editar" onClick={() => openEditModal(moto)}>✏️ Editar</button>
+                      <button className="btn-eliminar" onClick={() => borrarMoto(moto)}>🗑️ Eliminar</button>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
         )}
       </div>
 
@@ -383,16 +403,24 @@ function TableMotos() {
                   required
                 />
               </div>
+              {/* 👇 Selector de clientes */}
               <div className="form-group">
-                <label>ID Cliente</label>
-                <input
-                  type="text"
+                <label>Cliente *</label>
+                <select
                   name="ID_CLIENTES"
                   value={formData.ID_CLIENTES}
                   onChange={handleInputChange}
-                  placeholder="ID del cliente dueño"
                   required
-                />
+                  disabled={loadingClientes}
+                >
+                  <option value="">-- Seleccione un cliente --</option>
+                  {clientes.map((cliente) => (
+                    <option key={cliente.ID_CLIENTES} value={cliente.ID_CLIENTES}>
+                      {cliente.ID_CLIENTES} - {cliente.Nombre} 
+                    </option>
+                  ))}
+                </select>
+                {loadingClientes && <small>Cargando clientes...</small>}
               </div>
               <div className="form-group">
                 <label>Placa</label>
@@ -440,9 +468,7 @@ function TableMotos() {
                 />
               </div>
               <div className="modal-footer">
-                <button type="button" onClick={closeCreateModal}>
-                  Cancelar
-                </button>
+                <button type="button" onClick={closeCreateModal}>Cancelar</button>
                 <button type="submit">Registrar Moto</button>
               </div>
             </form>
@@ -467,19 +493,29 @@ function TableMotos() {
                   type="text"
                   name="ID_MOTOS"
                   value={formData.ID_MOTOS}
+                  readOnly
                   required
                   title="El ID no se puede modificar"
                 />
               </div>
+              {/* 👇 Selector de clientes (mismo que en creación) */}
               <div className="form-group">
-                <label>ID Cliente</label>
-                <input
-                  type="text"
+                <label>Cliente *</label>
+                <select
                   name="ID_CLIENTES"
                   value={formData.ID_CLIENTES}
                   onChange={handleInputChange}
                   required
-                />
+                  disabled={loadingClientes}
+                >
+                  <option value="">-- Seleccione un cliente --</option>
+                  {clientes.map((cliente) => (
+                    <option key={cliente.ID_CLIENTES} value={cliente.ID_CLIENTES}>
+                      {cliente.ID_CLIENTES} - {cliente.Nombre} 
+                    </option>
+                  ))}
+                </select>
+                {loadingClientes && <small>Cargando clientes...</small>}
               </div>
               <div className="form-group">
                 <label>Placa</label>
@@ -523,9 +559,7 @@ function TableMotos() {
                 />
               </div>
               <div className="modal-footer">
-                <button type="button" onClick={closeEditModal}>
-                  Cancelar
-                </button>
+                <button type="button" onClick={closeEditModal}>Cancelar</button>
                 <button type="submit">Guardar Cambios</button>
               </div>
             </form>

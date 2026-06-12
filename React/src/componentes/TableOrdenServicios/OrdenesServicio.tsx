@@ -15,7 +15,7 @@ import { obtenerAdmins, type AdminRecord } from '../../services/admin.service';
 import { FormattedId } from '../../componentes/FormattedId';
 import './OrdenesServicio.css';
 
-// Extractor de datos
+// Extractor de datos para órdenes
 const extractOrdenes = (payload: unknown): OrdenServicioRecord[] => {
   if (Array.isArray(payload)) return payload;
   if (payload && typeof payload === 'object') {
@@ -24,6 +24,21 @@ const extractOrdenes = (payload: unknown): OrdenServicioRecord[] => {
     if (fromData.length) return fromData;
     const fromOrdenes = extractOrdenes(nested.ordenes);
     if (fromOrdenes.length) return fromOrdenes;
+  }
+  return [];
+};
+
+// Extractor genérico para cualquier entidad
+const extractArray = <T,>(payload: unknown): T[] => {
+  if (Array.isArray(payload)) return payload;
+  if (payload && typeof payload === 'object') {
+    const nested = payload as Record<string, unknown>;
+    if (Array.isArray(nested.data)) return nested.data as T[];
+    if (Array.isArray(nested.items)) return nested.items as T[];
+    // Buscar la primera propiedad que sea array
+    for (const key in nested) {
+      if (Array.isArray(nested[key])) return nested[key] as T[];
+    }
   }
   return [];
 };
@@ -45,6 +60,7 @@ const OrdenesServicio = () => {
   const [ordenes, setOrdenes] = useState<OrdenServicioRecord[]>([]);
   const [filteredOrdenes, setFilteredOrdenes] = useState<OrdenServicioRecord[]>([]);
   const [loading, setLoading] = useState(true);
+  const [submitting, setSubmitting] = useState(false);
   const [filtroEstado, setFiltroEstado] = useState<string>('todas');
   const [searchTerm, setSearchTerm] = useState('');
   const [error, setError] = useState<string | null>(null);
@@ -83,13 +99,22 @@ const OrdenesServicio = () => {
         obtenerMotos(),
         obtenerAdmins(),
       ]);
+
+      console.log('Respuesta clientes:', clientesRes.data);
+      console.log('Respuesta técnicos:', tecnicosRes.data);
+      console.log('Respuesta motos:', motosRes.data);
+      console.log('Respuesta admins:', adminRes.data);
+
       const ordenesData = extractOrdenes(ordenesRes.data);
       setOrdenes(ordenesData);
       setFilteredOrdenes(ordenesData);
-      setClientes(Array.isArray(clientesRes.data) ? clientesRes.data : []);
-      setTecnicos(Array.isArray(tecnicosRes.data) ? tecnicosRes.data : []);
-      setMotos(Array.isArray(motosRes.data) ? motosRes.data : []);
-      setAdministradores(Array.isArray(adminRes.data) ? adminRes.data : []);
+
+      // Usar extractor genérico para cada entidad
+      setClientes(extractArray<ClienteRecord>(clientesRes.data));
+      setTecnicos(extractArray<TecnicoRecord>(tecnicosRes.data));
+      setMotos(extractArray<MotoRecord>(motosRes.data));
+      setAdministradores(extractArray<AdminRecord>(adminRes.data));
+
       setError(null);
     } catch (err) {
       console.error(err);
@@ -123,7 +148,6 @@ const OrdenesServicio = () => {
     setFilteredOrdenes(ordenes);
   };
 
-  // CRUD: Crear / Editar
   const openCreateModal = () => {
     setEditMode(false);
     setFormData(initialFormState);
@@ -154,6 +178,23 @@ const OrdenesServicio = () => {
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
+    if (submitting) return;
+    
+    // Validación básica
+    if (!formData.ID_CLIENTES || !formData.ID_ADMINISTRADOR) {
+      showAlert('Campos requeridos', 'Debe seleccionar un cliente y un administrador.', 'warning');
+      return;
+    }
+
+    // Verificar que las fechas sean válidas
+    if (!formData.Fecha_inicio || !formData.Fecha_estimada) {
+      showAlert('Fechas requeridas', 'Debe especificar fecha de inicio y fecha estimada.', 'warning');
+      return;
+    }
+
+    console.log('Enviando payload:', formData); // Depuración
+
+    setSubmitting(true);
     try {
       if (editMode && selectedOrder) {
         await actualizarOrden(selectedOrder.ID_ORDEN_SERVICIO, formData);
@@ -165,8 +206,10 @@ const OrdenesServicio = () => {
       setModalFormOpen(false);
       await cargarDatosIniciales();
     } catch (err) {
-      console.error(err);
+      console.error('Error al guardar:', err);
       showAlert('Error', 'No se pudo guardar la orden', 'error');
+    } finally {
+      setSubmitting(false);
     }
   };
 
@@ -286,7 +329,7 @@ const OrdenesServicio = () => {
         </div>
       </div>
 
-      {/* Modal de detalles (solo información, sin cambio de estado) */}
+      {/* Modal de detalles */}
       {modalOpen && selectedOrder && (
         <div className="modal-overlay" onClick={() => setModalOpen(false)}>
           <div className="modal-container" onClick={(e) => e.stopPropagation()}>
@@ -311,7 +354,7 @@ const OrdenesServicio = () => {
         </div>
       )}
 
-      {/* Modal de formulario (Crear/Editar) - puede cambiar el estado dentro del formulario */}
+      {/* Modal de formulario */}
       {modalFormOpen && (
         <div className="modal-overlay" onClick={() => setModalFormOpen(false)}>
           <div className="modal-container" onClick={(e) => e.stopPropagation()}>
@@ -321,88 +364,77 @@ const OrdenesServicio = () => {
             </div>
             <form onSubmit={handleSubmit}>
               <div className="modal-body">
-                {/* Cliente - input con datalist */}
+                {/* Cliente */}
                 <div className="form-group">
                   <label>Cliente *</label>
-                  <input
-                    list="clientes-list"
+                  <select
                     name="ID_CLIENTES"
                     value={formData.ID_CLIENTES}
                     onChange={handleFormChange}
-                    placeholder="Escribe o selecciona un ID de cliente"
-                    autoComplete="off"
                     required
-                  />
-                  <datalist id="clientes-list">
+                  >
+                    <option value="">-- Seleccione un cliente --</option>
                     {clientes.map(cliente => (
                       <option key={cliente.ID_CLIENTES} value={cliente.ID_CLIENTES}>
-                        {cliente.Nombre} ({cliente.ID_CLIENTES})
+                        {cliente.ID_CLIENTES} - {cliente.Nombre}
                       </option>
                     ))}
-                  </datalist>
+                  </select>
                 </div>
 
-                {/* Administrador - input con datalist */}
+                {/* Administrador */}
                 <div className="form-group">
                   <label>Administrador *</label>
-                  <input
-                    list="admins-list"
+                  <select
                     name="ID_ADMINISTRADOR"
                     value={formData.ID_ADMINISTRADOR}
                     onChange={handleFormChange}
-                    placeholder="Escribe o selecciona un ID de administrador"
-                    autoComplete="off"
                     required
-                  />
-                  <datalist id="admins-list">
+                  >
+                    <option value="">-- Seleccione un administrador --</option>
                     {administradores.map(admin => (
                       <option key={admin.ID_ADMINISTRADOR} value={admin.ID_ADMINISTRADOR}>
-                        {admin.Nombre} ({admin.ID_ADMINISTRADOR})
+                        {admin.ID_ADMINISTRADOR} - {admin.Nombre}
                       </option>
                     ))}
-                  </datalist>
+                  </select>
                 </div>
 
-                {/* Técnico - input con datalist */}
+                {/* Técnico */}
                 <div className="form-group">
                   <label>Técnico</label>
-                  <input
-                    list="tecnicos-list"
+                  <select
                     name="ID_TECNICOS"
                     value={formData.ID_TECNICOS}
                     onChange={handleFormChange}
-                    placeholder="Escribe o selecciona un ID de técnico"
-                    autoComplete="off"
-                  />
-                  <datalist id="tecnicos-list">
+                  >
+                    <option value="">-- Seleccione un técnico (opcional) --</option>
                     {tecnicos.map(tec => (
                       <option key={tec.ID_TECNICOS} value={tec.ID_TECNICOS}>
-                        {tec.Nombre} ({tec.ID_TECNICOS})
+                        {tec.ID_TECNICOS} - {tec.Nombre}
                       </option>
                     ))}
-                  </datalist>
+                  </select>
                 </div>
 
-                {/* Moto - input con datalist */}
+                {/* Moto */}
                 <div className="form-group">
                   <label>Moto</label>
-                  <input
-                    list="motos-list"
+                  <select
                     name="ID_MOTOS"
                     value={formData.ID_MOTOS}
                     onChange={handleFormChange}
-                    placeholder="Escribe o selecciona una placa o ID de moto"
-                    autoComplete="off"
-                  />
-                  <datalist id="motos-list">
+                  >
+                    <option value="">-- Seleccione una moto (opcional) --</option>
                     {motos.map(moto => (
                       <option key={moto.ID_MOTOS} value={moto.ID_MOTOS}>
-                        {moto.Placa} - {moto.Modelo} ({moto.ID_MOTOS})
+                        {moto.ID_MOTOS} - {moto.Placa} ({moto.Modelo})
                       </option>
                     ))}
-                  </datalist>
+                  </select>
                 </div>
 
+                {/* Fechas */}
                 <div className="form-group">
                   <label>Fecha inicio *</label>
                   <input type="date" name="Fecha_inicio" value={formData.Fecha_inicio} onChange={handleFormChange} required />
@@ -415,6 +447,8 @@ const OrdenesServicio = () => {
                   <label>Fecha fin</label>
                   <input type="date" name="Fecha_fin" value={formData.Fecha_fin ?? ''} onChange={handleFormChange} />
                 </div>
+
+                {/* Estado */}
                 <div className="form-group">
                   <label>Estado *</label>
                   <select name="Estado" value={formData.Estado} onChange={handleFormChange} required>
@@ -427,7 +461,9 @@ const OrdenesServicio = () => {
               </div>
               <div className="modal-footer">
                 <button type="button" onClick={() => setModalFormOpen(false)}>Cancelar</button>
-                <button type="submit">{editMode ? 'Guardar cambios' : 'Crear orden'}</button>
+                <button type="submit" disabled={submitting}>
+                  {submitting ? 'Guardando...' : (editMode ? 'Guardar cambios' : 'Crear orden')}
+                </button>
               </div>
             </form>
           </div>
