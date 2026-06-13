@@ -159,6 +159,28 @@ function TableComprobantes() {
     setFormData(prev => ({ ...prev, [name]: value }));
   };
 
+  // ✅ VALIDACIÓN SOLO NÚMEROS PARA CAMPOS DE ID
+  const handleNumericIdInput = (e: ChangeEvent<HTMLInputElement>) => {
+    const { name, value } = e.target;
+    const sanitized = value.replace(/\D/g, ''); // Elimina todo lo que no sea dígito
+
+    if (value !== sanitized) {
+      Swal.fire({
+        title: 'Solo números permitidos',
+        text: 'Este campo solo acepta IDs numéricos.',
+        icon: 'warning',
+        toast: true,
+        position: 'top-end',
+        showConfirmButton: false,
+        timer: 1500,
+        timerProgressBar: true,
+        background: '#101010',
+        color: '#f5f5f5',
+      });
+    }
+    setFormData(prev => ({ ...prev, [name]: sanitized }));
+  };
+
   const openCreateModal = () => {
     setCurrentComprobante(null);
     setFormData(createInitialFormData());
@@ -324,25 +346,25 @@ function TableComprobantes() {
               <div className="modal-body">
                 <div className="form-group">
                   <label>ID Comprobante *</label>
-                  <input type="text" name="ID_COMPROBANTE" value={formData.ID_COMPROBANTE} onChange={handleInputChange} required />
+                  <input type="text" name="ID_COMPROBANTE" value={formData.ID_COMPROBANTE} onChange={handleNumericIdInput} required placeholder="Solo números" />
                 </div>
                 <div className="form-group">
                   <label>Cliente *</label>
-                  <input list="clientes-list" name="ID_CLIENTES" value={formData.ID_CLIENTES} onChange={handleInputChange} required />
+                  <input list="clientes-list" name="ID_CLIENTES" value={formData.ID_CLIENTES} onChange={handleNumericIdInput} required placeholder="Escribe solo el número del ID" />
                   <datalist id="clientes-list">
                     {clientes.map(c => <option key={getClienteKey(c)} value={String(c.ID_CLIENTES)}>{c.Nombre}</option>)}
                   </datalist>
                 </div>
                 <div className="form-group">
                   <label>Informe (opcional)</label>
-                  <input list="informes-list" name="ID_INFORME" value={formData.ID_INFORME || ''} onChange={handleInputChange} />
+                  <input list="informes-list" name="ID_INFORME" value={formData.ID_INFORME || ''} onChange={handleNumericIdInput} placeholder="Escribe solo el número del ID" />
                   <datalist id="informes-list">
                     {informes.map(i => <option key={getInformeKey(i)} value={String(i.ID_INFORME)} />)}
                   </datalist>
                 </div>
                 <div className="form-group">
                   <label>Administrador (opcional)</label>
-                  <input list="admins-list" name="ID_ADMINISTRADOR" value={formData.ID_ADMINISTRADOR || ''} onChange={handleInputChange} />
+                  <input list="admins-list" name="ID_ADMINISTRADOR" value={formData.ID_ADMINISTRADOR || ''} onChange={handleNumericIdInput} placeholder="Escribe solo el número del ID" />
                   <datalist id="admins-list">
                     {administradores.map(a => <option key={getAdminKey(a)} value={String(a.ID_ADMINISTRADOR)} />)}
                   </datalist>
@@ -389,21 +411,21 @@ function TableComprobantes() {
                 </div>
                 <div className="form-group">
                   <label>Cliente *</label>
-                  <input list="clientes-list-edit" name="ID_CLIENTES" value={formData.ID_CLIENTES} onChange={handleInputChange} required />
+                  <input list="clientes-list-edit" name="ID_CLIENTES" value={formData.ID_CLIENTES} onChange={handleNumericIdInput} required placeholder="Escribe solo el número del ID" />
                   <datalist id="clientes-list-edit">
                     {clientes.map(c => <option key={getClienteKey(c)} value={String(c.ID_CLIENTES)}>{c.Nombre}</option>)}
                   </datalist>
                 </div>
                 <div className="form-group">
                   <label>Informe</label>
-                  <input list="informes-list-edit" name="ID_INFORME" value={formData.ID_INFORME || ''} onChange={handleInputChange} />
+                  <input list="informes-list-edit" name="ID_INFORME" value={formData.ID_INFORME || ''} onChange={handleNumericIdInput} placeholder="Escribe solo el número del ID" />
                   <datalist id="informes-list-edit">
                     {informes.map(i => <option key={getInformeKey(i)} value={String(i.ID_INFORME)} />)}
                   </datalist>
                 </div>
                 <div className="form-group">
                   <label>Administrador</label>
-                  <input list="admins-list-edit" name="ID_ADMINISTRADOR" value={formData.ID_ADMINISTRADOR || ''} onChange={handleInputChange} />
+                  <input list="admins-list-edit" name="ID_ADMINISTRADOR" value={formData.ID_ADMINISTRADOR || ''} onChange={handleNumericIdInput} placeholder="Escribe solo el número del ID" />
                   <datalist id="admins-list-edit">
                     {administradores.map(a => <option key={getAdminKey(a)} value={String(a.ID_ADMINISTRADOR)} />)}
                   </datalist>

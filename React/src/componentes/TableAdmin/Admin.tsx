@@ -38,9 +38,15 @@ const createInitialFormData = (): AdminFormState => ({
   contrasenaActual: '',
 });
 
-// --- FUNCIÓN AUXILIAR: Filtra solo letras ---
+// --- 1. VALIDACIÓN: FILTRA SOLO LETRAS ---
 const filterOnlyLetters = (value: string): string => {
   return value.replace(/[^a-zA-ZñÑ\s]/g, '');
+};
+
+// --- 2. VALIDACIÓN: FILTRA SOLO NÚMEROS ---
+// Esta función elimina todo lo que NO sea un dígito (0-9)
+const filterOnlyNumbers = (value: string): string => {
+  return value.replace(/\D/g, '');
 };
 
 const readAdminArray = (value: unknown): AdminRecord[] | null => {
@@ -184,12 +190,11 @@ function Admins() {
     setFormData(prev => ({ ...prev, [name]: value }));
   };
 
-  // ✅ FUNCIÓN CON AVISO FLOTANTE (TOAST)
+  // --- 3. MANEJADOR: SOLO LETRAS (Nombre y Usuario) ---
   const handleTextOnlyInput = (event: ChangeEvent<HTMLInputElement>) => {
     const { name, value } = event.target;
     const sanitizedValue = filterOnlyLetters(value);
 
-    // Si lo que escribió el usuario contiene números/símbolos, mostramos el aviso
     if (value !== sanitizedValue) {
       Swal.fire({
         title: 'Solo letras permitidas',
@@ -202,13 +207,32 @@ function Admins() {
         timerProgressBar: true,
         background: '#101010',
         color: '#f5f5f5',
-        customClass: {
-          popup: 'swal2-toast'
-        }
       });
     }
 
-    // Actualizamos el estado solo con el texto limpio
+    setFormData(prev => ({ ...prev, [name]: sanitizedValue }));
+  };
+
+  // --- 4. MANEJADOR: SOLO NÚMEROS (ID Administrador) ---
+  const handleNumberOnlyInput = (event: ChangeEvent<HTMLInputElement>) => {
+    const { name, value } = event.target;
+    const sanitizedValue = filterOnlyNumbers(value);
+
+    if (value !== sanitizedValue) {
+      Swal.fire({
+        title: 'Solo números permitidos',
+        text: 'El ID solo acepta dígitos numéricos.',
+        icon: 'warning',
+        toast: true,
+        position: 'top-end',
+        showConfirmButton: false,
+        timer: 1500,
+        timerProgressBar: true,
+        background: '#101010',
+        color: '#f5f5f5',
+      });
+    }
+
     setFormData(prev => ({ ...prev, [name]: sanitizedValue }));
   };
 
@@ -472,11 +496,12 @@ function Admins() {
             <form onSubmit={handleCreate}>
               <div className="form-group">
                 <label>ID Administrador</label>
+                {/* CAMBIO: Ahora usa el manejador solo números */}
                 <input
                   type="text"
                   name="ID_ADMINISTRADOR"
                   value={formData.ID_ADMINISTRADOR}
-                  onChange={handleInputChange}
+                  onChange={handleNumberOnlyInput}
                   required
                 />
               </div>
@@ -571,11 +596,12 @@ function Admins() {
             <form onSubmit={handleUpdate}>
               <div className="form-group">
                 <label>ID Administrador</label>
+                {/* CAMBIO: Ahora usa el manejador solo números */}
                 <input
                   type="text"
                   name="ID_ADMINISTRADOR"
                   value={formData.ID_ADMINISTRADOR}
-                  onChange={handleInputChange}
+                  onChange={handleNumberOnlyInput}
                   required
                 />
               </div>

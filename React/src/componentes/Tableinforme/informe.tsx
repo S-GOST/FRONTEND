@@ -8,29 +8,29 @@ import {
   type InformePayload,
   type InformeRecord,
 } from '../../services/informeService';
-// Servicios para obtener las tablas relacionadas
 import { obtenerDetallesOrdenes, type DetalleOrdenServicioRecord } from '../../services/detalleOrdenServicioService';
 import { obtenerAdmins, type AdminRecord } from '../../services/admin.service';
 import { obtenerTecnicos, type TecnicoRecord } from '../../services/tecnico.service';
 import { FormattedId } from '../../componentes/FormattedId';
 import './Informe.css';
 
-// Función para generar el próximo ID_INFORME (INF1, INF2, ...)
+// ✅ Genera el próximo ID numérico (1, 2, 3...)
 const generarIdInforme = async (): Promise<string> => {
   try {
     const response = await obtenerInformes();
     const informes = Array.isArray(response.data) ? response.data : response.data?.data || [];
-    if (informes.length === 0) return 'INF1';
-    const ids = informes.map((inf: InformeRecord) => inf.ID_INFORME);
-    const numeros = ids
+    if (informes.length === 0) return '1';
+    
+    const ids = informes.map((inf: InformeRecord) => String(inf.ID_INFORME ?? ''));
+    const numeros = ids.map((id: string) => parseInt(id, 10) || 0);
     const maxNum = Math.max(...numeros, 0);
-    return `INF${maxNum + 1}`;
+    
+    return String(maxNum + 1);
   } catch {
-    return 'INF1';
+    return '1';
   }
 };
 
-// Estado inicial del formulario
 const initialFormState: InformePayload = {
   ID_INFORME: '',
   ID_DETALLES_ORDEN_SERVICIO: '',
@@ -51,12 +51,10 @@ const TableInformes = () => {
   const [currentInforme, setCurrentInforme] = useState<InformeRecord | null>(null);
   const [formData, setFormData] = useState<InformePayload>(initialFormState);
 
-  // Datos para los selects/datalist
   const [detallesOrdenes, setDetallesOrdenes] = useState<DetalleOrdenServicioRecord[]>([]);
   const [administradores, setAdministradores] = useState<AdminRecord[]>([]);
   const [tecnicos, setTecnicos] = useState<TecnicoRecord[]>([]);
 
-  // Cargar todos los datos necesarios
   const cargarDatos = async () => {
     setLoading(true);
     try {
@@ -67,12 +65,8 @@ const TableInformes = () => {
         obtenerTecnicos(),
       ]);
 
-      const informesData = Array.isArray(informesRes.data)
-        ? informesRes.data
-        : informesRes.data?.data || [];
-      setInformes(informesData);
-      setFilteredInformes(informesData);
-
+      setInformes(Array.isArray(informesRes.data) ? informesRes.data : informesRes.data?.data || []);
+      setFilteredInformes(Array.isArray(informesRes.data) ? informesRes.data : informesRes.data?.data || []);
       setDetallesOrdenes(Array.isArray(detallesRes.data) ? detallesRes.data : detallesRes.data?.data || []);
       setAdministradores(Array.isArray(adminsRes.data) ? adminsRes.data : adminsRes.data?.data || []);
       setTecnicos(Array.isArray(tecnicosRes.data) ? tecnicosRes.data : tecnicosRes.data?.data || []);
@@ -119,6 +113,28 @@ const TableInformes = () => {
     setFormData(prev => ({ ...prev, [name]: value }));
   };
 
+  // ✅ MANEJADOR UNIFICADO: SOLO NÚMEROS PARA TODOS LOS CAMPOS DE ID
+  const handleNumericIdInput = (e: ChangeEvent<HTMLInputElement>) => {
+    const { name, value } = e.target;
+    const sanitized = value.replace(/\D/g, ''); // Elimina todo lo que no sea dígito
+
+    if (value !== sanitized) {
+      Swal.fire({
+        title: 'Solo números permitidos',
+        text: 'Este campo solo acepta IDs numéricos.',
+        icon: 'warning',
+        toast: true,
+        position: 'top-end',
+        showConfirmButton: false,
+        timer: 1500,
+        timerProgressBar: true,
+        background: '#101010',
+        color: '#f5f5f5',
+      });
+    }
+    setFormData(prev => ({ ...prev, [name]: sanitized }));
+  };
+
   const openCreateModal = async () => {
     setEditMode(false);
     setCurrentInforme(null);
@@ -130,10 +146,7 @@ const TableInformes = () => {
   const openEditModal = (informe: InformeRecord) => {
     setEditMode(true);
     setCurrentInforme(informe);
-    setFormData({
-      ...informe,
-      Fecha: informe.Fecha.split('T')[0], // para input date
-    });
+    setFormData({ ...informe, Fecha: informe.Fecha.split('T')[0] });
     setShowModal(true);
   };
 
@@ -145,7 +158,6 @@ const TableInformes = () => {
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
-    // Validaciones básicas
     if (!formData.ID_DETALLES_ORDEN_SERVICIO || !formData.ID_ADMINISTRADOR || !formData.Fecha || !formData.Descripcion) {
       showAlert('Campos incompletos', 'Completa los campos obligatorios.', 'warning');
       return;
@@ -262,7 +274,6 @@ const TableInformes = () => {
         </div>
       </div>
 
-      {/* Modal de creación/edición */}
       {showModal && (
         <div className="modal-overlay" onClick={closeModal}>
           <div className="modal-container" onClick={e => e.stopPropagation()}>
@@ -272,22 +283,29 @@ const TableInformes = () => {
             </div>
             <form onSubmit={handleSubmit}>
               <div className="modal-body">
-                {/* ID_INFORME - solo lectura en edición */}
+                {/* ✅ AHORA USA LA MISMA VALIDACIÓN NUMÉRICA QUE LOS DEMÁS */}
                 <div className="form-group">
                   <label>ID Informe</label>
-                  <input type="text" name="ID_INFORME" value={formData.ID_INFORME} required/>
+                  <input 
+                    type="text" 
+                    name="ID_INFORME" 
+                    value={formData.ID_INFORME} 
+                    onChange={handleNumericIdInput}
+                    readOnly={editMode}
+                    required 
+                  />
                 </div>
 
-                {/* Detalle de Orden - input con datalist */}
                 <div className="form-group">
                   <label>Detalle de Orden *</label>
                   <input
                     list="detalles-list"
                     name="ID_DETALLES_ORDEN_SERVICIO"
                     value={formData.ID_DETALLES_ORDEN_SERVICIO}
-                    onChange={handleInputChange}
+                    onChange={handleNumericIdInput}
                     required
                     autoComplete="off"
+                    placeholder="Escribe solo el número del ID"
                   />
                   <datalist id="detalles-list">
                     {detallesOrdenes.map(det => (
@@ -298,16 +316,16 @@ const TableInformes = () => {
                   </datalist>
                 </div>
 
-                {/* Administrador - input con datalist */}
                 <div className="form-group">
                   <label>Administrador *</label>
                   <input
                     list="admins-list"
                     name="ID_ADMINISTRADOR"
                     value={formData.ID_ADMINISTRADOR}
-                    onChange={handleInputChange}
+                    onChange={handleNumericIdInput}
                     required
                     autoComplete="off"
+                    placeholder="Escribe solo el número del ID"
                   />
                   <datalist id="admins-list">
                     {administradores.map(adm => (
@@ -318,15 +336,15 @@ const TableInformes = () => {
                   </datalist>
                 </div>
 
-                {/* Técnico - opcional con datalist */}
                 <div className="form-group">
                   <label>Técnico</label>
                   <input
                     list="tecnicos-list"
                     name="ID_TECNICOS"
                     value={formData.ID_TECNICOS || ''}
-                    onChange={handleInputChange}
+                    onChange={handleNumericIdInput}
                     autoComplete="off"
+                    placeholder="Escribe solo el número del ID"
                   />
                   <datalist id="tecnicos-list">
                     {tecnicos.map(tec => (
@@ -337,19 +355,16 @@ const TableInformes = () => {
                   </datalist>
                 </div>
 
-                {/* Fecha */}
                 <div className="form-group">
                   <label>Fecha *</label>
                   <input type="date" name="Fecha" value={formData.Fecha} onChange={handleInputChange} required />
                 </div>
 
-                {/* Descripción (texto largo) */}
                 <div className="form-group">
                   <label>Descripción *</label>
                   <textarea name="Descripcion" value={formData.Descripcion} onChange={handleInputChange} required rows={4} />
                 </div>
 
-                {/* Estado */}
                 <div className="form-group">
                   <label>Estado *</label>
                   <select name="Estado" value={formData.Estado} onChange={handleInputChange} required>

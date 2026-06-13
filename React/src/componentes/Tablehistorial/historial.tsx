@@ -36,7 +36,7 @@ const createInitialFormData = (): HistorialPayload => ({
   ID_INFORME: '',
   ID_TECNICOS: '',
   ID_CLIENTES: '',
-  Descripcion: '',        // ← sin acento (coincide con BD)
+  Descripcion: '',
   Fecha_registro: '',
 });
 
@@ -82,7 +82,6 @@ function TableHistorial() {
   const [currentHistorial, setCurrentHistorial] = useState<HistorialRecord | null>(null);
   const [formData, setFormData] = useState<HistorialPayload>(createInitialFormData());
 
-  // Listas para datalist
   const [ordenes, setOrdenes] = useState<OrdenServicioRecord[]>([]);
   const [comprobantes, setComprobantes] = useState<ComprobanteRecord[]>([]);
   const [informes, setInformes] = useState<InformeRecord[]>([]);
@@ -154,6 +153,28 @@ function TableHistorial() {
   const handleInputChange = (event: ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     const { name, value } = event.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
+  };
+
+  // ✅ VALIDACIÓN SOLO NÚMEROS PARA CAMPOS DE ID
+  const handleNumericIdInput = (e: ChangeEvent<HTMLInputElement>) => {
+    const { name, value } = e.target;
+    const sanitized = value.replace(/\D/g, ''); // Elimina todo lo que no sea dígito
+
+    if (value !== sanitized) {
+      Swal.fire({
+        title: 'Solo números permitidos',
+        text: 'Este campo solo acepta IDs numéricos.',
+        icon: 'warning',
+        toast: true,
+        position: 'top-end',
+        showConfirmButton: false,
+        timer: 1500,
+        timerProgressBar: true,
+        background: '#101010',
+        color: '#f5f5f5',
+      });
+    }
+    setFormData(prev => ({ ...prev, [name]: sanitized }));
   };
 
   const openCreateModal = () => {
@@ -348,9 +369,10 @@ function TableHistorial() {
                   type="text"
                   name="ID_HISTORIAL"
                   value={formData.ID_HISTORIAL}
-                  onChange={handleInputChange}
+                  onChange={handleNumericIdInput}
                   readOnly={showEditModal}
                   required
+                  placeholder="Solo números"
                 />
               </div>
               <div className="form-group">
@@ -359,7 +381,8 @@ function TableHistorial() {
                   list="ordenes-list"
                   name="ID_ORDEN_SERVICIO"
                   value={formData.ID_ORDEN_SERVICIO || ''}
-                  onChange={handleInputChange}
+                  onChange={handleNumericIdInput}
+                  placeholder="Escribe solo el número del ID"
                 />
                 <datalist id="ordenes-list">
                   {ordenes.map((ord) => (
@@ -373,7 +396,8 @@ function TableHistorial() {
                   list="comprobantes-list"
                   name="ID_COMPROBANTE"
                   value={formData.ID_COMPROBANTE || ''}
-                  onChange={handleInputChange}
+                  onChange={handleNumericIdInput}
+                  placeholder="Escribe solo el número del ID"
                 />
                 <datalist id="comprobantes-list">
                   {comprobantes.map((c) => (
@@ -387,7 +411,8 @@ function TableHistorial() {
                   list="informes-list"
                   name="ID_INFORME"
                   value={formData.ID_INFORME || ''}
-                  onChange={handleInputChange}
+                  onChange={handleNumericIdInput}
+                  placeholder="Escribe solo el número del ID"
                 />
                 <datalist id="informes-list">
                   {informes.map((i) => (
@@ -401,7 +426,8 @@ function TableHistorial() {
                   list="tecnicos-list"
                   name="ID_TECNICOS"
                   value={formData.ID_TECNICOS || ''}
-                  onChange={handleInputChange}
+                  onChange={handleNumericIdInput}
+                  placeholder="Escribe solo el número del ID"
                 />
                 <datalist id="tecnicos-list">
                   {tecnicos.map((t) => (
@@ -415,7 +441,8 @@ function TableHistorial() {
                   list="clientes-list"
                   name="ID_CLIENTES"
                   value={formData.ID_CLIENTES || ''}
-                  onChange={handleInputChange}
+                  onChange={handleNumericIdInput}
+                  placeholder="Escribe solo el número del ID"
                 />
                 <datalist id="clientes-list">
                   {clientes.map((c) => (

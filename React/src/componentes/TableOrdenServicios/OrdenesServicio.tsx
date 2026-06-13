@@ -5,7 +5,7 @@ import {
   insertarOrden,
   actualizarOrden,
   eliminarOrden,
-  type OrdenServicioRecord,
+  type OrdenServicioRecord,  
   type OrdenServicioPayload,
 } from '../../services/ordenServicioService';
 import { obtenerClientes, type ClienteRecord } from '../../services/cliente.service';
@@ -35,7 +35,6 @@ const extractArray = <T,>(payload: unknown): T[] => {
     const nested = payload as Record<string, unknown>;
     if (Array.isArray(nested.data)) return nested.data as T[];
     if (Array.isArray(nested.items)) return nested.items as T[];
-    // Buscar la primera propiedad que sea array
     for (const key in nested) {
       if (Array.isArray(nested[key])) return nested[key] as T[];
     }
@@ -69,6 +68,7 @@ const OrdenesServicio = () => {
   const [modalFormOpen, setModalFormOpen] = useState(false);
   const [editMode, setEditMode] = useState(false);
   const [formData, setFormData] = useState<OrdenServicioPayload>(initialFormState);
+  
   const [clientes, setClientes] = useState<ClienteRecord[]>([]);
   const [tecnicos, setTecnicos] = useState<TecnicoRecord[]>([]);
   const [motos, setMotos] = useState<MotoRecord[]>([]);
@@ -100,16 +100,10 @@ const OrdenesServicio = () => {
         obtenerAdmins(),
       ]);
 
-      console.log('Respuesta clientes:', clientesRes.data);
-      console.log('Respuesta técnicos:', tecnicosRes.data);
-      console.log('Respuesta motos:', motosRes.data);
-      console.log('Respuesta admins:', adminRes.data);
-
       const ordenesData = extractOrdenes(ordenesRes.data);
       setOrdenes(ordenesData);
       setFilteredOrdenes(ordenesData);
 
-      // Usar extractor genérico para cada entidad
       setClientes(extractArray<ClienteRecord>(clientesRes.data));
       setTecnicos(extractArray<TecnicoRecord>(tecnicosRes.data));
       setMotos(extractArray<MotoRecord>(motosRes.data));
@@ -176,23 +170,41 @@ const OrdenesServicio = () => {
     setFormData(prev => ({ ...prev, [name]: value }));
   };
 
+  // ✅ VALIDACIÓN SOLO NÚMEROS PARA CAMPOS DE ID
+  const handleNumericIdInput = (e: ChangeEvent<HTMLInputElement>) => {
+    const { name, value } = e.target;
+    const sanitized = value.replace(/\D/g, ''); // Elimina todo lo que no sea dígito
+
+    if (value !== sanitized) {
+      Swal.fire({
+        title: 'Solo números permitidos',
+        text: 'Este campo solo acepta IDs numéricos.',
+        icon: 'warning',
+        toast: true,
+        position: 'top-end',
+        showConfirmButton: false,
+        timer: 1500,
+        timerProgressBar: true,
+        background: '#101010',
+        color: '#f5f5f5',
+      });
+    }
+    setFormData(prev => ({ ...prev, [name]: sanitized }));
+  };
+
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
     if (submitting) return;
     
-    // Validación básica
     if (!formData.ID_CLIENTES || !formData.ID_ADMINISTRADOR) {
       showAlert('Campos requeridos', 'Debe seleccionar un cliente y un administrador.', 'warning');
       return;
     }
 
-    // Verificar que las fechas sean válidas
     if (!formData.Fecha_inicio || !formData.Fecha_estimada) {
       showAlert('Fechas requeridas', 'Debe especificar fecha de inicio y fecha estimada.', 'warning');
       return;
     }
-
-    console.log('Enviando payload:', formData); // Depuración
 
     setSubmitting(true);
     try {
@@ -364,74 +376,83 @@ const OrdenesServicio = () => {
             </div>
             <form onSubmit={handleSubmit}>
               <div className="modal-body">
-                {/* Cliente */}
+                
+                {/* ✅ CAMPO CLIENTE: INPUT CON VALIDACIÓN */}
                 <div className="form-group">
                   <label>Cliente *</label>
-                  <select
+                  <input
+                    list="clientes-list-modal"
                     name="ID_CLIENTES"
                     value={formData.ID_CLIENTES}
-                    onChange={handleFormChange}
+                    onChange={handleNumericIdInput}
+                    placeholder="Escribe solo el número del ID"
                     required
-                  >
-                    <option value="">-- Seleccione un cliente --</option>
+                  />
+                  <datalist id="clientes-list-modal">
                     {clientes.map(cliente => (
                       <option key={cliente.ID_CLIENTES} value={cliente.ID_CLIENTES}>
-                        {cliente.ID_CLIENTES} - {cliente.Nombre}
+                        {cliente.Nombre}
                       </option>
                     ))}
-                  </select>
+                  </datalist>
                 </div>
 
-                {/* Administrador */}
+                {/* ✅ CAMPO ADMINISTRADOR: INPUT CON VALIDACIÓN */}
                 <div className="form-group">
                   <label>Administrador *</label>
-                  <select
+                  <input
+                    list="admins-list-modal"
                     name="ID_ADMINISTRADOR"
                     value={formData.ID_ADMINISTRADOR}
-                    onChange={handleFormChange}
+                    onChange={handleNumericIdInput}
+                    placeholder="Escribe solo el número del ID"
                     required
-                  >
-                    <option value="">-- Seleccione un administrador --</option>
+                  />
+                  <datalist id="admins-list-modal">
                     {administradores.map(admin => (
                       <option key={admin.ID_ADMINISTRADOR} value={admin.ID_ADMINISTRADOR}>
-                        {admin.ID_ADMINISTRADOR} - {admin.Nombre}
+                        {admin.Nombre}
                       </option>
                     ))}
-                  </select>
+                  </datalist>
                 </div>
 
-                {/* Técnico */}
+                {/* ✅ CAMPO TÉCNICO: INPUT CON VALIDACIÓN */}
                 <div className="form-group">
                   <label>Técnico</label>
-                  <select
+                  <input
+                    list="tecnicos-list-modal"
                     name="ID_TECNICOS"
                     value={formData.ID_TECNICOS}
-                    onChange={handleFormChange}
-                  >
-                    <option value="">-- Seleccione un técnico (opcional) --</option>
+                    onChange={handleNumericIdInput}
+                    placeholder="Escribe solo el número del ID"
+                  />
+                  <datalist id="tecnicos-list-modal">
                     {tecnicos.map(tec => (
                       <option key={tec.ID_TECNICOS} value={tec.ID_TECNICOS}>
-                        {tec.ID_TECNICOS} - {tec.Nombre}
+                        {tec.Nombre}
                       </option>
                     ))}
-                  </select>
+                  </datalist>
                 </div>
 
-                {/* Moto */}
+                {/* ✅ CAMPO MOTO: INPUT CON VALIDACIÓN */}
                 <div className="form-group">
                   <label>Moto</label>
-                  <select
+                  <input
+                    list="motos-list-modal"
                     name="ID_MOTOS"
                     value={formData.ID_MOTOS}
-                    onChange={handleFormChange}
-                  >
-                    <option value="">-- Seleccione una moto (opcional) --</option>
+                    onChange={handleNumericIdInput}
+                    placeholder="Escribe solo el número del ID"
+                  />
+                  <datalist id="motos-list-modal">
                     {motos.map(moto => (
                       <option key={moto.ID_MOTOS} value={moto.ID_MOTOS}>
-                        {moto.ID_MOTOS} - {moto.Placa} ({moto.Modelo})
+                        {moto.Placa} ({moto.Modelo})
                       </option>
                     ))}
-                  </select>
+                  </datalist>
                 </div>
 
                 {/* Fechas */}

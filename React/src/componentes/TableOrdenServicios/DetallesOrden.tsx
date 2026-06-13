@@ -5,7 +5,7 @@ import {
   obtenerDetallesOrdenes,
   insertarDetalleOrden,
   actualizarDetalleOrden,
-  eliminarDetalleOrden,
+  eliminarDetalleOrden,  
   type DetalleOrdenServicioRecord,
   type DetalleOrdenServicioPayload,
 } from '../../services/detalleOrdenServicioService';
@@ -109,7 +109,6 @@ const DetallesOrden = () => {
       results = results.filter(detalle => detalle.Estado === filtroEstado);
     }
     if (term) {
-      // FIX: Convertir a String para evitar crash si los IDs son números
       results = results.filter(detalle =>
         Number(detalle.ID_DETALLES_ORDEN_SERVICIO).toString().toLowerCase().includes(term) ||
         Number(detalle.ID_ORDEN_SERVICIO).toString().toLowerCase().includes(term) ||
@@ -136,7 +135,6 @@ const DetallesOrden = () => {
   const openEditModal = (detalle: DetalleOrdenServicioRecord) => {
     setEditMode(true);
     setCurrentDetalle(detalle);
-    // FIX: Asegurar que los IDs sean numbers para el input
     setFormData({
       ID_DETALLES_ORDEN_SERVICIO: Number(detalle.ID_DETALLES_ORDEN_SERVICIO),
       ID_ORDEN_SERVICIO: Number(detalle.ID_ORDEN_SERVICIO),
@@ -157,10 +155,29 @@ const DetallesOrden = () => {
     }));
   };
 
+  const handleNumericIdInput = (e: ChangeEvent<HTMLInputElement>) => {
+    const { name, value } = e.target;
+    const sanitized = value.replace(/\D/g, '');
+    if (value !== sanitized) {
+      Swal.fire({
+        title: 'Solo números permitidos',
+        text: 'Este campo solo acepta IDs numéricos.',
+        icon: 'warning',
+        toast: true,
+        position: 'top-end',
+        showConfirmButton: false,
+        timer: 1500,
+        timerProgressBar: true,
+        background: '#101010',
+        color: '#f5f5f5',
+      });
+    }
+    setFormData(prev => ({ ...prev, [name]: sanitized === '' ? 0 : Number(sanitized) }));
+  };
+
   const validarFormulario = (): boolean => {
-    // Validar ID_DETALLES_ORDEN_SERVICIO en creación
     const detalleId = formData.ID_DETALLES_ORDEN_SERVICIO;
-    if (!editMode && (!detalleId || detalleId === 0 || isNaN(detalleId))) {
+    if (!detalleId || detalleId === 0 || isNaN(detalleId)) {
       showAlert('Error', 'El ID del detalle es obligatorio', 'error');
       return false;
     }
@@ -172,14 +189,12 @@ const DetallesOrden = () => {
       }
     }
 
-    // Validar orden
     const ordenIdStr = formData.ID_ORDEN_SERVICIO;
     if (!ordenIdStr || ordenIdStr === 0 || isNaN(ordenIdStr)) {
       showAlert('Error', 'El ID de la orden de servicio es obligatorio', 'error');
       return false;
     }
     
-    // FIX: Comparar como números para evitar fallos de tipos (ej. 1 === "1" es falso)
     const ordenIdNum = Number(ordenIdStr);
     const ordenExiste = ordenes.some(o => Number(o.ID_ORDEN_SERVICIO) === ordenIdNum);
     
@@ -188,7 +203,6 @@ const DetallesOrden = () => {
       return false;
     }
 
-    // Al menos un servicio o producto
     const tieneServicio = formData.ID_SERVICIOS && formData.ID_SERVICIOS !== 0;
     const tieneProducto = formData.ID_PRODUCTOS && formData.ID_PRODUCTOS !== 0;
     if (!tieneServicio && !tieneProducto) {
@@ -196,10 +210,8 @@ const DetallesOrden = () => {
       return false;
     }
 
-    // Validar servicio
     if (tieneServicio) {
       const servicioId = formData.ID_SERVICIOS!;
-      // FIX: Comparación numérica segura
       const existe = servicios.some(s => Number(s.ID_SERVICIOS) === Number(servicioId));
       const esMismoQueOriginal = editMode && currentDetalle && currentDetalle.ID_SERVICIOS === servicioId;
       if (!existe && !esMismoQueOriginal) {
@@ -208,10 +220,8 @@ const DetallesOrden = () => {
       }
     }
 
-    // Validar producto
     if (tieneProducto) {
       const productoId = formData.ID_PRODUCTOS!;
-      // FIX: Comparación numérica segura
       const existe = productos.some(p => Number(p.ID_PRODUCTOS) === Number(productoId));
       const esMismoQueOriginal = editMode && currentDetalle && currentDetalle.ID_PRODUCTOS === productoId;
       if (!existe && !esMismoQueOriginal) {
@@ -227,7 +237,6 @@ const DetallesOrden = () => {
     e.preventDefault();
     if (!validarFormulario()) return;
 
-    // Preparar payload (Convertir IDs a Números explícitamente)
     const payload: any = {
       ID_ORDEN_SERVICIO: Number(formData.ID_ORDEN_SERVICIO),
       ID_SERVICIOS: formData.ID_SERVICIOS ? Number(formData.ID_SERVICIOS) : null,
@@ -276,8 +285,7 @@ const DetallesOrden = () => {
     });
     if (!result.isConfirmed) return;
     try {
-      // FIX: Enviar número al borrar
-      await eliminarDetalleOrden(Number (detalle.ID_DETALLES_ORDEN_SERVICIO));
+      await eliminarDetalleOrden(Number(detalle.ID_DETALLES_ORDEN_SERVICIO));
       showAlert('Eliminado', 'El detalle ha sido eliminado', 'success');
       await cargarDatosIniciales();
     } catch (err: any) {
@@ -375,7 +383,7 @@ const DetallesOrden = () => {
         </div>
       </div>
 
-      {/* Modal con el nuevo campo ID_DETALLES_ORDEN_SERVICIO */}
+      {/* Modal Funcional sin bloqueos */}
       {modalFormOpen && (
         <div className="modal-overlay" onClick={() => setModalFormOpen(false)}>
           <div className="modal-container" onClick={(e) => e.stopPropagation()}>
@@ -385,20 +393,17 @@ const DetallesOrden = () => {
             </div>
             <form onSubmit={handleSubmit}>
               <div className="modal-body">
-                {/* Campo ID_DETALLES_ORDEN_SERVICIO */}
                 <div className="form-group">
                   <label>ID Detalle *</label>
                   <input
                     type="text"
                     name="ID_DETALLES_ORDEN_SERVICIO"
                     value={formData.ID_DETALLES_ORDEN_SERVICIO}
-                    onChange={handleFormChange}
-                    required={!editMode}
-                    disabled={editMode}
-                    placeholder="Ej: DET001"
+                    onChange={handleNumericIdInput}
+                    required
+                    placeholder="Escribe solo el número del ID"
                     autoComplete="off"
                   />
-                  {editMode && <small className="text-muted">El ID no se puede modificar</small>}
                 </div>
 
                 <div className="form-group">
@@ -408,9 +413,9 @@ const DetallesOrden = () => {
                     type="text"
                     name="ID_ORDEN_SERVICIO"
                     value={formData.ID_ORDEN_SERVICIO}
-                    onChange={handleFormChange}
+                    onChange={handleNumericIdInput}
                     required
-                    placeholder="Escribe o selecciona una orden"
+                    placeholder="Escribe solo el número del ID"
                     autoComplete="off"
                   />
                   <datalist id="ordenes-list">
@@ -428,8 +433,8 @@ const DetallesOrden = () => {
                     list="servicios-list"
                     name="ID_SERVICIOS"
                     value={formData.ID_SERVICIOS}
-                    onChange={handleFormChange}
-                    placeholder="Escribe o selecciona un ID de servicio"
+                    onChange={handleNumericIdInput}
+                    placeholder="Escribe solo el número del ID"
                     autoComplete="off"
                   />
                   <datalist id="servicios-list">
@@ -447,8 +452,8 @@ const DetallesOrden = () => {
                     list="productos-list"
                     name="ID_PRODUCTOS"
                     value={formData.ID_PRODUCTOS}
-                    onChange={handleFormChange}
-                    placeholder="Escribe o selecciona un ID de producto"
+                    onChange={handleNumericIdInput}
+                    placeholder="Escribe solo el número del ID"
                     autoComplete="off"
                   />
                   <datalist id="productos-list">

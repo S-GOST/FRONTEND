@@ -11,7 +11,6 @@ import {
 import { FormattedId } from '../../componentes/FormattedId';
 import './Productos.css';
 
-  
 const CATEGORIAS = [
   'Accesorios',
   'Lubricantes y refrigerantes',
@@ -30,6 +29,10 @@ const createInitialFormData = (): ProductoPayload => ({
   Cantidad: 0,
   Estado: 'Disponibles',
 });
+
+// ✅ FUNCIONES AUXILIARES DE VALIDACIÓN
+const filterOnlyLetters = (value: string): string => value.replace(/[^a-zA-ZñÑ\s]/g, '');
+const filterOnlyNumbers = (value: string): string => value.replace(/\D/g, '');
 
 const buildProductoPayload = (formData: ProductoPayload): ProductoPayload => {
   const id = String(formData.ID_PRODUCTOS ?? '').trim();
@@ -175,6 +178,52 @@ function TableProductos() {
   ) => {
     const { name, value } = event.target;
     setFormData((prev) => ({ ...prev, [name]: value }) as ProductoPayload);
+  };
+
+  // ✅ MANEJADOR: SOLO LETRAS (Nombre y Marca)
+  const handleTextOnlyInput = (event: ChangeEvent<HTMLInputElement>) => {
+    const { name, value } = event.target;
+    const sanitizedValue = filterOnlyLetters(value);
+
+    if (value !== sanitizedValue) {
+      Swal.fire({
+        title: 'Solo letras permitidas',
+        text: 'No se permiten números ni símbolos en este campo.',
+        icon: 'warning',
+        toast: true,
+        position: 'top-end',
+        showConfirmButton: false,
+        timer: 1500,
+        timerProgressBar: true,
+        background: '#101010',
+        color: '#f5f5f5',
+      });
+    }
+
+    setFormData((prev) => ({ ...prev, [name]: sanitizedValue }) as ProductoPayload);
+  };
+
+  // ✅ MANEJADOR: SOLO NÚMEROS (ID Producto)
+  const handleNumberOnlyInput = (event: ChangeEvent<HTMLInputElement>) => {
+    const { name, value } = event.target;
+    const sanitizedValue = filterOnlyNumbers(value);
+
+    if (value !== sanitizedValue) {
+      Swal.fire({
+        title: 'Solo números permitidos',
+        text: 'El ID solo acepta dígitos numéricos.',
+        icon: 'warning',
+        toast: true,
+        position: 'top-end',
+        showConfirmButton: false,
+        timer: 1500,
+        timerProgressBar: true,
+        background: '#101010',
+        color: '#f5f5f5',
+      });
+    }
+
+    setFormData((prev) => ({ ...prev, [name]: sanitizedValue }) as ProductoPayload);
   };
 
   const openCreateModal = () => {
@@ -447,6 +496,7 @@ function TableProductos() {
         </div>
       </div>
 
+      {/* Modal Crear */}
       {showCreateModal && (
         <div className="modal-overlay" onClick={closeCreateModal}>
           <div className="modal-container" onClick={(event) => event.stopPropagation()}>
@@ -464,7 +514,7 @@ function TableProductos() {
                   type="text"
                   name="ID_PRODUCTOS"
                   value={formData.ID_PRODUCTOS}
-                  onChange={handleInputChange}
+                  onChange={handleNumberOnlyInput}
                   required
                 />
               </div>
@@ -474,7 +524,7 @@ function TableProductos() {
                   type="text"
                   name="Nombre"
                   value={formData.Nombre}
-                  onChange={handleInputChange}
+                  onChange={handleTextOnlyInput}
                   required
                 />
               </div>
@@ -484,7 +534,7 @@ function TableProductos() {
                   type="text"
                   name="Marca"
                   value={formData.Marca}
-                  onChange={handleInputChange}
+                  onChange={handleTextOnlyInput}
                   required
                 />
               </div>
@@ -567,6 +617,7 @@ function TableProductos() {
         </div>
       )}
 
+      {/* Modal Editar */}
       {showEditModal && currentProducto && (
         <div className="modal-overlay" onClick={closeEditModal}>
           <div className="modal-container" onClick={(event) => event.stopPropagation()}>
@@ -594,7 +645,7 @@ function TableProductos() {
                   type="text"
                   name="Nombre"
                   value={formData.Nombre}
-                  onChange={handleInputChange}
+                  onChange={handleTextOnlyInput}
                   required
                 />
               </div>
@@ -604,7 +655,7 @@ function TableProductos() {
                   type="text"
                   name="Marca"
                   value={formData.Marca}
-                  onChange={handleInputChange}
+                  onChange={handleTextOnlyInput}
                   required
                 />
               </div>

@@ -9,7 +9,7 @@ import {
   type MotoPayload,
   type MotoRecord,
 } from '../../services/moto.service';
-import { obtenerClientes, type ClienteRecord } from '../../services/cliente.service'; // 👈 Importar servicio de clientes
+import { obtenerClientes, type ClienteRecord } from '../../services/cliente.service';
 import './Motos.css';
 import { FormattedId } from '../../componentes/FormattedId';
 
@@ -21,6 +21,9 @@ const createInitialFormData = (): MotoPayload => ({
   Marca: '',
   Recorrido: 0,
 });
+
+// ✅ FUNCIÓN AUXILIAR: Filtra solo números
+const filterOnlyNumbers = (value: string): string => value.replace(/\D/g, '');
 
 const buildMotoPayload = (formData: MotoPayload): MotoPayload => {
   const id = String(formData.ID_MOTOS ?? '').trim();
@@ -95,7 +98,6 @@ function TableMotos() {
   const [currentMoto, setCurrentMoto] = useState<MotoRecord | null>(null);
   const [formData, setFormData] = useState<MotoPayload>(createInitialFormData());
 
-  // 👇 Estado para clientes
   const [clientes, setClientes] = useState<ClienteRecord[]>([]);
   const [loadingClientes, setLoadingClientes] = useState(false);
 
@@ -103,12 +105,10 @@ function TableMotos() {
     void cargarMotos();
   }, []);
 
-  // 👇 Función para cargar clientes desde la API
   const cargarClientes = async () => {
     try {
       setLoadingClientes(true);
       const response = await obtenerClientes();
-      // Ajusta según la estructura real de tu respuesta (similar a extractMotos)
       const data = Array.isArray(response.data) ? response.data : response.data?.data || [];
       setClientes(data);
     } catch (error) {
@@ -173,15 +173,36 @@ function TableMotos() {
     setFormData((prev: MotoPayload) => ({ ...prev, [name]: value }) as MotoPayload);
   };
 
-  // 👇 Al abrir el modal de creación, cargar clientes y resetear formulario
+  // ✅ MANEJADOR: SOLO NÚMEROS (ID Moto)
+  const handleNumberOnlyInput = (event: ChangeEvent<HTMLInputElement>) => {
+    const { name, value } = event.target;
+    const sanitizedValue = filterOnlyNumbers(value);
+
+    if (value !== sanitizedValue) {
+      Swal.fire({
+        title: 'Solo números permitidos',
+        text: 'El ID de la moto solo acepta dígitos numéricos.',
+        icon: 'warning',
+        toast: true,
+        position: 'top-end',
+        showConfirmButton: false,
+        timer: 1500,
+        timerProgressBar: true,
+        background: '#101010',
+        color: '#f5f5f5',
+      });
+    }
+
+    setFormData((prev: MotoPayload) => ({ ...prev, [name]: sanitizedValue }) as MotoPayload);
+  };
+
   const openCreateModal = () => {
     setCurrentMoto(null);
     setFormData(createInitialFormData());
     setShowCreateModal(true);
-    void cargarClientes(); // Cargar lista de clientes
+    void cargarClientes();
   };
 
-  // 👇 Al abrir el modal de edición, también cargar clientes y preseleccionar el actual
   const openEditModal = (moto: MotoRecord) => {
     setCurrentMoto(moto);
     setFormData({
@@ -193,13 +214,13 @@ function TableMotos() {
       Recorrido: moto.Recorrido,
     });
     setShowEditModal(true);
-    void cargarClientes(); // Cargar clientes para el selector
+    void cargarClientes();
   };
 
   const closeCreateModal = () => {
     setShowCreateModal(false);
     setFormData(createInitialFormData());
-    setClientes([]); // Opcional: limpiar lista al cerrar
+    setClientes([]);
   };
 
   const closeEditModal = () => {
@@ -398,12 +419,11 @@ function TableMotos() {
                   type="text"
                   name="ID_MOTOS"
                   value={formData.ID_MOTOS}
-                  onChange={handleInputChange}
-                  placeholder="Ej: M1, M2, etc."
+                  onChange={handleNumberOnlyInput}
+                  placeholder="Ej: 1, 2, 10..."
                   required
                 />
               </div>
-              {/* 👇 Selector de clientes */}
               <div className="form-group">
                 <label>Cliente *</label>
                 <select
@@ -498,7 +518,6 @@ function TableMotos() {
                   title="El ID no se puede modificar"
                 />
               </div>
-              {/* 👇 Selector de clientes (mismo que en creación) */}
               <div className="form-group">
                 <label>Cliente *</label>
                 <select

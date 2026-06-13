@@ -23,6 +23,10 @@ const createInitialFormData = (): ServicioPayload => ({
   Precio: 0,
 });
 
+// ✅ FUNCIONES AUXILIARES DE VALIDACIÓN
+const filterOnlyLetters = (value: string): string => value.replace(/[^a-zA-ZñÑ\s]/g, '');
+const filterOnlyNumbers = (value: string): string => value.replace(/\D/g, '');
+
 /**
  * Construye el payload asegurando que los tipos coincidan con la API.
  * @throws {Error} Si la garantía no es un número válido.
@@ -44,7 +48,7 @@ const buildServicioPayload = (formData: ServicioPayload): ServicioPayload => {
     Nombre: nombre,
     Categoria: categoria,
     Garantia: garantiaNum,
-    Estado: estado, // ✅ Corregido: asignación directa después de castear
+    Estado: estado,
     Precio: precio,
   };
 };
@@ -141,6 +145,52 @@ function Servicios() {
   const handleInputChange = (event: ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     const { name, value } = event.target;
     setFormData((prev) => ({ ...prev, [name]: value }) as ServicioPayload);
+  };
+
+  // ✅ MANEJADOR: SOLO LETRAS (Nombre)
+  const handleTextOnlyInput = (event: ChangeEvent<HTMLInputElement>) => {
+    const { name, value } = event.target;
+    const sanitizedValue = filterOnlyLetters(value);
+
+    if (value !== sanitizedValue) {
+      Swal.fire({
+        title: 'Solo letras permitidas',
+        text: 'No se permiten números ni símbolos en este campo.',
+        icon: 'warning',
+        toast: true,
+        position: 'top-end',
+        showConfirmButton: false,
+        timer: 1500,
+        timerProgressBar: true,
+        background: '#101010',
+        color: '#f5f5f5',
+      });
+    }
+
+    setFormData((prev) => ({ ...prev, [name]: sanitizedValue }) as ServicioPayload);
+  };
+
+  // ✅ MANEJADOR: SOLO NÚMEROS (ID Servicio)
+  const handleNumberOnlyInput = (event: ChangeEvent<HTMLInputElement>) => {
+    const { name, value } = event.target;
+    const sanitizedValue = filterOnlyNumbers(value);
+
+    if (value !== sanitizedValue) {
+      Swal.fire({
+        title: 'Solo números permitidos',
+        text: 'El ID solo acepta dígitos numéricos.',
+        icon: 'warning',
+        toast: true,
+        position: 'top-end',
+        showConfirmButton: false,
+        timer: 1500,
+        timerProgressBar: true,
+        background: '#101010',
+        color: '#f5f5f5',
+      });
+    }
+
+    setFormData((prev) => ({ ...prev, [name]: sanitizedValue }) as ServicioPayload);
   };
 
   const openCreateModal = () => {
@@ -382,7 +432,7 @@ function Servicios() {
                   type="text"
                   name="ID_SERVICIOS"
                   value={formData.ID_SERVICIOS}
-                  onChange={handleInputChange}
+                  onChange={handleNumberOnlyInput}
                   required
                 />
               </div>
@@ -392,7 +442,7 @@ function Servicios() {
                   type="text"
                   name="Nombre"
                   value={formData.Nombre}
-                  onChange={handleInputChange}
+                  onChange={handleTextOnlyInput}
                   required
                 />
               </div>
@@ -490,7 +540,7 @@ function Servicios() {
                   type="text"
                   name="Nombre"
                   value={formData.Nombre}
-                  onChange={handleInputChange}
+                  onChange={handleTextOnlyInput}
                   required
                 />
               </div>

@@ -39,6 +39,10 @@ const createInitialFormData = (): ClienteFormState => ({
   contrasenaActual: '',
 });
 
+// --- FUNCIONES AUXILIARES DE VALIDACIÓN ---
+const filterOnlyLetters = (value: string): string => value.replace(/[^a-zA-ZñÑ\s]/g, '');
+const filterOnlyNumbers = (value: string): string => value.replace(/\D/g, '');
+
 const readClienteArray = (value: unknown): ClienteRecord[] | null => {
   if (Array.isArray(value)) return value;
   if (value && typeof value === 'object') {
@@ -83,7 +87,6 @@ const buildClientePayload = (formData: ClienteFormState): ClientePayload => {
   if (formData.contrasena.trim()) {
     payload.contrasena = formData.contrasena.trim();
   }
-
   return payload;
 };
 
@@ -152,6 +155,52 @@ function Clientes() {
   const handleInputChange = (event: ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     const { name, value } = event.target;
     setFormData(prev => ({ ...prev, [name]: value }));
+  };
+
+  // ✅ MANEJADOR: SOLO LETRAS (Nombre y Usuario)
+  const handleTextOnlyInput = (event: ChangeEvent<HTMLInputElement>) => {
+    const { name, value } = event.target;
+    const sanitizedValue = filterOnlyLetters(value);
+
+    if (value !== sanitizedValue) {
+      Swal.fire({
+        title: 'Solo letras permitidas',
+        text: 'No se permiten números ni símbolos en este campo.',
+        icon: 'warning',
+        toast: true,
+        position: 'top-end',
+        showConfirmButton: false,
+        timer: 1500,
+        timerProgressBar: true,
+        background: '#101010',
+        color: '#f5f5f5',
+      });
+    }
+
+    setFormData(prev => ({ ...prev, [name]: sanitizedValue }));
+  };
+
+  // ✅ MANEJADOR: SOLO NÚMEROS (ID Cliente)
+  const handleNumberOnlyInput = (event: ChangeEvent<HTMLInputElement>) => {
+    const { name, value } = event.target;
+    const sanitizedValue = filterOnlyNumbers(value);
+
+    if (value !== sanitizedValue) {
+      Swal.fire({
+        title: 'Solo números permitidos',
+        text: 'El ID solo acepta dígitos numéricos.',
+        icon: 'warning',
+        toast: true,
+        position: 'top-end',
+        showConfirmButton: false,
+        timer: 1500,
+        timerProgressBar: true,
+        background: '#101010',
+        color: '#f5f5f5',
+      });
+    }
+
+    setFormData(prev => ({ ...prev, [name]: sanitizedValue }));
   };
 
   const openEditModal = async (cliente: ClienteRecord) => {
@@ -224,33 +273,32 @@ function Clientes() {
   };
 
   const handleCreate = async (event: FormEvent<HTMLFormElement>) => {
-  event.preventDefault();
-  try {
-    const payload = buildClientePayload(formData);
-    if (!payload.contrasena) {
-      showAlert('Atención', 'La contraseña es obligatoria para crear un cliente.', 'warning');
-      return;
+    event.preventDefault();
+    try {
+      const payload = buildClientePayload(formData);
+      if (!payload.contrasena) {
+        showAlert('Atención', 'La contraseña es obligatoria para crear un cliente.', 'warning');
+        return;
+      }
+      const response = await insertarCliente(payload);
+      if (isSuccessfulResponse(response.data)) {
+        await showAlert('Cliente creado', 'El nuevo cliente fue registrado correctamente.', 'success');
+        closeCreateModal();
+        await cargarClientes();
+      } else {
+        showAlert('Error', 'No se pudo crear el cliente.', 'error');
+      }
+    } catch (error: any) {
+      console.error('Error al crear cliente:', error);
+      const msg = error.response?.data?.message || error.message;
+      if (msg.includes('Duplicate entry') || error.response?.status === 409) {
+        showAlert('Error', 'Ya existe un cliente con ese ID, correo o usuario. Verifica los datos.', 'warning');
+      } else {
+        showAlert('Error', 'Ocurrió un error al crear el cliente.', 'error');
+      }
     }
-    const response = await insertarCliente(payload);
-    if (isSuccessfulResponse(response.data)) {
-      await showAlert('Cliente creado', 'El nuevo cliente fue registrado correctamente.', 'success');
-      closeCreateModal();
-      await cargarClientes();
-    } else {
-      showAlert('Error', 'No se pudo crear el cliente.', 'error');
-    }
-  } catch (error: any) {
-    console.error('Error al crear cliente:', error);
-    
-    // ✅ Nuevo manejo de errores
-    const msg = error.response?.data?.message || error.message;
-    if (msg.includes('Duplicate entry') || error.response?.status === 409) {
-      showAlert('Error', 'Ya existe un cliente con ese ID, correo o usuario. Verifica los datos.', 'warning');
-    } else {
-      showAlert('Error', 'Ocurrió un error al crear el cliente.', 'error');
-    }
-  }
-};
+  };
+
   const handleUpdate = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     if (!currentCliente) return;
@@ -415,7 +463,7 @@ function Clientes() {
                   type="text"
                   name="ID_CLIENTES"
                   value={formData.ID_CLIENTES}
-                  onChange={handleInputChange}
+                  onChange={handleNumberOnlyInput}
                   required
                 />
               </div>
@@ -425,7 +473,7 @@ function Clientes() {
                   type="text"
                   name="Nombre"
                   value={formData.Nombre}
-                  onChange={handleInputChange}
+                  onChange={handleTextOnlyInput}
                   required
                 />
               </div>
@@ -481,7 +529,7 @@ function Clientes() {
                   type="text"
                   name="usuario"
                   value={formData.usuario}
-                  onChange={handleInputChange}
+                  onChange={handleTextOnlyInput}
                   required
                 />
               </div>
@@ -524,7 +572,7 @@ function Clientes() {
                   type="text"
                   name="ID_CLIENTES"
                   value={formData.ID_CLIENTES}
-                  onChange={handleInputChange}
+                  onChange={handleNumberOnlyInput}
                   required
                 />
               </div>
@@ -534,7 +582,7 @@ function Clientes() {
                   type="text"
                   name="Nombre"
                   value={formData.Nombre}
-                  onChange={handleInputChange}
+                  onChange={handleTextOnlyInput}
                   required
                 />
               </div>
@@ -590,7 +638,7 @@ function Clientes() {
                   type="text"
                   name="usuario"
                   value={formData.usuario}
-                  onChange={handleInputChange}
+                  onChange={handleTextOnlyInput}
                   required
                 />
               </div>

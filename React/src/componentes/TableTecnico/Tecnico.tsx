@@ -38,6 +38,10 @@ const createInitialFormData = (): TecnicoFormState => ({
   contrasenaActual: '',
 });
 
+// --- FUNCIONES AUXILIARES DE VALIDACIÓN ---
+const filterOnlyLetters = (value: string): string => value.replace(/[^a-zA-ZñÑ\s]/g, '');
+const filterOnlyNumbers = (value: string): string => value.replace(/\D/g, '');
+
 const readTecnicoArray = (value: unknown): TecnicoRecord[] | null => {
   if (Array.isArray(value)) return value;
   if (value && typeof value === 'object') {
@@ -151,6 +155,52 @@ function Tecnicos() {
   const handleInputChange = (event: ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     const { name, value } = event.target;
     setFormData(prev => ({ ...prev, [name]: value }));
+  };
+
+  // ✅ MANEJADOR: SOLO LETRAS (Nombre y Usuario)
+  const handleTextOnlyInput = (event: ChangeEvent<HTMLInputElement>) => {
+    const { name, value } = event.target;
+    const sanitizedValue = filterOnlyLetters(value);
+
+    if (value !== sanitizedValue) {
+      Swal.fire({
+        title: 'Solo letras permitidas',
+        text: 'No se permiten números ni símbolos en este campo.',
+        icon: 'warning',
+        toast: true,
+        position: 'top-end',
+        showConfirmButton: false,
+        timer: 1500,
+        timerProgressBar: true,
+        background: '#101010',
+        color: '#f5f5f5',
+      });
+    }
+
+    setFormData(prev => ({ ...prev, [name]: sanitizedValue }));
+  };
+
+  // ✅ MANEJADOR: SOLO NÚMEROS (ID Técnico)
+  const handleNumberOnlyInput = (event: ChangeEvent<HTMLInputElement>) => {
+    const { name, value } = event.target;
+    const sanitizedValue = filterOnlyNumbers(value);
+
+    if (value !== sanitizedValue) {
+      Swal.fire({
+        title: 'Solo números permitidos',
+        text: 'El ID solo acepta dígitos numéricos.',
+        icon: 'warning',
+        toast: true,
+        position: 'top-end',
+        showConfirmButton: false,
+        timer: 1500,
+        timerProgressBar: true,
+        background: '#101010',
+        color: '#f5f5f5',
+      });
+    }
+
+    setFormData(prev => ({ ...prev, [name]: sanitizedValue }));
   };
 
   const openEditModal = async (tecnico: TecnicoRecord) => {
@@ -403,7 +453,7 @@ function Tecnicos() {
                   type="text"
                   name="ID_TECNICOS"
                   value={formData.ID_TECNICOS}
-                  onChange={handleInputChange}
+                  onChange={handleNumberOnlyInput}
                   required
                 />
               </div>
@@ -413,7 +463,7 @@ function Tecnicos() {
                   type="text"
                   name="Nombre"
                   value={formData.Nombre}
-                  onChange={handleInputChange}
+                  onChange={handleTextOnlyInput}
                   required
                 />
               </div>
@@ -459,7 +509,7 @@ function Tecnicos() {
                   type="text"
                   name="usuario"
                   value={formData.usuario}
-                  onChange={handleInputChange}
+                  onChange={handleTextOnlyInput}
                   required
                 />
               </div>
@@ -502,7 +552,7 @@ function Tecnicos() {
                   type="text"
                   name="ID_TECNICOS"
                   value={formData.ID_TECNICOS}
-                  onChange={handleInputChange}
+                  onChange={handleNumberOnlyInput}
                   required
                 />
               </div>
@@ -512,7 +562,7 @@ function Tecnicos() {
                   type="text"
                   name="Nombre"
                   value={formData.Nombre}
-                  onChange={handleInputChange}
+                  onChange={handleTextOnlyInput}
                   required
                 />
               </div>
@@ -562,7 +612,7 @@ function Tecnicos() {
                   type="text"
                   name="usuario"
                   value={formData.usuario}
-                  onChange={handleInputChange}
+                  onChange={handleTextOnlyInput}
                   required
                 />
               </div>
