@@ -5,7 +5,7 @@ import {
   obtenerDetallesOrdenes,
   insertarDetalleOrden,
   actualizarDetalleOrden,
-  eliminarDetalleOrden,  
+  eliminarDetalleOrden,
   type DetalleOrdenServicioRecord,
   type DetalleOrdenServicioPayload,
 } from '../../services/detalleOrdenServicioService';
@@ -14,6 +14,11 @@ import { obtenerProductos, type ProductoPayload } from '../../services/producto.
 import { obtenerOrdenes, type OrdenServicioRecord } from '../../services/ordenServicioService';
 import { FormattedId } from '../../componentes/FormattedId';
 import './OrdenesServicio.css';
+
+// ✅ TIPO LOCAL PARA EL FORMULARIO: Omitimos 'Estado' para no mostrarlo en la UI
+type DetalleFormState = Omit<DetalleOrdenServicioPayload, 'Estado'> & {
+  ID_DETALLES_ORDEN_SERVICIO?: number;
+};
 
 const extractArray = <T,>(payload: unknown, fallback: T[] = []): T[] => {
   if (Array.isArray(payload)) return payload;
@@ -30,13 +35,12 @@ const extractArray = <T,>(payload: unknown, fallback: T[] = []): T[] => {
   return fallback;
 };
 
-const initialFormState: DetalleOrdenServicioPayload & { ID_DETALLES_ORDEN_SERVICIO?: number } = {
+const initialFormState: DetalleFormState = {
   ID_DETALLES_ORDEN_SERVICIO: 0,
   ID_ORDEN_SERVICIO: 0,
   ID_SERVICIOS: 0,
   ID_PRODUCTOS: 0,
   Garantia: 0,
-  Estado: 'Pendiente',
   Precio: 0,
 };
 
@@ -51,8 +55,10 @@ const DetallesOrden = () => {
   const [modalFormOpen, setModalFormOpen] = useState(false);
   const [editMode, setEditMode] = useState(false);
   const [currentDetalle, setCurrentDetalle] = useState<DetalleOrdenServicioRecord | null>(null);
-  const [formData, setFormData] = useState(initialFormState);
-  
+
+  // ✅ USAMOS EL NUEVO TIPO LOCAL
+  const [formData, setFormData] = useState<DetalleFormState>(initialFormState);
+
   const [servicios, setServicios] = useState<ServicioRecord[]>([]);
   const [productos, setProductos] = useState<ProductoPayload[]>([]);
   const [ordenes, setOrdenes] = useState<OrdenServicioRecord[]>([]);
@@ -135,13 +141,13 @@ const DetallesOrden = () => {
   const openEditModal = (detalle: DetalleOrdenServicioRecord) => {
     setEditMode(true);
     setCurrentDetalle(detalle);
+    // ✅ SIN ESTADO
     setFormData({
       ID_DETALLES_ORDEN_SERVICIO: Number(detalle.ID_DETALLES_ORDEN_SERVICIO),
       ID_ORDEN_SERVICIO: Number(detalle.ID_ORDEN_SERVICIO),
       ID_SERVICIOS: detalle.ID_SERVICIOS ? Number(detalle.ID_SERVICIOS) : 0,
       ID_PRODUCTOS: detalle.ID_PRODUCTOS ? Number(detalle.ID_PRODUCTOS) : 0,
       Garantia: detalle.Garantia ?? 0,
-      Estado: detalle.Estado,
       Precio: detalle.Precio ?? 0,
     });
     setModalFormOpen(true);
@@ -153,26 +159,6 @@ const DetallesOrden = () => {
       ...prev,
       [name]: name === 'Garantia' || name === 'Precio' ? (value === '' ? 0 : Number(value)) : value,
     }));
-  };
-
-  const handleNumericIdInput = (e: ChangeEvent<HTMLInputElement>) => {
-    const { name, value } = e.target;
-    const sanitized = value.replace(/\D/g, '');
-    if (value !== sanitized) {
-      Swal.fire({
-        title: 'Solo números permitidos',
-        text: 'Este campo solo acepta IDs numéricos.',
-        icon: 'warning',
-        toast: true,
-        position: 'top-end',
-        showConfirmButton: false,
-        timer: 1500,
-        timerProgressBar: true,
-        background: '#101010',
-        color: '#f5f5f5',
-      });
-    }
-    setFormData(prev => ({ ...prev, [name]: sanitized === '' ? 0 : Number(sanitized) }));
   };
 
   const validarFormulario = (): boolean => {
@@ -194,10 +180,10 @@ const DetallesOrden = () => {
       showAlert('Error', 'El ID de la orden de servicio es obligatorio', 'error');
       return false;
     }
-    
+
     const ordenIdNum = Number(ordenIdStr);
     const ordenExiste = ordenes.some(o => Number(o.ID_ORDEN_SERVICIO) === ordenIdNum);
-    
+
     if (!ordenExiste) {
       showAlert('Error', `La orden con ID "${ordenIdStr}" no existe en la base de datos`, 'error');
       return false;
@@ -237,25 +223,25 @@ const DetallesOrden = () => {
     e.preventDefault();
     if (!validarFormulario()) return;
 
+    // ✅ CAST SEGURO PARA LA API (El backend puede tener Estado por defecto)
     const payload: any = {
       ID_ORDEN_SERVICIO: Number(formData.ID_ORDEN_SERVICIO),
       ID_SERVICIOS: formData.ID_SERVICIOS ? Number(formData.ID_SERVICIOS) : null,
       ID_PRODUCTOS: formData.ID_PRODUCTOS ? Number(formData.ID_PRODUCTOS) : null,
       Garantia: formData.Garantia,
-      Estado: formData.Estado,
       Precio: formData.Precio,
     };
-    
+
     if (!editMode) {
       payload.ID_DETALLES_ORDEN_SERVICIO = Number(formData.ID_DETALLES_ORDEN_SERVICIO);
     }
 
     try {
       if (editMode && currentDetalle) {
-        await actualizarDetalleOrden(currentDetalle.ID_DETALLES_ORDEN_SERVICIO, payload);
+        await actualizarDetalleOrden(currentDetalle.ID_DETALLES_ORDEN_SERVICIO, payload as DetalleOrdenServicioPayload);
         showAlert('Actualizado', 'El detalle se actualizó correctamente', 'success');
       } else {
-        await insertarDetalleOrden(payload);
+        await insertarDetalleOrden(payload as DetalleOrdenServicioPayload);
         showAlert('Creado', 'Nuevo detalle de orden creado', 'success');
       }
       setModalFormOpen(false);
@@ -341,7 +327,6 @@ const DetallesOrden = () => {
                 <th>ID Servicio</th>
                 <th>ID Producto</th>
                 <th>Garantía</th>
-                <th>Estado</th>
                 <th>Precio</th>
                 <th>Acciones</th>
               </tr>
@@ -349,7 +334,7 @@ const DetallesOrden = () => {
             <tbody>
               {filteredDetalles.length === 0 ? (
                 <tr>
-                  <td colSpan={8} className="loading-row">No hay registros que coincidan</td>
+                  <td colSpan={7} className="loading-row">No hay registros que coincidan</td>
                 </tr>
               ) : (
                 filteredDetalles.map((detalle) => (
@@ -359,7 +344,6 @@ const DetallesOrden = () => {
                     <td>{detalle.ID_SERVICIOS ? <FormattedId entity="servicio" value={detalle.ID_SERVICIOS} /> : '-'}</td>
                     <td>{detalle.ID_PRODUCTOS ? <FormattedId entity="producto" value={detalle.ID_PRODUCTOS} /> : '-'}</td>
                     <td>{detalle.Garantia ?? '-'}</td>
-                    <td>{detalle.Estado}</td>
                     <td>{detalle.Precio != null ? detalle.Precio.toLocaleString('es-CO') : '-'}</td>
                     <td className="actions-cell">
                       <button className="btn-edit-ktm" onClick={() => openEditModal(detalle)}>
@@ -383,7 +367,7 @@ const DetallesOrden = () => {
         </div>
       </div>
 
-      {/* Modal Funcional sin bloqueos */}
+      {/* Modal con selects mejorados y sin campo Estado */}
       {modalFormOpen && (
         <div className="modal-overlay" onClick={() => setModalFormOpen(false)}>
           <div className="modal-container" onClick={(e) => e.stopPropagation()}>
@@ -396,73 +380,66 @@ const DetallesOrden = () => {
                 <div className="form-group">
                   <label>ID Detalle *</label>
                   <input
-                    type="text"
+                    type="number"
                     name="ID_DETALLES_ORDEN_SERVICIO"
                     value={formData.ID_DETALLES_ORDEN_SERVICIO}
-                    onChange={handleNumericIdInput}
-                    required
-                    placeholder="Escribe solo el número del ID"
-                    autoComplete="off"
+                    onChange={handleFormChange}
+                    required={!editMode}
+                    disabled={editMode}
+                    placeholder="Ej: 1, 2, 3..."
+                    min="1"
+                    step="1"
                   />
+                  {editMode && <small className="text-muted">El ID no se puede modificar</small>}
                 </div>
 
                 <div className="form-group">
                   <label>ID Orden de Servicio *</label>
-                  <input
-                    list="ordenes-list"
-                    type="text"
+                  <select
                     name="ID_ORDEN_SERVICIO"
                     value={formData.ID_ORDEN_SERVICIO}
-                    onChange={handleNumericIdInput}
+                    onChange={handleFormChange}
                     required
-                    placeholder="Escribe solo el número del ID"
-                    autoComplete="off"
-                  />
-                  <datalist id="ordenes-list">
+                  >
+                    <option value="">-- Seleccione una orden --</option>
                     {ordenes.map(ord => (
                       <option key={ord.ID_ORDEN_SERVICIO} value={ord.ID_ORDEN_SERVICIO}>
-                        {ord.ID_ORDEN_SERVICIO} - {ord.ClienteNombre || ''}
+                        {ord.ID_ORDEN_SERVICIO} - {ord.ClienteNombre || 'Cliente:'} ({ord.Fecha_inicio || ''})
                       </option>
                     ))}
-                  </datalist>
+                  </select>
                 </div>
 
                 <div className="form-group">
                   <label>Servicio (opcional, pero al menos uno)</label>
-                  <input
-                    list="servicios-list"
+                  <select
                     name="ID_SERVICIOS"
                     value={formData.ID_SERVICIOS}
-                    onChange={handleNumericIdInput}
-                    placeholder="Escribe solo el número del ID"
-                    autoComplete="off"
-                  />
-                  <datalist id="servicios-list">
+                    onChange={handleFormChange}
+                  >
+                    <option value="">-- Seleccione un servicio (opcional) --</option>
                     {servicios.map(serv => (
                       <option key={serv.ID_SERVICIOS} value={serv.ID_SERVICIOS}>
-                        {serv.Nombre} ({serv.ID_SERVICIOS})
+                        {serv.ID_SERVICIOS} - {serv.Nombre}
                       </option>
                     ))}
-                  </datalist>
+                  </select>
                 </div>
 
                 <div className="form-group">
                   <label>Producto (opcional, pero al menos uno)</label>
-                  <input
-                    list="productos-list"
+                  <select
                     name="ID_PRODUCTOS"
                     value={formData.ID_PRODUCTOS}
-                    onChange={handleNumericIdInput}
-                    placeholder="Escribe solo el número del ID"
-                    autoComplete="off"
-                  />
-                  <datalist id="productos-list">
+                    onChange={handleFormChange}
+                  >
+                    <option value="">-- Seleccione un producto (opcional) --</option>
                     {productos.map(prod => (
                       <option key={prod.ID_PRODUCTOS} value={prod.ID_PRODUCTOS}>
-                        {prod.Nombre} ({prod.ID_PRODUCTOS})
+                        {prod.ID_PRODUCTOS} - {prod.Nombre}
                       </option>
                     ))}
-                  </datalist>
+                  </select>
                 </div>
 
                 <div className="form-group">
@@ -476,16 +453,6 @@ const DetallesOrden = () => {
                     min="0"
                     step="1"
                   />
-                </div>
-
-                <div className="form-group">
-                  <label>Estado *</label>
-                  <select name="Estado" value={formData.Estado} onChange={handleFormChange} required>
-                    <option value="Pendiente">Pendiente</option>
-                    <option value="En Proceso">En Proceso</option>
-                    <option value="Finalizada">Finalizada</option>
-                    <option value="Cancelado">Cancelado</option>
-                  </select>
                 </div>
 
                 <div className="form-group">

@@ -20,11 +20,11 @@ const generarIdInforme = async (): Promise<string> => {
     const response = await obtenerInformes();
     const informes = Array.isArray(response.data) ? response.data : response.data?.data || [];
     if (informes.length === 0) return '1';
-    
+
     const ids = informes.map((inf: InformeRecord) => String(inf.ID_INFORME ?? ''));
     const numeros = ids.map((id: string) => parseInt(id, 10) || 0);
     const maxNum = Math.max(...numeros, 0);
-    
+
     return String(maxNum + 1);
   } catch {
     return '1';
@@ -283,16 +283,16 @@ const TableInformes = () => {
             </div>
             <form onSubmit={handleSubmit}>
               <div className="modal-body">
-                {/* ✅ AHORA USA LA MISMA VALIDACIÓN NUMÉRICA QUE LOS DEMÁS */}
+                {/* ✅ VALIDACIÓN NUMÉRICA PARA ID */}
                 <div className="form-group">
                   <label>ID Informe</label>
-                  <input 
-                    type="text" 
-                    name="ID_INFORME" 
-                    value={formData.ID_INFORME} 
+                  <input
+                    type="text"
+                    name="ID_INFORME"
+                    value={formData.ID_INFORME}
                     onChange={handleNumericIdInput}
                     readOnly={editMode}
-                    required 
+                    required
                   />
                 </div>
 
@@ -365,6 +365,7 @@ const TableInformes = () => {
                   <textarea name="Descripcion" value={formData.Descripcion} onChange={handleInputChange} required rows={4} />
                 </div>
 
+                {/* ✅ ESTADO RESTAURADO */}
                 <div className="form-group">
                   <label>Estado *</label>
                   <select name="Estado" value={formData.Estado} onChange={handleInputChange} required>

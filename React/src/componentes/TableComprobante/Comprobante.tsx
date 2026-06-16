@@ -1,4 +1,3 @@
-// src/components/TableComprobantes/Comprobante.tsx
 import { useState, useEffect, type ChangeEvent, type FormEvent } from 'react';
 import Swal from 'sweetalert2';
 import {
@@ -37,11 +36,14 @@ const createInitialFormData = (): ComprobantePayload => ({
   Estado_pago: 'Pendiente',
 });
 
+// ✅ Construye el payload exacto que espera el backend
 const buildComprobantePayload = (formData: ComprobantePayload): ComprobantePayload => {
   const id = String(formData.ID_COMPROBANTE ?? '').trim();
   if (!id) throw new Error('El ID del comprobante es obligatorio.');
   if (!formData.ID_CLIENTES) throw new Error('El ID del cliente es obligatorio.');
-  const monto = typeof formData.Monto === 'string' ? parseFloat(formData.Monto) : formData.Monto;
+
+  // Conversión segura a número
+  const monto = Number(formData.Monto) || 0;
   if (isNaN(monto) || monto < 0) {
     throw new Error('El monto debe ser un número válido mayor o igual a 0.');
   }
@@ -112,6 +114,7 @@ function TableComprobantes() {
     });
   };
 
+  // 📡 LLAMADO INICIAL: Carga todos los datos necesarios
   const cargarDatosIniciales = async () => {
     try {
       setLoading(true);
@@ -162,7 +165,7 @@ function TableComprobantes() {
   // ✅ VALIDACIÓN SOLO NÚMEROS PARA CAMPOS DE ID
   const handleNumericIdInput = (e: ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
-    const sanitized = value.replace(/\D/g, ''); // Elimina todo lo que no sea dígito
+    const sanitized = value.replace(/\D/g, '');
 
     if (value !== sanitized) {
       Swal.fire({
@@ -194,13 +197,14 @@ function TableComprobantes() {
       ID_INFORME: comp.ID_INFORME || '',
       ID_CLIENTES: comp.ID_CLIENTES,
       ID_ADMINISTRADOR: comp.ID_ADMINISTRADOR || '',
-      Monto: comp.Monto,
+      Monto: Number(comp.Monto) || 0, // ✅ Conversión segura
       Fecha: comp.Fecha.split('T')[0],
       Estado_pago: comp.Estado_pago,
     });
     setShowEditModal(true);
   };
 
+  // 📡 LLAMADO: CREAR COMPROBANTE
   const handleCreate = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     try {
@@ -218,6 +222,7 @@ function TableComprobantes() {
     }
   };
 
+  // 📡 LLAMADO: ACTUALIZAR COMPROBANTE
   const handleUpdate = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     if (!currentComprobante) return;
@@ -236,6 +241,7 @@ function TableComprobantes() {
     }
   };
 
+  // 📡 LLAMADO: ELIMINAR COMPROBANTE
   const borrarComprobante = async (id: string | number) => {
     const result = await Swal.fire({
       title: '¿Eliminar comprobante?',
@@ -334,7 +340,7 @@ function TableComprobantes() {
         </div>
       </div>
 
-      {/* Modal CREAR con scroll */}
+      {/* Modal CREAR */}
       {showCreateModal && (
         <div className="modal-overlay" onClick={() => setShowCreateModal(false)}>
           <div className="modal-container" onClick={e => e.stopPropagation()}>
@@ -395,7 +401,7 @@ function TableComprobantes() {
         </div>
       )}
 
-      {/* Modal EDITAR con scroll */}
+      {/* Modal EDITAR */}
       {showEditModal && currentComprobante && (
         <div className="modal-overlay" onClick={() => setShowEditModal(false)}>
           <div className="modal-container" onClick={e => e.stopPropagation()}>
@@ -407,7 +413,7 @@ function TableComprobantes() {
               <div className="modal-body">
                 <div className="form-group">
                   <label>ID Comprobante</label>
-                  <input type="text" name="ID_COMPROBANTE" value={formData.ID_COMPROBANTE} readOnly disabled />
+                  <input type="text" name="ID_COMPROBANTE" value={formData.ID_COMPROBANTE} readOnly placeholder="ID generado automáticamente" />
                 </div>
                 <div className="form-group">
                   <label>Cliente *</label>
