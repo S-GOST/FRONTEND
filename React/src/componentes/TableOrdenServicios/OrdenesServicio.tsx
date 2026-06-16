@@ -170,28 +170,6 @@ const OrdenesServicio = () => {
     setFormData(prev => ({ ...prev, [name]: value }));
   };
 
-  // ✅ VALIDACIÓN SOLO NÚMEROS PARA CAMPOS DE ID
-  const handleNumericIdInput = (e: ChangeEvent<HTMLInputElement>) => {
-    const { name, value } = e.target;
-    const sanitized = value.replace(/\D/g, ''); // Elimina todo lo que no sea dígito
-
-    if (value !== sanitized) {
-      Swal.fire({
-        title: 'Solo números permitidos',
-        text: 'Este campo solo acepta IDs numéricos.',
-        icon: 'warning',
-        toast: true,
-        position: 'top-end',
-        showConfirmButton: false,
-        timer: 1500,
-        timerProgressBar: true,
-        background: '#101010',
-        color: '#f5f5f5',
-      });
-    }
-    setFormData(prev => ({ ...prev, [name]: sanitized }));
-  };
-
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
     if (submitting) return;
@@ -366,7 +344,7 @@ const OrdenesServicio = () => {
         </div>
       )}
 
-      {/* Modal de formulario */}
+      {/* Modal de formulario (Restaurado a selects originales) */}
       {modalFormOpen && (
         <div className="modal-overlay" onClick={() => setModalFormOpen(false)}>
           <div className="modal-container" onClick={(e) => e.stopPropagation()}>
@@ -376,86 +354,72 @@ const OrdenesServicio = () => {
             </div>
             <form onSubmit={handleSubmit}>
               <div className="modal-body">
-                
-                {/* ✅ CAMPO CLIENTE: INPUT CON VALIDACIÓN */}
                 <div className="form-group">
                   <label>Cliente *</label>
-                  <input
-                    list="clientes-list-modal"
+                  <select
                     name="ID_CLIENTES"
                     value={formData.ID_CLIENTES}
-                    onChange={handleNumericIdInput}
-                    placeholder="Escribe solo el número del ID"
+                    onChange={handleFormChange}
                     required
-                  />
-                  <datalist id="clientes-list-modal">
+                  >
+                    <option value="">-- Seleccione un cliente --</option>
                     {clientes.map(cliente => (
                       <option key={cliente.ID_CLIENTES} value={cliente.ID_CLIENTES}>
-                        {cliente.Nombre}
+                        {cliente.ID_CLIENTES} - {cliente.Nombre}
                       </option>
                     ))}
-                  </datalist>
+                  </select>
                 </div>
 
-                {/* ✅ CAMPO ADMINISTRADOR: INPUT CON VALIDACIÓN */}
                 <div className="form-group">
                   <label>Administrador *</label>
-                  <input
-                    list="admins-list-modal"
+                  <select
                     name="ID_ADMINISTRADOR"
                     value={formData.ID_ADMINISTRADOR}
-                    onChange={handleNumericIdInput}
-                    placeholder="Escribe solo el número del ID"
+                    onChange={handleFormChange}
                     required
-                  />
-                  <datalist id="admins-list-modal">
+                  >
+                    <option value="">-- Seleccione un administrador --</option>
                     {administradores.map(admin => (
                       <option key={admin.ID_ADMINISTRADOR} value={admin.ID_ADMINISTRADOR}>
-                        {admin.Nombre}
+                        {admin.ID_ADMINISTRADOR} - {admin.Nombre}
                       </option>
                     ))}
-                  </datalist>
+                  </select>
                 </div>
 
-                {/* ✅ CAMPO TÉCNICO: INPUT CON VALIDACIÓN */}
                 <div className="form-group">
                   <label>Técnico</label>
-                  <input
-                    list="tecnicos-list-modal"
+                  <select
                     name="ID_TECNICOS"
                     value={formData.ID_TECNICOS}
-                    onChange={handleNumericIdInput}
-                    placeholder="Escribe solo el número del ID"
-                  />
-                  <datalist id="tecnicos-list-modal">
+                    onChange={handleFormChange}
+                  >
+                    <option value="">-- Seleccione un técnico (opcional) --</option>
                     {tecnicos.map(tec => (
                       <option key={tec.ID_TECNICOS} value={tec.ID_TECNICOS}>
-                        {tec.Nombre}
+                        {tec.ID_TECNICOS} - {tec.Nombre}
                       </option>
                     ))}
-                  </datalist>
+                  </select>
                 </div>
 
-                {/* ✅ CAMPO MOTO: INPUT CON VALIDACIÓN */}
                 <div className="form-group">
                   <label>Moto</label>
-                  <input
-                    list="motos-list-modal"
+                  <select
                     name="ID_MOTOS"
                     value={formData.ID_MOTOS}
-                    onChange={handleNumericIdInput}
-                    placeholder="Escribe solo el número del ID"
-                  />
-                  <datalist id="motos-list-modal">
+                    onChange={handleFormChange}
+                  >
+                    <option value="">-- Seleccione una moto (opcional) --</option>
                     {motos.map(moto => (
                       <option key={moto.ID_MOTOS} value={moto.ID_MOTOS}>
-                        {moto.Placa} ({moto.Modelo})
+                        {moto.ID_MOTOS} - {moto.Placa} ({moto.Modelo})
                       </option>
                     ))}
-                  </datalist>
+                  </select>
                 </div>
 
-                {/* Fechas */}
                 <div className="form-group">
                   <label>Fecha inicio *</label>
                   <input type="date" name="Fecha_inicio" value={formData.Fecha_inicio} onChange={handleFormChange} required />
@@ -469,7 +433,6 @@ const OrdenesServicio = () => {
                   <input type="date" name="Fecha_fin" value={formData.Fecha_fin ?? ''} onChange={handleFormChange} />
                 </div>
 
-                {/* Estado */}
                 <div className="form-group">
                   <label>Estado *</label>
                   <select name="Estado" value={formData.Estado} onChange={handleFormChange} required>
