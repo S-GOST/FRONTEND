@@ -525,11 +525,12 @@ function Clientes() {
               </div>
               <div className="form-group">
                 <label>Usuario</label>
+                {/* ✅ CAMBIADO: Usa la misma función que el correo (handleInputChange) */}
                 <input
                   type="text"
                   name="usuario"
                   value={formData.usuario}
-                  onChange={handleTextOnlyInput}
+                  onChange={handleInputChange}
                   required
                 />
               </div>
@@ -634,11 +635,12 @@ function Clientes() {
               </div>
               <div className="form-group">
                 <label>Usuario</label>
+                {/* ✅ CAMBIADO: Usa la misma función que el correo (handleInputChange) */}
                 <input
                   type="text"
                   name="usuario"
                   value={formData.usuario}
-                  onChange={handleTextOnlyInput}
+                  onChange={handleInputChange}
                   required
                 />
               </div>
