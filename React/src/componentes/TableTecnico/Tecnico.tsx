@@ -157,7 +157,7 @@ function Tecnicos() {
     setFormData(prev => ({ ...prev, [name]: value }));
   };
 
-  // ✅ MANEJADOR: SOLO LETRAS (Nombre y Usuario)
+  // ✅ MANEJADOR: SOLO LETRAS (Solo para Nombre)
   const handleTextOnlyInput = (event: ChangeEvent<HTMLInputElement>) => {
     const { name, value } = event.target;
     const sanitizedValue = filterOnlyLetters(value);
@@ -505,11 +505,12 @@ function Tecnicos() {
               </div>
               <div className="form-group">
                 <label>Usuario</label>
+                {/* ✅ CAMBIADO: Usa la misma función que el correo (handleInputChange) */}
                 <input
                   type="text"
                   name="usuario"
                   value={formData.usuario}
-                  onChange={handleTextOnlyInput}
+                  onChange={handleInputChange}
                   required
                 />
               </div>
@@ -608,11 +609,12 @@ function Tecnicos() {
               </div>
               <div className="form-group">
                 <label>Usuario</label>
+                {/* ✅ CAMBIADO: Usa la misma función que el correo (handleInputChange) */}
                 <input
                   type="text"
                   name="usuario"
                   value={formData.usuario}
-                  onChange={handleTextOnlyInput}
+                  onChange={handleInputChange}
                   required
                 />
               </div>

@@ -496,7 +496,6 @@ function Admins() {
             <form onSubmit={handleCreate}>
               <div className="form-group">
                 <label>ID Administrador</label>
-                {/* CAMBIO: Ahora usa el manejador solo números */}
                 <input
                   type="text"
                   name="ID_ADMINISTRADOR"
@@ -553,11 +552,12 @@ function Admins() {
               </div>
               <div className="form-group">
                 <label>Usuario</label>
+                {/* ✅ CAMBIADO: Usa la misma función que el correo (handleInputChange) */}
                 <input
                   type="text"
                   name="usuario"
                   value={formData.usuario}
-                  onChange={handleTextOnlyInput}
+                  onChange={handleInputChange}
                   required
                 />
               </div>
@@ -596,7 +596,6 @@ function Admins() {
             <form onSubmit={handleUpdate}>
               <div className="form-group">
                 <label>ID Administrador</label>
-                {/* CAMBIO: Ahora usa el manejador solo números */}
                 <input
                   type="text"
                   name="ID_ADMINISTRADOR"
@@ -657,11 +656,12 @@ function Admins() {
               </div>
               <div className="form-group">
                 <label>Usuario</label>
+                {/* ✅ CAMBIADO: Usa la misma función que el correo (handleInputChange) */}
                 <input
                   type="text"
                   name="usuario"
                   value={formData.usuario}
-                  onChange={handleTextOnlyInput}
+                  onChange={handleInputChange}
                   required
                 />
               </div>
