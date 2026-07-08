@@ -52,63 +52,7 @@ const Panel: React.FC = () => {
             </header>
 
             <div className="wrapper">
-                {/* SIDEBAR */}
-                <nav id="sidebar">
-                    <h5 className="text-center">
-                        {userRole === 'admin' ? 'MENÚ DE GESTIÓN' : 'PANEL TÉCNICO'}
-                    </h5>
-                    <div className="menu-links-container">
-                        {userRole === 'admin' ? (
-                            <>
-                                <NavLink to="/admin/dashboard" className={({ isActive }) => `menu-link ${isActive ? 'active' : ''}`}>
-                                    <i className="fa-solid fa-gauge-high"></i> Dashboard
-                                </NavLink>
-                                <NavLink to="/admin/usuarios" className={({ isActive }) => `menu-link ${isActive ? 'active' : ''}`}>
-                                    <i className="fa-solid fa-user-shield"></i> Usuarios
-                                </NavLink>
-                                <NavLink to="/admin/motos" className={({ isActive }) => `menu-link ${isActive ? 'active' : ''}`}>
-                                    <i className="fa-solid fa-motorcycle"></i> Motos
-                                </NavLink>
-                                <NavLink to="/admin/servicios" className={({ isActive }) => `menu-link ${isActive ? 'active' : ''}`}>
-                                    <i className="fa-solid fa-screwdriver-wrench"></i> Servicios
-                                </NavLink>
-                                <NavLink to="/admin/productos" className={({ isActive }) => `menu-link ${isActive ? 'active' : ''}`}>
-                                    <i className="fa-solid fa-box"></i> Productos
-                                </NavLink>
-                                <NavLink to="/admin/categorias" className={({ isActive }) => `menu-link ${isActive ? 'active' : ''}`}>
-                                    <i className="fa-solid fa-list"></i> Categorías
-                                </NavLink>
-                                <NavLink to="/admin/ordenes_servicio" className={({ isActive }) => `menu-link ${isActive ? 'active' : ''}`}>
-                                    <i className="fa-solid fa-clipboard-list"></i> Ordenes Servicio
-                                </NavLink>
-                                <NavLink to="/admin/detalles-orden" className={({ isActive }) => `menu-link ${isActive ? 'active' : ''}`}>
-                                    <i className="fa-solid fa-file-invoice"></i> Detalles ordenes de servicio
-                                </NavLink>
-                                <NavLink to="/admin/informe" className={({ isActive }) => `menu-link ${isActive ? 'active' : ''}`}>
-                                    <i className="fa-solid fa-chart-line"></i> Informes
-                                </NavLink>
-                                <NavLink to="/admin/comprobante" className={({ isActive }) => `menu-link ${isActive ? 'active' : ''}`}>
-                                    <i className="fa-solid fa-receipt"></i> Comprobantes
-                                </NavLink>
-                                <NavLink to="/admin/historial" className={({ isActive }) => `menu-link ${isActive ? 'active' : ''}`}>
-                                    <i className="fa-solid fa-clock-rotate-left"></i> Historial
-                                </NavLink>
-                            </>
-                        ) : (
-                            <>
-                                <NavLink to="/tecnico/dashboard" className={({ isActive }) => `menu-link ${isActive ? 'active' : ''}`}>
-                                    <i className="fa-solid fa-gauge"></i> Dashboard
-                                </NavLink>
-                                <NavLink to="/tecnico/productos" className={({ isActive }) => `menu-link ${isActive ? 'active' : ''}`}>
-                                    <i className="fa-solid fa-box"></i> Productos
-                                </NavLink>
-                                <NavLink to="/tecnico/servicios" className={({ isActive }) => `menu-link ${isActive ? 'active' : ''}`}>
-                                    <i className="fa-solid fa-screwdriver-wrench"></i> Servicios
-                                </NavLink>
-                            </>
-                        )}
-                    </div>
-                </nav>
+
 
                 {/* CONTENIDO DINÁMICO */}
                 <div id="content">

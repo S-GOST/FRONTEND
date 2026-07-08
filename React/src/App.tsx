@@ -189,12 +189,17 @@ function App() {
             )
           }
         />
+        {/* Dashboard sin Panel (pantalla completa) */}
+        <Route
+          path="/admin/dashboard"
+          element={isAuthenticated ? <Dashboard /> : <Navigate to="/login" replace />}
+        />
+        {/* Resto de rutas admin con Panel (sidebar) */}
         <Route
           path="/admin"
           element={isAuthenticated ? <Panel /> : <Navigate to="/login" replace />}
         >
           <Route index element={<Navigate to="/admin/dashboard" replace />} />
-          <Route path="dashboard" element={<Dashboard />} />
           <Route path="administradores" element={<Usuarios />} />
           <Route path="usuarios" element={<Usuarios />} />
           <Route path="ordenes_servicio" element={<OrdenesServicio />} />
