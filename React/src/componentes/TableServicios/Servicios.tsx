@@ -7,18 +7,20 @@ import {
   obtenerServicios,
   type ServicioPayload,
 } from '../../services/servicio.service';
+import {
+  obtenerCategoriasPorTipo,
+  type CategoriaPayload,
+} from '../../services/categoria.service';
 import { FormattedId } from '../../componentes/FormattedId';
 import './Servicios.css';
 
-const CATEGORIAS = ['Mantenimientos', 'Reparaciones', 'Instalaciones', 'Diagnosticos'];
 const ESTADOS = ['Disponible', 'No disponible'] as const;
 type EstadoType = (typeof ESTADOS)[number]; // 'Disponible' | 'No disponible'
 
 const createInitialFormData = (): ServicioPayload => ({
   ID_SERVICIOS: '',
+  ID_CATEGORIA: '',
   Nombre: '',
-  Categoria: '',
-  Garantia: 0,
   Estado: 'Disponible',
   Precio: 0,
 });
@@ -29,25 +31,18 @@ const filterOnlyNumbers = (value: string): string => value.replace(/\D/g, '');
 
 /**
  * Construye el payload asegurando que los tipos coincidan con la API.
- * @throws {Error} Si la garantía no es un número válido.
  */
 const buildServicioPayload = (formData: ServicioPayload): ServicioPayload => {
   const id = String(formData.ID_SERVICIOS ?? '').trim();
+  const idCategoria = Number(formData.ID_CATEGORIA);
   const nombre = String(formData.Nombre ?? '').trim();
-  const categoria = String(formData.Categoria ?? '').trim();
-  const garantiaNum = Number(formData.Garantia);
   const estado = String(formData.Estado ?? '').trim() as EstadoType;
   const precio = Number(formData.Precio);
 
-  if (isNaN(garantiaNum)) {
-    throw new Error('La garantía debe ser un número válido');
-  }
-
   return {
     ID_SERVICIOS: id,
+    ID_CATEGORIA: idCategoria,
     Nombre: nombre,
-    Categoria: categoria,
-    Garantia: garantiaNum,
     Estado: estado,
     Precio: precio,
   };
@@ -82,6 +77,7 @@ const formatPrecio = (precio: ServicioPayload['Precio']) => {
 function Servicios() {
   const [servicios, setServicios] = useState<ServicioPayload[]>([]);
   const [filteredServicios, setFilteredServicios] = useState<ServicioPayload[]>([]);
+  const [categorias, setCategorias] = useState<CategoriaPayload[]>([]);
   const [loading, setLoading] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
   const [showCreateModal, setShowCreateModal] = useState(false);
@@ -91,7 +87,19 @@ function Servicios() {
 
   useEffect(() => {
     void cargarServicios();
+    void cargarCategorias();
   }, []);
+
+  const cargarCategorias = async () => {
+    try {
+      const response = await obtenerCategoriasPorTipo('SERVICIO');
+      const data = response.data;
+      const cats = Array.isArray(data) ? data : (data as any)?.data ?? [];
+      setCategorias(cats);
+    } catch (error) {
+      console.error('Error al cargar categorías:', error);
+    }
+  };
 
   const showAlert = (title: string, text: string, icon: 'success' | 'error' | 'warning') => {
     return Swal.fire({
@@ -130,7 +138,7 @@ function Servicios() {
     const filtered = servicios.filter(
       (servicio) =>
         String(servicio.Nombre).toLowerCase().includes(term) ||
-        String(servicio.Categoria).toLowerCase().includes(term) ||
+        String(servicio.categoria_nombre ?? '').toLowerCase().includes(term) ||
         String(servicio.ID_SERVICIOS).toLowerCase().includes(term) ||
         String(servicio.Estado).toLowerCase().includes(term)
     );
@@ -203,9 +211,8 @@ function Servicios() {
     setCurrentServicio(servicio);
     setFormData({
       ID_SERVICIOS: servicio.ID_SERVICIOS,
+      ID_CATEGORIA: servicio.ID_CATEGORIA,
       Nombre: servicio.Nombre,
-      Categoria: servicio.Categoria,
-      Garantia: servicio.Garantia,
       Estado: servicio.Estado,
       Precio: servicio.Precio,
     });
@@ -225,16 +232,14 @@ function Servicios() {
 
   const validateForm = (): string | null => {
     const id = String(formData.ID_SERVICIOS ?? '').trim();
+    const idCategoria = Number(formData.ID_CATEGORIA);
     const nombre = String(formData.Nombre ?? '').trim();
-    const categoria = String(formData.Categoria ?? '').trim();
-    const garantiaNum = Number(formData.Garantia);
     const estado = String(formData.Estado ?? '').trim();
     const precio = formData.Precio;
 
     if (!id) return 'El ID del servicio es obligatorio.';
+    if (!idCategoria) return 'Debe seleccionar una categoría.';
     if (!nombre) return 'El nombre del servicio es obligatorio.';
-    if (!categoria) return 'Debe seleccionar una categoría.';
-    if (!garantiaNum || isNaN(garantiaNum)) {return 'La garantía debe ser un número (ej: 30).';}
     if (!estado) return 'Debe seleccionar un estado.';
     if (!precio || Number(precio) <= 0) return 'Debe ingresar un precio válido mayor a 0.';
     return null;
@@ -325,6 +330,13 @@ function Servicios() {
     }
   };
 
+  // Helper: obtener nombre de categoría por ID
+  const getCategoriaNombre = (servicio: ServicioPayload): string => {
+    if (servicio.categoria_nombre) return servicio.categoria_nombre;
+    const cat = categorias.find((c) => c.ID_CATEGORIA === Number(servicio.ID_CATEGORIA));
+    return cat?.nombre ?? String(servicio.ID_CATEGORIA);
+  };
+
   return (
     <div className="servicios-page">
       <div className="header-admin">{/* Botón de logout si se desea */}</div>
@@ -361,9 +373,8 @@ function Servicios() {
             <thead>
               <tr>
                 <th>ID</th>
-                <th>Nombre</th>
                 <th>Categoría</th>
-                <th>Garantía (días)</th>
+                <th>Nombre</th>
                 <th>Estado</th>
                 <th>Precio</th>
                 <th>Acciones</th>
@@ -372,7 +383,7 @@ function Servicios() {
             <tbody>
               {loading ? (
                 <tr>
-                  <td colSpan={7} className="loading-row">
+                  <td colSpan={6} className="loading-row">
                     Cargando servicios...
                   </td>
                 </tr>
@@ -380,9 +391,8 @@ function Servicios() {
                 filteredServicios.map((servicio) => (
                   <tr key={servicio.ID_SERVICIOS}>
                     <td><FormattedId entity="servicio" value={servicio.ID_SERVICIOS} /></td>
+                    <td>{getCategoriaNombre(servicio)}</td>
                     <td>{servicio.Nombre}</td>
-                    <td>{servicio.Categoria}</td>
-                    <td>{servicio.Garantia}</td>
                     <td>{servicio.Estado}</td>
                     <td>${formatPrecio(servicio.Precio)}</td>
                     <td className="actions-cell">
@@ -405,7 +415,7 @@ function Servicios() {
                 ))
               ) : (
                 <tr>
-                  <td colSpan={7} className="loading-row">
+                  <td colSpan={6} className="loading-row">
                     No hay servicios registrados.
                   </td>
                 </tr>
@@ -437,39 +447,28 @@ function Servicios() {
                 />
               </div>
               <div className="form-group">
+                <label>Categoría</label>
+                <select
+                  name="ID_CATEGORIA"
+                  value={formData.ID_CATEGORIA}
+                  onChange={handleInputChange}
+                  required
+                >
+                  <option value="">Seleccione</option>
+                  {categorias.map((cat) => (
+                    <option key={cat.ID_CATEGORIA} value={cat.ID_CATEGORIA}>
+                      {cat.nombre}
+                    </option>
+                  ))}
+                </select>
+              </div>
+              <div className="form-group">
                 <label>Nombre</label>
                 <input
                   type="text"
                   name="Nombre"
                   value={formData.Nombre}
                   onChange={handleTextOnlyInput}
-                  required
-                />
-              </div>
-              <div className="form-group">
-                <label>Categoría</label>
-                <select
-                  name="Categoria"
-                  value={formData.Categoria}
-                  onChange={handleInputChange}
-                  required
-                >
-                  <option value="">Seleccione</option>
-                  {CATEGORIAS.map((cat) => (
-                    <option key={cat} value={cat}>
-                      {cat}
-                    </option>
-                  ))}
-                </select>
-              </div>
-              <div className="form-group">
-                <label>Garantía (días)</label>
-                <input
-                  type="text"
-                  name="Garantia"
-                  value={formData.Garantia}
-                  onChange={handleInputChange}
-                  placeholder="Ej: 30"
                   required
                 />
               </div>
@@ -535,37 +534,28 @@ function Servicios() {
                 />
               </div>
               <div className="form-group">
+                <label>Categoría</label>
+                <select
+                  name="ID_CATEGORIA"
+                  value={formData.ID_CATEGORIA}
+                  onChange={handleInputChange}
+                  required
+                >
+                  <option value="">Seleccione</option>
+                  {categorias.map((cat) => (
+                    <option key={cat.ID_CATEGORIA} value={cat.ID_CATEGORIA}>
+                      {cat.nombre}
+                    </option>
+                  ))}
+                </select>
+              </div>
+              <div className="form-group">
                 <label>Nombre</label>
                 <input
                   type="text"
                   name="Nombre"
                   value={formData.Nombre}
                   onChange={handleTextOnlyInput}
-                  required
-                />
-              </div>
-              <div className="form-group">
-                <label>Categoría</label>
-                <select
-                  name="Categoria"
-                  value={formData.Categoria}
-                  onChange={handleInputChange}
-                  required
-                >
-                  {CATEGORIAS.map((cat) => (
-                    <option key={cat} value={cat}>
-                      {cat}
-                    </option>
-                  ))}
-                </select>
-              </div>
-              <div className="form-group">
-                <label>Garantía (días)</label>
-                <input
-                  type="text"
-                  name="Garantia"
-                  value={formData.Garantia}
-                  onChange={handleInputChange}
                   required
                 />
               </div>

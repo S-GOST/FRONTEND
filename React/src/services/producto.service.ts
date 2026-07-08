@@ -2,13 +2,12 @@ import { BaseApiService } from './base.service';
 
 export interface ProductoPayload {
   ID_PRODUCTOS: string | number;
-  Nombre: string;
+  ID_CATEGORIA: number | string;
   Marca: string;
-  Categoria: string;
-  Garantia: number;
-  Cantidad: number;
+  Nombre: string;
   Precio: number;
   Estado?: string;
+  categoria_nombre?: string; // viene del JOIN en el backend
 }
 // Al final del archivo, después de las interfaces
 export type ProductoRecord = ProductoPayload;   // 👈 Agrega esta línea
@@ -25,8 +24,7 @@ export const productoService = new BaseApiService<ProductoPayload>({
 // Normalización automática de números antes de enviar
 const normalizarProducto = (p: ProductoPayload) => ({
   ...p,
-  Garantia: Number(p.Garantia),
-  Cantidad: Number(p.Cantidad),
+  ID_CATEGORIA: Number(p.ID_CATEGORIA),
   Precio: Number(p.Precio)
 });
 
@@ -37,3 +35,4 @@ export const actualizarProducto = (id: string | number, data: ProductoPayload) =
 // El resto usa los métodos heredados automáticamente
 export const obtenerProductos = () => productoService.obtenerTodos();
 export const eliminarProducto = (id: string | number) => productoService.eliminar(id);
+

@@ -176,7 +176,7 @@ const DetallesOrden = () => {
     }
 
     const ordenIdStr = formData.ID_ORDEN_SERVICIO;
-    if (!ordenIdStr || ordenIdStr === 0 || isNaN(ordenIdStr)) {
+    if (!ordenIdStr || ordenIdStr === 0 || isNaN(Number(ordenIdStr))) {
       showAlert('Error', 'El ID de la orden de servicio es obligatorio', 'error');
       return false;
     }

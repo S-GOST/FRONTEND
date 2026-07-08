@@ -58,6 +58,24 @@
   outline: none;
 }
 
+.admin-page .tab-button {
+  background: #0d0d0d;
+  border: 1px solid #222;
+  color: #ddd;
+  padding: 0.75rem 1.2rem;
+  border-radius: 999px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-weight: 600;
+}
+
+.admin-page .tab-button.active,
+.admin-page .tab-button:hover {
+  background: #171717;
+  border-color: var(--table-accent);
+  color: #fff;
+}
+
 .admin-page .search-input:focus {
   border-color: var(--table-accent);
 }
@@ -83,11 +101,77 @@
 }
 
 /* Contenedor de botones de la derecha (apilados verticalmente) */
-.admin-page .right-actions {
+..admin-page .right-actions {
   display: flex;
   flex-direction: column;
   gap: 0.5rem;
   align-items: flex-end;
+}
+
+.admin-page .user-summary-cards {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.admin-page .summary-card {
+  background: #111111;
+  border: 1px solid #222;
+  border-radius: 18px;
+  padding: 1rem 1.25rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  min-height: 90px;
+  gap: 0.75rem;
+}
+
+.admin-page .summary-card span {
+  color: #aaa;
+  font-size: 0.9rem;
+}
+
+.admin-page .summary-card strong {
+  color: #fff;
+  font-size: 1.9rem;
+}
+
+.admin-page .admin-card {
+  border-color: #ff6600;
+}
+
+.admin-page .tecnico-card {
+  border-color: #10b981;
+}
+
+.admin-page .cliente-card {
+  border-color: #3b82f6;
+}
+
+.admin-page .tabs-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  margin-bottom: 1.5rem;
+}
+
+.admin-page .tab-button {
+  background: #0d0d0d;
+  border: 1px solid #222;
+  color: #ddd;
+  padding: 0.75rem 1.2rem;
+  border-radius: 999px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-weight: 600;
+}
+
+.admin-page .tab-button.active,
+.admin-page .tab-button:hover {
+  background: #171717;
+  border-color: var(--table-accent);
+  color: #fff;
 }
 
 .admin-page .btn-create {

@@ -9,33 +9,24 @@ import {
   type TecnicoPayload,
   type TecnicoRecord,
 } from '../../services/tecnico.service';
+import { obtenerTiposDocumento, type TipoDocumentoRecord } from '../../services/tipoDocumento.service';
 import { FormattedId } from '../../componentes/FormattedId';
 import '../TableAdmin/Admin.css';
 
 type TecnicoFormState = TecnicoPayload & {
-  contrasena: string;
-  contrasenaActual: string;
+  password: string;
+  passwordActual: string;
 };
 
-const tipoDocumentoOptions = [
-  'CC',
-  'CE',
-  'TI',
-  'Pasaporte',
-  'Cedula de ciudadania',
-  'Cedula de extranjeria',
-  'Tarjeta de identidad',
-];
-
 const createInitialFormData = (): TecnicoFormState => ({
-  ID_TECNICOS: '',
-  Nombre: '',
-  Correo: '',
-  TipoDocumento: '',
-  Telefono: '',
+  numero_documento: '',
+  nombre: '',
+  correo: '',
+  id_tipo_documento: '',
+  telefono: '',
   usuario: '',
-  contrasena: '',
-  contrasenaActual: '',
+  password: '',
+  passwordActual: '',
 });
 
 // --- FUNCIONES AUXILIARES DE VALIDACIÓN ---
@@ -66,7 +57,7 @@ const isSuccessfulResponse = (payload: unknown) => {
 const readTecnicoRecord = (value: unknown): TecnicoRecord | null => {
   if (!value || typeof value !== 'object' || Array.isArray(value)) return null;
   const candidate = value as Record<string, unknown>;
-  if ('ID_TECNICOS' in candidate)
+  if ('numero_documento' in candidate)
     return candidate as unknown as TecnicoRecord;
   if ('data' in candidate) return readTecnicoRecord(candidate.data);
   if ('tecnico' in candidate) return readTecnicoRecord(candidate.tecnico);
@@ -75,23 +66,24 @@ const readTecnicoRecord = (value: unknown): TecnicoRecord | null => {
 
 const buildTecnicoPayload = (formData: TecnicoFormState): TecnicoPayload => {
   const payload: TecnicoPayload = {
-    ID_TECNICOS: String(formData.ID_TECNICOS).trim(),
-    Nombre: formData.Nombre.trim(),
-    Correo: formData.Correo.trim(),
-    TipoDocumento: formData.TipoDocumento,
-    Telefono: formData.Telefono.trim(),
+    numero_documento: String(formData.numero_documento).trim(),
+    nombre: formData.nombre.trim(),
+    correo: formData.correo.trim(),
+    id_tipo_documento: formData.id_tipo_documento,
+    telefono: formData.telefono.trim(),
     usuario: formData.usuario.trim(),
   };
-  if (formData.contrasena.trim()) {
-    payload.contrasena = formData.contrasena.trim();
-  } else if (formData.contrasenaActual.trim()) {
-    payload.contrasena = formData.contrasenaActual.trim();
+  if (formData.password.trim()) {
+    payload.password = formData.password.trim();
+  } else if (formData.passwordActual.trim()) {
+    payload.password = formData.passwordActual.trim();
   }
   return payload;
 };
 
 function Tecnicos() {
   const [tecnicos, setTecnicos] = useState<TecnicoRecord[]>([]);
+  const [tiposDocumento, setTiposDocumento] = useState<TipoDocumentoRecord[]>([]);
   const [filteredTecnicos, setFilteredTecnicos] = useState<TecnicoRecord[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
@@ -101,8 +93,19 @@ function Tecnicos() {
   const [formData, setFormData] = useState<TecnicoFormState>(createInitialFormData());
 
   useEffect(() => {
+    void cargarTipos();
     void cargarTecnicos();
   }, []);
+
+  const cargarTipos = async () => {
+    try {
+      const res = await obtenerTiposDocumento();
+      const tipos = res.data?.data ?? res.data;
+      if (tipos) setTiposDocumento(Array.isArray(tipos) ? tipos : []);
+    } catch (e) {
+      console.error(e);
+    }
+  };
 
   const showAlert = (title: string, text: string, icon: 'success' | 'error' | 'warning') => {
     return Swal.fire({
@@ -139,10 +142,10 @@ function Tecnicos() {
     }
     const term = searchTerm.toLowerCase();
     const filtered = tecnicos.filter(tecnico =>
-      tecnico.Nombre.toLowerCase().includes(term) ||
-      tecnico.Correo.toLowerCase().includes(term) ||
+      tecnico.nombre.toLowerCase().includes(term) ||
+      tecnico.correo.toLowerCase().includes(term) ||
       tecnico.usuario.toLowerCase().includes(term) ||
-      String(tecnico.ID_TECNICOS).toLowerCase().includes(term)
+      String(tecnico.numero_documento).toLowerCase().includes(term)
     );
     setFilteredTecnicos(filtered);
   };
@@ -204,18 +207,18 @@ function Tecnicos() {
   };
 
   const openEditModal = async (tecnico: TecnicoRecord) => {
-    const originalId = String(tecnico.ID_TECNICOS ?? '').trim();
+    const originalId = String(tecnico.numero_documento ?? '').trim();
     if (!originalId) {
       setCurrentTecnico(tecnico);
       setFormData({
-        ID_TECNICOS: tecnico.ID_TECNICOS,
-        Nombre: tecnico.Nombre,
-        Correo: tecnico.Correo,
-        TipoDocumento: tecnico.TipoDocumento,
-        Telefono: tecnico.Telefono,
+        numero_documento: tecnico.numero_documento,
+        nombre: tecnico.nombre,
+        correo: tecnico.correo,
+        id_tipo_documento: tecnico.id_tipo_documento,
+        telefono: tecnico.telefono,
         usuario: tecnico.usuario,
-        contrasena: '',
-        contrasenaActual: tecnico.contrasena ?? '',
+        password: '',
+        passwordActual: tecnico.password ?? '',
       });
       setShowEditModal(true);
       return;
@@ -225,28 +228,28 @@ function Tecnicos() {
       const tecnicoActualizado = readTecnicoRecord(response.data) ?? tecnico;
       setCurrentTecnico(tecnicoActualizado);
       setFormData({
-        ID_TECNICOS: tecnicoActualizado.ID_TECNICOS,
-        Nombre: tecnicoActualizado.Nombre,
-        Correo: tecnicoActualizado.Correo,
-        TipoDocumento: tecnicoActualizado.TipoDocumento,
-        Telefono: tecnicoActualizado.Telefono,
+        numero_documento: tecnicoActualizado.numero_documento,
+        nombre: tecnicoActualizado.nombre,
+        correo: tecnicoActualizado.correo,
+        id_tipo_documento: tecnicoActualizado.id_tipo_documento,
+        telefono: tecnicoActualizado.telefono,
         usuario: tecnicoActualizado.usuario,
-        contrasena: '',
-        contrasenaActual: tecnicoActualizado.contrasena ?? '',
+        password: '',
+        passwordActual: tecnicoActualizado.password ?? '',
       });
       setShowEditModal(true);
     } catch (error) {
       console.error('Error al cargar técnico para editar:', error);
       setCurrentTecnico(tecnico);
       setFormData({
-        ID_TECNICOS: tecnico.ID_TECNICOS,
-        Nombre: tecnico.Nombre,
-        Correo: tecnico.Correo,
-        TipoDocumento: tecnico.TipoDocumento,
-        Telefono: tecnico.Telefono,
+        numero_documento: tecnico.numero_documento,
+        nombre: tecnico.nombre,
+        correo: tecnico.correo,
+        id_tipo_documento: tecnico.id_tipo_documento,
+        telefono: tecnico.telefono,
         usuario: tecnico.usuario,
-        contrasena: '',
-        contrasenaActual: tecnico.contrasena ?? '',
+        password: '',
+        passwordActual: tecnico.password ?? '',
       });
       setShowEditModal(true);
     }
@@ -273,7 +276,7 @@ function Tecnicos() {
     event.preventDefault();
     try {
       const payload = buildTecnicoPayload(formData);
-      if (!payload.contrasena) {
+      if (!payload.password) {
         showAlert('Atención', 'La contraseña es obligatoria para crear un técnico.', 'warning');
         return;
       }
@@ -296,11 +299,11 @@ function Tecnicos() {
     if (!currentTecnico) return;
     try {
       const payload = buildTecnicoPayload(formData);
-      if (!payload.contrasena) {
+      if (!payload.password) {
         showAlert('Atención', 'Ingresa una contraseña o carga primero la contraseña actual antes de guardar.', 'warning');
         return;
       }
-      const response = await actualizarTecnico(currentTecnico.ID_TECNICOS, payload);
+      const response = await actualizarTecnico(currentTecnico.numero_documento, payload);
       if (isSuccessfulResponse(response.data)) {
         await showAlert('Cambios guardados', 'El técnico fue actualizado correctamente.', 'success');
         closeEditModal();
@@ -316,7 +319,7 @@ function Tecnicos() {
 
   const borrarTecnico = async (tecnico: TecnicoRecord) => {
     const result = await Swal.fire({
-      title: `¿Estás seguro de eliminar a ${tecnico.Nombre}?`,
+      title: `¿Estás seguro de eliminar a ${tecnico.nombre}?`,
       text: "Esta acción no se puede deshacer.",
       icon: 'warning',
       showCancelButton: true,
@@ -329,9 +332,9 @@ function Tecnicos() {
     });
     if (!result.isConfirmed) return;
     try {
-      await eliminarTecnico(tecnico.ID_TECNICOS);
-      setTecnicos(prev => prev.filter(item => item.ID_TECNICOS !== tecnico.ID_TECNICOS));
-      setFilteredTecnicos(prev => prev.filter(item => item.ID_TECNICOS !== tecnico.ID_TECNICOS));
+      await eliminarTecnico(tecnico.numero_documento);
+      setTecnicos(prev => prev.filter(item => item.numero_documento !== tecnico.numero_documento));
+      setFilteredTecnicos(prev => prev.filter(item => item.numero_documento !== tecnico.numero_documento));
       Swal.fire({
         title: 'Eliminado',
         text: 'El técnico ha sido eliminado.',
@@ -399,12 +402,12 @@ function Tecnicos() {
                 </tr>
               ) : filteredTecnicos.length > 0 ? (
                 filteredTecnicos.map(tecnico => (
-                  <tr key={tecnico.ID_TECNICOS}>
-                    <td><FormattedId entity="tecnico" value={tecnico.ID_TECNICOS} /></td>
-                    <td>{tecnico.Nombre}</td>
-                    <td>{tecnico.Correo}</td>
-                    <td>{tecnico.TipoDocumento}</td>
-                    <td>{tecnico.Telefono}</td>
+                  <tr key={tecnico.numero_documento}>
+                    <td><FormattedId entity="tecnico" value={tecnico.numero_documento} /></td>
+                    <td>{tecnico.nombre}</td>
+                    <td>{tecnico.correo}</td>
+                    <td>{tiposDocumento.find(t => String(t.id_tipo_documento) === String(tecnico.id_tipo_documento))?.nombre || tecnico.id_tipo_documento}</td>
+                    <td>{tecnico.telefono}</td>
                     <td>{tecnico.usuario}</td>
                     <td className="actions-cell">
                       <button
@@ -448,11 +451,11 @@ function Tecnicos() {
             </div>
             <form onSubmit={handleCreate}>
               <div className="form-group">
-                <label>ID Técnico</label>
+                <label>Documento Técnico</label>
                 <input
                   type="text"
-                  name="ID_TECNICOS"
-                  value={formData.ID_TECNICOS}
+                  name="numero_documento"
+                  value={formData.numero_documento}
                   onChange={handleNumberOnlyInput}
                   required
                 />
@@ -461,8 +464,8 @@ function Tecnicos() {
                 <label>Nombre</label>
                 <input
                   type="text"
-                  name="Nombre"
-                  value={formData.Nombre}
+                  name="nombre"
+                  value={formData.nombre}
                   onChange={handleTextOnlyInput}
                   required
                 />
@@ -471,8 +474,8 @@ function Tecnicos() {
                 <label>Correo</label>
                 <input
                   type="email"
-                  name="Correo"
-                  value={formData.Correo}
+                  name="correo"
+                  value={formData.correo}
                   onChange={handleInputChange}
                   required
                 />
@@ -480,15 +483,15 @@ function Tecnicos() {
               <div className="form-group">
                 <label>Tipo de documento</label>
                 <select
-                  name="TipoDocumento"
-                  value={formData.TipoDocumento}
+                  name="id_tipo_documento"
+                  value={String(formData.id_tipo_documento || '')}
                   onChange={handleInputChange}
                   required
                 >
                   <option value="">Seleccione</option>
-                  {tipoDocumentoOptions.map(option => (
-                    <option key={option} value={option}>
-                      {option}
+                  {tiposDocumento.map(t => (
+                    <option key={t.id_tipo_documento} value={String(t.id_tipo_documento)}>
+                      {t.nombre}
                     </option>
                   ))}
                 </select>
@@ -497,8 +500,8 @@ function Tecnicos() {
                 <label>Teléfono</label>
                 <input
                   type="text"
-                  name="Telefono"
-                  value={formData.Telefono}
+                  name="telefono"
+                  value={formData.telefono}
                   onChange={handleInputChange}
                   required
                 />
@@ -518,8 +521,8 @@ function Tecnicos() {
                 <label>Contraseña</label>
                 <input
                   type="password"
-                  name="contrasena"
-                  value={formData.contrasena}
+                  name="password"
+                  value={formData.password}
                   onChange={handleInputChange}
                   placeholder="Ingresa la contraseña del técnico"
                   required
@@ -548,11 +551,11 @@ function Tecnicos() {
             </div>
             <form onSubmit={handleUpdate}>
               <div className="form-group">
-                <label>ID Técnico</label>
+                <label>Documento Técnico</label>
                 <input
                   type="text"
-                  name="ID_TECNICOS"
-                  value={formData.ID_TECNICOS}
+                  name="numero_documento"
+                  value={formData.numero_documento}
                   onChange={handleNumberOnlyInput}
                   required
                 />
@@ -561,8 +564,8 @@ function Tecnicos() {
                 <label>Nombre</label>
                 <input
                   type="text"
-                  name="Nombre"
-                  value={formData.Nombre}
+                  name="nombre"
+                  value={formData.nombre}
                   onChange={handleTextOnlyInput}
                   required
                 />
@@ -571,8 +574,8 @@ function Tecnicos() {
                 <label>Correo</label>
                 <input
                   type="email"
-                  name="Correo"
-                  value={formData.Correo}
+                  name="correo"
+                  value={formData.correo}
                   onChange={handleInputChange}
                   required
                 />
@@ -580,29 +583,25 @@ function Tecnicos() {
               <div className="form-group">
                 <label>Tipo de documento</label>
                 <select
-                  name="TipoDocumento"
-                  value={formData.TipoDocumento}
+                  name="id_tipo_documento"
+                  value={String(formData.id_tipo_documento || '')}
                   onChange={handleInputChange}
                   required
                 >
                   <option value="">Seleccione</option>
-                  {tipoDocumentoOptions.map(option => (
-                    <option key={option} value={option}>
-                      {option}
+                  {tiposDocumento.map(t => (
+                    <option key={t.id_tipo_documento} value={String(t.id_tipo_documento)}>
+                      {t.nombre}
                     </option>
                   ))}
-                  {formData.TipoDocumento &&
-                    !tipoDocumentoOptions.includes(formData.TipoDocumento) && (
-                      <option value={formData.TipoDocumento}>{formData.TipoDocumento}</option>
-                    )}
                 </select>
               </div>
               <div className="form-group">
                 <label>Teléfono</label>
                 <input
                   type="text"
-                  name="Telefono"
-                  value={formData.Telefono}
+                  name="telefono"
+                  value={formData.telefono}
                   onChange={handleInputChange}
                   required
                 />
@@ -622,8 +621,8 @@ function Tecnicos() {
                 <label>Nueva contraseña</label>
                 <input
                   type="password"
-                  name="contrasena"
-                  value={formData.contrasena}
+                  name="password"
+                  value={formData.password}
                   onChange={handleInputChange}
                   placeholder="Déjala vacía para mantener la actual"
                 />

@@ -1,24 +1,69 @@
 import { BaseApiService } from './base.service';
 
 export interface ClientePayload {
-  ID_CLIENTES: string | number;
-  Ubicacion: string;
-  Nombre: string;
+  numero_documento: string | number;
+  id_tipo_documento: number | string;
+  ciudad: string;
+  nombre: string;
   usuario: string;
-  contrasena?: string;
-  TipoDocumento: string;
-  Correo: string;
-  Telefono: string;
+  password?: string;
+  correo: string;
+  telefono: string;
+
+  // Retrocompatibilidad
+  ID_CLIENTES?: string | number;
+  Nombre?: string;
+  Ubicacion?: string;
 }
-export interface ClienteRecord extends ClientePayload {}
 
-export const clienteService = new BaseApiService<ClientePayload>({
-  baseUrl: '/clientes',
-  routes: { deletePrimary: '/eliminar/:id', deleteFallback: '' }
-});
+export type ClienteRecord = ClientePayload;
 
-export const obtenerClientes = () => clienteService.obtenerTodos();
-export const obtenerClientePorId = (id: string | number) => clienteService.obtenerPorId(id);
-export const insertarCliente = (data: ClientePayload) => clienteService.crear(data);
-export const actualizarCliente = (id: string | number, data: ClientePayload) => clienteService.actualizar(id, data);
+export class ClienteService extends BaseApiService<ClientePayload> {
+  constructor() {
+    super({
+      baseUrl: '/clientes',
+    });
+  }
+}
+
+const clienteService = new ClienteService();
+
+const addCompatibility = (c: any): any => {
+  if (!c) return c;
+  return {
+    ...c,
+    ID_CLIENTES: c.numero_documento,
+    Nombre: c.nombre,
+    Ubicacion: c.ciudad,
+  };
+};
+
+export const obtenerClientes = async () => {
+  const res = await clienteService.obtenerTodos();
+  if (res.data) {
+    if (Array.isArray(res.data)) {
+      res.data = res.data.map(addCompatibility);
+    } else if (res.data.data && Array.isArray(res.data.data)) {
+      res.data.data = res.data.data.map(addCompatibility);
+    } else if (res.data.clientes && Array.isArray(res.data.clientes)) {
+      res.data.clientes = res.data.clientes.map(addCompatibility);
+    }
+  }
+  return res;
+};
+
+export const obtenerClientePorId = async (id: string | number) => {
+  const res = await clienteService.obtenerPorId(id);
+  if (res.data) {
+    if (res.data.data) {
+      res.data.data = addCompatibility(res.data.data);
+    } else {
+      res.data = addCompatibility(res.data);
+    }
+  }
+  return res;
+};
+
+export const insertarCliente = (datos: ClientePayload) => clienteService.crear(datos);
+export const actualizarCliente = (id: string | number, datos: ClientePayload) => clienteService.actualizar(id, datos);
 export const eliminarCliente = (id: string | number) => clienteService.eliminar(id);

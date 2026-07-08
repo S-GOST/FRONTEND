@@ -7,7 +7,20 @@ export const apiClient = axios.create({
 
 apiClient.interceptors.request.use((config) => {
   const token = localStorage.getItem('user_token');
+  config.headers = config.headers || {};
   if (token) config.headers.Authorization = `Bearer ${token}`;
+
+  const monitoredUrl = config.url || '';
+  if (config.method && ['post', 'put', 'patch'].includes(config.method.toLowerCase())) {
+    if (config.data && JSON.stringify(config.data).includes('especialidad')) {
+      console.warn('[apiClient] request contains especialidad', { method: config.method, url: monitoredUrl, data: config.data });
+    }
+  }
+
+  if (monitoredUrl.includes('/admins/insertar') || monitoredUrl.includes('/admins/actualizar')) {
+    console.debug('[apiClient] request', { method: config.method, url: monitoredUrl, data: config.data });
+  }
+
   return config;
 });
 

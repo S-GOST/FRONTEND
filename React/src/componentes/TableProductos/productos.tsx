@@ -8,25 +8,22 @@ import {
   type ProductoPayload,
   type ProductoRecord,
 } from '../../services/producto.service';
+import {
+  obtenerCategoriasPorTipo,
+  type CategoriaPayload,
+} from '../../services/categoria.service';
 import { FormattedId } from '../../componentes/FormattedId';
 import './Productos.css';
-
-const CATEGORIAS = [
-  'Accesorios',
-  'Lubricantes y refrigerantes',
-];
 
 const ESTADOS = ['Disponibles', 'Agotados', 'Próximamente'] as const;
 type EstadoType = (typeof ESTADOS)[number];
 
 const createInitialFormData = (): ProductoPayload => ({
   ID_PRODUCTOS: '',
-  Nombre: '',
+  ID_CATEGORIA: '',
   Marca: '',
-  Categoria: '',
-  Garantia: 0,
+  Nombre: '',
   Precio: 0,
-  Cantidad: 0,
   Estado: 'Disponibles',
 });
 
@@ -36,37 +33,27 @@ const filterOnlyNumbers = (value: string): string => value.replace(/\D/g, '');
 
 const buildProductoPayload = (formData: ProductoPayload): ProductoPayload => {
   const id = String(formData.ID_PRODUCTOS ?? '').trim();
+  const idCategoria = Number(formData.ID_CATEGORIA);
   const nombre = String(formData.Nombre ?? '').trim();
   const marca = String(formData.Marca ?? '').trim();
-  const categoria = String(formData.Categoria ?? '').trim();
-  const garantia = Number(formData.Garantia);
   const precio = Number(formData.Precio);
-  const cantidad = Number(formData.Cantidad);
   const estado = String(formData.Estado ?? 'Disponibles').trim() as EstadoType;
 
   if (!id) throw new Error('El ID del producto es obligatorio.');
+  if (!idCategoria) throw new Error('Debe seleccionar una categoría.');
   if (!nombre) throw new Error('El nombre del producto es obligatorio.');
   if (!marca) throw new Error('La marca del producto es obligatoria.');
-  if (!categoria) throw new Error('Debe seleccionar una categoría.');
-  if (Number.isNaN(garantia) || garantia < 0) {
-    throw new Error('La garantía debe ser un número mayor o igual a 0.');
-  }
   if (Number.isNaN(precio) || precio <= 0) {
     throw new Error('El precio debe ser mayor a 0.');
-  }
-  if (Number.isNaN(cantidad) || cantidad < 0) {
-    throw new Error('La cantidad debe ser mayor o igual a 0.');
   }
   if (!estado) throw new Error('Debe seleccionar un estado.');
 
   return {
     ID_PRODUCTOS: id,
+    ID_CATEGORIA: idCategoria,
     Nombre: nombre,
     Marca: marca,
-    Categoria: categoria,
-    Garantia: garantia,
     Precio: precio,
-    Cantidad: cantidad,
     Estado: estado,
   };
 };
@@ -106,6 +93,7 @@ const getEstadoBadgeClass = (estado?: string) => {
 function TableProductos() {
   const [productos, setProductos] = useState<ProductoRecord[]>([]);
   const [filteredProductos, setFilteredProductos] = useState<ProductoRecord[]>([]);
+  const [categorias, setCategorias] = useState<CategoriaPayload[]>([]);
   const [loading, setLoading] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
   const [showCreateModal, setShowCreateModal] = useState(false);
@@ -115,7 +103,19 @@ function TableProductos() {
 
   useEffect(() => {
     void cargarProductos();
+    void cargarCategorias();
   }, []);
+
+  const cargarCategorias = async () => {
+    try {
+      const response = await obtenerCategoriasPorTipo('PRODUCTO');
+      const data = response.data;
+      const cats = Array.isArray(data) ? data : (data as any)?.data ?? [];
+      setCategorias(cats);
+    } catch (error) {
+      console.error('Error al cargar categorías:', error);
+    }
+  };
 
   const showAlert = (
     title: string,
@@ -160,7 +160,7 @@ function TableProductos() {
       (producto) =>
         String(producto.Nombre).toLowerCase().includes(term) ||
         String(producto.Marca).toLowerCase().includes(term) ||
-        String(producto.Categoria).toLowerCase().includes(term) ||
+        String(producto.categoria_nombre ?? '').toLowerCase().includes(term) ||
         String(producto.Estado ?? '').toLowerCase().includes(term) ||
         String(producto.ID_PRODUCTOS).toLowerCase().includes(term)
     );
@@ -236,12 +236,10 @@ function TableProductos() {
     setCurrentProducto(producto);
     setFormData({
       ID_PRODUCTOS: producto.ID_PRODUCTOS,
-      Nombre: producto.Nombre,
+      ID_CATEGORIA: producto.ID_CATEGORIA,
       Marca: producto.Marca,
-      Categoria: producto.Categoria,
-      Garantia: producto.Garantia ?? 0,
+      Nombre: producto.Nombre,
       Precio: producto.Precio,
-      Cantidad: producto.Cantidad,
       Estado: (producto.Estado as EstadoType) ?? 'Disponibles',
     });
     setShowEditModal(true);
@@ -262,24 +260,16 @@ function TableProductos() {
     const id = String(formData.ID_PRODUCTOS ?? '').trim();
     const nombre = String(formData.Nombre ?? '').trim();
     const marca = String(formData.Marca ?? '').trim();
-    const categoria = String(formData.Categoria ?? '').trim();
-    const garantia = Number(formData.Garantia);
+    const idCategoria = Number(formData.ID_CATEGORIA);
     const precio = Number(formData.Precio);
-    const cantidad = Number(formData.Cantidad);
     const estado = String(formData.Estado ?? '').trim();
 
     if (!id) return 'El ID del producto es obligatorio.';
     if (!nombre) return 'El nombre del producto es obligatorio.';
     if (!marca) return 'La marca del producto es obligatoria.';
-    if (!categoria) return 'Debe seleccionar una categoria.';
-    if (Number.isNaN(garantia) || garantia < 0) {
-      return 'La garantía debe ser un número válido mayor o igual a 0.';
-    }
+    if (!idCategoria) return 'Debe seleccionar una categoría.';
     if (Number.isNaN(precio) || precio <= 0) {
       return 'El precio debe ser un número válido mayor a 0.';
-    }
-    if (Number.isNaN(cantidad) || cantidad < 0) {
-      return 'La cantidad debe ser un número válido mayor o igual a 0.';
     }
     if (!estado) return 'Debe seleccionar un estado.';
     return null;
@@ -393,6 +383,13 @@ function TableProductos() {
     }
   };
 
+  // Helper: obtener nombre de categoría por ID
+  const getCategoriaNombre = (producto: ProductoRecord): string => {
+    if (producto.categoria_nombre) return producto.categoria_nombre;
+    const cat = categorias.find((c) => c.ID_CATEGORIA === Number(producto.ID_CATEGORIA));
+    return cat?.nombre ?? String(producto.ID_CATEGORIA);
+  };
+
   return (
     <div className="productos-page">
       <div className="admin-section">
@@ -428,12 +425,10 @@ function TableProductos() {
             <thead>
               <tr>
                 <th>ID</th>
-                <th>Nombre</th>
-                <th>Marca</th>
                 <th>Categoría</th>
-                <th>Garantía (días)</th>
+                <th>Marca</th>
+                <th>Nombre</th>
                 <th>Precio</th>
-                <th>Cantidad</th>
                 <th>Estado</th>
                 <th>Acciones</th>
               </tr>
@@ -441,7 +436,7 @@ function TableProductos() {
             <tbody>
               {loading ? (
                 <tr>
-                  <td colSpan={9} className="loading-row">
+                  <td colSpan={7} className="loading-row">
                     Cargando productos...
                   </td>
                 </tr>
@@ -449,14 +444,10 @@ function TableProductos() {
                 filteredProductos.map((producto) => (
                   <tr key={producto.ID_PRODUCTOS}>
                     <td><FormattedId entity="producto" value={producto.ID_PRODUCTOS} /></td>
-                    <td>{producto.Nombre}</td>
+                    <td>{getCategoriaNombre(producto)}</td>
                     <td>{producto.Marca}</td>
-                    <td>{producto.Categoria}</td>
-                    <td>{producto.Garantia ?? 0}</td>
+                    <td>{producto.Nombre}</td>
                     <td>${formatPrecio(producto.Precio)}</td>
-                    <td className={producto.Cantidad < 5 ? 'stock-bajo' : ''}>
-                      {producto.Cantidad}
-                    </td>
                     <td>
                       <span
                         className={`estado-badge ${getEstadoBadgeClass(
@@ -486,7 +477,7 @@ function TableProductos() {
                 ))
               ) : (
                 <tr>
-                  <td colSpan={9} className="loading-row">
+                  <td colSpan={7} className="loading-row">
                     No hay productos registrados.
                   </td>
                 </tr>
@@ -519,14 +510,20 @@ function TableProductos() {
                 />
               </div>
               <div className="form-group">
-                <label>Nombre</label>
-                <input
-                  type="text"
-                  name="Nombre"
-                  value={formData.Nombre}
-                  onChange={handleTextOnlyInput}
+                <label>Categoría</label>
+                <select
+                  name="ID_CATEGORIA"
+                  value={formData.ID_CATEGORIA}
+                  onChange={handleInputChange}
                   required
-                />
+                >
+                  <option value="">Seleccione</option>
+                  {categorias.map((cat) => (
+                    <option key={cat.ID_CATEGORIA} value={cat.ID_CATEGORIA}>
+                      {cat.nombre}
+                    </option>
+                  ))}
+                </select>
               </div>
               <div className="form-group">
                 <label>Marca</label>
@@ -539,29 +536,12 @@ function TableProductos() {
                 />
               </div>
               <div className="form-group">
-                <label>Categoría</label>
-                <select
-                  name="Categoria"
-                  value={formData.Categoria}
-                  onChange={handleInputChange}
-                  required
-                >
-                  <option value="">Seleccione</option>
-                  {CATEGORIAS.map((categoria) => (
-                    <option key={categoria} value={categoria}>
-                      {categoria}
-                    </option>
-                  ))}
-                </select>
-              </div>
-              <div className="form-group">
-                <label>Garantía (días)</label>
+                <label>Nombre</label>
                 <input
-                  type="number"
-                  step="1"
-                  name="Garantia"
-                  value={formData.Garantia}
-                  onChange={handleInputChange}
+                  type="text"
+                  name="Nombre"
+                  value={formData.Nombre}
+                  onChange={handleTextOnlyInput}
                   required
                 />
               </div>
@@ -578,17 +558,6 @@ function TableProductos() {
                     required
                   />
                 </div>
-              </div>
-              <div className="form-group">
-                <label>Cantidad</label>
-                <input
-                  type="number"
-                  step="1"
-                  name="Cantidad"
-                  value={formData.Cantidad}
-                  onChange={handleInputChange}
-                  required
-                />
               </div>
               <div className="form-group">
                 <label>Estado</label>
@@ -640,14 +609,20 @@ function TableProductos() {
                 />
               </div>
               <div className="form-group">
-                <label>Nombre</label>
-                <input
-                  type="text"
-                  name="Nombre"
-                  value={formData.Nombre}
-                  onChange={handleTextOnlyInput}
+                <label>Categoría</label>
+                <select
+                  name="ID_CATEGORIA"
+                  value={formData.ID_CATEGORIA}
+                  onChange={handleInputChange}
                   required
-                />
+                >
+                  <option value="">Seleccione</option>
+                  {categorias.map((cat) => (
+                    <option key={cat.ID_CATEGORIA} value={cat.ID_CATEGORIA}>
+                      {cat.nombre}
+                    </option>
+                  ))}
+                </select>
               </div>
               <div className="form-group">
                 <label>Marca</label>
@@ -660,29 +635,12 @@ function TableProductos() {
                 />
               </div>
               <div className="form-group">
-                <label>Categoría</label>
-                <select
-                  name="Categoria"
-                  value={formData.Categoria}
-                  onChange={handleInputChange}
-                  required
-                >
-                  <option value="">Seleccione</option>
-                  {CATEGORIAS.map((categoria) => (
-                    <option key={categoria} value={categoria}>
-                      {categoria}
-                    </option>
-                  ))}
-                </select>
-              </div>
-              <div className="form-group">
-                <label>Garantía (días)</label>
+                <label>Nombre</label>
                 <input
-                  type="number"
-                  step="1"
-                  name="Garantia"
-                  value={formData.Garantia}
-                  onChange={handleInputChange}
+                  type="text"
+                  name="Nombre"
+                  value={formData.Nombre}
+                  onChange={handleTextOnlyInput}
                   required
                 />
               </div>
@@ -699,17 +657,6 @@ function TableProductos() {
                     required
                   />
                 </div>
-              </div>
-              <div className="form-group">
-                <label>Cantidad</label>
-                <input
-                  type="number"
-                  step="1"
-                  name="Cantidad"
-                  value={formData.Cantidad}
-                  onChange={handleInputChange}
-                  required
-                />
               </div>
               <div className="form-group">
                 <label>Estado</label>

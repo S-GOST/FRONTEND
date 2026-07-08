@@ -6,36 +6,27 @@ import {
   eliminarAdmin,
   obtenerAdminPorId,
   obtenerAdmins,
-  type AdminPayload,
-  type AdminRecord,
+  type AdministradorPayload as AdminPayload,
+  type AdministradorRecord as AdminRecord,
 } from '../../services/admin.service';
+import { obtenerTiposDocumento, type TipoDocumentoRecord } from '../../services/tipoDocumento.service';
 import { FormattedId } from '../../componentes/FormattedId';
 import './Admin.css';
 
 type AdminFormState = AdminPayload & {
-  contrasena: string;
-  contrasenaActual: string;
+  password: string;
+  passwordActual: string;
 };
 
-const tipoDocumentoOptions = [
-  'CC',
-  'CE',
-  'TI',
-  'Pasaporte',
-  'Cedula de ciudadania',
-  'Cedula de extranjeria',
-  'Tarjeta de identidad',
-];
-
 const createInitialFormData = (): AdminFormState => ({
-  ID_ADMINISTRADOR: '',
-  Nombre: '',
-  Correo: '',
-  TipoDocumento: '',
-  Telefono: '',
+  numero_documento: '',
+  nombre: '',
+  correo: '',
+  id_tipo_documento: '',
+  telefono: '',
   usuario: '',
-  contrasena: '',
-  contrasenaActual: '',
+  password: '',
+  passwordActual: '',
 });
 
 // --- 1. VALIDACIÓN: FILTRA SOLO LETRAS ---
@@ -73,7 +64,7 @@ const isSuccessfulResponse = (payload: unknown) => {
 const readAdminRecord = (value: unknown): AdminRecord | null => {
   if (!value || typeof value !== 'object' || Array.isArray(value)) return null;
   const candidate = value as Record<string, unknown>;
-  if ('ID_ADMINISTRADOR' in candidate)
+  if ('numero_documento' in candidate)
     return candidate as unknown as AdminRecord;
   if ('data' in candidate) return readAdminRecord(candidate.data);
   if ('admin' in candidate) return readAdminRecord(candidate.admin);
@@ -82,21 +73,22 @@ const readAdminRecord = (value: unknown): AdminRecord | null => {
 
 const buildAdminPayload = (formData: AdminFormState): AdminPayload => {
   const payload: AdminPayload = {
-    ID_ADMINISTRADOR: String(formData.ID_ADMINISTRADOR).trim(),
-    Nombre: formData.Nombre.trim(),
-    Correo: formData.Correo.trim(),
-    TipoDocumento: formData.TipoDocumento,
-    Telefono: formData.Telefono.trim(),
+    numero_documento: String(formData.numero_documento).trim(),
+    nombre: formData.nombre.trim(),
+    correo: formData.correo.trim(),
+    id_tipo_documento: formData.id_tipo_documento,
+    telefono: formData.telefono.trim(),
     usuario: formData.usuario.trim(),
   };
-  if (formData.contrasena.trim()) {
-    payload.contrasena = formData.contrasena.trim();
+  if (formData.password.trim()) {
+    payload.password = formData.password.trim();
   }
   return payload;
 };
 
 function Admins() {
   const [admins, setAdmins] = useState<AdminRecord[]>([]);
+  const [tiposDocumento, setTiposDocumento] = useState<TipoDocumentoRecord[]>([]);
   const [filteredAdmins, setFilteredAdmins] = useState<AdminRecord[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
@@ -106,8 +98,19 @@ function Admins() {
   const [formData, setFormData] = useState<AdminFormState>(createInitialFormData());
 
   useEffect(() => {
+    void cargarTipos();
     void cargarAdmins();
   }, []);
+
+  const cargarTipos = async () => {
+    try {
+      const res = await obtenerTiposDocumento();
+      const tipos = res.data?.data ?? res.data;
+      if (tipos) setTiposDocumento(Array.isArray(tipos) ? tipos : []);
+    } catch (e) {
+      console.error(e);
+    }
+  };
 
   const showAlert = (title: string, text: string, icon: 'success' | 'error' | 'warning') => {
     return Swal.fire({
@@ -139,26 +142,26 @@ function Admins() {
 
   const updateAdminInState = (updatedAdmin: AdminRecord) => {
     setAdmins(prev => {
-      const exists = prev.some(a => a.ID_ADMINISTRADOR === updatedAdmin.ID_ADMINISTRADOR);
+      const exists = prev.some(a => a.numero_documento === updatedAdmin.numero_documento);
       if (exists) {
-        return prev.map(a => a.ID_ADMINISTRADOR === updatedAdmin.ID_ADMINISTRADOR ? updatedAdmin : a);
+        return prev.map(a => a.numero_documento === updatedAdmin.numero_documento ? updatedAdmin : a);
       } else {
         return [...prev, updatedAdmin];
       }
     });
 
     setFilteredAdmins(prev => {
-      let newFiltered = prev.some(a => a.ID_ADMINISTRADOR === updatedAdmin.ID_ADMINISTRADOR)
-        ? prev.map(a => a.ID_ADMINISTRADOR === updatedAdmin.ID_ADMINISTRADOR ? updatedAdmin : a)
+      let newFiltered = prev.some(a => a.numero_documento === updatedAdmin.numero_documento)
+        ? prev.map(a => a.numero_documento === updatedAdmin.numero_documento ? updatedAdmin : a)
         : [...prev, updatedAdmin];
 
       if (searchTerm.trim()) {
         const term = searchTerm.toLowerCase();
         newFiltered = newFiltered.filter(admin =>
-          admin.Nombre.toLowerCase().includes(term) ||
-          admin.Correo.toLowerCase().includes(term) ||
+          admin.nombre.toLowerCase().includes(term) ||
+          admin.correo.toLowerCase().includes(term) ||
           admin.usuario.toLowerCase().includes(term) ||
-          String(admin.ID_ADMINISTRADOR).toLowerCase().includes(term)
+          String(admin.numero_documento).toLowerCase().includes(term)
         );
       }
       return newFiltered;
@@ -172,10 +175,10 @@ function Admins() {
     }
     const term = searchTerm.toLowerCase();
     const filtered = admins.filter(admin =>
-      admin.Nombre.toLowerCase().includes(term) ||
-      admin.Correo.toLowerCase().includes(term) ||
+      admin.nombre.toLowerCase().includes(term) ||
+      admin.correo.toLowerCase().includes(term) ||
       admin.usuario.toLowerCase().includes(term) ||
-      String(admin.ID_ADMINISTRADOR).toLowerCase().includes(term)
+      String(admin.numero_documento).toLowerCase().includes(term)
     );
     setFilteredAdmins(filtered);
   };
@@ -237,18 +240,18 @@ function Admins() {
   };
 
   const openEditModal = async (admin: AdminRecord) => {
-    const originalId = String(admin.ID_ADMINISTRADOR ?? '').trim();
+    const originalId = String(admin.numero_documento ?? '').trim();
     if (!originalId) {
       setCurrentAdmin(admin);
       setFormData({
-        ID_ADMINISTRADOR: admin.ID_ADMINISTRADOR,
-        Nombre: admin.Nombre,
-        Correo: admin.Correo,
-        TipoDocumento: admin.TipoDocumento,
-        Telefono: admin.Telefono,
+        numero_documento: admin.numero_documento,
+        nombre: admin.nombre,
+        correo: admin.correo,
+        id_tipo_documento: admin.id_tipo_documento,
+        telefono: admin.telefono,
         usuario: admin.usuario,
-        contrasena: '',
-        contrasenaActual: admin.contrasena ?? '',
+        password: '',
+        passwordActual: admin.password ?? '',
       });
       setShowEditModal(true);
       return;
@@ -258,28 +261,28 @@ function Admins() {
       const adminActualizado = readAdminRecord(response.data) ?? admin;
       setCurrentAdmin(adminActualizado);
       setFormData({
-        ID_ADMINISTRADOR: adminActualizado.ID_ADMINISTRADOR,
-        Nombre: adminActualizado.Nombre,
-        Correo: adminActualizado.Correo,
-        TipoDocumento: adminActualizado.TipoDocumento,
-        Telefono: adminActualizado.Telefono,
+        numero_documento: adminActualizado.numero_documento,
+        nombre: adminActualizado.nombre,
+        correo: adminActualizado.correo,
+        id_tipo_documento: adminActualizado.id_tipo_documento,
+        telefono: adminActualizado.telefono,
         usuario: adminActualizado.usuario,
-        contrasena: '',
-        contrasenaActual: adminActualizado.contrasena ?? '',
+        password: '',
+        passwordActual: adminActualizado.password ?? '',
       });
       setShowEditModal(true);
     } catch (error) {
       console.error('Error al cargar admin para editar:', error);
       setCurrentAdmin(admin);
       setFormData({
-        ID_ADMINISTRADOR: admin.ID_ADMINISTRADOR,
-        Nombre: admin.Nombre,
-        Correo: admin.Correo,
-        TipoDocumento: admin.TipoDocumento,
-        Telefono: admin.Telefono,
+        numero_documento: admin.numero_documento,
+        nombre: admin.nombre,
+        correo: admin.correo,
+        id_tipo_documento: admin.id_tipo_documento,
+        telefono: admin.telefono,
         usuario: admin.usuario,
-        contrasena: '',
-        contrasenaActual: admin.contrasena ?? '',
+        password: '',
+        passwordActual: admin.password ?? '',
       });
       setShowEditModal(true);
     }
@@ -306,7 +309,7 @@ function Admins() {
     event.preventDefault();
     try {
       const payload = buildAdminPayload(formData);
-      if (!payload.contrasena) {
+      if (!payload.password) {
         showAlert('Atención', 'La contraseña es obligatoria para crear un administrador.', 'warning');
         return;
       }
@@ -315,13 +318,13 @@ function Admins() {
         let newAdmin = readAdminRecord(response.data);
         if (!newAdmin) {
           newAdmin = {
-            ID_ADMINISTRADOR: formData.ID_ADMINISTRADOR,
-            Nombre: formData.Nombre,
-            Correo: formData.Correo,
-            TipoDocumento: formData.TipoDocumento,
-            Telefono: formData.Telefono,
+            numero_documento: formData.numero_documento,
+            nombre: formData.nombre,
+            correo: formData.correo,
+            id_tipo_documento: formData.id_tipo_documento,
+            telefono: formData.telefono,
             usuario: formData.usuario,
-            contrasena: formData.contrasena,
+            password: formData.password,
           };
         }
         updateAdminInState(newAdmin);
@@ -341,14 +344,14 @@ function Admins() {
     if (!currentAdmin) return;
     try {
       const payload = buildAdminPayload(formData);
-      const response = await actualizarAdmin(currentAdmin.ID_ADMINISTRADOR, payload);
+      const response = await actualizarAdmin(currentAdmin.numero_documento, payload);
       if (isSuccessfulResponse(response.data)) {
         let updatedAdmin = readAdminRecord(response.data);
         if (!updatedAdmin) {
           updatedAdmin = {
             ...currentAdmin,
             ...payload,
-            contrasena: payload.contrasena ?? currentAdmin.contrasena,
+            password: payload.password ?? currentAdmin.password,
           };
         }
         updateAdminInState(updatedAdmin);
@@ -365,7 +368,7 @@ function Admins() {
 
   const borrarAdmin = async (admin: AdminRecord) => {
     const result = await Swal.fire({
-      title: `¿Estás seguro de eliminar a ${admin.Nombre}?`,
+      title: `¿Estás seguro de eliminar a ${admin.nombre}?`,
       text: "Esta acción no se puede deshacer.",
       icon: 'warning',
       showCancelButton: true,
@@ -378,9 +381,9 @@ function Admins() {
     });
     if (!result.isConfirmed) return;
     try {
-      await eliminarAdmin(admin.ID_ADMINISTRADOR);
-      setAdmins(prev => prev.filter(item => item.ID_ADMINISTRADOR !== admin.ID_ADMINISTRADOR));
-      setFilteredAdmins(prev => prev.filter(item => item.ID_ADMINISTRADOR !== admin.ID_ADMINISTRADOR));
+      await eliminarAdmin(admin.numero_documento);
+      setAdmins(prev => prev.filter(item => item.numero_documento !== admin.numero_documento));
+      setFilteredAdmins(prev => prev.filter(item => item.numero_documento !== admin.numero_documento));
       Swal.fire({
         title: 'Eliminado',
         text: 'El administrador ha sido eliminado.',
@@ -446,12 +449,12 @@ function Admins() {
                 </tr>
               ) : filteredAdmins.length > 0 ? (
                 filteredAdmins.map(admin => (
-                  <tr key={admin.ID_ADMINISTRADOR}>
-                    <td><FormattedId entity="admin" value={admin.ID_ADMINISTRADOR} /></td>
-                    <td>{admin.Nombre}</td>
-                    <td>{admin.Correo}</td>
-                    <td>{admin.TipoDocumento}</td>
-                    <td>{admin.Telefono}</td>
+                  <tr key={admin.numero_documento}>
+                    <td><FormattedId entity="admin" value={admin.numero_documento} /></td>
+                    <td>{admin.nombre}</td>
+                    <td>{admin.correo}</td>
+                    <td>{tiposDocumento.find(t => String(t.id_tipo_documento) === String(admin.id_tipo_documento))?.nombre || admin.id_tipo_documento}</td>
+                    <td>{admin.telefono}</td>
                     <td>{admin.usuario}</td>
                     <td className="actions-cell">
                       <button
@@ -495,11 +498,11 @@ function Admins() {
             </div>
             <form onSubmit={handleCreate}>
               <div className="form-group">
-                <label>ID Administrador</label>
+                <label>Documento Administrador</label>
                 <input
                   type="text"
-                  name="ID_ADMINISTRADOR"
-                  value={formData.ID_ADMINISTRADOR}
+                  name="numero_documento"
+                  value={formData.numero_documento}
                   onChange={handleNumberOnlyInput}
                   required
                 />
@@ -508,8 +511,8 @@ function Admins() {
                 <label>Nombre</label>
                 <input
                   type="text"
-                  name="Nombre"
-                  value={formData.Nombre}
+                  name="nombre"
+                  value={formData.nombre}
                   onChange={handleTextOnlyInput}
                   required
                 />
@@ -518,8 +521,8 @@ function Admins() {
                 <label>Correo</label>
                 <input
                   type="email"
-                  name="Correo"
-                  value={formData.Correo}
+                  name="correo"
+                  value={formData.correo}
                   onChange={handleInputChange}
                   required
                 />
@@ -527,15 +530,15 @@ function Admins() {
               <div className="form-group">
                 <label>Tipo de documento</label>
                 <select
-                  name="TipoDocumento"
-                  value={formData.TipoDocumento}
+                  name="id_tipo_documento"
+                  value={String(formData.id_tipo_documento || '')}
                   onChange={handleInputChange}
                   required
                 >
                   <option value="">Seleccione</option>
-                  {tipoDocumentoOptions.map(option => (
-                    <option key={option} value={option}>
-                      {option}
+                  {tiposDocumento.map(t => (
+                    <option key={t.id_tipo_documento} value={String(t.id_tipo_documento)}>
+                      {t.nombre}
                     </option>
                   ))}
                 </select>
@@ -544,8 +547,8 @@ function Admins() {
                 <label>Teléfono</label>
                 <input
                   type="text"
-                  name="Telefono"
-                  value={formData.Telefono}
+                  name="telefono"
+                  value={formData.telefono}
                   onChange={handleInputChange}
                   required
                 />
@@ -565,8 +568,8 @@ function Admins() {
                 <label>Contraseña</label>
                 <input
                   type="password"
-                  name="contrasena"
-                  value={formData.contrasena}
+                  name="password"
+                  value={formData.password}
                   onChange={handleInputChange}
                   placeholder="Ingresa la contraseña del administrador"
                   required
@@ -595,11 +598,11 @@ function Admins() {
             </div>
             <form onSubmit={handleUpdate}>
               <div className="form-group">
-                <label>ID Administrador</label>
+                <label>Documento Administrador</label>
                 <input
                   type="text"
-                  name="ID_ADMINISTRADOR"
-                  value={formData.ID_ADMINISTRADOR}
+                  name="numero_documento"
+                  value={formData.numero_documento}
                   onChange={handleNumberOnlyInput}
                   required
                 />
@@ -608,8 +611,8 @@ function Admins() {
                 <label>Nombre</label>
                 <input
                   type="text"
-                  name="Nombre"
-                  value={formData.Nombre}
+                  name="nombre"
+                  value={formData.nombre}
                   onChange={handleTextOnlyInput}
                   required
                 />
@@ -618,8 +621,8 @@ function Admins() {
                 <label>Correo</label>
                 <input
                   type="email"
-                  name="Correo"
-                  value={formData.Correo}
+                  name="correo"
+                  value={formData.correo}
                   onChange={handleInputChange}
                   required
                 />
@@ -627,29 +630,25 @@ function Admins() {
               <div className="form-group">
                 <label>Tipo de documento</label>
                 <select
-                  name="TipoDocumento"
-                  value={formData.TipoDocumento}
+                  name="id_tipo_documento"
+                  value={String(formData.id_tipo_documento || '')}
                   onChange={handleInputChange}
                   required
                 >
                   <option value="">Seleccione</option>
-                  {tipoDocumentoOptions.map(option => (
-                    <option key={option} value={option}>
-                      {option}
+                  {tiposDocumento.map(t => (
+                    <option key={t.id_tipo_documento} value={String(t.id_tipo_documento)}>
+                      {t.nombre}
                     </option>
                   ))}
-                  {formData.TipoDocumento &&
-                    !tipoDocumentoOptions.includes(formData.TipoDocumento) && (
-                      <option value={formData.TipoDocumento}>{formData.TipoDocumento}</option>
-                    )}
                 </select>
               </div>
               <div className="form-group">
                 <label>Teléfono</label>
                 <input
                   type="text"
-                  name="Telefono"
-                  value={formData.Telefono}
+                  name="telefono"
+                  value={formData.telefono}
                   onChange={handleInputChange}
                   required
                 />
@@ -669,8 +668,8 @@ function Admins() {
                 <label>Nueva contraseña</label>
                 <input
                   type="password"
-                  name="contrasena"
-                  value={formData.contrasena}
+                  name="password"
+                  value={formData.password}
                   onChange={handleInputChange}
                   placeholder="Déjala vacía para mantener la actual"
                 />

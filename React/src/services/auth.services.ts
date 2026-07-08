@@ -25,8 +25,8 @@ export const storeSession = (data: LoginResponse, role: 'admin' | 'tecnico' | 'c
   localStorage.setItem('user_role', role);
 
   const posiblesIds = [
-    data.id, data.ID_CLIENTES, data.usuario, data.email,
-    data.data?.id, data.data?.ID_CLIENTES,
+    data.numero_documento, data.id_usuario, data.id, data.usuario, data.email,
+    data.data?.numero_documento, data.data?.id_usuario, data.data?.id,
     data.data?.usuario, data.data?.email
   ];
 
@@ -37,7 +37,7 @@ export const storeSession = (data: LoginResponse, role: 'admin' | 'tecnico' | 'c
     console.log('✅ [AUTH] user_id guardado:', userId);
   } else if (data.token) {
     const payload = decodeJwt(data.token);
-    userId = payload?.id || payload?.sub || payload?.usuario || payload?.ID_CLIENTES;
+    userId = payload?.id_usuario || payload?.id || payload?.sub || payload?.usuario;
     
     if (userId) {
       localStorage.setItem('user_id', String(userId));
@@ -55,31 +55,22 @@ export const clearSession = () => {
   window.location.replace('/login');
 };
 
-// 🚀 SERVICIO UNIFICADO DE LOGIN
+// 🚀 SERVICIO UNIFICADO DE LOGIN (usa /auth/login)
+const mapRol = (rolId: number | string): 'admin' | 'tecnico' | 'cliente' => {
+  const id = Number(rolId);
+  if (id === 1) return 'admin';
+  if (id === 2) return 'tecnico';
+  return 'cliente';
+};
+
 export const loginService = async (usuario: string, contrasena: string) => {
-  // 1. Limpieza crítica para evitar espacios invisibles
   const user = usuario.trim();
   const pass = contrasena.trim();
 
-  try {
-    // Intento 1: Técnicos
-    const resTec = await apiClient.post<LoginResponse>('/tecnicos/login', { usuario: user, contrasena: pass });
-    return storeSession(resTec.data, 'tecnico');
-  } catch (error: any) {
-    if (error.response?.status === 401) {
-      // Intento 2: Admins (solo si el error fue credenciales inválidas)
-      const resAdm = await apiClient.post<LoginResponse>('/admins/login', { usuario: user, contrasena: pass });
-      return storeSession(resAdm.data, 'admin');
-    }
-    // Si no es 401 (ej: error de red, 500, etc.), lanzamos el error original
-    throw error;
-  }
+  const res = await apiClient.post<LoginResponse>('/auth/login', { usuario: user, password: pass });
+  const role = mapRol(res.data.rol ?? 3);
+  return storeSession(res.data, role);
 };
 
-export const loginClienteService = async (usuario: string, contrasena: string) => {
-  const user = usuario.trim();
-  const pass = contrasena.trim();
-  
-  const res = await apiClient.post<LoginResponse>('/clientes/login', { usuario: user, contrasena: pass });
-  return storeSession(res.data, 'cliente');
-};
+// Alias para compatibilidad con Login.tsx que intenta loginClienteService como fallback
+export const loginClienteService = loginService;

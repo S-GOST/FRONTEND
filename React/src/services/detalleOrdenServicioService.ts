@@ -2,12 +2,12 @@ import { BaseApiService } from './base.service';
 
 export interface DetalleOrdenServicioRecord {
   ID_DETALLES_ORDEN_SERVICIO: number;
-  ID_ORDEN_SERVICIO: number;
-  ID_SERVICIOS?: number;
-  ID_PRODUCTOS?: number;
-  Garantia?: number;
+  ID_ORDEN_SERVICIO: number | string;
+  ID_SERVICIOS?: number | string;
+  ID_PRODUCTOS?: number | string;
+  Garantia?: number | string;
   Estado: string;
-  Precio?: number;
+  Precio?: number | string;
 }
 
 export type DetalleOrdenServicioPayload = Omit<DetalleOrdenServicioRecord, 'ID_DETALLES_ORDEN_SERVICIO'>;

@@ -2,11 +2,11 @@ import { BaseApiService } from './base.service';
 
 export interface ServicioPayload {
   ID_SERVICIOS: string | number;
+  ID_CATEGORIA: number | string;
   Nombre: string;
-  Categoria: string;
-  Garantia: number;
-  Estado: 'Disponible' | 'No disponible';
   Precio: number;
+  Estado: 'Disponible' | 'No disponible';
+  categoria_nombre?: string; // viene del JOIN en el backend
 }
 
 export interface ServicioRecord extends ServicioPayload {}

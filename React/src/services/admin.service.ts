@@ -1,26 +1,65 @@
 import { BaseApiService } from './base.service';
 
-export interface AdminPayload {
-  ID_ADMINISTRADOR: string | number;
-  Nombre: string;
-  Correo: string;
-  TipoDocumento: string;
-  Telefono: string;
+export interface AdministradorPayload {
+  numero_documento: string | number;
+  id_tipo_documento: string | number;
+  nombre: string;
+  correo: string;
+  telefono: string;
   usuario: string;
-  contrasena?: string;
-}
-export interface AdminRecord extends AdminPayload {}
+  password?: string;
 
-export const adminService = new BaseApiService<AdminPayload>({
+  // Retrocompatibilidad
+  ID_ADMINISTRADOR?: string | number;
+  Nombre?: string;
+}
+
+export interface AdministradorRecord extends AdministradorPayload {}
+export type AdminRecord = AdministradorRecord;
+
+export const adminService = new BaseApiService<AdministradorPayload>({
   baseUrl: '/admins',
   routes: {
-    deletePrimary: '/eliminar/:id',   // 👈 cambia de '/:id' a '/eliminar/:id'
-    deleteFallback: ''                // desactiva reintentos innecesarios
+    deletePrimary: '/eliminar/:id',
+    deleteFallback: ''
   }
 });
 
-export const obtenerAdmins = () => adminService.obtenerTodos();
-export const obtenerAdminPorId = (id: string | number) => adminService.obtenerPorId(id);
-export const insertarAdmin = (data: AdminPayload) => adminService.crear(data);
-export const actualizarAdmin = (id: string | number, data: AdminPayload) => adminService.actualizar(id, data);
+const addCompatibility = (a: any): any => {
+  if (!a) return a;
+  return {
+    ...a,
+    ID_ADMINISTRADOR: a.numero_documento,
+    Nombre: a.nombre,
+  };
+};
+
+export const obtenerAdmins = async () => {
+  const res = await adminService.obtenerTodos();
+  if (res.data) {
+    if (Array.isArray(res.data)) {
+      res.data = res.data.map(addCompatibility);
+    } else if (res.data.data && Array.isArray(res.data.data)) {
+      res.data.data = res.data.data.map(addCompatibility);
+    } else if (res.data.admins && Array.isArray(res.data.admins)) {
+      res.data.admins = res.data.admins.map(addCompatibility);
+    }
+  }
+  return res;
+};
+
+export const obtenerAdminPorId = async (id: string | number) => {
+  const res = await adminService.obtenerPorId(id);
+  if (res.data) {
+    if (res.data.data) {
+      res.data.data = addCompatibility(res.data.data);
+    } else {
+      res.data = addCompatibility(res.data);
+    }
+  }
+  return res;
+};
+
+export const insertarAdmin = (data: AdministradorPayload) => adminService.crear(data);
+export const actualizarAdmin = (id: string | number, data: AdministradorPayload) => adminService.actualizar(id, data);
 export const eliminarAdmin = (id: string | number) => adminService.eliminar(id);

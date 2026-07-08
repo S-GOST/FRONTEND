@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import type { AxiosError } from 'axios';
 import { Link } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
-import { loginService, loginClienteService } from '../services/auth.services';
+import { loginService } from '../services/auth.services';
 import logo from '../assets/icons/rock.png';
 import './Login.css';
 
@@ -50,29 +50,20 @@ const Login: React.FC = () => {
     setLoading(true);
 
     try {
-      // Primero intenta admin/tecnico
       const response = await loginService(data.usuario, data.contrasena);
       const userRole = response.rol ?? localStorage.getItem('user_role') ?? 'admin';
+
       if (userRole === 'tecnico') {
         window.location.replace('/tecnico/dashboard');
+      } else if (userRole === 'cliente') {
+        window.location.replace('/cliente/dashboard');
       } else {
         window.location.replace('/admin/dashboard');
       }
     } catch (err) {
-      // Si falla, intenta login de cliente
       const error = err as AxiosError<LoginErrorResponse>;
       if (error.response?.status === 401) {
-        try {
-          const clienteRes = await loginClienteService(data.usuario, data.contrasena);
-          if (clienteRes.token) {
-            window.location.replace('/cliente/dashboard');
-            return;
-          } else {
-            setServerError('Credenciales incorrectas. Verifica tu usuario y contraseña.');
-          }
-        } catch (clienteErr) {
-          setServerError('Credenciales incorrectas. Verifica tu usuario y contraseña.');
-        }
+        setServerError('Credenciales incorrectas. Verifica tu usuario y contraseña.');
       } else {
         setServerError('Error de conexión con el servidor KTM.');
       }

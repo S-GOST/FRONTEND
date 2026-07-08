@@ -8,23 +8,22 @@ import AccessSection from './componentes/AccessSection';
 import Footer from './componentes/Footer';
 import Login from './pages/Login';
 import Panel from './componentes/TableAdmin/Panel';
-import Admins from './componentes/TableAdmin/Admin';
 import OrdenesServicio from './componentes/TableOrdenServicios/OrdenesServicio';
 import DetallesOrden from './componentes/TableOrdenServicios/DetallesOrden';
 import Servicios from './componentes/TableServicios/Servicios';
 import { servicesData, searchSuggestionsData } from './utils/constants';
 import { Service, SearchSuggestion, CartItem } from './types';
 import TableProductos from './componentes/TableProductos/productos';
+import Categorias from './componentes/TableCategorias/Categorias';
 import Dashboard from './componentes/TableAdmin/Dashboard';
-import Tecnicos from './componentes/TableTecnico/Tecnico';
 import TecnicoDashboard from './componentes/TableTecnico/TecnicoDashboard';
 import ProtectedTecnicoRoute from './routes/ProtectedTecnicoRoute';
-import Clientes from './componentes/TableCliente/Clientes';
 import Motos from './componentes/TableMotos/Motos';
 import Tableinforme from './componentes/Tableinforme/informe';
 import Tablehistorial from './componentes/Tablehistorial/historial';
 import TableComprobante from './componentes/TableComprobante/Comprobante';
 import ClienteDashboard from './componentes/TableCliente/ClienteDashboard';
+import Usuarios from './componentes/TableAdmin/Usuarios';
 
 const HomePage: React.FC<{ addToCart: (service: Service) => void }> = ({ addToCart }) => {
   const categories = ['Mantenimiento', 'Reparaciones', 'Diagnósticos', 'Instalaciones'];
@@ -196,13 +195,15 @@ function App() {
         >
           <Route index element={<Navigate to="/admin/dashboard" replace />} />
           <Route path="dashboard" element={<Dashboard />} />
-          <Route path="administradores" element={<Admins />} />
+          <Route path="administradores" element={<Usuarios />} />
+          <Route path="usuarios" element={<Usuarios />} />
           <Route path="ordenes_servicio" element={<OrdenesServicio />} />
           <Route path="detalles-orden" element={<DetallesOrden />} />
-          <Route path="tecnicos" element={<Tecnicos />} />
-          <Route path="clientes" element={<Clientes />} />
+          <Route path="tecnicos" element={<Usuarios />} />
+          <Route path="clientes" element={<Usuarios />} />
           <Route path="servicios" element={<Servicios />} />
           <Route path="productos" element={<TableProductos />} />
+          <Route path="categorias" element={<Categorias />} />
           <Route path="motos" element={<Motos />} />
           <Route path='informe' element={<Tableinforme />} />
           <Route path='comprobante' element={<TableComprobante />} />

@@ -9,34 +9,25 @@ import {
   type ClientePayload,
   type ClienteRecord,
 } from '../../services/cliente.service';
+import { obtenerTiposDocumento, type TipoDocumentoRecord } from '../../services/tipoDocumento.service';
 import { FormattedId } from '../../componentes/FormattedId';
 import './Cliente.css';
 
 type ClienteFormState = ClientePayload & {
-  contrasena: string;
-  contrasenaActual: string;
+  password: string;
+  passwordActual: string;
 };
 
-const tipoDocumentoOptions = [
-  'CC',
-  'CE',
-  'TI',
-  'Pasaporte',
-  'Cedula de ciudadania',
-  'Cedula de extranjeria',
-  'Tarjeta de identidad',
-];
-
 const createInitialFormData = (): ClienteFormState => ({
-  ID_CLIENTES: '',
-  Nombre: '',
-  Correo: '',
-  Ubicacion: '',
-  TipoDocumento: '',
-  Telefono: '',
+  numero_documento: '',
+  nombre: '',
+  correo: '',
+  ciudad: '',
+  id_tipo_documento: '',
+  telefono: '',
   usuario: '',
-  contrasena: '',
-  contrasenaActual: '',
+  password: '',
+  passwordActual: '',
 });
 
 // --- FUNCIONES AUXILIARES DE VALIDACIÓN ---
@@ -67,7 +58,7 @@ const isSuccessfulResponse = (payload: unknown) => {
 const readClienteRecord = (value: unknown): ClienteRecord | null => {
   if (!value || typeof value !== 'object' || Array.isArray(value)) return null;
   const candidate = value as Record<string, unknown>;
-  if ('ID_CLIENTES' in candidate)
+  if ('numero_documento' in candidate)
     return candidate as unknown as ClienteRecord;
   if ('data' in candidate) return readClienteRecord(candidate.data);
   if ('cliente' in candidate) return readClienteRecord(candidate.cliente);
@@ -76,22 +67,23 @@ const readClienteRecord = (value: unknown): ClienteRecord | null => {
 
 const buildClientePayload = (formData: ClienteFormState): ClientePayload => {
   const payload: ClientePayload = {
-    ID_CLIENTES: String(formData.ID_CLIENTES).trim(),
-    Nombre: formData.Nombre.trim(),
-    Correo: formData.Correo.trim(),
-    Ubicacion: formData.Ubicacion.trim(),
-    TipoDocumento: formData.TipoDocumento,
-    Telefono: formData.Telefono.trim(),
+    numero_documento: String(formData.numero_documento).trim(),
+    nombre: formData.nombre.trim(),
+    correo: formData.correo.trim(),
+    ciudad: formData.ciudad.trim(),
+    id_tipo_documento: formData.id_tipo_documento,
+    telefono: formData.telefono.trim(),
     usuario: formData.usuario.trim(),
   };
-  if (formData.contrasena.trim()) {
-    payload.contrasena = formData.contrasena.trim();
+  if (formData.password.trim()) {
+    payload.password = formData.password.trim();
   }
   return payload;
 };
 
 function Clientes() {
   const [clientes, setClientes] = useState<ClienteRecord[]>([]);
+  const [tiposDocumento, setTiposDocumento] = useState<TipoDocumentoRecord[]>([]);
   const [filteredClientes, setFilteredClientes] = useState<ClienteRecord[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
@@ -101,8 +93,19 @@ function Clientes() {
   const [formData, setFormData] = useState<ClienteFormState>(createInitialFormData());
 
   useEffect(() => {
+    void cargarTipos();
     void cargarClientes();
   }, []);
+
+  const cargarTipos = async () => {
+    try {
+      const res = await obtenerTiposDocumento();
+      const tipos = res.data?.data ?? res.data;
+      if (tipos) setTiposDocumento(Array.isArray(tipos) ? tipos : []);
+    } catch (e) {
+      console.error(e);
+    }
+  };
 
   const showAlert = (title: string, text: string, icon: 'success' | 'error' | 'warning') => {
     return Swal.fire({
@@ -139,10 +142,10 @@ function Clientes() {
     }
     const term = searchTerm.toLowerCase();
     const filtered = clientes.filter(cliente =>
-      cliente.Nombre.toLowerCase().includes(term) ||
-      cliente.Correo.toLowerCase().includes(term) ||
+      cliente.nombre.toLowerCase().includes(term) ||
+      cliente.correo.toLowerCase().includes(term) ||
       cliente.usuario.toLowerCase().includes(term) ||
-      String(cliente.ID_CLIENTES).toLowerCase().includes(term)
+      String(cliente.numero_documento).toLowerCase().includes(term)
     );
     setFilteredClientes(filtered);
   };
@@ -204,19 +207,19 @@ function Clientes() {
   };
 
   const openEditModal = async (cliente: ClienteRecord) => {
-    const originalId = String(cliente.ID_CLIENTES ?? '').trim();
+    const originalId = String(cliente.numero_documento ?? '').trim();
     if (!originalId) {
       setCurrentCliente(cliente);
       setFormData({
-        ID_CLIENTES: cliente.ID_CLIENTES,
-        Nombre: cliente.Nombre,
-        Correo: cliente.Correo,
-        Ubicacion: cliente.Ubicacion,
-        TipoDocumento: cliente.TipoDocumento,
-        Telefono: cliente.Telefono,
+        numero_documento: cliente.numero_documento,
+        nombre: cliente.nombre,
+        correo: cliente.correo,
+        ciudad: cliente.ciudad,
+        id_tipo_documento: cliente.id_tipo_documento,
+        telefono: cliente.telefono,
         usuario: cliente.usuario,
-        contrasena: '',
-        contrasenaActual: cliente.contrasena ?? '',
+        password: '',
+        passwordActual: cliente.password ?? '',
       });
       setShowEditModal(true);
       return;
@@ -226,30 +229,30 @@ function Clientes() {
       const clienteActualizado = readClienteRecord(response.data) ?? cliente;
       setCurrentCliente(clienteActualizado);
       setFormData({
-        ID_CLIENTES: clienteActualizado.ID_CLIENTES,
-        Nombre: clienteActualizado.Nombre,
-        Correo: clienteActualizado.Correo,
-        Ubicacion: clienteActualizado.Ubicacion,
-        TipoDocumento: clienteActualizado.TipoDocumento,
-        Telefono: clienteActualizado.Telefono,
+        numero_documento: clienteActualizado.numero_documento,
+        nombre: clienteActualizado.nombre,
+        correo: clienteActualizado.correo,
+        ciudad: clienteActualizado.ciudad,
+        id_tipo_documento: clienteActualizado.id_tipo_documento,
+        telefono: clienteActualizado.telefono,
         usuario: clienteActualizado.usuario,
-        contrasena: '',
-        contrasenaActual: clienteActualizado.contrasena ?? '',
+        password: '',
+        passwordActual: clienteActualizado.password ?? '',
       });
       setShowEditModal(true);
     } catch (error) {
       console.error('Error al cargar cliente para editar:', error);
       setCurrentCliente(cliente);
       setFormData({
-        ID_CLIENTES: cliente.ID_CLIENTES,
-        Nombre: cliente.Nombre,
-        Correo: cliente.Correo,
-        Ubicacion: cliente.Ubicacion,
-        TipoDocumento: cliente.TipoDocumento,
-        Telefono: cliente.Telefono,
+        numero_documento: cliente.numero_documento,
+        nombre: cliente.nombre,
+        correo: cliente.correo,
+        ciudad: cliente.ciudad,
+        id_tipo_documento: cliente.id_tipo_documento,
+        telefono: cliente.telefono,
         usuario: cliente.usuario,
-        contrasena: '',
-        contrasenaActual: cliente.contrasena ?? '',
+        password: '',
+        passwordActual: cliente.password ?? '',
       });
       setShowEditModal(true);
     }
@@ -276,7 +279,7 @@ function Clientes() {
     event.preventDefault();
     try {
       const payload = buildClientePayload(formData);
-      if (!payload.contrasena) {
+      if (!payload.password) {
         showAlert('Atención', 'La contraseña es obligatoria para crear un cliente.', 'warning');
         return;
       }
@@ -304,11 +307,11 @@ function Clientes() {
     if (!currentCliente) return;
     try {
       const payload = buildClientePayload(formData);
-      if (!payload.contrasena) {
+      if (!payload.password) {
         showAlert('Atención', 'Ingresa una contraseña o carga primero la contraseña actual antes de guardar.', 'warning');
         return;
       }
-      const response = await actualizarCliente(currentCliente.ID_CLIENTES, payload);
+      const response = await actualizarCliente(currentCliente.numero_documento, payload);
       if (isSuccessfulResponse(response.data)) {
         await showAlert('Cambios guardados', 'El cliente fue actualizado correctamente.', 'success');
         closeEditModal();
@@ -324,7 +327,7 @@ function Clientes() {
 
   const borrarCliente = async (cliente: ClienteRecord) => {
     const result = await Swal.fire({
-      title: `¿Estás seguro de eliminar a ${cliente.Nombre}?`,
+      title: `¿Estás seguro de eliminar a ${cliente.nombre}?`,
       text: "Esta acción no se puede deshacer.",
       icon: 'warning',
       showCancelButton: true,
@@ -337,9 +340,9 @@ function Clientes() {
     });
     if (!result.isConfirmed) return;
     try {
-      await eliminarCliente(cliente.ID_CLIENTES);
-      setClientes(prev => prev.filter(item => item.ID_CLIENTES !== cliente.ID_CLIENTES));
-      setFilteredClientes(prev => prev.filter(item => item.ID_CLIENTES !== cliente.ID_CLIENTES));
+      await eliminarCliente(cliente.numero_documento);
+      setClientes(prev => prev.filter(item => item.numero_documento !== cliente.numero_documento));
+      setFilteredClientes(prev => prev.filter(item => item.numero_documento !== cliente.numero_documento));
       Swal.fire({
         title: 'Eliminado',
         text: 'El cliente ha sido eliminado.',
@@ -408,13 +411,13 @@ function Clientes() {
                 </tr>
               ) : filteredClientes.length > 0 ? (
                 filteredClientes.map(cliente => (
-                  <tr key={cliente.ID_CLIENTES}>
-                    <td><FormattedId entity="cliente" value={cliente.ID_CLIENTES} /></td>
-                    <td>{cliente.Nombre}</td>
-                    <td>{cliente.Correo}</td>
-                    <td>{cliente.TipoDocumento}</td>
-                    <td>{cliente.Telefono}</td>
-                    <td>{cliente.Ubicacion}</td>
+                  <tr key={cliente.numero_documento}>
+                    <td><FormattedId entity="cliente" value={cliente.numero_documento} /></td>
+                    <td>{cliente.nombre}</td>
+                    <td>{cliente.correo}</td>
+                    <td>{tiposDocumento.find(t => String(t.id_tipo_documento) === String(cliente.id_tipo_documento))?.nombre || cliente.id_tipo_documento}</td>
+                    <td>{cliente.telefono}</td>
+                    <td>{cliente.ciudad}</td>
                     <td>{cliente.usuario}</td>
                     <td className="actions-cell">
                       <button
@@ -458,11 +461,11 @@ function Clientes() {
             </div>
             <form onSubmit={handleCreate}>
               <div className="form-group">
-                <label>ID Cliente</label>
+                <label>Documento Cliente</label>
                 <input
                   type="text"
-                  name="ID_CLIENTES"
-                  value={formData.ID_CLIENTES}
+                  name="numero_documento"
+                  value={formData.numero_documento}
                   onChange={handleNumberOnlyInput}
                   required
                 />
@@ -471,8 +474,8 @@ function Clientes() {
                 <label>Nombre</label>
                 <input
                   type="text"
-                  name="Nombre"
-                  value={formData.Nombre}
+                  name="nombre"
+                  value={formData.nombre}
                   onChange={handleTextOnlyInput}
                   required
                 />
@@ -481,8 +484,8 @@ function Clientes() {
                 <label>Correo</label>
                 <input
                   type="email"
-                  name="Correo"
-                  value={formData.Correo}
+                  name="correo"
+                  value={formData.correo}
                   onChange={handleInputChange}
                   required
                 />
@@ -491,8 +494,8 @@ function Clientes() {
                 <label>Ubicación</label>
                 <input
                   type="text"
-                  name="Ubicacion"
-                  value={formData.Ubicacion}
+                  name="ciudad"
+                  value={formData.ciudad}
                   onChange={handleInputChange}
                   required
                 />
@@ -500,15 +503,15 @@ function Clientes() {
               <div className="form-group">
                 <label>Tipo de documento</label>
                 <select
-                  name="TipoDocumento"
-                  value={formData.TipoDocumento}
+                  name="id_tipo_documento"
+                  value={String(formData.id_tipo_documento || '')}
                   onChange={handleInputChange}
                   required
                 >
                   <option value="">Seleccione</option>
-                  {tipoDocumentoOptions.map(option => (
-                    <option key={option} value={option}>
-                      {option}
+                  {tiposDocumento.map(t => (
+                    <option key={t.id_tipo_documento} value={String(t.id_tipo_documento)}>
+                      {t.nombre}
                     </option>
                   ))}
                 </select>
@@ -517,8 +520,8 @@ function Clientes() {
                 <label>Teléfono</label>
                 <input
                   type="text"
-                  name="Telefono"
-                  value={formData.Telefono}
+                  name="telefono"
+                  value={formData.telefono}
                   onChange={handleInputChange}
                   required
                 />
@@ -538,8 +541,8 @@ function Clientes() {
                 <label>Contraseña</label>
                 <input
                   type="password"
-                  name="contrasena"
-                  value={formData.contrasena}
+                  name="password"
+                  value={formData.password}
                   onChange={handleInputChange}
                   placeholder="Ingresa la contraseña del cliente"
                   required
@@ -568,11 +571,11 @@ function Clientes() {
             </div>
             <form onSubmit={handleUpdate}>
               <div className="form-group">
-                <label>ID Cliente</label>
+                <label>Documento Cliente</label>
                 <input
                   type="text"
-                  name="ID_CLIENTES"
-                  value={formData.ID_CLIENTES}
+                  name="numero_documento"
+                  value={formData.numero_documento}
                   onChange={handleNumberOnlyInput}
                   required
                 />
@@ -581,8 +584,8 @@ function Clientes() {
                 <label>Nombre</label>
                 <input
                   type="text"
-                  name="Nombre"
-                  value={formData.Nombre}
+                  name="nombre"
+                  value={formData.nombre}
                   onChange={handleTextOnlyInput}
                   required
                 />
@@ -591,8 +594,8 @@ function Clientes() {
                 <label>Correo</label>
                 <input
                   type="email"
-                  name="Correo"
-                  value={formData.Correo}
+                  name="correo"
+                  value={formData.correo}
                   onChange={handleInputChange}
                   required
                 />
@@ -601,8 +604,8 @@ function Clientes() {
                 <label>Ubicación</label>
                 <input
                   type="text"
-                  name="Ubicacion"
-                  value={formData.Ubicacion}
+                  name="ciudad"
+                  value={formData.ciudad}
                   onChange={handleInputChange}
                   required
                 />
@@ -610,15 +613,15 @@ function Clientes() {
               <div className="form-group">
                 <label>Tipo de documento</label>
                 <select
-                  name="TipoDocumento"
-                  value={formData.TipoDocumento}
+                  name="id_tipo_documento"
+                  value={String(formData.id_tipo_documento || '')}
                   onChange={handleInputChange}
                   required
                 >
                   <option value="">Seleccione</option>
-                  {tipoDocumentoOptions.map(option => (
-                    <option key={option} value={option}>
-                      {option}
+                  {tiposDocumento.map(t => (
+                    <option key={t.id_tipo_documento} value={String(t.id_tipo_documento)}>
+                      {t.nombre}
                     </option>
                   ))}
                 </select>
@@ -627,8 +630,8 @@ function Clientes() {
                 <label>Teléfono</label>
                 <input
                   type="text"
-                  name="Telefono"
-                  value={formData.Telefono}
+                  name="telefono"
+                  value={formData.telefono}
                   onChange={handleInputChange}
                   required
                 />
@@ -648,8 +651,8 @@ function Clientes() {
                 <label>Contraseña</label>
                 <input
                   type="password"
-                  name="contrasena"
-                  value={formData.contrasena}
+                  name="password"
+                  value={formData.password}
                   onChange={handleInputChange}
                   placeholder="Dejar en blanco para no cambiar"
                 />

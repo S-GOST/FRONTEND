@@ -67,19 +67,48 @@ export class BaseApiService<T> {
     );
   }
 
+  private sanitizePayload(payload: unknown): unknown {
+    if (payload === null || payload === undefined) return payload;
+    if (Array.isArray(payload)) {
+      return payload.map(item => this.sanitizePayload(item));
+    }
+    if (typeof payload === 'object') {
+      const sanitized: Record<string, unknown> = {};
+      for (const [key, value] of Object.entries(payload as Record<string, unknown>)) {
+        if (key === 'especialidad') continue;
+        sanitized[key] = this.sanitizePayload(value);
+      }
+      return sanitized;
+    }
+    return payload;
+  }
+
+  private preparePayload(datos: T): T {
+    const cleanData = this.sanitizePayload(JSON.parse(JSON.stringify(datos)));
+    if (JSON.stringify(datos).includes('especialidad')) {
+      console.warn('[BaseApiService] removed especialidad from payload', {
+        original: datos,
+        cleaned: cleanData,
+      });
+    }
+    return cleanData as T;
+  }
+
   async crear(datos: T) {
+    const payload = this.preparePayload(datos);
     return this.fallbackRequest(
-      () => this.http.post(`${this.baseUrl}${this.routes.createPrimary}`, datos),
-      () => this.http.post(`${this.baseUrl}${this.routes.createFallback || ''}`, datos)
+      () => this.http.post(`${this.baseUrl}${this.routes.createPrimary}`, payload),
+      () => this.http.post(`${this.baseUrl}${this.routes.createFallback || ''}`, payload)
     );
   }
 
   async actualizar(id: string | number, datos: T) {
+    const payload = this.preparePayload(datos);
     const cleanId = String(id ?? '').trim();
-    if (!cleanId) return this.http.put(`${this.baseUrl}/actualizar`, datos);
+    if (!cleanId) return this.http.put(`${this.baseUrl}/actualizar`, payload);
     return this.fallbackRequest(
-      () => this.http.put(`${this.baseUrl}${this.resolvePath(this.routes.updatePrimary, id)}`, datos),
-      () => this.http.put(`${this.baseUrl}${this.resolvePath(this.routes.updateFallback, id)}`, datos)
+      () => this.http.put(`${this.baseUrl}${this.resolvePath(this.routes.updatePrimary, id)}`, payload),
+      () => this.http.put(`${this.baseUrl}${this.resolvePath(this.routes.updateFallback, id)}`, payload)
     );
   }
 

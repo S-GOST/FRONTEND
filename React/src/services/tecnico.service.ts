@@ -1,23 +1,66 @@
 import { BaseApiService } from './base.service';
 
 export interface TecnicoPayload {
-  ID_TECNICOS: string | number;
-  Nombre: string;
-  Correo: string;
-  TipoDocumento: string;
-  Telefono: string;
+  numero_documento: string | number;
+  id_tipo_documento: number | string;
+  nombre: string;
   usuario: string;
-  contrasena?: string;
+  password?: string;
+  correo: string;
+  telefono: string;
+
+  // Retrocompatibilidad
+  ID_TECNICOS?: string | number;
+  Nombre?: string;
 }
-export interface TecnicoRecord extends TecnicoPayload {}
 
-export const tecnicoService = new BaseApiService<TecnicoPayload>({
-  baseUrl: '/tecnicos',
-  routes: { deletePrimary: '/eliminar/:id', deleteFallback: '' }
-});
+export type TecnicoRecord = TecnicoPayload;
 
-export const obtenerTecnicos = () => tecnicoService.obtenerTodos();
-export const obtenerTecnicoPorId = (id: string | number) => tecnicoService.obtenerPorId(id);
-export const insertarTecnico = (data: TecnicoPayload) => tecnicoService.crear(data);
-export const actualizarTecnico = (id: string | number, data: TecnicoPayload) => tecnicoService.actualizar(id, data);
+export class TecnicoService extends BaseApiService<TecnicoPayload> {
+  constructor() {
+    super({
+      baseUrl: '/tecnicos',
+    });
+  }
+}
+
+const tecnicoService = new TecnicoService();
+
+const addCompatibility = (t: any): any => {
+  if (!t) return t;
+  return {
+    ...t,
+    ID_TECNICOS: t.numero_documento,
+    Nombre: t.nombre,
+  };
+};
+
+export const obtenerTecnicos = async () => {
+  const res = await tecnicoService.obtenerTodos();
+  if (res.data) {
+    if (Array.isArray(res.data)) {
+      res.data = res.data.map(addCompatibility);
+    } else if (res.data.data && Array.isArray(res.data.data)) {
+      res.data.data = res.data.data.map(addCompatibility);
+    } else if (res.data.tecnicos && Array.isArray(res.data.tecnicos)) {
+      res.data.tecnicos = res.data.tecnicos.map(addCompatibility);
+    }
+  }
+  return res;
+};
+
+export const obtenerTecnicoPorId = async (id: string | number) => {
+  const res = await tecnicoService.obtenerPorId(id);
+  if (res.data) {
+    if (res.data.data) {
+      res.data.data = addCompatibility(res.data.data);
+    } else {
+      res.data = addCompatibility(res.data);
+    }
+  }
+  return res;
+};
+
+export const insertarTecnico = (datos: TecnicoPayload) => tecnicoService.crear(datos);
+export const actualizarTecnico = (id: string | number, datos: TecnicoPayload) => tecnicoService.actualizar(id, datos);
 export const eliminarTecnico = (id: string | number) => tecnicoService.eliminar(id);
