@@ -78,9 +78,18 @@ const Cart: React.FC<CartProps> = ({ onCheckout }) => {
           obtenerServicios()
         ]);
         
+        const extractArray = (resData: any) => {
+          if (!resData) return [];
+          if (Array.isArray(resData)) return resData;
+          if (resData.data && Array.isArray(resData.data)) return resData.data;
+          if (resData.productos && Array.isArray(resData.productos)) return resData.productos;
+          if (resData.servicios && Array.isArray(resData.servicios)) return resData.servicios;
+          return [];
+        };
+
         const allProducts = [
-          ...(productosData?.data || []),
-          ...(serviciosData?.data || [])
+          ...extractArray(productosData?.data),
+          ...extractArray(serviciosData?.data)
         ];
         
         setProducts(allProducts);
