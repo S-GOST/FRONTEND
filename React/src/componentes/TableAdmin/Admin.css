@@ -101,7 +101,7 @@
 }
 
 /* Contenedor de botones de la derecha (apilados verticalmente) */
-..admin-page .right-actions {
+.admin-page .right-actions {
   display: flex;
   flex-direction: column;
   gap: 0.5rem;

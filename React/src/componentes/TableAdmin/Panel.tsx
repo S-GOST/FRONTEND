@@ -1,5 +1,5 @@
 import React from 'react';
-import { NavLink, Outlet, Link } from 'react-router-dom';
+import { Outlet, Link } from 'react-router-dom';
 import Swal from 'sweetalert2';
 import { clearSession } from '../../services/auth.services';
 import rock from "../../assets/icons/rock.png";
@@ -8,7 +8,6 @@ import './Panel.css';
 const Panel: React.FC = () => {
     // Obtener nombre del usuario desde localStorage (de la BD)
     const userName = localStorage.getItem('user_name') || 'ADMIN KTM';
-    const userRole = localStorage.getItem('user_role') || 'admin';
 
 
 

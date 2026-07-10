@@ -1,6 +1,7 @@
 import { Routes, Route, Navigate } from 'react-router-dom';
 import App from '../App';
 import Login from '../pages/Login';
+import Cart from '../componentes/Cart';
 import TecnicoDashboard from '../componentes/TableTecnico/TecnicoDashboard';
 import AdminDashboard from '../componentes/TableAdmin/Dashboard';
 import Admins from '../componentes/TableAdmin/Admin';
@@ -22,6 +23,7 @@ const AppRouter = () => {
   return (
     <Routes>
       <Route path="/" element={<App />} />
+      <Route path="/carrito" element={<Cart />} />
       <Route path="/login" element={<Login />} />
 
       {/* Rutas protegidas para ADMIN */}

@@ -6,6 +6,7 @@ import ServiceSection from './componentes/ServiceSection';
 import InfoSection from './componentes/InfoSection';
 import AccessSection from './componentes/AccessSection';
 import Footer from './componentes/Footer';
+import Cart from './componentes/Cart';
 import Login from './pages/Login';
 import Panel from './componentes/TableAdmin/Panel';
 import OrdenesServicio from './componentes/TableOrdenServicios/OrdenesServicio';
@@ -25,7 +26,9 @@ import TableComprobante from './componentes/TableComprobante/Comprobante';
 import ClienteDashboard from './componentes/TableCliente/ClienteDashboard';
 import Usuarios from './componentes/TableAdmin/Usuarios';
 
-const HomePage: React.FC<{ addToCart: (service: Service) => void }> = ({ addToCart }) => {
+import { obtenerProductos } from './services/producto.service';
+
+const HomePage: React.FC<{ addToCart: (service: Service) => void, productos: Service[] }> = ({ addToCart, productos }) => {
   const categories = ['Mantenimiento', 'Reparaciones', 'Diagnósticos', 'Instalaciones'];
 
   return (
@@ -46,13 +49,30 @@ const HomePage: React.FC<{ addToCart: (service: Service) => void }> = ({ addToCa
                   services={filteredServices}
                   onAddToCart={addToCart}
                 />
-                {index < categories.length - 1 && <div className="section-divider"></div>}
+                <div className="section-divider"></div>
               </React.Fragment>
             );
           })}
-          <div className="section-divider"></div>
+          
+          {Array.from(new Set(productos.map(p => p.category))).map((category, index) => {
+            const filteredProducts = productos.filter(
+              product => product.category === category
+            );
+
+            return (
+              <React.Fragment key={`prod-cat-${category}`}>
+                <ServiceSection
+                  title={category.toUpperCase()}
+                  subtitle="Productos y Repuestos"
+                  services={filteredProducts}
+                  onAddToCart={addToCart}
+                />
+                <div className="section-divider"></div>
+              </React.Fragment>
+            );
+          })}
+
           <InfoSection />
-          <AccessSection />
         </div>
       </main>
     </>
@@ -61,21 +81,14 @@ const HomePage: React.FC<{ addToCart: (service: Service) => void }> = ({ addToCa
 
 const StorefrontPage: React.FC<{
   addToCart: (service: Service) => void;
-  cartCount: number;
-  onSearch: (query: string) => SearchSuggestion[];
-  onSuggestionClick: (suggestion: SearchSuggestion) => void;
   particlesRef: React.RefObject<HTMLDivElement>;
-}> = ({ addToCart, cartCount, onSearch, onSuggestionClick, particlesRef }) => {
+  productos: Service[];
+}> = ({ addToCart, particlesRef, productos }) => {
   return (
     <>
       <div className="particles" ref={particlesRef}></div>
-      <Navbar
-        cartCount={cartCount}
-        onSearch={onSearch}
-        onSuggestionClick={onSuggestionClick}
-      />
       <div className="ktm-container">
-        <HomePage addToCart={addToCart} />
+        <HomePage addToCart={addToCart} productos={productos} />
         <Footer />
       </div>
     </>
@@ -83,15 +96,60 @@ const StorefrontPage: React.FC<{
 };
 
 function App() {
+  const [productos, setProductos] = useState<Service[]>([]);
+
+  useEffect(() => {
+    const fetchProductos = async () => {
+      try {
+        const res = await obtenerProductos();
+        if (res && res.data) {
+          let productosArray = [];
+          if (Array.isArray(res.data)) {
+            productosArray = res.data;
+          } else if (res.data && typeof res.data === 'object' && Array.isArray((res.data as any).data)) {
+            productosArray = (res.data as any).data;
+          } else if (res.data && typeof res.data === 'object' && Array.isArray((res.data as any).productos)) {
+            productosArray = (res.data as any).productos;
+          }
+          
+          if (productosArray.length > 0) {
+            const mappedProductos = productosArray.map((p: any) => ({
+              id: String(p.ID_PRODUCTOS),
+              name: p.Nombre,
+              category: p.categoria_nombre || 'Producto',
+              price: Number(p.Precio),
+              description: `Producto de la marca ${p.Marca || 'KTM'}`,
+              icon: 'bi-box-seam',
+              ID_PRODUCTOS: p.ID_PRODUCTOS // Para que addToCart lo detecte como producto
+            }));
+            setProductos(mappedProductos);
+          }
+        }
+      } catch (error) {
+        console.error('Error fetching products:', error);
+      }
+    };
+    fetchProductos();
+  }, []);
+
   const [cart, setCart] = useState<CartItem[]>(() => {
-    const savedCart = localStorage.getItem('ktmCart');
-    return savedCart ? JSON.parse(savedCart) : [];
+    try {
+      const savedCart = localStorage.getItem('ktmCart');
+      if (savedCart) {
+        const parsed = JSON.parse(savedCart);
+        return Array.isArray(parsed) ? parsed : [];
+      }
+    } catch (error) {
+      console.error('Error parsing cart from localStorage:', error);
+    }
+    return [];
   });
 
   const location = useLocation();
   const particlesRef = useRef<HTMLDivElement>(null);
   const isLoginPage = location.pathname === '/login';
   const isAdminPage = location.pathname.startsWith('/admin');
+  const isCartPage = location.pathname === '/carrito';
   const isAuthenticated = Boolean(localStorage.getItem('user_token'));
 
   useEffect(() => {
@@ -100,7 +158,7 @@ function App() {
 
   useEffect(() => {
     const container = particlesRef.current;
-    if (!container || isAdminPage || isLoginPage) return;
+    if (!container || isAdminPage || isLoginPage || isCartPage) return;
 
     container.innerHTML = '';
 
@@ -116,7 +174,7 @@ function App() {
     return () => {
       container.innerHTML = '';
     };
-  }, [isAdminPage, isLoginPage, location.pathname]);
+  }, [isAdminPage, isLoginPage, isCartPage, location.pathname]);
 
   const addToCart = (service: Service) => {
     setCart(prevCart => {
@@ -137,7 +195,17 @@ function App() {
   const filterSuggestions = (query: string): SearchSuggestion[] => {
     if (!query.trim()) return [];
 
-    return searchSuggestionsData
+    const dynamicProductSuggestions: SearchSuggestion[] = productos.map(p => ({
+      id: p.id,
+      name: p.name,
+      category: p.category,
+      icon: p.icon,
+      price: p.price.toString()
+    }));
+
+    const allSuggestions = [...searchSuggestionsData, ...dynamicProductSuggestions];
+
+    return allSuggestions
       .filter(
         item =>
           item.name.toLowerCase().includes(query.toLowerCase()) ||
@@ -148,7 +216,12 @@ function App() {
 
   const handleSuggestionClick = (suggestion: SearchSuggestion) => {
     const service = servicesData.find(item => item.id === suggestion.id);
-    if (service) addToCart(service);
+    if (service) {
+      addToCart(service);
+    } else {
+      const product = productos.find(item => item.id === suggestion.id);
+      if (product) addToCart(product);
+    }
   };
 
   const cartCount = useMemo(
@@ -166,16 +239,21 @@ function App() {
 
   return (
     <div className="app">
+      {!isLoginPage && !isAdminPage && (
+        <Navbar
+          cartCount={cartCount}
+          onSearch={filterSuggestions}
+          onSuggestionClick={handleSuggestionClick}
+        />
+      )}
       <Routes>
         <Route
           path="/"
           element={
             <StorefrontPage
               addToCart={addToCart}
-              cartCount={cartCount}
-              onSearch={filterSuggestions}
-              onSuggestionClick={handleSuggestionClick}
               particlesRef={particlesRef}
+              productos={productos}
             />
           }
         />
@@ -188,6 +266,10 @@ function App() {
               <Login />
             )
           }
+        />
+        <Route
+          path="/carrito"
+          element={<Cart />}
         />
         {/* Dashboard sin Panel (pantalla completa) */}
         <Route

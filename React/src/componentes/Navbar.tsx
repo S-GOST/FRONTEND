@@ -9,11 +9,45 @@ interface NavbarProps {
   onSuggestionClick: (suggestion: SearchSuggestion) => void;
 }
 
-const Navbar: React.FC<NavbarProps> = ({ cartCount, onSearch, onSuggestionClick }) => {
+const Navbar: React.FC<NavbarProps> = ({ cartCount: initialCartCount, onSearch, onSuggestionClick }) => {
   const [query, setQuery] = useState('');
   const [suggestions, setSuggestions] = useState<SearchSuggestion[]>([]);
   const [showSuggestions, setShowSuggestions] = useState(false);
+  const [cartCount, setCartCount] = useState(initialCartCount);
   const formRef = useRef<HTMLFormElement>(null);
+
+  // Sincronizar con los cambios en App.tsx (addToCart)
+  useEffect(() => {
+    setCartCount(initialCartCount);
+  }, [initialCartCount]);
+
+  // Sincronizar contador del carrito en tiempo real
+  useEffect(() => {
+    const updateCartCount = () => {
+      try {
+        const cartData = JSON.parse(localStorage.getItem('ktmCart') || '[]');
+        const cartArray = Array.isArray(cartData) ? cartData : Object.values(cartData);
+        const count = cartArray.reduce((sum: number, item: any) => sum + (item.quantity || 1), 0);
+        setCartCount(count);
+      } catch (e) {
+        setCartCount(0);
+      }
+    };
+
+    // Actualizar al montar
+    updateCartCount();
+
+    // Escuchar cambios en otras pestañas
+    window.addEventListener('storage', updateCartCount);
+    
+    // Escuchar evento personalizado del carrito
+    window.addEventListener('cartUpdated', updateCartCount);
+
+    return () => {
+      window.removeEventListener('storage', updateCartCount);
+      window.removeEventListener('cartUpdated', updateCartCount);
+    };
+  }, []);
 
   useEffect(() => {
     if (query.trim()) {
