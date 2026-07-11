@@ -11,6 +11,7 @@ import OrdenesServicio from '../componentes/TableOrdenServicios/OrdenesServicio'
 import DetallesOrden from '../componentes/TableOrdenServicios/DetallesOrden';
 import Panel from '../componentes/TableAdmin/Panel';
 import ClienteDashboard from '../componentes/TableCliente/ClienteDashboard';
+import ClienteOrdenes from '../componentes/TableCliente/ClienteOrdenes';
 import Categorias from '../componentes/TableCategorias/Categorias';
 import TableProductos from '../componentes/TableProductos/productos';
 import Servicios from '../componentes/TableServicios/Servicios';
@@ -55,8 +56,9 @@ const AppRouter = () => {
       {/* Rutas protegidas para CLIENTE */}
       <Route element={<ProtectedClienteRoute />}>
         <Route path="/cliente" element={<ClienteDashboard />}>
-          <Route index element={<Navigate to="dashboard" replace />} />
-          <Route path="dashboard" element={<ClienteDashboard />} />
+          <Route index element={<></>} />
+          <Route path="dashboard" element={<></>} />
+          <Route path="ordenes" element={<ClienteOrdenes />} />
         </Route>
       </Route>
     </Routes>

@@ -11,6 +11,7 @@ export interface OrdenServicioRecord {
   Fecha_estimada: string;
   Fecha_fin?: string | null;
   Estado: string;
+  detalles?: any[];
 }
 
 export type OrdenServicioPayload = Omit<OrdenServicioRecord, 'ID_ORDEN_SERVICIO'> & {
@@ -33,3 +34,11 @@ export const actualizarOrden = (
   id: string,
   data: Partial<Pick<OrdenServicioRecord, 'Estado' | 'Fecha_inicio' | 'Fecha_estimada' | 'Fecha_fin' | 'ID_TECNICOS' | 'ID_MOTOS'>>
 ) => ordenServicioService.actualizar(id, data as OrdenServicioPayload);
+
+// Obtener solo las órdenes del cliente autenticado
+export const obtenerMisOrdenes = () => {
+  const token = localStorage.getItem('user_token');
+  return ordenServicioService['http'].get('/ordenes_servicio/mis-ordenes', {
+    headers: { Authorization: `Bearer ${token}` }
+  });
+};

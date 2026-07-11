@@ -174,8 +174,8 @@ const OrdenesServicio = () => {
     e.preventDefault();
     if (submitting) return;
     
-    if (!formData.ID_CLIENTES || !formData.ID_ADMINISTRADOR) {
-      showAlert('Campos requeridos', 'Debe seleccionar un cliente y un administrador.', 'warning');
+    if (!formData.ID_CLIENTES) {
+      showAlert('Campos requeridos', 'Debe seleccionar un cliente.', 'warning');
       return;
     }
 
@@ -275,7 +275,6 @@ const OrdenesServicio = () => {
               <tr>
                 <th>ID</th>
                 <th>Cliente</th>
-                <th>Administrador</th>
                 <th>Técnico</th>
                 <th>Moto</th>
                 <th>Fecha inicio</th>
@@ -293,8 +292,7 @@ const OrdenesServicio = () => {
                 filteredOrdenes.map((orden) => (
                   <tr key={orden.ID_ORDEN_SERVICIO}>
                     <td className="orden-id"><FormattedId entity="orden" value={orden.ID_ORDEN_SERVICIO} /></td>
-                    <td><FormattedId entity="cliente" value={orden.ID_CLIENTES} /></td>
-                    <td>{orden.ID_ADMINISTRADOR ? <FormattedId entity="admin" value={orden.ID_ADMINISTRADOR} /> : '-'}</td>
+                    <td>{clientes.find(c => String(c.ID_CLIENTES) === String(orden.ID_CLIENTES))?.Nombre || <FormattedId entity="cliente" value={orden.ID_CLIENTES} />}</td>
                     <td>{orden.ID_TECNICOS ? <FormattedId entity="tecnico" value={orden.ID_TECNICOS} /> : '-'}</td>
                     <td>{orden.ID_MOTOS ? <FormattedId entity="moto" value={orden.ID_MOTOS} /> : '-'}</td>
                     <td>{orden.Fecha_inicio}</td>
@@ -327,15 +325,38 @@ const OrdenesServicio = () => {
               <h3>Detalles de la orden {selectedOrder.ID_ORDEN_SERVICIO}</h3>
               <button type="button" className="close-btn" onClick={() => setModalOpen(false)}>&times;</button>
             </div>
-            <div className="modal-body">
-              <p><strong>Cliente ID:</strong> {selectedOrder.ID_CLIENTES}</p>
-              <p><strong>Administrador ID:</strong> {selectedOrder.ID_ADMINISTRADOR ?? '-'}</p>
+            <div className="modal-body" style={{ maxHeight: '60vh', overflowY: 'auto' }}>
+              <p><strong>Cliente:</strong> {clientes.find(c => String(c.ID_CLIENTES) === String(selectedOrder.ID_CLIENTES))?.Nombre || selectedOrder.ID_CLIENTES}</p>
               <p><strong>Técnico ID:</strong> {selectedOrder.ID_TECNICOS ?? '-'}</p>
               <p><strong>Moto ID:</strong> {selectedOrder.ID_MOTOS ?? '-'}</p>
               <p><strong>Fecha inicio:</strong> {selectedOrder.Fecha_inicio}</p>
               <p><strong>Fecha estimada:</strong> {selectedOrder.Fecha_estimada}</p>
               <p><strong>Fecha fin:</strong> {selectedOrder.Fecha_fin ?? '-'}</p>
               <p><strong>Estado actual:</strong> {selectedOrder.Estado}</p>
+              
+              {selectedOrder.detalles && selectedOrder.detalles.length > 0 && (
+                <div style={{ marginTop: '20px' }}>
+                  <h4 style={{ color: '#ff6600', marginBottom: '10px' }}>Servicios / Productos</h4>
+                  <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.9rem' }}>
+                    <thead>
+                      <tr style={{ borderBottom: '1px solid #444', textAlign: 'left', color: '#888' }}>
+                        <th style={{ padding: '8px 0' }}>Detalle</th>
+                        <th style={{ padding: '8px 0', textAlign: 'center' }}>Cant</th>
+                        <th style={{ padding: '8px 0', textAlign: 'right' }}>Total</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {selectedOrder.detalles.map(det => (
+                        <tr key={det.id_detalle} style={{ borderBottom: '1px solid #333' }}>
+                          <td style={{ padding: '8px 0', color: '#ccc' }}>{[det.NombreServicio, det.NombreProducto].filter(Boolean).join(' + ') || '-'}</td>
+                          <td style={{ padding: '8px 0', textAlign: 'center', color: '#ccc' }}>{det.cantidad}</td>
+                          <td style={{ padding: '8px 0', textAlign: 'right', color: '#fff' }}>${Number(det.subtotal).toLocaleString('es-CO')}</td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              )}
             </div>
             <div className="modal-footer">
               <button type="button" onClick={() => setModalOpen(false)}>Cerrar</button>
@@ -371,22 +392,6 @@ const OrdenesServicio = () => {
                   </select>
                 </div>
 
-                <div className="form-group">
-                  <label>Administrador *</label>
-                  <select
-                    name="ID_ADMINISTRADOR"
-                    value={formData.ID_ADMINISTRADOR}
-                    onChange={handleFormChange}
-                    required
-                  >
-                    <option value="">-- Seleccione un administrador --</option>
-                    {administradores.map(admin => (
-                      <option key={admin.ID_ADMINISTRADOR} value={admin.ID_ADMINISTRADOR}>
-                        {admin.ID_ADMINISTRADOR} - {admin.Nombre}
-                      </option>
-                    ))}
-                  </select>
-                </div>
 
                 <div className="form-group">
                   <label>Técnico</label>

@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Outlet, useLocation } from 'react-router-dom';
 import Swal from 'sweetalert2';
 import { obtenerMotos, insertarMoto, type MotoRecord, type MotoPayload } from '../../services/moto.service';
 import { obtenerOrdenes, type OrdenServicioRecord } from '../../services/ordenServicioService';
@@ -20,6 +20,8 @@ interface OrdenReciente extends OrdenServicioRecord {
 
 function ClienteDashboard() {
   const navigate = useNavigate();
+  const location = useLocation();
+  const isIndex = location.pathname === '/cliente' || location.pathname === '/cliente/' || location.pathname === '/cliente/dashboard';
   
   // 🔴 AQUÍ ES DONDE BUSCAMOS EL ID
   const clienteId = localStorage.getItem('user_id') || '';
@@ -189,14 +191,28 @@ function ClienteDashboard() {
     return '#666';
   };
 
+  const getProgress = (estado: string): number => {
+    const e = estado.toLowerCase();
+    if (e === 'completado') return 100;
+    if (e === 'en proceso') return 50;
+    return 15; // Pendiente
+  };
+
   return (
-    <div className="dashboard-page">
-      <div className="dashboard-section">
-        <div className="dashboard-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '1rem' }}>
-          <div>
-            <h1 className="dashboard-title">Bienvenido, {clienteNombre}</h1>
-            <p className="dashboard-subtitle">Panel de Control del Cliente</p>
-          </div>
+    <div className="dashboard-page" style={{ padding: 0 }}>
+      <div className="dashboard-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '1rem', padding: '15px 30px', background: 'var(--ktm-dark-card)', borderBottom: '1px solid #333', marginBottom: '20px', borderRadius: 0 }}>
+        <div>
+          <h1 className="dashboard-title" style={{ margin: 0, fontSize: '1.5rem', color: 'var(--ktm-orange)' }}>Bienvenido, {clienteNombre}</h1>
+          <p className="dashboard-subtitle" style={{ margin: '5px 0 0 0', color: '#888', fontSize: '0.9rem' }}>Panel de Control del Cliente</p>
+        </div>
+        <div style={{ display: 'flex', gap: '15px' }}>
+          <button onClick={() => navigate('/carrito')} style={{
+            background: '#ff6600', border: '2px solid #ff6600', color: '#fff',
+            padding: '8px 16px', borderRadius: '8px', cursor: 'pointer', fontWeight: 600,
+            display: 'flex', alignItems: 'center', gap: '6px', transition: 'all 0.3s'
+          }}>
+            <i className="bi bi-cart3"></i> Ir al Carrito
+          </button>
           <button onClick={handleLogout} style={{
             background: 'transparent', border: '2px solid #ff6600', color: '#ff6600',
             padding: '8px 16px', borderRadius: '8px', cursor: 'pointer', fontWeight: 600,
@@ -205,85 +221,109 @@ function ClienteDashboard() {
             <i className="bi bi-box-arrow-right"></i> Cerrar Sesión
           </button>
         </div>
+      </div>
 
-        {loading ? (
-          <div className="loading-container"><p className="loading-text">Cargando tu información...</p></div>
-        ) : (
-          <>
-            <div className="stats-grid">
-              <StatCard title="Total de Órdenes" value={stats.totalOrdenes} icon="bi-clipboard-list" color="#ff6600" />
-              <StatCard title="Órdenes Completadas" value={stats.ordenesCompletadas} icon="bi-check-circle" color="#00ff88" />
-              <StatCard title="Órdenes Pendientes" value={stats.ordenesPendientes} icon="bi-hourglass-split" color="#ffd166" />
-              <StatCard title="Mis Motos" value={stats.totalMotos} icon="bi-motorcycle" color="#00d4ff" />
-            </div>
-
-            <div className="quick-actions">
-              <h3 className="actions-title">Acciones Rápidas</h3>
-              <div className="actions-grid">
-                <button className="action-btn action-btn-primary" onClick={() => navigate('/cliente/ordenes')}>
-                  <i className="bi bi-clipboard-check"></i> Ver Órdenes
-                </button>
-                <button className="action-btn action-btn-secondary" onClick={() => setShowMotoModal(true)}>
-                  <i className="bi bi-motorcycle"></i> Registrar Moto
-                </button>
-                <button className="action-btn action-btn-tertiary" onClick={() => navigate('/cliente/comprobantes')}>
-                  <i className="bi bi-receipt"></i> Comprobantes
-                </button>
-                <button className="action-btn action-btn-quaternary" onClick={() => navigate('/cliente/historial')}>
-                  <i className="bi bi-journal-text"></i> Historial
-                </button>
+      <div className="dashboard-section" style={{ margin: '0 1.5rem 1.5rem 1.5rem' }}>
+        {isIndex ? (
+          loading ? (
+            <div className="loading-container"><p className="loading-text">Cargando tu información...</p></div>
+          ) : (
+            <>
+              <div className="quick-actions">
+                <h3 className="actions-title">Acciones Rápidas</h3>
+                <div className="actions-grid">
+                  <button className="action-btn action-btn-primary" onClick={() => navigate('/cliente/ordenes')}>
+                    <i className="bi bi-clipboard-check"></i> Ver Órdenes
+                  </button>
+                  <button className="action-btn action-btn-secondary" onClick={() => setShowMotoModal(true)}>
+                    <i className="bi bi-plus-circle"></i> Registrar Moto
+                  </button>
+                  <button className="action-btn action-btn-tertiary" onClick={() => navigate('/cliente/comprobantes')}>
+                    <i className="bi bi-receipt"></i> Comprobantes
+                  </button>
+                  <button className="action-btn action-btn-quaternary" onClick={() => navigate('/cliente/historial')}>
+                    <i className="bi bi-journal-text"></i> Historial
+                  </button>
+                </div>
               </div>
-            </div>
 
-            <div className="info-section">
-              <div className="info-card">
-                <h3><i className="bi bi-clock-history" style={{ marginRight: '8px' }}></i> Órdenes Recientes</h3>
-                {ordenesRecientes.length > 0 ? (
-                  <div style={{ overflowX: 'auto' }}>
-                    <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '14px', color: '#aaa' }}>
-                      <thead>
-                        <tr style={{ borderBottom: '2px solid #262626' }}>
-                          <th style={{ padding: '10px', textAlign: 'left', color: '#ff6600' }}>ID Orden</th>
-                          <th style={{ padding: '10px', textAlign: 'left', color: '#ff6600' }}>Inicio</th>
-                          <th style={{ padding: '10px', textAlign: 'left', color: '#ff6600' }}>Estimado</th>
-                          <th style={{ padding: '10px', textAlign: 'left', color: '#ff6600' }}>Estado</th>
-                        </tr>
-                      </thead>
-                      <tbody>
-                        {ordenesRecientes.map((orden) => (
-                          <tr key={orden.ID_ORDEN_SERVICIO} style={{ borderBottom: '1px solid #1a1a1a' }}>
-                            <td style={{ padding: '10px', fontFamily: 'JetBrains Mono, monospace', color: '#ff6600', fontWeight: 600 }}>
-  {formatId('orden', orden.ID_ORDEN_SERVICIO)}
-</td>
-                            <td style={{ padding: '10px' }}>{orden.ID_ORDEN_SERVICIO}</td>
-                            <td style={{ padding: '10px' }}>{new Date(orden.Fecha_inicio).toLocaleDateString('es-ES')}</td>
-                            <td style={{ padding: '10px' }}>{new Date(orden.Fecha_estimada).toLocaleDateString('es-ES')}</td>
-                            <td style={{ padding: '10px' }}>
-                              <span style={{ padding: '4px 10px', borderRadius: '4px', backgroundColor: getEstadoColor(orden.Estado), color: '#000', fontWeight: 'bold', fontSize: '12px' }}>
+              <div className="info-section">
+                <div className="info-card" style={{ gridColumn: '1 / -1' }}>
+                  <h3><i className="bi bi-rocket-takeoff" style={{ marginRight: '8px' }}></i> Seguimiento de Órdenes</h3>
+                  {ordenesRecientes.length > 0 ? (
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '20px', marginTop: '20px' }}>
+                      {ordenesRecientes.map((orden) => {
+                        const progress = getProgress(orden.Estado);
+                        const color = getEstadoColor(orden.Estado);
+                        return (
+                          <div key={orden.ID_ORDEN_SERVICIO} style={{ background: '#1a1a1a', borderRadius: '12px', padding: '20px', border: '1px solid #333', boxShadow: '0 4px 15px rgba(0,0,0,0.2)' }}>
+                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px', flexWrap: 'wrap', gap: '10px' }}>
+                              <div>
+                                <strong style={{ color: '#ff6600', fontSize: '1.2rem', fontFamily: 'JetBrains Mono, monospace' }}>
+                                  {formatId('orden', orden.ID_ORDEN_SERVICIO)}
+                                </strong>
+                                <span style={{ color: '#888', marginLeft: '15px', fontSize: '0.9rem' }}>
+                                  <i className="bi bi-calendar-event me-1"></i>
+                                  Inicio: {new Date(orden.Fecha_inicio).toLocaleDateString('es-CO')}
+                                </span>
+                              </div>
+                              <span style={{ 
+                                padding: '6px 14px', 
+                                borderRadius: '20px', 
+                                backgroundColor: `${color}15`, 
+                                color: color, 
+                                fontWeight: 'bold', 
+                                fontSize: '0.85rem', 
+                                border: `1px solid ${color}40`,
+                                textTransform: 'uppercase',
+                                letterSpacing: '1px'
+                              }}>
                                 {orden.Estado}
                               </span>
-                            </td>
-                          </tr>
-                        ))}
-                      </tbody>
-                    </table>
-                  </div>
-                ) : (
-                  <p style={{ color: '#999' }}>No tienes órdenes aún</p>
-                )}
-              </div>
+                            </div>
+                            
+                            {/* Progress Bar Container */}
+                            <div style={{ position: 'relative', height: '10px', background: '#2a2a2a', borderRadius: '5px', overflow: 'hidden', marginBottom: '12px', border: '1px solid #333' }}>
+                              <div style={{ 
+                                position: 'absolute', top: 0, left: 0, height: '100%', 
+                                width: `${progress}%`, 
+                                background: `linear-gradient(90deg, ${color}99, ${color})`,
+                                transition: 'width 1.5s cubic-bezier(0.4, 0, 0.2, 1)',
+                                boxShadow: `0 0 10px ${color}80`
+                              }}></div>
+                            </div>
+                            
+                            <div style={{ display: 'flex', justifyContent: 'space-between', color: '#888', fontSize: '0.85rem', fontWeight: 600, textTransform: 'uppercase' }}>
+                              <span style={{ color: progress >= 15 ? '#ddd' : '#666' }}>Recepcionada</span>
+                              <span style={{ color: progress >= 50 ? '#ddd' : '#666' }}>En Taller</span>
+                              <span style={{ color: progress >= 100 ? '#ddd' : '#666' }}>Lista para Entrega</span>
+                            </div>
+                          </div>
+                        )
+                      })}
+                    </div>
+                  ) : (
+                    <div style={{ textAlign: 'center', padding: '40px 20px', color: '#888' }}>
+                      <i className="bi bi-inbox" style={{ fontSize: '3rem', marginBottom: '10px', display: 'block', color: '#444' }}></i>
+                      <p>No tienes órdenes de servicio activas en este momento.</p>
+                    </div>
+                  )}
+                </div>
 
-              <div className="info-card">
-                <h3>📊 Resumen de tu Cuenta</h3>
-                <ul className="info-list">
-                  <li><span className="info-label">Total de Órdenes:</span><span className="info-value">{stats.totalOrdenes}</span></li>
-                  <li><span className="info-label">Completadas:</span><span className="info-value info-positive">{stats.ordenesCompletadas}</span></li>
-                  <li><span className="info-label">Pendientes:</span><span className="info-value info-negative">{stats.ordenesPendientes}</span></li>
-                  <li><span className="info-label">Motos Registradas:</span><span className="info-value">{stats.totalMotos}</span></li>
-                </ul>
+                <div className="info-card">
+                  <h3>📊 Resumen de tu Cuenta</h3>
+                  <ul className="info-list">
+                    <li><span className="info-label">Total de Órdenes:</span><span className="info-value">{stats.totalOrdenes}</span></li>
+                    <li><span className="info-label">Completadas:</span><span className="info-value info-positive">{stats.ordenesCompletadas}</span></li>
+                    <li><span className="info-label">Pendientes:</span><span className="info-value info-negative">{stats.ordenesPendientes}</span></li>
+                    <li><span className="info-label">Motos Registradas:</span><span className="info-value">{stats.totalMotos}</span></li>
+                  </ul>
+                </div>
               </div>
-            </div>
-          </>
+            </>
+          )
+        ) : (
+          <Outlet />
         )}
       </div>
 
@@ -292,7 +332,7 @@ function ClienteDashboard() {
         <div className="modal-overlay" onClick={() => setShowMotoModal(false)}>
           <div className="modal-content" onClick={e => e.stopPropagation()}>
             <div className="modal-header">
-              <h3><i className="bi bi-motorcycle"></i> Registrar Motocicleta</h3>
+              <h3><i className="bi bi-plus-circle"></i> Registrar Motocicleta</h3>
               <button className="modal-close" onClick={() => setShowMotoModal(false)}>×</button>
             </div>
             <div className="modal-body">

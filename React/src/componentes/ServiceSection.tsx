@@ -24,7 +24,7 @@ const ServiceSection: React.FC<ServiceSectionProps> = ({ title, subtitle, servic
             </div>
             <h4 className="service-name">{service.name}</h4>
             <p className="service-desc">{service.description}</p>
-            <div className="service-price">€{service.price.toFixed(2)}</div>
+            <div className="service-price">${service.price.toLocaleString('es-CO')} COP</div>
             <button
               className="btn-service add-to-cart-btn"
               onClick={() => onAddToCart(service)}

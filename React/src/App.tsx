@@ -25,7 +25,7 @@ import Tablehistorial from './componentes/Tablehistorial/historial';
 import TableComprobante from './componentes/TableComprobante/Comprobante';
 import ClienteDashboard from './componentes/TableCliente/ClienteDashboard';
 import Usuarios from './componentes/TableAdmin/Usuarios';
-
+import ClienteOrdenes from './componentes/TableCliente/ClienteOrdenes';
 import { obtenerProductos } from './services/producto.service';
 
 const HomePage: React.FC<{ addToCart: (service: Service) => void, productos: Service[] }> = ({ addToCart, productos }) => {
@@ -149,16 +149,48 @@ function App() {
   const particlesRef = useRef<HTMLDivElement>(null);
   const isLoginPage = location.pathname === '/login';
   const isAdminPage = location.pathname.startsWith('/admin');
+  const isTecnicoPage = location.pathname.startsWith('/tecnico');
+  const isClientePage = location.pathname.startsWith('/cliente');
   const isCartPage = location.pathname === '/carrito';
   const isAuthenticated = Boolean(localStorage.getItem('user_token'));
+  const userRole = localStorage.getItem('user_role');
 
   useEffect(() => {
     localStorage.setItem('ktmCart', JSON.stringify(cart));
   }, [cart]);
 
+  // Sync cart state when Cart.tsx (or another tab) modifies localStorage
+  useEffect(() => {
+    const syncCartFromStorage = () => {
+      try {
+        const savedCart = localStorage.getItem('ktmCart');
+        if (savedCart) {
+          const parsed = JSON.parse(savedCart);
+          setCart(Array.isArray(parsed) ? parsed : []);
+        } else {
+          setCart([]);
+        }
+      } catch (e) {
+        console.error('Error syncing cart:', e);
+      }
+    };
+
+    // Listen for the custom event dispatched by Cart.tsx
+    window.addEventListener('cartUpdated', syncCartFromStorage);
+    // Listen for cross-tab localStorage changes
+    window.addEventListener('storage', (e: StorageEvent) => {
+      if (e.key === 'ktmCart') syncCartFromStorage();
+    });
+
+    return () => {
+      window.removeEventListener('cartUpdated', syncCartFromStorage);
+      window.removeEventListener('storage', syncCartFromStorage);
+    };
+  }, []);
+
   useEffect(() => {
     const container = particlesRef.current;
-    if (!container || isAdminPage || isLoginPage || isCartPage) return;
+    if (!container || isAdminPage || isTecnicoPage || isClientePage || isLoginPage || isCartPage) return;
 
     container.innerHTML = '';
 
@@ -239,7 +271,7 @@ function App() {
 
   return (
     <div className="app">
-      {!isLoginPage && !isAdminPage && (
+      {!isLoginPage && !isAdminPage && !isTecnicoPage && !isClientePage && !(isCartPage && userRole === 'cliente') && (
         <Navbar
           cartCount={cartCount}
           onSearch={filterSuggestions}
@@ -313,7 +345,7 @@ function App() {
         >
           <Route index element={<Navigate to="/cliente/dashboard" replace />} />
           <Route path="dashboard" element={<div>Dashboard Cliente (próximamente)</div>} />
-          <Route path="mis-ordenes" element={<div>Mis Órdenes</div>} />
+          <Route path="ordenes" element={<ClienteOrdenes />} />
           <Route path="mis-motos" element={<div>Mis Motos</div>} />
           <Route path="servicios" element={<div>Servicios</div>} />
           <Route path="perfil" element={<div>Mi Perfil</div>} />
