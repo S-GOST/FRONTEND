@@ -151,16 +151,16 @@ function Dashboard() {
             <StatCard title="Usuarios Totales" value={stats.usuarios} icon="bi-people" color="#00d4ff" onClick={() => navigate('/admin/usuarios')} />
             <StatCard title="Técnicos" value={stats.tecnicos} icon="bi-person-badge" color="#ffd166" onClick={() => navigate('/admin/tecnicos')} />
             <StatCard title="Clientes" value={stats.clientes} icon="bi-person-lines-fill" color="#00ff88" onClick={() => navigate('/admin/clientes')} />
-            <StatCard title="Órdenes Pendientes" value={stats.ordenesPendientes} icon="bi-clock-history" color="#ff6600" onClick={() => navigate('/admin/ordenes_servicio')} />
-            <StatCard title="En Proceso" value={stats.ordenesEnProceso} icon="bi-arrow-repeat" color="#3b82f6" onClick={() => navigate('/admin/ordenes_servicio')} />
-            <StatCard title="Completadas" value={stats.ordenesCompletadas} icon="bi-check-circle" color="#10b981" onClick={() => navigate('/admin/ordenes_servicio')} />
+            <StatCard title="Órdenes Pendientes" value={stats.ordenesPendientes} icon="bi-clock-history" color="#ff6600" onClick={() => navigate('/admin/asignacion_tecnicos')} />
+            <StatCard title="En Proceso" value={stats.ordenesEnProceso} icon="bi-arrow-repeat" color="#3b82f6" onClick={() => navigate('/admin/asignacion_tecnicos')} />
+            <StatCard title="Completadas" value={stats.ordenesCompletadas} icon="bi-check-circle" color="#10b981" onClick={() => navigate('/admin/asignacion_tecnicos')} />
           </div>
 
           <div className="quick-actions">
             <h3 className="actions-title">Gestión Rápida</h3>
             <div className="actions-grid">
-              <NavCard title="Gestionar Usuarios" icon="bi-people-gear" color="#3b82f6" onClick={() => navigate('/admin/usuarios')} />
-              <NavCard title="Órdenes de Servicio" icon="bi-clipboard2-pulse" color="#8b5cf6" onClick={() => navigate('/admin/ordenes_servicio')} />
+              <NavCard title="Gestionar Usuarios" icon="bi-person-badge" color="#3b82f6" onClick={() => navigate('/admin/usuarios')} />
+              <NavCard title="Nuevas Órdenes" icon="bi-clipboard2-pulse" color="#8b5cf6" onClick={() => navigate('/admin/asignacion_tecnicos')} />
               <NavCard title="Servicios" icon="bi-wrench-adjustable" color="#06b6d4" onClick={() => navigate('/admin/servicios')} />
               <NavCard title="Productos" icon="bi-box-seam" color="#ec4899" onClick={() => navigate('/admin/productos')} />
               <NavCard title="Categorías" icon="bi-tags" color="#f97316" onClick={() => navigate('/admin/categorias')} />

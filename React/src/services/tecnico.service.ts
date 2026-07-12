@@ -30,7 +30,7 @@ const addCompatibility = (t: any): any => {
   if (!t) return t;
   return {
     ...t,
-    ID_TECNICOS: t.numero_documento,
+    ID_TECNICOS: t.id_usuario ? String(t.id_usuario) : String(t.numero_documento),
     Nombre: t.nombre,
   };
 };

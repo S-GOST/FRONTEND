@@ -394,3 +394,175 @@
     font-size: 0.7rem;
   }
 }
+
+/* ── SweetAlert2 KTM Theme ── */
+.swal-ktm-popup {
+  border: 1px solid #ff660040 !important;
+  border-radius: 20px !important;
+  box-shadow:
+    0 0 60px rgba(255, 102, 0, 0.12),
+    0 24px 48px rgba(0, 0, 0, 0.6) !important;
+  overflow: hidden;
+}
+
+.swal-ktm-popup::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 4px;
+  background: linear-gradient(90deg, #ff6600, #ff8c33, #ff6600);
+}
+
+.swal-ktm-title {
+  font-size: 1.6rem !important;
+  font-weight: 800 !important;
+  text-transform: uppercase !important;
+  letter-spacing: 0.05em !important;
+  background: linear-gradient(135deg, #ff6600, #ff8c33) !important;
+  -webkit-background-clip: text !important;
+  -webkit-text-fill-color: transparent !important;
+  background-clip: text !important;
+  padding-bottom: 0.6rem !important;
+}
+
+/* Body layout */
+.swal-ktm-body {
+  text-align: left;
+  padding: 0.5rem 0;
+}
+
+.swal-ktm-info-row {
+  display: flex;
+  gap: 0.75rem;
+  margin-bottom: 1rem;
+}
+
+.swal-ktm-info-card {
+  flex: 1;
+  background: linear-gradient(145deg, #161616, #0e0e0e);
+  border: 1px solid #2a2a2a;
+  border-radius: 12px;
+  padding: 0.8rem 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  transition: border-color 0.3s ease;
+}
+
+.swal-ktm-info-card:hover {
+  border-color: #ff660060;
+}
+
+.swal-ktm-info-label {
+  font-size: 0.65rem;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: #ff6600;
+  font-weight: 700;
+}
+
+.swal-ktm-info-value {
+  font-size: 1rem;
+  color: #f5f5f5;
+  font-weight: 600;
+  font-family: 'JetBrains Mono', 'Fira Code', monospace;
+}
+
+.swal-ktm-current {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  background: #141414;
+  border: 1px solid #222;
+  border-radius: 10px;
+  padding: 0.65rem 1rem;
+  margin-bottom: 1rem;
+  font-size: 0.85rem;
+  color: #aaa;
+}
+
+.swal-ktm-current i {
+  font-size: 1.1rem;
+  color: #ff6600;
+}
+
+.swal-ktm-current strong {
+  color: #fff;
+}
+
+.swal-ktm-prompt {
+  font-size: 0.85rem;
+  color: #888;
+  margin: 0 0 0.25rem 0;
+}
+
+/* Select input */
+.swal-ktm-select {
+  width: 100% !important;
+  padding: 0.75rem 1rem !important;
+  background-color: #141414 !important;
+  border: 1px solid #333 !important;
+  border-radius: 12px !important;
+  color: #fff !important;
+  font-size: 0.9rem !important;
+  outline: none !important;
+  cursor: pointer;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease !important;
+  appearance: none;
+  -webkit-appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%23ff6600' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E") !important;
+  background-repeat: no-repeat !important;
+  background-position: right 1rem center !important;
+  background-size: 14px !important;
+}
+
+.swal-ktm-select:focus {
+  border-color: #ff6600 !important;
+  box-shadow: 0 0 0 3px rgba(255, 102, 0, 0.15) !important;
+}
+
+.swal-ktm-select option {
+  background: #141414;
+  color: #fff;
+  padding: 0.5rem;
+}
+
+/* Buttons */
+.swal-ktm-confirm {
+  background: linear-gradient(135deg, #ff6600, #e65c00) !important;
+  border: none !important;
+  border-radius: 12px !important;
+  padding: 0.7rem 1.6rem !important;
+  font-weight: 700 !important;
+  font-size: 0.9rem !important;
+  text-transform: uppercase !important;
+  letter-spacing: 0.04em !important;
+  color: #000 !important;
+  transition: all 0.25s ease !important;
+  box-shadow: 0 4px 16px rgba(255, 102, 0, 0.3) !important;
+}
+
+.swal-ktm-confirm:hover {
+  transform: translateY(-2px) !important;
+  box-shadow: 0 6px 24px rgba(255, 102, 0, 0.45) !important;
+  filter: brightness(1.1) !important;
+}
+
+.swal-ktm-cancel {
+  background: #1e1e1e !important;
+  border: 1px solid #333 !important;
+  border-radius: 12px !important;
+  padding: 0.7rem 1.6rem !important;
+  font-weight: 600 !important;
+  font-size: 0.9rem !important;
+  color: #aaa !important;
+  transition: all 0.2s ease !important;
+}
+
+.swal-ktm-cancel:hover {
+  background: #2a2a2a !important;
+  color: #fff !important;
+  border-color: #444 !important;
+}

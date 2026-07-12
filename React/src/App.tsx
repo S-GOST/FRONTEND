@@ -11,6 +11,7 @@ import Login from './pages/Login';
 import Panel from './componentes/TableAdmin/Panel';
 import OrdenesServicio from './componentes/TableOrdenServicios/OrdenesServicio';
 import DetallesOrden from './componentes/TableOrdenServicios/DetallesOrden';
+import AsignacionTecnicos from './componentes/TableOrdenServicios/AsignacionTecnicos';
 import Servicios from './componentes/TableServicios/Servicios';
 import { servicesData, searchSuggestionsData } from './utils/constants';
 import { Service, SearchSuggestion, CartItem } from './types';
@@ -318,6 +319,7 @@ function App() {
           <Route path="administradores" element={<Usuarios />} />
           <Route path="usuarios" element={<Usuarios />} />
           <Route path="ordenes_servicio" element={<OrdenesServicio />} />
+          <Route path="asignacion_tecnicos" element={<AsignacionTecnicos />} />
           <Route path="detalles-orden" element={<DetallesOrden />} />
           <Route path="tecnicos" element={<Usuarios />} />
           <Route path="clientes" element={<Usuarios />} />

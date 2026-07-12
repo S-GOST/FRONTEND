@@ -5,7 +5,7 @@ import {
   insertarOrden,
   actualizarOrden,
   eliminarOrden,
-  type OrdenServicioRecord,  
+  type OrdenServicioRecord,
   type OrdenServicioPayload,
 } from '../../services/ordenServicioService';
 import { obtenerClientes, type ClienteRecord } from '../../services/cliente.service';
@@ -68,7 +68,7 @@ const OrdenesServicio = () => {
   const [modalFormOpen, setModalFormOpen] = useState(false);
   const [editMode, setEditMode] = useState(false);
   const [formData, setFormData] = useState<OrdenServicioPayload>(initialFormState);
-  
+
   const [clientes, setClientes] = useState<ClienteRecord[]>([]);
   const [tecnicos, setTecnicos] = useState<TecnicoRecord[]>([]);
   const [motos, setMotos] = useState<MotoRecord[]>([]);
@@ -154,7 +154,7 @@ const OrdenesServicio = () => {
       ID_CLIENTES: orden.ID_CLIENTES,
       ID_ADMINISTRADOR: orden.ID_ADMINISTRADOR || '',
       ID_TECNICOS: orden.ID_TECNICOS || '',
-      ID_MOTOS: orden.ID_MOTOS || '',
+      ID_MOTOS: orden.ID_MOTOS,
       Fecha_inicio: orden.Fecha_inicio,
       Fecha_estimada: orden.Fecha_estimada,
       Fecha_fin: orden.Fecha_fin || '',
@@ -165,6 +165,128 @@ const OrdenesServicio = () => {
     setModalFormOpen(true);
   };
 
+  // --- NUEVA FUNCIÓN: Asignación rápida de técnico ---
+  const asignarTecnicoRápido = async (orden: OrdenServicioRecord) => {
+    // Crear las opciones para el select de SweetAlert (ID: Nombre)
+    const opciones: Record<string, string> = {};
+
+    // Opción para desasignar si se desea
+    opciones[""] = "-- Desasignar / Sin Técnico --";
+
+    // Ordenar técnicos alfabéticamente por nombre
+    [...tecnicos]
+      .sort((a, b) => (a.Nombre ?? '').localeCompare(b.Nombre ?? ''))
+      .forEach(t => {
+        if (t.ID_TECNICOS) {
+          opciones[t.ID_TECNICOS] = `${t.Nombre} (${t.ID_TECNICOS})`;
+        }
+      });
+
+    // Si no hay tecnicos cargados, avisar
+    if (tecnicos.length === 0) {
+      showAlert('Sin técnicos', 'No hay técnicos registrados en el sistema.', 'warning');
+      return;
+    }
+
+    // Buscar nombre del cliente para mostrarlo
+    const clienteNombre = clientes.find(c => String(c.ID_CLIENTES) === String(orden.ID_CLIENTES))?.Nombre || orden.ID_CLIENTES;
+    const tecnicoActual = orden.ID_TECNICOS
+      ? (tecnicos.find(t => String(t.ID_TECNICOS) === String(orden.ID_TECNICOS))?.Nombre || orden.ID_TECNICOS)
+      : 'Sin asignar';
+
+    const result = await Swal.fire({
+      title: 'Asignar Técnico',
+      html: `
+        <div class="swal-ktm-body">
+          <div class="swal-ktm-info-row">
+            <div class="swal-ktm-info-card">
+              <span class="swal-ktm-info-label">Orden</span>
+              <span class="swal-ktm-info-value">${orden.ID_ORDEN_SERVICIO}</span>
+            </div>
+            <div class="swal-ktm-info-card">
+              <span class="swal-ktm-info-label">Cliente</span>
+              <span class="swal-ktm-info-value">${clienteNombre}</span>
+            </div>
+          </div>
+          <div class="swal-ktm-current">
+            <i class="bi bi-person-gear"></i>
+            <span>Técnico actual: <strong>${tecnicoActual}</strong></span>
+          </div>
+          <p class="swal-ktm-prompt">Selecciona el nuevo técnico a cargo:</p>
+        </div>
+      `,
+      input: 'select',
+      inputOptions: opciones,
+      inputValue: orden.ID_TECNICOS ?? '',
+      showCancelButton: true,
+      confirmButtonText: '<i class="bi bi-person-check"></i> Asignar Técnico',
+      cancelButtonText: 'Cancelar',
+      inputPlaceholder: 'Selecciona un técnico',
+      background: '#0a0a0a',
+      color: '#f5f5f5',
+      confirmButtonColor: '#ff6600',
+      cancelButtonColor: '#1e1e1e',
+      customClass: {
+        popup: 'swal-ktm-popup',
+        title: 'swal-ktm-title',
+        input: 'swal-ktm-select',
+        confirmButton: 'swal-ktm-confirm',
+        cancelButton: 'swal-ktm-cancel',
+      },
+      didOpen: () => {
+        const selectEl = Swal.getInput();
+        const currentLabel = document.querySelector('.swal-ktm-current strong');
+        if (selectEl && currentLabel) {
+          selectEl.addEventListener('change', () => {
+            const selectedId = (selectEl as unknown as HTMLSelectElement).value;
+            if (!selectedId) {
+              currentLabel.textContent = 'Sin asignar';
+            } else {
+              const tec = tecnicos.find(t => String(t.ID_TECNICOS) === selectedId);
+              currentLabel.textContent = tec?.Nombre || selectedId;
+            }
+          });
+        }
+      },
+    });
+
+    if (result.isConfirmed && result.value !== undefined) {
+      try {
+        setSubmitting(true);
+
+        // Construimos el payload completo conservando los datos actuales pero cambiando el técnico
+        const payload: OrdenServicioPayload = {
+          ID_CLIENTES: orden.ID_CLIENTES,
+          ID_ADMINISTRADOR: orden.ID_ADMINISTRADOR || '',
+          ID_TECNICOS: result.value, // <--- Aquí va la nueva asignación
+          ID_MOTOS: orden.ID_MOTOS,
+          Fecha_inicio: orden.Fecha_inicio,
+          Fecha_estimada: orden.Fecha_estimada,
+          Fecha_fin: orden.Fecha_fin || '',
+          Estado: orden.Estado,
+          ClienteNombre: orden.ClienteNombre || '',
+        };
+
+        await actualizarOrden(orden.ID_ORDEN_SERVICIO, payload);
+
+        // Mensaje personalizado dependiendo de si asignó o desasignó
+        if (result.value === "") {
+          showAlert('Desasignado', 'Se ha eliminado la asignación del técnico.', 'success');
+        } else {
+          const techName = tecnicos.find(t => t.ID_TECNICOS === result.value)?.Nombre || 'Técnico';
+          showAlert('Asignado', `Se asignó a ${techName} correctamente.`, 'success');
+        }
+
+        await cargarDatosIniciales(); // Recargar tabla
+      } catch (err) {
+        console.error(err);
+        showAlert('Error', 'No se pudo asignar el técnico.', 'error');
+      } finally {
+        setSubmitting(false);
+      }
+    }
+  };
+
   const handleFormChange = (e: ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
     setFormData(prev => ({ ...prev, [name]: value }));
@@ -173,7 +295,7 @@ const OrdenesServicio = () => {
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
     if (submitting) return;
-    
+
     if (!formData.ID_CLIENTES) {
       showAlert('Campos requeridos', 'Debe seleccionar un cliente.', 'warning');
       return;
@@ -293,15 +415,23 @@ const OrdenesServicio = () => {
                   <tr key={orden.ID_ORDEN_SERVICIO}>
                     <td className="orden-id"><FormattedId entity="orden" value={orden.ID_ORDEN_SERVICIO} /></td>
                     <td>{clientes.find(c => String(c.ID_CLIENTES) === String(orden.ID_CLIENTES))?.Nombre || <FormattedId entity="cliente" value={orden.ID_CLIENTES} />}</td>
-                    <td>{orden.ID_TECNICOS ? <FormattedId entity="tecnico" value={orden.ID_TECNICOS} /> : '-'}</td>
+                    <td>{orden.ID_TECNICOS ? (tecnicos.find(t => String(t.ID_TECNICOS) === String(orden.ID_TECNICOS))?.Nombre || <FormattedId entity="tecnico" value={orden.ID_TECNICOS} />) : '-'}</td>
                     <td>{orden.ID_MOTOS ? <FormattedId entity="moto" value={orden.ID_MOTOS} /> : '-'}</td>
                     <td>{orden.Fecha_inicio}</td>
                     <td>{orden.Fecha_estimada}</td>
                     <td>{orden.Fecha_fin || '-'}</td>
                     <td className="actions-cell">
-                      <button className="btn-edit-ktm" onClick={() => openEditModal(orden)}>
-                        <i className="bi bi-pencil-square"></i> Editar
+
+                      {/* NUEVO BOTÓN ASIGNAR TÉCNICO */}
+                      <button
+                        className="btn-edit-ktm"
+                        style={{ borderColor: '#198754', color: '#198754' }} // Un toque de color verde en el borde
+                        onClick={() => asignarTecnicoRápido(orden)}
+                        title="Asignar Técnico"
+                      >
+                        <i className="bi bi-person-check"></i> Asignar
                       </button>
+
                       <button className="btn-eliminar-ktm" onClick={() => handleDelete(orden)}>
                         <i className="bi bi-trash3"></i> Eliminar
                       </button>
@@ -333,7 +463,7 @@ const OrdenesServicio = () => {
               <p><strong>Fecha estimada:</strong> {selectedOrder.Fecha_estimada}</p>
               <p><strong>Fecha fin:</strong> {selectedOrder.Fecha_fin ?? '-'}</p>
               <p><strong>Estado actual:</strong> {selectedOrder.Estado}</p>
-              
+
               {selectedOrder.detalles && selectedOrder.detalles.length > 0 && (
                 <div style={{ marginTop: '20px' }}>
                   <h4 style={{ color: '#ff6600', marginBottom: '10px' }}>Servicios / Productos</h4>
