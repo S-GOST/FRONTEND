@@ -156,9 +156,9 @@ function TableMotos() {
     const filtered = motos.filter(moto =>
       String(moto.ID_MOTOS).toLowerCase().includes(term) ||
       String(moto.ID_CLIENTES).toLowerCase().includes(term) ||
-      moto.Placa.toLowerCase().includes(term) ||
-      moto.Modelo.toLowerCase().includes(term) ||
-      moto.Marca.toLowerCase().includes(term)
+      (moto.Placa || '').toLowerCase().includes(term) ||
+      (moto.Modelo || '').toLowerCase().includes(term) ||
+      (moto.Marca || '').toLowerCase().includes(term)
     );
     setFilteredMotos(filtered);
   };
@@ -282,7 +282,7 @@ function TableMotos() {
     }
     try {
       const payload = buildMotoPayload(formData);
-      const response = await actualizarMoto(currentMoto.ID_MOTOS, payload);
+      const response = await actualizarMoto(currentMoto.ID_MOTOS!, payload);
       if (isSuccessfulResponse(response.data)) {
         showAlert('Cambios guardados', 'La moto fue actualizada correctamente.', 'success');
         closeEditModal();
@@ -311,7 +311,7 @@ function TableMotos() {
     });
     if (!result.isConfirmed) return;
     try {
-      await eliminarMoto(moto.ID_MOTOS);
+      await eliminarMoto(moto.ID_MOTOS!);
       setMotos(prev => prev.filter(m => m.ID_MOTOS !== moto.ID_MOTOS));
       setFilteredMotos(prev => prev.filter(m => m.ID_MOTOS !== moto.ID_MOTOS));
       Swal.fire({
@@ -389,7 +389,7 @@ function TableMotos() {
                     <td className="text-gray-200">{moto.Placa}</td>
                     <td className="text-gray-200">{moto.Modelo}</td>
                     <td className="text-gray-200">{moto.Marca}</td>
-                    <td className="text-gray-300">{formatRecorrido(moto.Recorrido)} km</td>
+                    <td className="text-gray-300">{formatRecorrido(moto.Recorrido ?? 0)} km</td>
                     <td className="flex gap-2">
                       <button className="btn-editar" onClick={() => openEditModal(moto)}>✏️ Editar</button>
                       <button className="btn-eliminar" onClick={() => borrarMoto(moto)}>🗑️ Eliminar</button>

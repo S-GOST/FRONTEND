@@ -26,6 +26,7 @@ import TableComprobante from './componentes/TableComprobante/Comprobante';
 import ClienteDashboard from './componentes/TableCliente/ClienteDashboard';
 import Usuarios from './componentes/TableAdmin/Usuarios';
 import ClienteOrdenes from './componentes/TableCliente/ClienteOrdenes';
+import ClienteMotos from './componentes/TableCliente/ClienteMotos';
 import { obtenerProductos } from './services/producto.service';
 
 const HomePage: React.FC<{ addToCart: (service: Service) => void, productos: Service[] }> = ({ addToCart, productos }) => {
@@ -346,7 +347,7 @@ function App() {
           <Route index element={<Navigate to="/cliente/dashboard" replace />} />
           <Route path="dashboard" element={<div>Dashboard Cliente (próximamente)</div>} />
           <Route path="ordenes" element={<ClienteOrdenes />} />
-          <Route path="mis-motos" element={<div>Mis Motos</div>} />
+          <Route path="motos" element={<ClienteMotos />} />
           <Route path="servicios" element={<div>Servicios</div>} />
           <Route path="perfil" element={<div>Mi Perfil</div>} />
           <Route path="*" element={<Navigate to="/cliente/dashboard" replace />} />

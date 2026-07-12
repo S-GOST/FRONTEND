@@ -1,12 +1,21 @@
 import { BaseApiService } from './base.service';
 
 export interface MotoPayload {
-  ID_MOTOS: string | number;
-  ID_CLIENTES: string | number;
-  Placa: string;
-  Modelo: string;
-  Marca: string;
-  Recorrido: number;
+  ID_MOTOS?: string | number;
+  id_moto?: string | number;
+  ID_CLIENTES?: string | number;
+  id_cliente?: string | number;
+  Placa?: string;
+  placa?: string;
+  Modelo?: string;
+  modelo?: string;
+  Marca?: string;
+  marca?: string;
+  Cilindraje?: string | number;
+  cilindraje?: string | number;
+  Kilometraje?: string | number;
+  kilometraje?: string | number;
+  Recorrido?: number;
 }
 
 export interface MotoRecord extends MotoPayload {}

@@ -5,6 +5,7 @@ import { obtenerServicios } from '../services/servicio.service';
 import { ProductoPayload } from '../services/producto.service';
 import { ServicioPayload } from '../services/servicio.service';
 import { obtenerMotos, MotoRecord } from '../services/moto.service';
+import { obtenerClientes } from '../services/cliente.service';
 import './Cart.css';
 
 interface CartItem {
@@ -239,24 +240,65 @@ const Cart: React.FC<CartProps> = ({ onCheckout }) => {
       return;
     }
     
-    // Load motos
+    // Load motos — el user_id en localStorage es el numero_documento,
+    // pero la tabla motos usa id_cliente que apunta a usuarios.id_usuario.
+    // Necesitamos obtener el id_usuario del cliente logueado.
     try {
       setLoadingMotos(true);
-      const res = await obtenerMotos();
-      const clientId = localStorage.getItem('user_id');
-      
-      const motosArr = Array.isArray(res.data) ? res.data 
-        : Array.isArray(res.data?.data) ? res.data.data 
-        : Array.isArray(res.data?.motos) ? res.data.motos : [];
-        
-      const userMotos = motosArr.filter((m: any) => String(m.ID_CLIENTES) === String(clientId) || String(m.id_cliente) === String(clientId));
+      const userDocumento = localStorage.getItem('user_id');
+
+      // 1) Obtener clientes y motos en paralelo
+      const [motosRes, clientesRes] = await Promise.all([
+        obtenerMotos(),
+        obtenerClientes()
+      ]);
+
+      // Extraer array de clientes (vienen de SELECT * FROM usuarios WHERE id_rol=3)
+      const rawClientes = clientesRes.data;
+      let clientesArr: any[] = [];
+      if (Array.isArray(rawClientes)) clientesArr = rawClientes;
+      else if (rawClientes?.data && Array.isArray(rawClientes.data)) clientesArr = rawClientes.data;
+      else if (rawClientes?.clientes && Array.isArray(rawClientes.clientes)) clientesArr = rawClientes.clientes;
+
+      // Buscar el cliente cuyo numero_documento coincida
+      const clienteActual = clientesArr.find((c: any) =>
+        String(c.numero_documento) === String(userDocumento)
+      );
+
+      // El campo id_usuario es lo que motos.id_cliente referencia
+      const realClientId = clienteActual
+        ? String(clienteActual.id_usuario)
+        : String(userDocumento);
+
+      console.log('🏍️ [MOTOS] numero_documento:', userDocumento, '→ id_usuario:', realClientId);
+
+      // 2) Extraer array de motos
+      const rawMotos = motosRes.data;
+      let motosArr: any[] = [];
+      if (Array.isArray(rawMotos)) motosArr = rawMotos;
+      else if (rawMotos?.data && Array.isArray(rawMotos.data)) motosArr = rawMotos.data;
+      else if (rawMotos?.motos && Array.isArray(rawMotos.motos)) motosArr = rawMotos.motos;
+      else if (rawMotos?.result && Array.isArray(rawMotos.result)) motosArr = rawMotos.result;
+
+      // 3) Filtrar motos del cliente (motos.id_cliente === usuarios.id_usuario)
+      const userMotos = motosArr.filter((m: any) => {
+        const motoClientId = String(m.id_cliente ?? m.ID_CLIENTES ?? '');
+        return motoClientId === realClientId;
+      });
+
+      console.log('🏍️ [MOTOS] Motos encontradas:', userMotos.length, userMotos);
+
       setClientMotos(userMotos);
-      
+
       if (userMotos.length > 0) {
-        setSelectedMotoId(String(userMotos[0].ID_MOTOS || userMotos[0].id_moto));
+        const firstId = String(userMotos[0].id_moto ?? userMotos[0].ID_MOTOS ?? '');
+        setSelectedMotoId(firstId);
+      } else {
+        setSelectedMotoId('new');
       }
     } catch (e) {
       console.error('Error al cargar motos:', e);
+      setSelectedMotoId('new');
     } finally {
       setLoadingMotos(false);
     }
@@ -678,108 +720,164 @@ const Cart: React.FC<CartProps> = ({ onCheckout }) => {
                       className="bi bi-bicycle"
                       style={{ fontSize: '3rem', color: 'var(--ktm-orange)', marginBottom: '0.5rem', display: 'block' }}
                     ></i>
-                    <h5>{clientMotos.length > 0 ? 'Selecciona o ingresa tu moto' : 'Ingresa los datos de tu moto'}</h5>
+                    <h5>{clientMotos.length > 0 ? 'Selecciona tu moto' : 'Registra tu moto'}</h5>
                     <p style={{ color: '#aaa', fontSize: '0.9rem' }}>
-                      Estos datos quedarán asociados a tu orden de servicio.
+                      {clientMotos.length > 0 
+                        ? 'Elige la motocicleta para esta orden de servicio.' 
+                        : 'Estos datos quedarán asociados a tu orden de servicio.'}
                     </p>
                   </div>
 
                   <div className="moto-form">
                     {loadingMotos ? (
-                      <div style={{ textAlign: 'center', marginBottom: '1rem', color: '#888' }}>
-                        <i className="bi bi-hourglass-split me-2"></i>Cargando tus motos...
+                      <div style={{ textAlign: 'center', padding: '2rem 1rem', color: '#888' }}>
+                        <i className="bi bi-hourglass-split" style={{ fontSize: '2rem', display: 'block', marginBottom: '0.5rem', color: 'var(--ktm-orange)' }}></i>
+                        Cargando tus motos...
                       </div>
-                    ) : clientMotos.length > 0 ? (
-                      <div className="moto-form-group">
-                        <label className="moto-form-label">
-                          <i className="bi bi-list-ul"></i> Selecciona tu Moto
-                        </label>
-                        <select 
-                          className="moto-form-input" 
-                          value={selectedMotoId}
-                          onChange={(e) => setSelectedMotoId(e.target.value)}
-                          style={{ width: '100%', marginBottom: '1rem', backgroundColor: '#222', color: '#fff', padding: '10px', borderRadius: '8px', border: '1px solid #444', outline: 'none' }}
-                        >
-                          {clientMotos.map((m: any) => (
-                            <option key={m.id_moto || m.ID_MOTOS} value={m.id_moto || m.ID_MOTOS}>
-                              {m.placa || m.Placa} - {m.marca || m.Marca} {m.modelo || m.Modelo}
-                            </option>
-                          ))}
-                          <option value="new">+ Registrar una moto nueva</option>
-                        </select>
-                      </div>
-                    ) : null}
-
-                    {selectedMotoId === 'new' && (
+                    ) : (
                       <>
-                        <div className="moto-form-group">
-                          <label className="moto-form-label">
-                            <i className="bi bi-card-text"></i> Placa
-                          </label>
-                      <input
-                        type="text"
-                        className="moto-form-input"
-                        placeholder="Ej: ABC123"
-                        value={motoForm.placa}
-                        onChange={(e) => setMotoForm({ ...motoForm, placa: e.target.value.toUpperCase() })}
-                        maxLength={7}
-                      />
-                    </div>
-                    <div className="moto-form-group">
-                      <label className="moto-form-label">
-                        <i className="bi bi-building"></i> Marca
-                      </label>
-                      <input
-                        type="text"
-                        className="moto-form-input"
-                        placeholder="Ej: KTM"
-                        value={motoForm.marca}
-                        onChange={(e) => setMotoForm({ ...motoForm, marca: e.target.value })}
-                      />
-                    </div>
-                    <div className="moto-form-group">
-                      <label className="moto-form-label">
-                        <i className="bi bi-tag"></i> Modelo
-                      </label>
-                      <input
-                        type="text"
-                        className="moto-form-input"
-                        placeholder="Ej: Duke 390"
-                        value={motoForm.modelo}
-                        onChange={(e) => setMotoForm({ ...motoForm, modelo: e.target.value })}
-                      />
-                    </div>
-                    <div className="moto-form-row">
-                      <div className="moto-form-group">
-                        <label className="moto-form-label">
-                          <i className="bi bi-speedometer2"></i> Cilindraje
-                        </label>
-                        <input
-                          type="text"
-                          className="moto-form-input"
-                          placeholder="Ej: 373cc"
-                          value={motoForm.cilindraje}
-                          onChange={(e) => setMotoForm({ ...motoForm, cilindraje: e.target.value })}
-                        />
-                      </div>
-                      <div className="moto-form-group">
-                        <label className="moto-form-label">
-                          <i className="bi bi-signpost"></i> Kilometraje
-                        </label>
-                        <input
-                          type="text"
-                          className="moto-form-input"
-                          placeholder="Ej: 15000"
-                          value={motoForm.kilometraje}
-                          onChange={(e) => setMotoForm({ ...motoForm, kilometraje: e.target.value })}
-                        />
-                      </div>
-                    </div>
-                  </>
-                )}
-              </div>
+                        {/* Moto Cards Grid */}
+                        {(clientMotos.length > 0 || selectedMotoId !== 'new') && (
+                          <div className="moto-cards-grid">
+                            {clientMotos.map((m: any) => {
+                              const motoId = String(m.id_moto || m.ID_MOTOS);
+                              const isSelected = selectedMotoId === motoId;
+                              const placa = m.placa || m.Placa || '---';
+                              const marca = m.marca || m.Marca || '---';
+                              const modelo = m.modelo || m.Modelo || '---';
+                              const cilindraje = m.cilindraje || m.Cilindraje || '---';
+                              const kilometraje = m.kilometraje || m.Kilometraje || m.Recorrido || '---';
 
-              <div className="checkout-summary" style={{ marginTop: '1rem' }}>
+                              return (
+                                <div
+                                  key={motoId}
+                                  className={`moto-card ${isSelected ? 'moto-card--selected' : ''}`}
+                                  onClick={() => setSelectedMotoId(motoId)}
+                                >
+                                  <div className="moto-card__check">
+                                    <i className={`bi ${isSelected ? 'bi-check-circle-fill' : 'bi-circle'}`}></i>
+                                  </div>
+                                  <div className="moto-card__icon">
+                                    <i className="bi bi-bicycle"></i>
+                                  </div>
+                                  <div className="moto-card__placa">{placa}</div>
+                                  <div className="moto-card__brand">{marca} {modelo}</div>
+                                  <div className="moto-card__specs">
+                                    <span><i className="bi bi-speedometer2"></i> {cilindraje}{String(cilindraje).includes('cc') ? '' : 'cc'}</span>
+                                    <span><i className="bi bi-signpost"></i> {Number(kilometraje).toLocaleString('es-CO')} km</span>
+                                  </div>
+                                </div>
+                              );
+                            })}
+
+                            {/* Card para agregar nueva moto */}
+                            <div
+                              className={`moto-card moto-card--new ${selectedMotoId === 'new' ? 'moto-card--selected' : ''}`}
+                              onClick={() => setSelectedMotoId('new')}
+                            >
+                              <div className="moto-card__check">
+                                <i className={`bi ${selectedMotoId === 'new' ? 'bi-check-circle-fill' : 'bi-circle'}`}></i>
+                              </div>
+                              <div className="moto-card__icon moto-card__icon--add">
+                                <i className="bi bi-plus-lg"></i>
+                              </div>
+                              <div className="moto-card__placa">Nueva Moto</div>
+                              <div className="moto-card__brand" style={{ color: '#888' }}>Registrar una nueva</div>
+                            </div>
+                          </div>
+                        )}
+
+                        {/* Formulario de nueva moto (solo si se elige 'new') */}
+                        {selectedMotoId === 'new' && (
+                          <div className="moto-new-form" style={{ marginTop: clientMotos.length > 0 ? '1.2rem' : 0 }}>
+                            {clientMotos.length > 0 && (
+                              <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '1rem', color: '#aaa', fontSize: '0.85rem' }}>
+                                <i className="bi bi-info-circle" style={{ color: 'var(--ktm-orange)' }}></i>
+                                Completa los datos de tu nueva motocicleta
+                              </div>
+                            )}
+                            <div className="moto-form-group">
+                              <label className="moto-form-label">
+                                <i className="bi bi-card-text"></i> Placa
+                              </label>
+                              <input
+                                type="text"
+                                className="moto-form-input"
+                                placeholder="Ej: ABC123"
+                                value={motoForm.placa}
+                                onChange={(e) => setMotoForm({ ...motoForm, placa: e.target.value.toUpperCase() })}
+                                maxLength={7}
+                              />
+                            </div>
+                            <div className="moto-form-group">
+                              <label className="moto-form-label">
+                                <i className="bi bi-building"></i> Marca
+                              </label>
+                              <input
+                                type="text"
+                                className="moto-form-input"
+                                placeholder="Ej: KTM"
+                                value={motoForm.marca}
+                                onChange={(e) => setMotoForm({ ...motoForm, marca: e.target.value })}
+                              />
+                            </div>
+                            <div className="moto-form-group">
+                              <label className="moto-form-label">
+                                <i className="bi bi-tag"></i> Modelo
+                              </label>
+                              <input
+                                type="text"
+                                className="moto-form-input"
+                                placeholder="Ej: Duke 390"
+                                value={motoForm.modelo}
+                                onChange={(e) => setMotoForm({ ...motoForm, modelo: e.target.value })}
+                              />
+                            </div>
+                            <div className="moto-form-row">
+                              <div className="moto-form-group">
+                                <label className="moto-form-label">
+                                  <i className="bi bi-speedometer2"></i> Cilindraje
+                                </label>
+                                <input
+                                  type="text"
+                                  className="moto-form-input"
+                                  placeholder="Ej: 373cc"
+                                  value={motoForm.cilindraje}
+                                  onChange={(e) => setMotoForm({ ...motoForm, cilindraje: e.target.value })}
+                                />
+                              </div>
+                              <div className="moto-form-group">
+                                <label className="moto-form-label">
+                                  <i className="bi bi-signpost"></i> Kilometraje
+                                </label>
+                                <input
+                                  type="text"
+                                  className="moto-form-input"
+                                  placeholder="Ej: 15000"
+                                  value={motoForm.kilometraje}
+                                  onChange={(e) => setMotoForm({ ...motoForm, kilometraje: e.target.value })}
+                                />
+                              </div>
+                            </div>
+                          </div>
+                        )}
+                      </>
+                    )}
+                  </div>
+
+                  {/* Moto seleccionada info */}
+                  {selectedMotoId !== 'new' && clientMotos.length > 0 && (() => {
+                    const sel = clientMotos.find((m: any) => String(m.id_moto || m.ID_MOTOS) === selectedMotoId);
+                    if (!sel) return null;
+                    return (
+                      <div className="moto-selected-info">
+                        <i className="bi bi-check-circle-fill" style={{ color: 'var(--ktm-orange)' }}></i>
+                        <span>Moto seleccionada: <strong>{(sel as any).placa || (sel as any).Placa}</strong> — {(sel as any).marca || (sel as any).Marca} {(sel as any).modelo || (sel as any).Modelo}</span>
+                      </div>
+                    );
+                  })()}
+
+                  <div className="checkout-summary" style={{ marginTop: '1rem' }}>
                     <div style={{ display: 'flex', justifyContent: 'space-between', fontWeight: 'bold' }}>
                       <span>TOTAL A PAGAR:</span>
                       <span style={{ color: 'var(--ktm-orange)', fontSize: '1.1rem' }}>

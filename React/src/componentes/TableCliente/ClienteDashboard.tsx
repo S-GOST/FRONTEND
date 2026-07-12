@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useNavigate, Outlet, useLocation } from 'react-router-dom';
 import Swal from 'sweetalert2';
-import { obtenerMotos, insertarMoto, type MotoRecord, type MotoPayload } from '../../services/moto.service';
+import { obtenerMotos, type MotoRecord } from '../../services/moto.service';
 import { obtenerOrdenes, type OrdenServicioRecord } from '../../services/ordenServicioService';
 import { clearSession } from '../../services/auth.services'; // Asegúrate que el archivo se llama así
 import '../TableAdmin/Dashboard.css';
@@ -36,15 +36,6 @@ function ClienteDashboard() {
   
   const [ordenesRecientes, setOrdenesRecientes] = useState<OrdenReciente[]>([]);
   const [loading, setLoading] = useState(true);
-  
-  // Estado para registro de moto
-  const [showMotoModal, setShowMotoModal] = useState(false);
-  const [motoForm, setMotoForm] = useState<Partial<MotoPayload>>({
-    Placa: '',
-    Modelo: '',
-    Marca: '',
-    Recorrido: 0
-  });
 
   useEffect(() => {
     cargarEstadisticas();
@@ -109,55 +100,7 @@ function ClienteDashboard() {
     return [];
   };
 
-   const handleRegistrarMoto = async () => {
-    // 🔴 Validación 1: ID de sesión
-    if (!clienteId || clienteId === 'undefined' || clienteId === '') {
-      Swal.fire('⚠️ Error de Sesión', 'No se encontró tu ID de usuario. Cierra sesión e inicia nuevamente.', 'error');
-      return;
-    }
 
-    // 🔴 Validación 2: Campos obligatorios
-    if (!motoForm.Placa?.trim() || !motoForm.Modelo?.trim() || !motoForm.Marca?.trim()) {
-      Swal.fire('⚠️ Atención', 'Placa, Modelo y Marca son obligatorios.', 'warning');
-      return;
-    }
-
-    try {
-      // ✅ 1. Crear el payload con los valores ACTUALES del formulario
-      const payload = {
-        ID_CLIENTES: clienteId,
-        Placa: motoForm.Placa!.toUpperCase(),
-        Modelo: motoForm.Modelo!,
-        Marca: motoForm.Marca!,
-        Recorrido: Number(motoForm.Recorrido) || 0
-      };
-
-      console.log("📤 Enviando payload a la API:", payload);
-
-      // ✅ 2. Llamar a la API y capturar la respuesta completa
-      const res = await insertarMoto(payload as any);
-
-      // ✅ 3. Extraer los datos de la moto creada (adaptable a cualquier estructura de respuesta)
-      const nuevaMoto = res?.data?.data || res?.data || {};
-
-      // ✅ 4. Mostrar éxito con ID profesional
-      Swal.fire({
-        title: '✅ Registrada',
-        html: `Tu motocicleta <strong>${formatId('moto', nuevaMoto.ID_MOTOS)}</strong> ha sido enviada a administración.`,
-        icon: 'success',
-        confirmButtonColor: '#ff6600'
-      });
-
-      // ✅ 5. Limpiar estado y recargar
-      setShowMotoModal(false);
-      setMotoForm({ Placa: '', Modelo: '', Marca: '', Recorrido: 0 });
-      await cargarEstadisticas();
-    } catch (err: any) {
-      const backendMsg = err.response?.data?.message || err.message || 'Error desconocido del servidor.';
-      Swal.fire('❌ Error', `El servidor falló:\n${backendMsg}`, 'error');
-      console.error("Error completo:", err);
-    }
-  };
   const handleLogout = () => {
     Swal.fire({
       title: '¿Cerrar sesión?',
@@ -235,8 +178,8 @@ function ClienteDashboard() {
                   <button className="action-btn action-btn-primary" onClick={() => navigate('/cliente/ordenes')}>
                     <i className="bi bi-clipboard-check"></i> Ver Órdenes
                   </button>
-                  <button className="action-btn action-btn-secondary" onClick={() => setShowMotoModal(true)}>
-                    <i className="bi bi-plus-circle"></i> Registrar Moto
+                  <button className="action-btn action-btn-secondary" onClick={() => navigate('/cliente/motos')}>
+                    <i className="bi bi-bicycle"></i> Mis Motos
                   </button>
                   <button className="action-btn action-btn-tertiary" onClick={() => navigate('/cliente/comprobantes')}>
                     <i className="bi bi-receipt"></i> Comprobantes
@@ -326,39 +269,6 @@ function ClienteDashboard() {
           <Outlet />
         )}
       </div>
-
-      {/* MODAL REGISTRAR MOTO */}
-      {showMotoModal && (
-        <div className="modal-overlay" onClick={() => setShowMotoModal(false)}>
-          <div className="modal-content" onClick={e => e.stopPropagation()}>
-            <div className="modal-header">
-              <h3><i className="bi bi-plus-circle"></i> Registrar Motocicleta</h3>
-              <button className="modal-close" onClick={() => setShowMotoModal(false)}>×</button>
-            </div>
-            <div className="modal-body">
-              <div className="form-group">
-                <label>Placa</label>
-                <input type="text" value={motoForm.Placa || ''} onChange={e => setMotoForm({...motoForm, Placa: e.target.value})} placeholder="Ej: ABC-123" />
-              </div>
-              <div className="form-group">
-                <label>Marca</label>
-                <input type="text" value={motoForm.Marca || ''} onChange={e => setMotoForm({...motoForm, Marca: e.target.value})} placeholder="Ej: KTM, Honda, Yamaha" />
-              </div>
-              <div className="form-group">
-                <label>Modelo</label>
-                <input type="text" value={motoForm.Modelo || ''} onChange={e => setMotoForm({...motoForm, Modelo: e.target.value})} placeholder="Ej: Duke 390, CBR 500R" />
-              </div>
-              <div className="form-group">
-                <label>Recorrido (km)</label>
-                <input type="number" value={motoForm.Recorrido || ''} onChange={e => setMotoForm({...motoForm, Recorrido: Number(e.target.value)})} placeholder="0" />
-              </div>
-              <button className="btn-guardar" onClick={handleRegistrarMoto}>
-                <i className="bi bi-check-circle"></i> Enviar a Administración
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
     </div>
   );
 }

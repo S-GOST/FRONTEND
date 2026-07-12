@@ -1,0 +1,405 @@
+/* ============================================
+   ClienteMotos — Premium Moto Management
+   ============================================ */
+
+.cliente-motos {
+  padding: 0 1.5rem 2rem;
+  max-width: 1100px;
+  margin: 0 auto;
+}
+
+/* ── Header ── */
+.cm-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+  padding-bottom: 1rem;
+  border-bottom: 1px solid #2a2a2a;
+}
+
+.cm-header__left {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.cm-back-btn {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  border: 2px solid #333;
+  background: transparent;
+  color: #ccc;
+  font-size: 1.1rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.3s;
+}
+
+.cm-back-btn:hover {
+  border-color: #ff6600;
+  color: #ff6600;
+  background: rgba(255, 102, 0, 0.08);
+}
+
+.cm-title {
+  margin: 0;
+  font-size: 1.6rem;
+  font-weight: 700;
+  color: #fff;
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+}
+
+.cm-title i {
+  color: #ff6600;
+  font-size: 1.4rem;
+}
+
+.cm-subtitle {
+  margin: 4px 0 0 0;
+  font-size: 0.88rem;
+  color: #777;
+}
+
+.cm-add-btn {
+  padding: 10px 22px;
+  border-radius: 10px;
+  border: none;
+  background: linear-gradient(135deg, #ff6600, #ff8533);
+  color: #fff;
+  font-weight: 700;
+  font-size: 0.95rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  transition: all 0.3s;
+  box-shadow: 0 4px 15px rgba(255, 102, 0, 0.25);
+}
+
+.cm-add-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(255, 102, 0, 0.35);
+}
+
+.cm-add-btn:active {
+  transform: translateY(0);
+}
+
+/* ── Form Card ── */
+.cm-form-card {
+  background: #1a1a1a;
+  border: 1px solid #2a2a2a;
+  border-radius: 16px;
+  padding: 1.5rem;
+  margin-bottom: 2rem;
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.3);
+}
+
+.cm-form-card__header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 1.2rem;
+  padding-bottom: 0.8rem;
+  border-bottom: 1px solid #2a2a2a;
+}
+
+.cm-form-card__header i {
+  color: #ff6600;
+  font-size: 1.3rem;
+}
+
+.cm-form-card__header h3 {
+  margin: 0;
+  color: #fff;
+  font-size: 1.15rem;
+  font-weight: 600;
+}
+
+.cm-form-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 1rem;
+  margin-bottom: 1.2rem;
+}
+
+.cm-field label {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: #aaa;
+  margin-bottom: 6px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.cm-field label i {
+  color: #ff6600;
+  font-size: 0.9rem;
+}
+
+.cm-field input {
+  width: 100%;
+  padding: 10px 14px;
+  border: 1px solid #333;
+  border-radius: 10px;
+  background: #111;
+  color: #eee;
+  font-size: 0.95rem;
+  transition: all 0.3s;
+  outline: none;
+}
+
+.cm-field input:focus {
+  border-color: #ff6600;
+  box-shadow: 0 0 0 3px rgba(255, 102, 0, 0.15);
+}
+
+.cm-field input::placeholder {
+  color: #555;
+}
+
+.cm-submit-btn {
+  width: 100%;
+  padding: 12px;
+  border: none;
+  border-radius: 12px;
+  background: linear-gradient(135deg, #ff6600, #ff8533);
+  color: #fff;
+  font-weight: 700;
+  font-size: 1rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  transition: all 0.3s;
+  box-shadow: 0 4px 15px rgba(255, 102, 0, 0.25);
+}
+
+.cm-submit-btn:hover:not(:disabled) {
+  transform: translateY(-1px);
+  box-shadow: 0 6px 20px rgba(255, 102, 0, 0.35);
+}
+
+.cm-submit-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+/* ── Loading ── */
+.cm-loading {
+  text-align: center;
+  padding: 4rem 1rem;
+  color: #777;
+}
+
+.cm-spinner {
+  width: 44px;
+  height: 44px;
+  border: 3px solid #2a2a2a;
+  border-top: 3px solid #ff6600;
+  border-radius: 50%;
+  margin: 0 auto 1rem;
+  animation: cm-spin 0.8s linear infinite;
+}
+
+@keyframes cm-spin {
+  to { transform: rotate(360deg); }
+}
+
+/* ── Empty State ── */
+.cm-empty {
+  text-align: center;
+  padding: 4rem 2rem;
+  background: #1a1a1a;
+  border-radius: 16px;
+  border: 2px dashed #2a2a2a;
+}
+
+.cm-empty__icon {
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  background: rgba(255, 102, 0, 0.1);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 1.2rem;
+}
+
+.cm-empty__icon i {
+  font-size: 2.5rem;
+  color: #ff6600;
+}
+
+.cm-empty h3 {
+  margin: 0 0 0.5rem;
+  font-size: 1.3rem;
+  color: #ddd;
+}
+
+.cm-empty p {
+  margin: 0 0 1.5rem;
+  color: #777;
+  font-size: 0.95rem;
+}
+
+/* ── Moto Cards Grid ── */
+.cm-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 1.2rem;
+}
+
+.cm-moto-card {
+  background: #1a1a1a;
+  border: 1px solid #2a2a2a;
+  border-radius: 16px;
+  padding: 1.5rem;
+  position: relative;
+  overflow: hidden;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.cm-moto-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: linear-gradient(90deg, #ff6600, #ff8533, #ff6600);
+  opacity: 0;
+  transition: opacity 0.3s;
+}
+
+.cm-moto-card:hover {
+  border-color: #ff660050;
+  transform: translateY(-4px);
+  box-shadow: 0 12px 35px rgba(0, 0, 0, 0.4), 0 0 20px rgba(255, 102, 0, 0.08);
+}
+
+.cm-moto-card:hover::before {
+  opacity: 1;
+}
+
+.cm-moto-card__badge {
+  width: 48px;
+  height: 48px;
+  border-radius: 14px;
+  background: rgba(255, 102, 0, 0.12);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 1rem;
+}
+
+.cm-moto-card__badge i {
+  font-size: 1.5rem;
+  color: #ff6600;
+}
+
+.cm-moto-card__placa {
+  font-size: 1.5rem;
+  font-weight: 800;
+  color: #fff;
+  letter-spacing: 2px;
+  font-family: 'JetBrains Mono', 'Fira Code', monospace;
+  margin-bottom: 0.3rem;
+}
+
+.cm-moto-card__brand {
+  font-size: 0.95rem;
+  color: #ff8533;
+  font-weight: 600;
+}
+
+.cm-moto-card__brand span {
+  color: #999;
+  font-weight: 400;
+}
+
+.cm-moto-card__divider {
+  height: 1px;
+  background: linear-gradient(90deg, transparent, #333, transparent);
+  margin: 1rem 0;
+}
+
+.cm-moto-card__specs {
+  display: flex;
+  gap: 1.2rem;
+  flex-wrap: wrap;
+}
+
+.cm-spec {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.85rem;
+  color: #999;
+  background: #111;
+  padding: 6px 12px;
+  border-radius: 8px;
+  border: 1px solid #222;
+}
+
+.cm-spec i {
+  color: #ff6600;
+  font-size: 0.9rem;
+}
+
+/* ── Animation ── */
+.cm-fade-in {
+  animation: cmFadeInUp 0.5s ease-out both;
+}
+
+@keyframes cmFadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(18px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* ── Responsive ── */
+@media (max-width: 640px) {
+  .cliente-motos {
+    padding: 0 1rem 1.5rem;
+  }
+
+  .cm-header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .cm-add-btn {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .cm-form-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .cm-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .cm-title {
+    font-size: 1.3rem;
+  }
+}

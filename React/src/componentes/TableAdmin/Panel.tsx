@@ -32,16 +32,16 @@ const Panel: React.FC = () => {
         <div className="panel-container notranslate" translate="no">
             {/* HEADER */}
             <header className="d-flex justify-content-between align-items-center p-3">
-          <div className="navbar-brand">
-            <Link to="/">
-              <img src={rock} alt="Logo" className="logo-img me-3" />
-            </Link>
-          </div>
+                <div className="navbar-brand">
+                    <Link to="/">
+                        <img src={rock} alt="Logo" className="logo-img me-3" />
+                    </Link>
+                </div>
 
                 <div className="d-flex align-items-center">
                     <span className="navbar-text me-4 d-none d-md-block user-info-navbar text-white">
                         <i className="fas fa-user-circle me-2"></i>
-                         <strong>{userName}</strong>
+                        <strong>{userName}</strong>
                     </span>
 
                     <button type="button" onClick={handleLogout} className="btn-ktm">

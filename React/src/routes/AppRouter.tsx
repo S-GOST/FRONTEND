@@ -12,6 +12,7 @@ import DetallesOrden from '../componentes/TableOrdenServicios/DetallesOrden';
 import Panel from '../componentes/TableAdmin/Panel';
 import ClienteDashboard from '../componentes/TableCliente/ClienteDashboard';
 import ClienteOrdenes from '../componentes/TableCliente/ClienteOrdenes';
+import ClienteMotos from '../componentes/TableCliente/ClienteMotos';
 import Categorias from '../componentes/TableCategorias/Categorias';
 import TableProductos from '../componentes/TableProductos/productos';
 import Servicios from '../componentes/TableServicios/Servicios';
@@ -59,6 +60,7 @@ const AppRouter = () => {
           <Route index element={<></>} />
           <Route path="dashboard" element={<></>} />
           <Route path="ordenes" element={<ClienteOrdenes />} />
+          <Route path="motos" element={<ClienteMotos />} />
         </Route>
       </Route>
     </Routes>
