@@ -44,7 +44,8 @@ const TecnicoDashboard = () => {
   const tecnicoId = localStorage.getItem('user_id') || localStorage.getItem('user_name');
   const tecnicoNombre = localStorage.getItem('user_name') || 'Técnico';
 
-  const [activeTab, setActiveTab] = useState<'activas' | 'historial' | 'clientes'>('activas');
+  // ESTADO CON EL 4º BOTÓN AÑADIDO
+  const [activeTab, setActiveTab] = useState<'activas' | 'historial' | 'clientes' | 'informes'>('activas');
   
   const [ordenes, setOrdenes] = useState<OrdenUI[]>([]);
   const [clientes, setClientes] = useState<ClienteUI[]>([]);
@@ -76,7 +77,6 @@ const TecnicoDashboard = () => {
       const todasOrdenes = extraerDatos<OrdenServicioRecord>(resOrdenes.data) || [];
       const todosClientes = extraerDatos<ClienteUI>(resClientes.data) || [];
       
-      // Enriquecer órdenes con nombre del cliente
       const misOrdenes: OrdenUI[] = todasOrdenes
         .filter(o => String(o.ID_TECNICOS) === String(tecnicoId))
         .map(o => {
@@ -174,7 +174,6 @@ const TecnicoDashboard = () => {
     }
 
     try {
-      // 🔢 Conversión segura a INT para compatibilidad con la BD migrada
       const payload = {
         ID_ORDEN_SERVICIO: parseInt(String(detalleForm.ID_ORDEN_SERVICIO), 10),
         ID_SERVICIOS: detalleForm.ID_SERVICIOS ? parseInt(String(detalleForm.ID_SERVICIOS), 10) : null,
@@ -190,7 +189,6 @@ const TecnicoDashboard = () => {
     } catch (err: any) {
       const msg = err.response?.data?.message || err.message || 'Error desconocido';
       Swal.fire('❌ Error', msg, 'error');
-      console.error('Error al crear detalle:', err);
     }
   };
 
@@ -215,7 +213,6 @@ const TecnicoDashboard = () => {
     }).length
   };
 
-  // ==================== RENDER ====================
   if (loading && !ordenes.length) return <div className="dashboard-loader">Cargando panel técnico...</div>;
 
   return (
@@ -223,12 +220,12 @@ const TecnicoDashboard = () => {
       <header className="dashboard-header">
         <div className="header-content">
           <div className="header-title">
-            <h1><i className="bi bi-wrench"></i> Panel de {tecnicoNombre}</h1>
+            <h1><i className="bi bi-wrench-adjustable"></i> Panel de {tecnicoNombre}</h1>
             <p>Gestión técnica de órdenes asignadas</p>
           </div>
           <div className="header-actions">
             <button className="nav-btn" onClick={() => navigate('/tecnico/menu')} title="Menú principal">
-              <i className="bi bi-grid"></i> Menú
+              <i className="bi bi-grid-3x3-gap"></i> Menú
             </button>
             <button className="logout-btn" onClick={handleLogout}>
               <i className="bi bi-box-arrow-right"></i> Salir
@@ -237,24 +234,70 @@ const TecnicoDashboard = () => {
         </div>
       </header>
 
+      {/* Stats Cards */}
       <div className="tech-stats-bar">
-        <div className="tech-stat"><span className="tech-stat-val">{stats.activas}</span><span className="tech-stat-label">En Proceso</span></div>
-        <div className="tech-stat"><span className="tech-stat-val">{stats.pendientes}</span><span className="tech-stat-label">Pendientes</span></div>
-        <div className="tech-stat"><span className="tech-stat-val">{stats.completadasHoy}</span><span className="tech-stat-label">Completadas Hoy</span></div>
+        <div className="tech-stat stat-blue">
+          <div className="stat-icon"><i className="bi bi-lightning-charge"></i></div>
+          <span className="tech-stat-val">{stats.activas}</span>
+          <span className="tech-stat-label">En Proceso</span>
+        </div>
+        <div className="tech-stat stat-purple">
+          <div className="stat-icon"><i className="bi bi-clock-history"></i></div>
+          <span className="tech-stat-val">{stats.pendientes}</span>
+          <span className="tech-stat-label">Pendientes</span>
+        </div>
+        <div className="tech-stat stat-cyan">
+          <div className="stat-icon"><i className="bi bi-check-circle"></i></div>
+          <span className="tech-stat-val">{stats.completadasHoy}</span>
+          <span className="tech-stat-label">Completadas Hoy</span>
+        </div>
       </div>
 
+      {/* ============================================== */}
+      {/* SECCIÓN DE BOTONES (CON EL 4º BOTÓN CORREGIDO) */}
+      {/* ============================================== */}
       <div className="tabs-container">
-        {['activas', 'historial', 'clientes'].map(tab => (
-          <button key={tab} className={`tab-btn ${activeTab === tab ? 'active' : ''}`} onClick={() => setActiveTab(tab as any)}>
-            <i className={`bi ${tab === 'activas' ? 'bi-lightning' : tab === 'historial' ? 'bi-clock-history' : 'bi-people'}`}></i>
-            {tab.charAt(0).toUpperCase() + tab.slice(1)}
-          </button>
-        ))}
+        
+        {/* 1. Ver ordenes */}
+        <button 
+          className={`tab-button ${activeTab === 'activas' ? 'active' : ''}`}
+          onClick={() => setActiveTab('activas')}
+        >
+          <i className="bi bi-lightning-charge-fill"></i>
+          <span>Ver ordenes</span>
+        </button>
+        
+        {/* 2. Historial */}
+        <button 
+          className={`tab-button ${activeTab === 'historial' ? 'active' : ''}`}
+          onClick={() => setActiveTab('historial')}
+        >
+          <i className="bi bi-clock-history"></i>
+          <span>Historial</span>
+        </button>
+        
+        {/* 3. Clientes */}
+        <button 
+          className={`tab-button ${activeTab === 'clientes' ? 'active' : ''}`}
+          onClick={() => setActiveTab('clientes')}
+        >
+          <i className="bi bi-people-fill"></i>
+          <span>Clientes</span>
+        </button>
+
+        {/* 4. INFORMES (NUEVO BOTÓN - CLASE tab-informes AÑADIDA) */}
+        <button 
+          className={`tab-button tab-informes ${activeTab === 'informes' ? 'active' : ''}`}
+          onClick={() => setActiveTab('informes')}
+        >
+          <i className="bi bi-file-earmark-bar-graph"></i>
+          <span>Informes</span>
+        </button>
+
       </div>
 
       <main className="dashboard-main">
         {error && <div className="error-banner">{error}</div>}
-
         {activeTab === 'activas' && (
           <section className="tab-content">
             <div className="table-container" style={{ overflowX: 'auto' }}>
@@ -276,7 +319,7 @@ const TecnicoDashboard = () => {
                     !o.Estado.toLowerCase().includes('cancelado') && 
                     o.ClienteNombre && o.ClienteNombre.trim() !== ''
                   ).length === 0 ? (
-                    <tr><td colSpan={7} className="empty-row">No tienes órdenes activas. ¡Descansa!</td></tr>
+                    <tr><td colSpan={7} className="empty-row">No tienes órdenes activas. ¡Descansa! 🎉</td></tr>
                   ) : (
                     ordenes.filter(o => 
                       !o.Estado.toLowerCase().includes('completado') && 
@@ -307,7 +350,7 @@ const TecnicoDashboard = () => {
                                 <i className="bi bi-x-circle"></i> Cancelar
                               </button>
                             )}
-                            <button className="btn-detalles" onClick={() => abrirOrden(orden)} title="Gestionar orden"><i className="bi bi-gear"></i></button>
+                            <button className="btn-detalles" onClick={() => abrirOrden(orden)} title="Gestionar orden"><i className="bi bi-gear-wide-connected"></i></button>
                           </td>
                         </tr>
                       );
@@ -319,6 +362,7 @@ const TecnicoDashboard = () => {
           </section>
         )}
 
+        {/* --- PESTAÑA HISTORIAL --- */}
         {activeTab === 'historial' && (
           <section className="tab-content">
             <div className="table-container" style={{ overflowX: 'auto' }}>
@@ -353,6 +397,7 @@ const TecnicoDashboard = () => {
           </section>
         )}
 
+        {/* --- PESTAÑA CLIENTES --- */}
         {activeTab === 'clientes' && (
           <section className="tab-content">
             <p className="info-text">Consulta de referencia de clientes. Para registros/contactos: <strong>Administración</strong>.</p>
@@ -374,8 +419,22 @@ const TecnicoDashboard = () => {
             </div>
           </section>
         )}
+
+        {/* --- PESTAÑA INFORMES (NUEVA) --- */}
+        {activeTab === 'informes' && (
+          <section className="tab-content">
+             <div style={{ textAlign: 'center', padding: '3rem', color: '#aaa' }}>
+               <i className="bi bi-file-earmark-bar-graph" style={{ fontSize: '4rem', marginBottom: '1rem' }}></i>
+               <h3>Gestión de Informes</h3>
+               <p>Aquí podrás generar reportes detallados de las órdenes de servicio trabajadas.</p>
+               <p style={{ marginTop: '1rem', fontSize: '0.9rem' }}>(Funcionalidad en desarrollo...)</p>
+             </div>
+          </section>
+        )}
+
       </main>
 
+      {/* MODAL (Sin cambios) */}
       {modalAbierto && ordenActual && (
         <div className="modal-overlay" onClick={() => setModalAbierto(false)}>
           <div className="modal-content modal-tecnico" onClick={e => e.stopPropagation()}>
