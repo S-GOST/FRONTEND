@@ -8,9 +8,11 @@ export interface OrdenServicioRecord {
   ID_TECNICOS?: string;
   ID_MOTOS?: string;
   Fecha_inicio: string;
-  Fecha_estimada: string;
+  Fecha_estimada?: string | null;
   Fecha_fin?: string | null;
   Estado: string;
+  total?: number | string;
+  observaciones?: string;
   detalles?: any[];
 }
 
@@ -39,6 +41,13 @@ export const actualizarOrden = (
 export const obtenerMisOrdenes = () => {
   const token = localStorage.getItem('user_token');
   return ordenServicioService['http'].get('/ordenes_servicio/mis-ordenes', {
+    headers: { Authorization: `Bearer ${token}` }
+  });
+};
+
+export const obtenerDetallesPorOrden = (idOrden: string | number) => {
+  const token = localStorage.getItem('user_token');
+  return ordenServicioService['http'].get(`/detalles_orden_servicio/por_orden/${idOrden}`, {
     headers: { Authorization: `Bearer ${token}` }
   });
 };

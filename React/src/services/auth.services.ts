@@ -25,12 +25,14 @@ export const storeSession = (data: LoginResponse, role: 'admin' | 'tecnico' | 'c
   localStorage.setItem('user_role', role);
 
   const posiblesIds = [
-    data.numero_documento, data.id_usuario, data.id, data.usuario, data.email,
-    data.data?.numero_documento, data.data?.id_usuario, data.data?.id,
+    data.id_usuario, data.data?.id_usuario,  // PK real (autoincremental) — prioridad máxima
+    data.numero_documento, data.data?.numero_documento,
+    data.id, data.data?.id,
+    data.usuario, data.email,
     data.data?.usuario, data.data?.email
   ];
 
-  let userId = posiblesIds.find(id => id && id !== '');
+  let userId = posiblesIds.find(id => id !== undefined && id !== null && id !== '');
 
   if (userId) {
     localStorage.setItem('user_id', String(userId));

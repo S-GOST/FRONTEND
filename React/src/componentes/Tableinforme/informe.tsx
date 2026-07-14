@@ -2,43 +2,24 @@ import { useEffect, useState, type ChangeEvent, type FormEvent } from 'react';
 import Swal from 'sweetalert2';
 import {
   obtenerInformes,
-  insertarInforme,
+  crearInforme,
   actualizarInforme,
   eliminarInforme,
   type InformePayload,
   type InformeRecord,
-} from '../../services/informeService';
+} from '../../services/informe.service';
 import { obtenerDetallesOrdenes, type DetalleOrdenServicioRecord } from '../../services/detalleOrdenServicioService';
 import { obtenerAdmins, type AdminRecord } from '../../services/admin.service';
 import { obtenerTecnicos, type TecnicoRecord } from '../../services/tecnico.service';
 import { FormattedId } from '../../componentes/FormattedId';
 import './Informe.css';
 
-// ✅ Genera el próximo ID numérico (1, 2, 3...)
-const generarIdInforme = async (): Promise<string> => {
-  try {
-    const response = await obtenerInformes();
-    const informes = Array.isArray(response.data) ? response.data : response.data?.data || [];
-    if (informes.length === 0) return '1';
-
-    const ids = informes.map((inf: InformeRecord) => String(inf.ID_INFORME ?? ''));
-    const numeros = ids.map((id: string) => parseInt(id, 10) || 0);
-    const maxNum = Math.max(...numeros, 0);
-
-    return String(maxNum + 1);
-  } catch {
-    return '1';
-  }
-};
-
 const initialFormState: InformePayload = {
-  ID_INFORME: '',
-  ID_DETALLES_ORDEN_SERVICIO: '',
-  ID_ADMINISTRADOR: '',
-  ID_TECNICOS: '',
-  Descripcion: '',
-  Fecha: '',
-  Estado: 'Pendiente',
+  id_orden: 0,
+  id_tecnico: 0,
+  diagnostico: '',
+  trabajo_realizado: '',
+  recomendaciones: '',
 };
 
 const TableInformes = () => {
@@ -93,12 +74,11 @@ const TableInformes = () => {
       return;
     }
     const filtered = informes.filter(inf =>
-      inf.ID_INFORME.toLowerCase().includes(term) ||
-      inf.ID_DETALLES_ORDEN_SERVICIO.toLowerCase().includes(term) ||
-      inf.ID_ADMINISTRADOR.toLowerCase().includes(term) ||
-      (inf.ID_TECNICOS && inf.ID_TECNICOS.toLowerCase().includes(term)) ||
-      inf.Descripcion.toLowerCase().includes(term) ||
-      inf.Estado.toLowerCase().includes(term)
+      String(inf.id_informe).includes(term) ||
+      String(inf.id_orden).includes(term) ||
+      String(inf.id_tecnico).includes(term) ||
+      (inf.diagnostico && inf.diagnostico.toLowerCase().includes(term)) ||
+      (inf.trabajo_realizado && inf.trabajo_realizado.toLowerCase().includes(term))
     );
     setFilteredInformes(filtered);
   };
@@ -132,21 +112,26 @@ const TableInformes = () => {
         color: '#f5f5f5',
       });
     }
-    setFormData(prev => ({ ...prev, [name]: sanitized }));
+    setFormData(prev => ({ ...prev, [name]: sanitized === '' ? 0 : Number(sanitized) }));
   };
 
   const openCreateModal = async () => {
     setEditMode(false);
     setCurrentInforme(null);
-    const nuevoId = await generarIdInforme();
-    setFormData({ ...initialFormState, ID_INFORME: nuevoId, Fecha: new Date().toISOString().split('T')[0] });
+    setFormData({ ...initialFormState });
     setShowModal(true);
   };
 
   const openEditModal = (informe: InformeRecord) => {
     setEditMode(true);
     setCurrentInforme(informe);
-    setFormData({ ...informe, Fecha: informe.Fecha.split('T')[0] });
+    setFormData({ 
+      id_orden: informe.id_orden,
+      id_tecnico: informe.id_tecnico,
+      diagnostico: informe.diagnostico || '',
+      trabajo_realizado: informe.trabajo_realizado || '',
+      recomendaciones: informe.recomendaciones || ''
+    });
     setShowModal(true);
   };
 
@@ -158,17 +143,17 @@ const TableInformes = () => {
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
-    if (!formData.ID_DETALLES_ORDEN_SERVICIO || !formData.ID_ADMINISTRADOR || !formData.Fecha || !formData.Descripcion) {
+    if (!formData.id_orden || !formData.id_tecnico || !formData.diagnostico) {
       showAlert('Campos incompletos', 'Completa los campos obligatorios.', 'warning');
       return;
     }
 
     try {
       if (editMode && currentInforme) {
-        await actualizarInforme(currentInforme.ID_INFORME, formData);
+        await actualizarInforme(currentInforme.id_informe, formData);
         showAlert('Actualizado', 'El informe se actualizó correctamente', 'success');
       } else {
-        await insertarInforme(formData);
+        await crearInforme(formData);
         showAlert('Creado', 'Informe técnico registrado', 'success');
       }
       closeModal();
@@ -181,7 +166,7 @@ const TableInformes = () => {
 
   const handleDelete = async (informe: InformeRecord) => {
     const result = await Swal.fire({
-      title: `¿Eliminar informe ${informe.ID_INFORME}?`,
+      title: `¿Eliminar informe ${informe.id_informe}?`,
       text: 'Esta acción es irreversible.',
       icon: 'warning',
       showCancelButton: true,
@@ -192,7 +177,7 @@ const TableInformes = () => {
     });
     if (!result.isConfirmed) return;
     try {
-      await eliminarInforme(informe.ID_INFORME);
+      await eliminarInforme(informe.id_informe);
       await cargarDatos();
       showAlert('Eliminado', 'Informe eliminado', 'success');
     } catch (err) {
@@ -234,30 +219,28 @@ const TableInformes = () => {
             <thead>
               <tr>
                 <th>ID Informe</th>
-                <th>Detalle Orden</th>
-                <th>Administrador</th>
+                <th>Orden</th>
                 <th>Técnico</th>
-                <th>Descripción</th>
+                <th>Diagnóstico</th>
+                <th>Trabajo Realizado</th>
                 <th>Fecha</th>
-                <th>Estado</th>
                 <th>Acciones</th>
               </tr>
             </thead>
             <tbody>
               {loading ? (
-                <tr><td colSpan={8} className="loading-row">Cargando...</td></tr>
+                <tr><td colSpan={7} className="loading-row">Cargando...</td></tr>
               ) : filteredInformes.length === 0 ? (
-                <tr><td colSpan={8} className="loading-row">No hay informes registrados</td></tr>
+                <tr><td colSpan={7} className="loading-row">No hay informes registrados</td></tr>
               ) : (
                 filteredInformes.map(inf => (
-                  <tr key={inf.ID_INFORME}>
-                    <td><FormattedId entity="informe" value={inf.ID_INFORME} /></td>
-                    <td><FormattedId entity="detalleorden" value={inf.ID_DETALLES_ORDEN_SERVICIO} /></td>
-                    <td><FormattedId entity="admin" value={inf.ID_ADMINISTRADOR} /></td>
-                    <td>{inf.ID_TECNICOS ? <FormattedId entity="tecnico" value={inf.ID_TECNICOS} /> : '-'}</td>
-                    <td>{inf.Descripcion.substring(0, 40)}...</td>
-                    <td>{new Date(inf.Fecha).toLocaleDateString()}</td>
-                    <td>{inf.Estado}</td>
+                  <tr key={inf.id_informe}>
+                    <td><FormattedId entity="informe" value={inf.id_informe} /></td>
+                    <td><FormattedId entity="orden" value={inf.id_orden} /></td>
+                    <td>{inf.id_tecnico ? <FormattedId entity="tecnico" value={inf.id_tecnico} /> : '-'}</td>
+                    <td>{(inf.diagnostico || '').substring(0, 40)}...</td>
+                    <td>{(inf.trabajo_realizado || '').substring(0, 40)}...</td>
+                    <td>{inf.fecha ? new Date(inf.fecha).toLocaleDateString() : '-'}</td>
                     <td className="actions-cell">
                       <button className="btn-edit-ktm" onClick={() => openEditModal(inf)}>
                         <i className="bi bi-pencil-square"></i>
@@ -285,95 +268,40 @@ const TableInformes = () => {
               <div className="modal-body">
                 {/* ✅ VALIDACIÓN NUMÉRICA PARA ID */}
                 <div className="form-group">
-                  <label>ID Informe</label>
+                  <label>ID Orden *</label>
                   <input
-                    type="text"
-                    name="ID_INFORME"
-                    value={formData.ID_INFORME}
+                    type="number"
+                    name="id_orden"
+                    value={formData.id_orden || ''}
                     onChange={handleNumericIdInput}
-                    readOnly={editMode}
+                    required
+                  />
+                </div>
+
+                <div className="form-group">
+                  <label>Técnico *</label>
+                  <input
+                    type="number"
+                    name="id_tecnico"
+                    value={formData.id_tecnico || ''}
+                    onChange={handleNumericIdInput}
                     required
                   />
                 </div>
 
                 <div className="form-group">
-                  <label>Detalle de Orden *</label>
-                  <input
-                    list="detalles-list"
-                    name="ID_DETALLES_ORDEN_SERVICIO"
-                    value={formData.ID_DETALLES_ORDEN_SERVICIO}
-                    onChange={handleNumericIdInput}
-                    required
-                    autoComplete="off"
-                    placeholder="Escribe solo el número del ID"
-                  />
-                  <datalist id="detalles-list">
-                    {detallesOrdenes.map(det => (
-                      <option key={det.ID_DETALLES_ORDEN_SERVICIO} value={det.ID_DETALLES_ORDEN_SERVICIO}>
-                        {det.ID_DETALLES_ORDEN_SERVICIO} - Orden: {det.ID_ORDEN_SERVICIO}
-                      </option>
-                    ))}
-                  </datalist>
+                  <label>Diagnóstico *</label>
+                  <textarea name="diagnostico" value={formData.diagnostico || ''} onChange={handleInputChange} required rows={3} />
                 </div>
 
                 <div className="form-group">
-                  <label>Administrador *</label>
-                  <input
-                    list="admins-list"
-                    name="ID_ADMINISTRADOR"
-                    value={formData.ID_ADMINISTRADOR}
-                    onChange={handleNumericIdInput}
-                    required
-                    autoComplete="off"
-                    placeholder="Escribe solo el número del ID"
-                  />
-                  <datalist id="admins-list">
-                    {administradores.map(adm => (
-                      <option key={adm.ID_ADMINISTRADOR} value={adm.ID_ADMINISTRADOR}>
-                        {adm.Nombre} ({adm.ID_ADMINISTRADOR})
-                      </option>
-                    ))}
-                  </datalist>
+                  <label>Trabajo Realizado</label>
+                  <textarea name="trabajo_realizado" value={formData.trabajo_realizado || ''} onChange={handleInputChange} rows={3} />
                 </div>
 
                 <div className="form-group">
-                  <label>Técnico</label>
-                  <input
-                    list="tecnicos-list"
-                    name="ID_TECNICOS"
-                    value={formData.ID_TECNICOS || ''}
-                    onChange={handleNumericIdInput}
-                    autoComplete="off"
-                    placeholder="Escribe solo el número del ID"
-                  />
-                  <datalist id="tecnicos-list">
-                    {tecnicos.map(tec => (
-                      <option key={tec.ID_TECNICOS} value={tec.ID_TECNICOS}>
-                        {tec.Nombre} ({tec.ID_TECNICOS})
-                      </option>
-                    ))}
-                  </datalist>
-                </div>
-
-                <div className="form-group">
-                  <label>Fecha *</label>
-                  <input type="date" name="Fecha" value={formData.Fecha} onChange={handleInputChange} required />
-                </div>
-
-                <div className="form-group">
-                  <label>Descripción *</label>
-                  <textarea name="Descripcion" value={formData.Descripcion} onChange={handleInputChange} required rows={4} />
-                </div>
-
-                {/* ✅ ESTADO RESTAURADO */}
-                <div className="form-group">
-                  <label>Estado *</label>
-                  <select name="Estado" value={formData.Estado} onChange={handleInputChange} required>
-                    <option value="Pendiente">Pendiente</option>
-                    <option value="En espera de repuestos">En espera de repuestos</option>
-                    <option value="Completado">Completado</option>
-                    <option value="Cancelado">Cancelado</option>
-                  </select>
+                  <label>Recomendaciones</label>
+                  <textarea name="recomendaciones" value={formData.recomendaciones || ''} onChange={handleInputChange} rows={3} />
                 </div>
               </div>
               <div className="modal-footer">

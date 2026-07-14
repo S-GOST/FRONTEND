@@ -925,3 +925,277 @@ body {
     padding: 1.25rem; 
   }
 }
+
+/* =============================================
+   ORDENES PANEL — CARDS COMPONENT
+   ============================================= */
+
+.ordenes-panel {
+  padding: 0.5rem 0;
+}
+
+/* Resumen chips */
+.ordenes-resumen {
+  display: flex;
+  gap: 0.75rem;
+  margin-bottom: 1.5rem;
+  flex-wrap: wrap;
+}
+
+.resumen-chip {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.6rem 1.1rem;
+  border-radius: 999px;
+  cursor: pointer;
+  font-weight: 700;
+  font-size: 0.85rem;
+  transition: all 0.2s ease;
+  border: 1px solid transparent;
+}
+
+.resumen-chip:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+}
+
+.resumen-chip .chip-num {
+  font-size: 1.1rem;
+  font-weight: 800;
+}
+
+.resumen-chip .chip-lbl {
+  font-size: 0.8rem;
+  opacity: 0.85;
+}
+
+.chip-all     { background: rgba(255,255,255,0.07); border-color: rgba(255,255,255,0.1); color: #ccc; }
+.chip-pending { background: rgba(252,196,25,0.12);  border-color: rgba(252,196,25,0.3);  color: #fcc419; }
+.chip-process { background: rgba(76,110,245,0.12);  border-color: rgba(76,110,245,0.3);  color: #4c6ef5; }
+.chip-done    { background: rgba(64,192,87,0.12);   border-color: rgba(64,192,87,0.3);   color: #40c057; }
+
+/* Buscador */
+.ordenes-search-bar {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  background: #111;
+  border: 1px solid #262626;
+  border-radius: 10px;
+  padding: 0.65rem 1rem;
+  margin-bottom: 1.5rem;
+  transition: border-color 0.2s;
+}
+
+.ordenes-search-bar:focus-within {
+  border-color: var(--primary);
+  box-shadow: 0 0 0 3px rgba(255,102,0,0.15);
+}
+
+.ordenes-search-bar i {
+  color: #555;
+  font-size: 1rem;
+  flex-shrink: 0;
+}
+
+.ordenes-search-bar input {
+  flex: 1;
+  background: transparent;
+  border: none;
+  outline: none;
+  color: #f5f5f5;
+  font-size: 0.9rem;
+  font-family: inherit;
+}
+
+.ordenes-search-bar input::placeholder { color: #444; }
+
+.clear-search {
+  background: transparent;
+  border: none;
+  color: #555;
+  cursor: pointer;
+  padding: 0.2rem;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: color 0.2s;
+}
+
+.clear-search:hover { color: #ff6600; }
+
+/* Grid de tarjetas */
+.ordenes-cards-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  gap: 1.2rem;
+}
+
+/* Tarjeta de orden */
+.orden-card {
+  background: linear-gradient(135deg, #141414, #0d0d0d);
+  border: 1px solid #222;
+  border-radius: 14px;
+  overflow: hidden;
+  transition: all 0.25s ease;
+  display: flex;
+  flex-direction: column;
+}
+
+.orden-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 8px 28px rgba(0,0,0,0.4);
+  border-color: #333;
+}
+
+.orden-card.estado-pendiente  { border-top: 3px solid #fcc419; }
+.orden-card.estado-proceso     { border-top: 3px solid #4c6ef5; }
+.orden-card.estado-completado  { border-top: 3px solid #40c057; }
+.orden-card.estado-cancelado   { border-top: 3px solid #fa5252; }
+
+/* Cabecera de la tarjeta */
+.orden-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1rem 1.2rem 0.6rem;
+}
+
+.orden-card-id {
+  font-weight: 800;
+  font-size: 0.95rem;
+  color: #ff6600;
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+/* Body info */
+.orden-card-body {
+  padding: 0 1.2rem 1rem;
+  flex: 1;
+}
+
+.orden-card-info {
+  display: flex;
+  flex-direction: column;
+  gap: 0.45rem;
+  margin-bottom: 0.75rem;
+}
+
+.info-item {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.88rem;
+  color: #bbb;
+}
+
+.info-item i {
+  color: #555;
+  font-size: 0.9rem;
+  width: 16px;
+  flex-shrink: 0;
+}
+
+.info-item.info-total {
+  color: #ff9900;
+  font-weight: 700;
+}
+
+.info-item.info-total i { color: #ff9900; }
+
+.orden-card-obs {
+  display: flex;
+  gap: 0.5rem;
+  align-items: flex-start;
+  background: rgba(255,255,255,0.03);
+  border-radius: 8px;
+  padding: 0.6rem 0.8rem;
+  font-size: 0.82rem;
+  color: #888;
+  font-style: italic;
+  margin-top: 0.5rem;
+}
+
+.orden-card-obs i { flex-shrink: 0; margin-top: 2px; }
+
+/* Acciones de la tarjeta */
+.orden-card-actions {
+  padding: 0.75rem 1.2rem 1rem;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  border-top: 1px solid rgba(255,255,255,0.05);
+}
+
+.card-btn {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.55rem 1rem;
+  border: none;
+  border-radius: 8px;
+  font-size: 0.82rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-family: inherit;
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+}
+
+.card-btn:hover {
+  transform: translateY(-2px);
+  filter: brightness(1.1);
+}
+
+.btn-iniciar      { background: linear-gradient(135deg,#4c6ef5,#364fc7); color: #fff; }
+.btn-completar    { background: linear-gradient(135deg,#40c057,#2f9e44); color: #fff; }
+.btn-informe      { background: linear-gradient(135deg,#00b4d8,#0077b6); color: #fff; }
+.btn-cancelar-sm  { background: rgba(250,82,82,0.15); color: #fa5252; border: 1px solid rgba(250,82,82,0.3); }
+.btn-cancelar-sm:hover { background: rgba(250,82,82,0.25); }
+.btn-detalle-sm   { background: rgba(255,255,255,0.06); color: #aaa; border: 1px solid rgba(255,255,255,0.1); }
+.btn-detalle-sm:hover { color: #fff; background: rgba(255,255,255,0.1); }
+
+/* Empty state */
+.empty-state {
+  text-align: center;
+  padding: 3rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+/* Spin animation for loader */
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to   { transform: rotate(360deg); }
+}
+
+.dashboard-loader {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 60vh;
+  gap: 1rem;
+  color: #aaa;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .ordenes-cards-grid {
+    grid-template-columns: 1fr;
+  }
+  .ordenes-resumen {
+    gap: 0.5rem;
+  }
+  .resumen-chip {
+    padding: 0.5rem 0.8rem;
+    font-size: 0.8rem;
+  }
+}

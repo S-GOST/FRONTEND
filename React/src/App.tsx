@@ -8,6 +8,7 @@ import AccessSection from './componentes/AccessSection';
 import Footer from './componentes/Footer';
 import Cart from './componentes/Cart';
 import Login from './pages/Login';
+import Registro from './pages/Registro';
 import Panel from './componentes/TableAdmin/Panel';
 import OrdenesServicio from './componentes/TableOrdenServicios/OrdenesServicio';
 import DetallesOrden from './componentes/TableOrdenServicios/DetallesOrden';
@@ -150,6 +151,7 @@ function App() {
   const location = useLocation();
   const particlesRef = useRef<HTMLDivElement>(null);
   const isLoginPage = location.pathname === '/login';
+  const isRegistroPage = location.pathname === '/registro';
   const isAdminPage = location.pathname.startsWith('/admin');
   const isTecnicoPage = location.pathname.startsWith('/tecnico');
   const isClientePage = location.pathname.startsWith('/cliente');
@@ -192,7 +194,7 @@ function App() {
 
   useEffect(() => {
     const container = particlesRef.current;
-    if (!container || isAdminPage || isTecnicoPage || isClientePage || isLoginPage || isCartPage) return;
+    if (!container || isAdminPage || isTecnicoPage || isClientePage || isLoginPage || isRegistroPage || isCartPage) return;
 
     container.innerHTML = '';
 
@@ -208,7 +210,7 @@ function App() {
     return () => {
       container.innerHTML = '';
     };
-  }, [isAdminPage, isLoginPage, isCartPage, location.pathname]);
+  }, [isAdminPage, isLoginPage, isRegistroPage, isCartPage, location.pathname]);
 
   const addToCart = (service: Service) => {
     setCart(prevCart => {
@@ -273,7 +275,7 @@ function App() {
 
   return (
     <div className="app">
-      {!isLoginPage && !isAdminPage && !isTecnicoPage && !isClientePage && !(isCartPage && userRole === 'cliente') && (
+      {!isLoginPage && !isRegistroPage && !isAdminPage && !isTecnicoPage && !isClientePage && !(isCartPage && userRole === 'cliente') && (
         <Navbar
           cartCount={cartCount}
           onSearch={filterSuggestions}
@@ -298,6 +300,16 @@ function App() {
               <Navigate to={getRedirectPath()} replace />
             ) : (
               <Login />
+            )
+          }
+        />
+        <Route
+          path="/registro"
+          element={
+            isAuthenticated ? (
+              <Navigate to={getRedirectPath()} replace />
+            ) : (
+              <Registro />
             )
           }
         />

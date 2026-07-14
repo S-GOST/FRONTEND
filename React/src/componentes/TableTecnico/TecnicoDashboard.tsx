@@ -1,25 +1,23 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Swal from 'sweetalert2';
-import { 
-  obtenerOrdenes, 
-  actualizarOrden, 
-  type OrdenServicioRecord 
+import {
+  obtenerOrdenes,
+  actualizarOrden,
+  obtenerDetallesPorOrden,
+  type OrdenServicioRecord
 } from '../../services/ordenServicioService';
-import { 
-  obtenerClientes, 
-  type ClienteRecord 
+import {
+  obtenerClientes,
+  type ClienteRecord
 } from '../../services/cliente.service';
-import { 
-  obtenerDetallesOrdenes, 
-  insertarDetalleOrden, 
-  type DetalleOrdenServicioPayload 
-} from '../../services/detalleOrdenServicioService';
 import { clearSession } from '../../services/auth.services';
 import { formatId } from '../../utils/formatIds';
+import { crearInforme, obtenerInformes, type InformeRecord } from '../../services/informe.service';
+import { obtenerMotoPorId, type MotoRecord } from '../../services/moto.service';
 import './TecnicoDashboard.css';
 
-// ==================== TIPOS UI ====================
+// ==================== TIPOS ====================
 interface OrdenUI extends OrdenServicioRecord {
   ClienteNombre: string;
 }
@@ -32,66 +30,291 @@ interface ClienteUI extends ClienteRecord {
   Ubicacion: string;
 }
 
-interface DetalleUI extends DetalleOrdenServicioPayload {
-  ID_DETALLES_ORDEN_SERVICIO?: string | number;
-  NombreConcepto?: string;
-  PrecioUnitario?: number;
+// ==================== SUB-COMPONENTE: PANEL DE ÓRDENES ====================
+interface OrdenesActivasProps {
+  ordenes: OrdenUI[];
+  onActualizarEstado: (id: string, estado: string) => void;
+  onAbrirInforme: (orden: OrdenUI) => void;
+  onVerDetalle: (orden: OrdenUI) => void;
+  getEstadoConfig: (estado: string) => { class: string; icon: string; label: string; next: string };
+  formatDate: (d: string | null | undefined) => string;
+  formatId: (tipo: string, id: any) => string;
 }
 
-// ==================== COMPONENTE ====================
+const OrdenesAsignadas: React.FC<OrdenesActivasProps> = ({
+  ordenes,
+  onActualizarEstado,
+  onAbrirInforme,
+  onVerDetalle,
+  getEstadoConfig,
+  formatDate,
+  formatId
+}) => {
+  const [filtroEstado, setFiltroEstado] = useState<'todas' | 'Pendiente' | 'En Proceso' | 'Completado'>('todas');
+  const [busqueda, setBusqueda] = useState('');
+
+  const ordenesFiltradas = ordenes.filter(o => {
+    const matchEstado = filtroEstado === 'todas' || o.Estado?.toLowerCase().includes(filtroEstado.toLowerCase());
+    const matchBusqueda = busqueda === '' ||
+      o.ClienteNombre?.toLowerCase().includes(busqueda.toLowerCase()) ||
+      String(o.ID_ORDEN_SERVICIO).includes(busqueda);
+    return matchEstado && matchBusqueda;
+  });
+
+  const countByState = (estado: string) =>
+    ordenes.filter(o => o.Estado?.toLowerCase().includes(estado.toLowerCase())).length;
+
+  return (
+    <div className="ordenes-panel">
+      {/* Resumen rápido */}
+      <div className="ordenes-resumen">
+        <div className="resumen-chip chip-all" onClick={() => setFiltroEstado('todas')}>
+          <span className="chip-num">{ordenes.length}</span>
+          <span className="chip-lbl">Total</span>
+        </div>
+        <div className="resumen-chip chip-pending" onClick={() => setFiltroEstado('Pendiente')}>
+          <i className="bi bi-clock"></i>
+          <span className="chip-num">{countByState('pendiente')}</span>
+          <span className="chip-lbl">Pendientes</span>
+        </div>
+        <div className="resumen-chip chip-process" onClick={() => setFiltroEstado('En Proceso')}>
+          <i className="bi bi-arrow-repeat"></i>
+          <span className="chip-num">{countByState('proceso')}</span>
+          <span className="chip-lbl">En Proceso</span>
+        </div>
+        <div className="resumen-chip chip-done" onClick={() => setFiltroEstado('Completado')}>
+          <i className="bi bi-check-circle"></i>
+          <span className="chip-num">{countByState('finalizada') + countByState('completado')}</span>
+          <span className="chip-lbl">Finalizadas</span>
+        </div>
+      </div>
+
+      {/* Buscador */}
+      <div className="ordenes-search-bar">
+        <i className="bi bi-search"></i>
+        <input
+          type="text"
+          placeholder="Buscar por cliente o número de orden..."
+          value={busqueda}
+          onChange={e => setBusqueda(e.target.value)}
+        />
+        {busqueda && (
+          <button onClick={() => setBusqueda('')} className="clear-search">
+            <i className="bi bi-x"></i>
+          </button>
+        )}
+      </div>
+
+      {/* Tarjetas de órdenes */}
+      {ordenesFiltradas.length === 0 ? (
+        <div className="empty-state">
+          <i className="bi bi-inbox" style={{ fontSize: '3rem', color: '#333' }}></i>
+          <p style={{ color: '#555', marginTop: '1rem' }}>
+            {ordenes.length === 0
+              ? 'No tienes órdenes asignadas aún.'
+              : 'Sin órdenes que coincidan con tu búsqueda.'}
+          </p>
+        </div>
+      ) : (
+        <div className="ordenes-cards-grid">
+          {ordenesFiltradas.map(orden => {
+            const cfg = getEstadoConfig(orden.Estado);
+            const esPendiente = cfg.label === 'Pendiente';
+            const esEnProceso = cfg.label === 'En Proceso';
+            const esCompletada = cfg.label === 'Completado' || cfg.label === 'Cancelado';
+
+            return (
+              <div key={orden.ID_ORDEN_SERVICIO} className={`orden-card ${cfg.class}`}>
+                {/* Cabecera */}
+                <div className="orden-card-header">
+                  <div className="orden-card-id">
+                    <i className="bi bi-tools"></i>
+                    {formatId('orden', orden.ID_ORDEN_SERVICIO)}
+                  </div>
+                  <span className={`estado-badge ${cfg.class}`}>
+                    <i className={`bi ${cfg.icon}`}></i> {cfg.label}
+                  </span>
+                </div>
+
+                {/* Información */}
+                <div className="orden-card-body">
+                  <div className="orden-card-info">
+                    <div className="info-item">
+                      <i className="bi bi-person-fill"></i>
+                      <span>{orden.ClienteNombre}</span>
+                    </div>
+                    <div className="info-item">
+                      <i className="bi bi-bicycle"></i>
+                      <span>{orden.ID_MOTOS ? formatId('moto', orden.ID_MOTOS) : 'Sin moto asignada'}</span>
+                    </div>
+                    <div className="info-item">
+                      <i className="bi bi-calendar-event"></i>
+                      <span>Ingreso: {formatDate(orden.Fecha_inicio)}</span>
+                    </div>
+                    {orden.Fecha_estimada && (
+                      <div className="info-item">
+                        <i className="bi bi-calendar-check"></i>
+                        <span>Estimada: {formatDate(orden.Fecha_estimada)}</span>
+                      </div>
+                    )}
+                    {orden.total && (
+                      <div className="info-item info-total">
+                        <i className="bi bi-currency-dollar"></i>
+                        <span>${Number(orden.total).toLocaleString('es-CO')}</span>
+                      </div>
+                    )}
+                  </div>
+
+                  {orden.observaciones && (
+                    <div className="orden-card-obs">
+                      <i className="bi bi-chat-left-text"></i>
+                      <span>{orden.observaciones}</span>
+                    </div>
+                  )}
+                </div>
+
+                {/* Acciones */}
+                {!esCompletada && (
+                  <div className="orden-card-actions">
+                    {esPendiente && (
+                      <>
+                        <button
+                          className="card-btn btn-iniciar"
+                          onClick={() => onActualizarEstado(String(orden.ID_ORDEN_SERVICIO), 'En proceso')}
+                        >
+                          <i className="bi bi-play-circle-fill"></i> Iniciar Trabajo
+                        </button>
+                        <button
+                          className="card-btn btn-cancelar-sm"
+                          onClick={() => onActualizarEstado(String(orden.ID_ORDEN_SERVICIO), 'Cancelada')}
+                        >
+                          <i className="bi bi-x-circle"></i> Cancelar
+                        </button>
+                      </>
+                    )}
+                    {esEnProceso && (
+                      <>
+                        <button
+                          className="card-btn btn-informe"
+                          onClick={() => onAbrirInforme(orden)}
+                          style={{ width: '100%' }}
+                        >
+                          <i className="bi bi-file-earmark-plus-fill"></i> Redactar Informe
+                        </button>
+                      </>
+                    )}
+                    <button
+                      className="card-btn btn-detalle-sm"
+                      onClick={() => onVerDetalle(orden)}
+                    >
+                      <i className="bi bi-eye-fill"></i> Detalles
+                    </button>
+                  </div>
+                )}
+                {esCompletada && (
+                  <div className="orden-card-actions">
+                    <button
+                      className="card-btn btn-detalle-sm"
+                      onClick={() => onVerDetalle(orden)}
+                    >
+                      <i className="bi bi-eye-fill"></i> Ver Detalles
+                    </button>
+                  </div>
+                )}
+              </div>
+            );
+          })}
+        </div>
+      )}
+    </div>
+  );
+};
+
+// ==================== COMPONENTE PRINCIPAL ====================
 const TecnicoDashboard = () => {
   const navigate = useNavigate();
-  const tecnicoId = localStorage.getItem('user_id') || localStorage.getItem('user_name');
   const tecnicoNombre = localStorage.getItem('user_name') || 'Técnico';
 
-  // ESTADO CON EL 4º BOTÓN AÑADIDO
-  const [activeTab, setActiveTab] = useState<'activas' | 'historial' | 'clientes' | 'informes'>('activas');
-  
+  const tecnicoIdRaw = localStorage.getItem('user_id');
+  const tecnicoId = tecnicoIdRaw ? parseInt(tecnicoIdRaw, 10) : null;
+
+  const [activeTab, setActiveTab] = useState<'activas' | 'historial' | 'informes'>('activas');
+
   const [ordenes, setOrdenes] = useState<OrdenUI[]>([]);
-  const [clientes, setClientes] = useState<ClienteUI[]>([]);
-  const [detallesOrden, setDetallesOrden] = useState<DetalleUI[]>([]);
-  
+  const [informes, setInformes] = useState<InformeRecord[]>([]);
+
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  
+
+  // Modal detalle orden
   const [modalAbierto, setModalAbierto] = useState(false);
   const [ordenActual, setOrdenActual] = useState<OrdenUI | null>(null);
-  const [detalleForm, setDetalleForm] = useState<DetalleOrdenServicioPayload>({
-    ID_ORDEN_SERVICIO: '',
-    ID_SERVICIOS: '',
-    ID_PRODUCTOS: '',
-    Garantia: 0,
-    Estado: 'Pendiente',
-    Precio: 0
+  const [ordenDetalles, setOrdenDetalles] = useState<any[]>([]);
+  const [motoDetalle, setMotoDetalle] = useState<MotoRecord | null>(null);
+  const [cargandoDetalles, setCargandoDetalles] = useState(false);
+
+  // Modal informe
+  const [modalInformeAbierto, setModalInformeAbierto] = useState(false);
+  const [informeForm, setInformeForm] = useState({
+    diagnostico: '',
+    trabajo_realizado: '',
+    recomendaciones: '',
   });
+  const [guardandoInforme, setGuardandoInforme] = useState(false);
+
+  // ==================== HELPERS ====================
+  const extraerDatos = <T,>(payload: unknown): T[] => {
+    if (Array.isArray(payload)) return payload as T[];
+    if (payload && typeof payload === 'object') {
+      const obj = payload as Record<string, unknown>;
+      const found = obj.data || obj.ordenes || obj.informes;
+      if (Array.isArray(found)) return found as T[];
+    }
+    return [];
+  };
+
+  const formatDate = (dateStr: string | null | undefined) => {
+    if (!dateStr) return '—';
+    const d = new Date(dateStr);
+    if (isNaN(d.getTime())) return '—';
+    return d.toLocaleDateString('es-CO', { day: '2-digit', month: '2-digit', year: 'numeric' });
+  };
+
+  const getEstadoConfig = (estado: string) => {
+    const e = (estado || '').toLowerCase();
+    if (e.includes('pendiente'))  return { class: 'estado-pendiente',  icon: 'bi-clock',        label: 'Pendiente',  next: 'En proceso' };
+    if (e.includes('proceso'))    return { class: 'estado-proceso',    icon: 'bi-arrow-repeat', label: 'En Proceso', next: 'Finalizada' };
+    if (e.includes('finalizada') || e.includes('completado')) return { class: 'estado-completado', icon: 'bi-check-circle', label: 'Finalizada', next: '' };
+    if (e.includes('cancelada') || e.includes('cancelado'))  return { class: 'estado-cancelado',  icon: 'bi-x-circle',    label: 'Cancelada',  next: '' };
+    return { class: 'estado-desconocido', icon: 'bi-question-circle', label: estado, next: '' };
+  };
 
   // ==================== FETCH ====================
   const cargarDatos = async () => {
     setLoading(true);
     setError(null);
     try {
-      const [resOrdenes, resClientes] = await Promise.all([
+      const [resOrdenes, resClientes, resInformes] = await Promise.all([
         obtenerOrdenes(),
-        obtenerClientes()
+        obtenerClientes(),
+        obtenerInformes(),
       ]);
-      const todasOrdenes = extraerDatos<OrdenServicioRecord>(resOrdenes.data) || [];
-      const todosClientes = extraerDatos<ClienteUI>(resClientes.data) || [];
-      
+
+      const todasOrdenes = extraerDatos<OrdenServicioRecord>(resOrdenes.data);
+      const todosClientes = extraerDatos<ClienteUI>(resClientes.data);
+      const todosInformes = extraerDatos<InformeRecord>(resInformes.data);
+
       const misOrdenes: OrdenUI[] = todasOrdenes
-        .filter(o => String(o.ID_TECNICOS) === String(tecnicoId))
+        .filter(o => Number(o.ID_TECNICOS) === tecnicoId)
         .map(o => {
           const cliente = todosClientes.find(c => String(c.ID_CLIENTES) === String(o.ID_CLIENTES));
-          return {
-            ...o,
-            ClienteNombre: cliente?.Nombre || ''
-          } as OrdenUI;
+          return { ...o, ClienteNombre: cliente?.Nombre || 'Sin nombre' } as OrdenUI;
         });
-      
+
       setOrdenes(misOrdenes);
-      setClientes(todosClientes);
+      setInformes(todosInformes.filter(i => i.id_tecnico === tecnicoId));
     } catch (err: any) {
       setError(err.response?.data?.message || 'Error al cargar datos');
-      Swal.fire('Error', 'No se pudieron cargar las órdenes asignadas.', 'error');
     } finally {
       setLoading(false);
     }
@@ -99,31 +322,7 @@ const TecnicoDashboard = () => {
 
   useEffect(() => { cargarDatos(); }, []);
 
-  // ==================== HELPERS ====================
-  const extraerDatos = <T,>(payload: unknown): T[] | null => {
-    if (Array.isArray(payload)) return payload as T[];
-    if (payload && typeof payload === 'object') {
-      const obj = payload as Record<string, unknown>;
-      return (obj.data || obj.ordenes || obj.clientes || obj.detalles || null) as T[] | null;
-    }
-    return null;
-  };
-
-  const formatDate = (dateStr: string | null | undefined) => {
-    if (!dateStr) return '—';
-    return new Date(dateStr).toLocaleDateString('es-CO', { day: '2-digit', month: '2-digit', year: 'numeric' });
-  };
-
-  const getEstadoConfig = (estado: string) => {
-    const e = estado.toLowerCase();
-    if (e.includes('pendiente')) return { class: 'estado-pendiente', icon: 'bi-clock', label: 'Pendiente', next: 'En Proceso' };
-    if (e.includes('proceso')) return { class: 'estado-proceso', icon: 'bi-arrow-repeat', label: 'En Proceso', next: 'Completado' };
-    if (e.includes('completado') || e.includes('terminado')) return { class: 'estado-completado', icon: 'bi-check-circle', label: 'Completado', next: '' };
-    if (e.includes('cancelado')) return { class: 'estado-cancelado', icon: 'bi-x-circle', label: 'Cancelado', next: '' };
-    return { class: 'estado-desconocido', icon: 'bi-question-circle', label: estado, next: '' };
-  };
-
-  // ==================== ACCIONES TÉCNICAS ====================
+  // ==================== ACCIONES ====================
   const actualizarEstado = async (id: string, nuevoEstado: string) => {
     const result = await Swal.fire({
       title: '¿Actualizar estado?',
@@ -133,90 +332,127 @@ const TecnicoDashboard = () => {
       confirmButtonColor: '#ff6600',
       cancelButtonColor: '#555',
       confirmButtonText: 'Sí, actualizar',
+      cancelButtonText: 'No',
     });
     if (!result.isConfirmed) return;
-
     try {
-      await actualizarOrden(id, { Estado: nuevoEstado, Fecha_fin: nuevoEstado === 'Completado' ? new Date().toISOString() : undefined });
+      await actualizarOrden(id, {
+        Estado: nuevoEstado,
+        Fecha_fin: nuevoEstado === 'Completado' ? new Date().toISOString() : undefined
+      });
       await cargarDatos();
-      Swal.fire('Actualizado', 'Estado registrado correctamente.', 'success');
+      Swal.fire('✅ Actualizado', `Estado cambiado a "${nuevoEstado}".`, 'success');
     } catch (err: any) {
       Swal.fire('Error', err.response?.data?.message || 'No se pudo actualizar', 'error');
     }
   };
 
-  const abrirOrden = async (orden: OrdenUI) => {
+  const abrirModalDetalle = async (orden: OrdenUI) => {
     setOrdenActual(orden);
     setModalAbierto(true);
-    setDetalleForm({ 
-      ...detalleForm, 
-      ID_ORDEN_SERVICIO: String(orden.ID_ORDEN_SERVICIO),
-      ID_SERVICIOS: '',
-      ID_PRODUCTOS: '',
-      Garantia: 0,
-      Precio: 0 
-    });
-    
+    setCargandoDetalles(true);
+    setOrdenDetalles([]);
+    setMotoDetalle(null);
     try {
-      const res = await obtenerDetallesOrdenes();
-      const todosDetalles = extraerDatos<DetalleUI>(res.data) || [];
-      const detallesOrden = todosDetalles.filter(d => String(d.ID_ORDEN_SERVICIO) === String(orden.ID_ORDEN_SERVICIO));
-      setDetallesOrden(detallesOrden);
-    } catch {
-      setDetallesOrden([]);
+      const [resDetalles, resMoto] = await Promise.all([
+        obtenerDetallesPorOrden(orden.ID_ORDEN_SERVICIO),
+        orden.ID_MOTOS ? obtenerMotoPorId(orden.ID_MOTOS) : Promise.resolve(null)
+      ]);
+      
+      if (resDetalles?.data?.data) {
+        setOrdenDetalles(resDetalles.data.data);
+      } else if (resDetalles?.data) {
+        setOrdenDetalles(resDetalles.data);
+      }
+
+      if (resMoto?.data?.data) {
+        setMotoDetalle(resMoto.data.data);
+      } else if (resMoto?.data) {
+        setMotoDetalle(resMoto.data);
+      }
+    } catch (err) {
+      console.error('Error al cargar detalles:', err);
+    } finally {
+      setCargandoDetalles(false);
     }
   };
 
-  const agregarDetalle = async () => {
-    if (!detalleForm.ID_SERVICIOS && !detalleForm.ID_PRODUCTOS) {
-      Swal.fire('Atención', 'Selecciona un servicio o producto.', 'warning');
+  const abrirModalInforme = (orden: OrdenUI) => {
+    setOrdenActual(orden);
+    setInformeForm({ diagnostico: '', trabajo_realizado: '', recomendaciones: '' });
+    setModalInformeAbierto(true);
+  };
+
+  const guardarInforme = async () => {
+    if (!ordenActual || !tecnicoId) return;
+    if (!informeForm.diagnostico && !informeForm.trabajo_realizado) {
+      Swal.fire('Atención', 'Escribe al menos el diagnóstico o el trabajo realizado.', 'warning');
       return;
     }
-
+    setGuardandoInforme(true);
     try {
-      const payload = {
-        ID_ORDEN_SERVICIO: parseInt(String(detalleForm.ID_ORDEN_SERVICIO), 10),
-        ID_SERVICIOS: detalleForm.ID_SERVICIOS ? parseInt(String(detalleForm.ID_SERVICIOS), 10) : null,
-        ID_PRODUCTOS: detalleForm.ID_PRODUCTOS ? parseInt(String(detalleForm.ID_PRODUCTOS), 10) : null,
-        Garantia: Number(detalleForm.Garantia) || 0,
-        Estado: 'Pendiente',
-        Precio: Number(detalleForm.Precio) || 0
-      };
+      await crearInforme({
+        id_orden: Number(ordenActual.ID_ORDEN_SERVICIO),
+        id_tecnico: tecnicoId,
+        diagnostico: informeForm.diagnostico,
+        trabajo_realizado: informeForm.trabajo_realizado,
+        recomendaciones: informeForm.recomendaciones,
+      });
+      
+      // Marcar orden como finalizada automáticamente
+      await actualizarOrden(String(ordenActual.ID_ORDEN_SERVICIO), {
+        Estado: 'Finalizada',
+        Fecha_fin: new Date().toISOString().slice(0, 19).replace('T', ' ')
+      });
 
-      await insertarDetalleOrden(payload as any);
-      Swal.fire('✅ Agregado', 'Detalle registrado en la orden.', 'success');
-      await abrirOrden(ordenActual!);
+      setModalInformeAbierto(false);
+      await cargarDatos();
+      Swal.fire('✅ Informe guardado', 'El informe fue registrado y la orden marcada como Completada.', 'success');
     } catch (err: any) {
-      const msg = err.response?.data?.message || err.message || 'Error desconocido';
-      Swal.fire('❌ Error', msg, 'error');
+      Swal.fire('❌ Error', err.response?.data?.message || 'No se pudo guardar.', 'error');
+    } finally {
+      setGuardandoInforme(false);
     }
   };
 
   const handleLogout = () => {
     Swal.fire({
       title: '¿Cerrar sesión?',
-      text: 'Serás redirigido al login.',
       icon: 'question',
       showCancelButton: true,
       confirmButtonColor: '#ff6600',
       cancelButtonColor: '#555',
       confirmButtonText: 'Sí, salir',
-    }).then((r) => { if (r.isConfirmed) clearSession(); });
+      cancelButtonText: 'Cancelar',
+    }).then(r => { if (r.isConfirmed) clearSession(); });
   };
 
+  // Stats corregidos
+  const esTerminada = (o: OrdenUI) => {
+    const e = (o.Estado || '').toLowerCase();
+    return e.includes('finalizada') || e.includes('completado') || e.includes('cancelada') || e.includes('cancelado');
+  };
   const stats = {
-    activas: ordenes.filter(o => o.Estado.toLowerCase().includes('proceso')).length,
-    pendientes: ordenes.filter(o => o.Estado.toLowerCase().includes('pendiente')).length,
+    nuevasOrdenes:  ordenes.filter(o => o.Estado?.toLowerCase().includes('pendiente')).length,
+    enProceso:      ordenes.filter(o => o.Estado?.toLowerCase().includes('proceso')).length,
     completadasHoy: ordenes.filter(o => {
+      if (!esTerminada(o)) return false;
       if (!o.Fecha_fin) return false;
-      return new Date(o.Fecha_fin).toDateString() === new Date().toDateString();
-    }).length
+      const d = new Date(o.Fecha_fin);
+      return !isNaN(d.getTime()) && d.toDateString() === new Date().toDateString();
+    }).length,
   };
 
-  if (loading && !ordenes.length) return <div className="dashboard-loader">Cargando panel técnico...</div>;
+  if (loading && !ordenes.length) return (
+    <div className="dashboard-loader">
+      <i className="bi bi-gear-wide-connected" style={{ fontSize: '2rem', color: '#ff6600', animation: 'spin 1s linear infinite' }}></i>
+      <p>Cargando panel técnico...</p>
+    </div>
+  );
 
   return (
     <div className="tecnico-dashboard">
+      {/* HEADER */}
       <header className="dashboard-header">
         <div className="header-content">
           <div className="header-title">
@@ -224,7 +460,7 @@ const TecnicoDashboard = () => {
             <p>Gestión técnica de órdenes asignadas</p>
           </div>
           <div className="header-actions">
-            <button className="nav-btn" onClick={() => navigate('/tecnico/menu')} title="Menú principal">
+            <button className="nav-btn" onClick={() => navigate('/tecnico/menu')}>
               <i className="bi bi-grid-3x3-gap"></i> Menú
             </button>
             <button className="logout-btn" onClick={handleLogout}>
@@ -234,135 +470,64 @@ const TecnicoDashboard = () => {
         </div>
       </header>
 
-      {/* Stats Cards */}
+      {/* STATS */}
       <div className="tech-stats-bar">
         <div className="tech-stat stat-blue">
-          <div className="stat-icon"><i className="bi bi-lightning-charge"></i></div>
-          <span className="tech-stat-val">{stats.activas}</span>
-          <span className="tech-stat-label">En Proceso</span>
+          <div className="stat-icon"><i className="bi bi-bell-fill"></i></div>
+          <span className="tech-stat-val">{stats.nuevasOrdenes}</span>
+          <span className="tech-stat-label">Nuevas Órdenes</span>
         </div>
         <div className="tech-stat stat-purple">
-          <div className="stat-icon"><i className="bi bi-clock-history"></i></div>
-          <span className="tech-stat-val">{stats.pendientes}</span>
-          <span className="tech-stat-label">Pendientes</span>
+          <div className="stat-icon"><i className="bi bi-arrow-repeat"></i></div>
+          <span className="tech-stat-val">{stats.enProceso}</span>
+          <span className="tech-stat-label">En Proceso</span>
         </div>
         <div className="tech-stat stat-cyan">
-          <div className="stat-icon"><i className="bi bi-check-circle"></i></div>
+          <div className="stat-icon"><i className="bi bi-check-circle-fill"></i></div>
           <span className="tech-stat-val">{stats.completadasHoy}</span>
           <span className="tech-stat-label">Completadas Hoy</span>
         </div>
       </div>
 
-      {/* ============================================== */}
-      {/* SECCIÓN DE BOTONES (CON EL 4º BOTÓN CORREGIDO) */}
-      {/* ============================================== */}
+      {/* TABS — sin "Clientes" */}
       <div className="tabs-container">
-        
-        {/* 1. Ver ordenes */}
-        <button 
+        <button
           className={`tab-button ${activeTab === 'activas' ? 'active' : ''}`}
           onClick={() => setActiveTab('activas')}
         >
-          <i className="bi bi-lightning-charge-fill"></i>
-          <span>Ver ordenes</span>
+          <i className="bi bi-lightning-charge-fill"></i><span>Ver Órdenes</span>
         </button>
-        
-        {/* 2. Historial */}
-        <button 
+        <button
           className={`tab-button ${activeTab === 'historial' ? 'active' : ''}`}
           onClick={() => setActiveTab('historial')}
         >
-          <i className="bi bi-clock-history"></i>
-          <span>Historial</span>
+          <i className="bi bi-clock-history"></i><span>Historial</span>
         </button>
-        
-        {/* 3. Clientes */}
-        <button 
-          className={`tab-button ${activeTab === 'clientes' ? 'active' : ''}`}
-          onClick={() => setActiveTab('clientes')}
-        >
-          <i className="bi bi-people-fill"></i>
-          <span>Clientes</span>
-        </button>
-
-        {/* 4. INFORMES (NUEVO BOTÓN - CLASE tab-informes AÑADIDA) */}
-        <button 
+        <button
           className={`tab-button tab-informes ${activeTab === 'informes' ? 'active' : ''}`}
           onClick={() => setActiveTab('informes')}
         >
-          <i className="bi bi-file-earmark-bar-graph"></i>
-          <span>Informes</span>
+          <i className="bi bi-file-earmark-text-fill"></i><span>Mis Informes</span>
         </button>
-
       </div>
 
       <main className="dashboard-main">
-        {error && <div className="error-banner">{error}</div>}
+        {error && <div className="error-banner"><i className="bi bi-exclamation-triangle-fill"></i> {error}</div>}
+
+        {/* ===== TAB: VER ÓRDENES ===== */}
         {activeTab === 'activas' && (
-          <section className="tab-content">
-            <div className="table-container" style={{ overflowX: 'auto' }}>
-              <table className="ordenes-table">
-                <thead>
-                  <tr>
-                    <th>ID Orden</th>
-                    <th>ID Cliente</th>
-                    <th>Cliente</th>
-                    <th>Moto</th>
-                    <th>Inicio</th>
-                    <th>Estado</th>
-                    <th>Acciones Técnicas</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {ordenes.filter(o => 
-                    !o.Estado.toLowerCase().includes('completado') && 
-                    !o.Estado.toLowerCase().includes('cancelado') && 
-                    o.ClienteNombre && o.ClienteNombre.trim() !== ''
-                  ).length === 0 ? (
-                    <tr><td colSpan={7} className="empty-row">No tienes órdenes activas. ¡Descansa! 🎉</td></tr>
-                  ) : (
-                    ordenes.filter(o => 
-                      !o.Estado.toLowerCase().includes('completado') && 
-                      !o.Estado.toLowerCase().includes('cancelado') && 
-                      o.ClienteNombre && o.ClienteNombre.trim() !== ''
-                    ).map(orden => {
-                      const cfg = getEstadoConfig(orden.Estado);
-                      return (
-                        <tr key={orden.ID_ORDEN_SERVICIO}>
-                          <td className="orden-id" onClick={() => abrirOrden(orden)} style={{ cursor: 'pointer', color: '#ff6600' }}>
-                            {formatId('orden', orden.ID_ORDEN_SERVICIO)}
-                          </td>
-                          <td className="font-mono text-blue-400 font-semibold tracking-wide">
-                            {formatId('cliente', orden.ID_CLIENTES)}
-                          </td>
-                          <td>{orden.ClienteNombre}</td>
-                          <td>{orden.ID_MOTOS ? formatId('moto', orden.ID_MOTOS) : 'Sin moto'}</td>
-                          <td>{formatDate(orden.Fecha_inicio)}</td>
-                          <td><span className={`estado-badge ${cfg.class}`}><i className={`bi ${cfg.icon}`}></i> {cfg.label}</span></td>
-                          <td className="acciones-cell">
-                            {cfg.next && (
-                              <button className="btn-flujo" onClick={() => actualizarEstado(orden.ID_ORDEN_SERVICIO, cfg.next)}>
-                                <i className="bi bi-arrow-right-circle"></i> {cfg.next === 'En Proceso' ? 'Iniciar' : cfg.next === 'Completado' ? 'Completar' : cfg.next}
-                              </button>
-                            )}
-                            {cfg.label === 'Pendiente' && (
-                              <button className="btn-flujo btn-cancelar" onClick={() => actualizarEstado(orden.ID_ORDEN_SERVICIO, 'Cancelado')}>
-                                <i className="bi bi-x-circle"></i> Cancelar
-                              </button>
-                            )}
-                            <button className="btn-detalles" onClick={() => abrirOrden(orden)} title="Gestionar orden"><i className="bi bi-gear-wide-connected"></i></button>
-                          </td>
-                        </tr>
-                      );
-                    })
-                  )}
-                </tbody>
-              </table>
-            </div>
-          </section>
+          <OrdenesAsignadas
+            ordenes={ordenes}
+            onActualizarEstado={actualizarEstado}
+            onAbrirInforme={abrirModalInforme}
+            onVerDetalle={abrirModalDetalle}
+            getEstadoConfig={getEstadoConfig}
+            formatDate={formatDate}
+            formatId={formatId}
+          />
         )}
 
-        {/* --- PESTAÑA HISTORIAL --- */}
+        {/* ===== TAB: HISTORIAL ===== */}
         {activeTab === 'historial' && (
           <section className="tab-content">
             <div className="table-container" style={{ overflowX: 'auto' }}>
@@ -370,140 +535,270 @@ const TecnicoDashboard = () => {
                 <thead>
                   <tr>
                     <th>ID Orden</th>
-                    <th>ID Cliente</th>
                     <th>Cliente</th>
-                    <th>Fin</th>
+                    <th>Fecha Fin</th>
                     <th>Estado</th>
-                    <th>Detalles</th>
+                    <th>Informe</th>
+                    <th>Acción</th>
                   </tr>
                 </thead>
                 <tbody>
-                  {ordenes.filter(o => 
-                    (o.Estado.toLowerCase().includes('completado') || o.Estado.toLowerCase().includes('cancelado')) && 
-                    o.ClienteNombre && o.ClienteNombre.trim() !== ''
-                  ).map(orden => (
-                    <tr key={orden.ID_ORDEN_SERVICIO}>
-                      <td className="orden-id">{formatId('orden', orden.ID_ORDEN_SERVICIO)}</td>
-                      <td className="font-mono text-blue-400 font-semibold">{formatId('cliente', orden.ID_CLIENTES)}</td>
-                      <td>{orden.ClienteNombre}</td>
-                      <td>{formatDate(orden.Fecha_fin)}</td>
-                      <td><span className={`estado-badge ${getEstadoConfig(orden.Estado).class}`}>{orden.Estado}</span></td>
-                      <td><button className="btn-detalles" onClick={() => abrirOrden(orden)}><i className="bi bi-eye"></i></button></td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          </section>
-        )}
-
-        {/* --- PESTAÑA CLIENTES --- */}
-        {activeTab === 'clientes' && (
-          <section className="tab-content">
-            <p className="info-text">Consulta de referencia de clientes. Para registros/contactos: <strong>Administración</strong>.</p>
-            <div className="table-container" style={{ overflowX: 'auto' }}>
-              <table className="clientes-table">
-                <thead><tr><th>ID Cliente</th><th>Nombre</th><th>Teléfono</th><th>Correo</th><th>Ubicación</th></tr></thead>
-                <tbody>
-                  {clientes.map(c => (
-                    <tr key={c.ID_CLIENTES}>
-                      <td className="font-mono text-blue-400 font-semibold">{formatId('cliente', c.ID_CLIENTES)}</td>
-                      <td><strong>{c.Nombre}</strong></td>
-                      <td>{c.Telefono}</td>
-                      <td>{c.Correo}</td>
-                      <td>{c.Ubicacion}</td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          </section>
-        )}
-
-        {/* --- PESTAÑA INFORMES (NUEVA) --- */}
-        {activeTab === 'informes' && (
-          <section className="tab-content">
-             <div style={{ textAlign: 'center', padding: '3rem', color: '#aaa' }}>
-               <i className="bi bi-file-earmark-bar-graph" style={{ fontSize: '4rem', marginBottom: '1rem' }}></i>
-               <h3>Gestión de Informes</h3>
-               <p>Aquí podrás generar reportes detallados de las órdenes de servicio trabajadas.</p>
-               <p style={{ marginTop: '1rem', fontSize: '0.9rem' }}>(Funcionalidad en desarrollo...)</p>
-             </div>
-          </section>
-        )}
-
-      </main>
-
-      {/* MODAL (Sin cambios) */}
-      {modalAbierto && ordenActual && (
-        <div className="modal-overlay" onClick={() => setModalAbierto(false)}>
-          <div className="modal-content modal-tecnico" onClick={e => e.stopPropagation()}>
-            <div className="modal-header">
-              <h3><i className="bi bi-tools"></i> Orden {formatId('orden', ordenActual.ID_ORDEN_SERVICIO)}</h3>
-              <button className="modal-close" onClick={() => setModalAbierto(false)}>×</button>
-            </div>
-            <div className="modal-body">
-              <div className="detail-grid">
-                <div><strong>ID Cliente:</strong> <span className="font-mono text-blue-400">{formatId('cliente', ordenActual.ID_CLIENTES)}</span></div>
-                <div><strong>Cliente:</strong> {ordenActual.ClienteNombre}</div>
-                <div><strong>Moto:</strong> {ordenActual.ID_MOTOS ? formatId('moto', ordenActual.ID_MOTOS) : 'Sin asignar'}</div>
-                <div><strong>Inicio:</strong> {formatDate(ordenActual.Fecha_inicio)}</div>
-                <div><strong>Estado:</strong> <span className={`estado-badge ${getEstadoConfig(ordenActual.Estado).class}`}>{ordenActual.Estado}</span></div>
-              </div>
-
-              <h4 style={{ marginTop: '1.5rem', color: '#ff6600' }}>➕ Registrar Trabajo</h4>
-              <div className="detalle-form">
-                <div className="form-row">
-                  <div className="form-group">
-                    <label>Servicio/Producto</label>
-                    <select 
-                      value={detalleForm.ID_SERVICIOS} 
-                      onChange={e => {
-                        const val = e.target.value;
-                        const precios: Record<string, number> = { '1': 50000, '2': 35000, '3': 80000 };
-                        setDetalleForm({
-                          ...detalleForm,
-                          ID_SERVICIOS: val,
-                          ID_PRODUCTOS: '',
-                          Precio: precios[val] || 0
-                        });
-                      }}
-                    >
-                      <option value="">Seleccionar servicio...</option>
-                      <option value="1">Cambio Aceite ($50.000)</option>
-                      <option value="2">Revisión Frenos ($35.000)</option>
-                      <option value="3">Ajuste Suspensión ($80.000)</option>
-                    </select>
-                  </div>
-                  <div className="form-group">
-                    <label>Garantía (meses)</label>
-                    <input type="number" value={detalleForm.Garantia} onChange={e => setDetalleForm({...detalleForm, Garantia: Number(e.target.value)})} />
-                  </div>
-                </div>
-                <button className="btn-guardar" onClick={agregarDetalle}>Agregar Detalle</button>
-              </div>
-
-              <h4 style={{ marginTop: '1rem', color: '#aaa' }}>📋 Registro de Trabajo</h4>
-              <table className="detalles-table">
-                <thead><tr><th>Concepto</th><th>Garantía</th><th>Estado</th></tr></thead>
-                <tbody>
-                  {detallesOrden.length === 0 ? (
-                    <tr><td colSpan={3} style={{ color: '#777' }}>Sin detalles registrados</td></tr>
+                  {ordenes.filter(o => esTerminada(o)).length === 0 ? (
+                    <tr><td colSpan={6} className="empty-row">Sin órdenes finalizadas aún.</td></tr>
                   ) : (
-                    detallesOrden.map((d, i) => (
-                      <tr key={i}>
+                    ordenes.filter(o => esTerminada(o)).map(orden => (
+                      <tr key={orden.ID_ORDEN_SERVICIO}>
+                        <td className="orden-id">{formatId('orden', orden.ID_ORDEN_SERVICIO)}</td>
+                        <td>{orden.ClienteNombre}</td>
+                        <td>{formatDate(orden.Fecha_fin)}</td>
                         <td>
-                          {d.ID_SERVICIOS ? `Servicio ${formatId('servicio', d.ID_SERVICIOS)}` : 
-                           d.ID_PRODUCTOS ? `Producto ${formatId('producto', d.ID_PRODUCTOS)}` : 
-                           'Concepto'}
+                          <span className={`estado-badge ${getEstadoConfig(orden.Estado).class}`}>
+                            {orden.Estado}
+                          </span>
                         </td>
-                        <td>{d.Garantia} meses</td>
-                        <td>{d.Estado}</td>
+                        <td>
+                          {informes.some(inf => String(inf.id_orden) === String(orden.ID_ORDEN_SERVICIO)) && (
+                            <button className="btn-detalles" onClick={() => abrirModalDetalle(orden)} title="Ver Informe">
+                              <i className="bi bi-file-earmark-text"></i>
+                            </button>
+                          )}
+                        </td>
+                        <td>
+                          <button className="btn-detalles" onClick={() => abrirModalDetalle(orden)}>
+                            <i className="bi bi-eye"></i>
+                          </button>
+                        </td>
                       </tr>
                     ))
                   )}
                 </tbody>
               </table>
+            </div>
+          </section>
+        )}
+
+        {/* ===== TAB: MIS INFORMES ===== */}
+        {activeTab === 'informes' && (
+          <section className="tab-content">
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem' }}>
+              <h3 style={{ color: '#ff6600', margin: 0 }}>
+                <i className="bi bi-file-earmark-text-fill"></i> Mis Informes Registrados
+              </h3>
+              <span style={{ color: '#aaa', fontSize: '0.85rem' }}>Total: {informes.length}</span>
+            </div>
+            {informes.length === 0 ? (
+              <div className="empty-state">
+                <i className="bi bi-file-earmark-x" style={{ fontSize: '3rem', color: '#333' }}></i>
+                <p style={{ color: '#555', marginTop: '1rem' }}>No has registrado informes aún.</p>
+                <p style={{ fontSize: '0.85rem', color: '#444' }}>
+                  Abre una orden <strong>"En Proceso"</strong> y pulsa <strong>"Redactar Informe"</strong>.
+                </p>
+              </div>
+            ) : (
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+                {informes.map(inf => (
+                  <div key={inf.id_informe} style={{
+                    background: 'linear-gradient(135deg,#141414,#0a0a0a)',
+                    border: '1px solid #262626',
+                    borderLeft: '4px solid #ff6600',
+                    borderRadius: '10px',
+                    padding: '1.2rem 1.5rem',
+                  }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '0.8rem' }}>
+                      <span style={{ color: '#ff6600', fontWeight: 700 }}>
+                        <i className="bi bi-file-earmark-text"></i> Informe #{inf.id_informe}
+                      </span>
+                      <span style={{ color: '#aaa', fontSize: '0.85rem' }}>
+                        Orden: {formatId('orden', inf.id_orden)} &nbsp;|&nbsp;
+                        {inf.fecha ? new Date(inf.fecha).toLocaleString('es-CO') : '—'}
+                      </span>
+                    </div>
+                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '1rem' }}>
+                      <div>
+                        <p style={{ color: '#aaa', fontSize: '0.75rem', margin: '0 0 0.3rem', textTransform: 'uppercase' }}>Diagnóstico</p>
+                        <p style={{ color: '#f5f5f5', margin: 0 }}>{inf.diagnostico || '—'}</p>
+                      </div>
+                      <div>
+                        <p style={{ color: '#aaa', fontSize: '0.75rem', margin: '0 0 0.3rem', textTransform: 'uppercase' }}>Trabajo Realizado</p>
+                        <p style={{ color: '#f5f5f5', margin: 0 }}>{inf.trabajo_realizado || '—'}</p>
+                      </div>
+                      <div>
+                        <p style={{ color: '#aaa', fontSize: '0.75rem', margin: '0 0 0.3rem', textTransform: 'uppercase' }}>Recomendaciones</p>
+                        <p style={{ color: '#f5f5f5', margin: 0 }}>{inf.recomendaciones || '—'}</p>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </section>
+        )}
+      </main>
+
+      {/* ===== MODAL: DETALLE ORDEN ===== */}
+      {modalAbierto && ordenActual && (
+        <div className="modal-overlay" onClick={() => setModalAbierto(false)}>
+          <div className="modal-content modal-tecnico" onClick={e => e.stopPropagation()}>
+            <div className="modal-header">
+              <h3><i className="bi bi-tools"></i> Detalle — {formatId('orden', ordenActual.ID_ORDEN_SERVICIO)}</h3>
+              <button className="modal-close" onClick={() => setModalAbierto(false)}>×</button>
+            </div>
+            <div className="modal-body">
+              <div className="detail-grid">
+                <div><strong>Cliente:</strong> {ordenActual.ClienteNombre}</div>
+                <div><strong>Ingreso:</strong> {formatDate(ordenActual.Fecha_inicio)}</div>
+                <div><strong>Estimada:</strong> {formatDate(ordenActual.Fecha_estimada)}</div>
+                <div><strong>Estado:</strong> <span className={`estado-badge ${getEstadoConfig(ordenActual.Estado).class}`}>{ordenActual.Estado}</span></div>
+                <div><strong>Total:</strong> ${Number(ordenActual.total || 0).toLocaleString('es-CO')}</div>
+              </div>
+
+              {motoDetalle && (
+                <div style={{ marginTop: '1rem', background: 'rgba(255,255,255,0.02)', border: '1px solid #333', borderRadius: '8px', padding: '1rem' }}>
+                  <h4 style={{ color: '#40c057', margin: '0 0 0.8rem', fontSize: '0.95rem' }}><i className="bi bi-bicycle"></i> Datos de la Moto</h4>
+                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(120px, 1fr))', gap: '0.8rem', fontSize: '0.85rem' }}>
+                    <div><strong style={{ color: '#aaa', display: 'block', fontSize: '0.75rem', textTransform: 'uppercase' }}>Placa</strong> {motoDetalle.Placa || motoDetalle.placa || '—'}</div>
+                    <div><strong style={{ color: '#aaa', display: 'block', fontSize: '0.75rem', textTransform: 'uppercase' }}>Marca</strong> {motoDetalle.Marca || motoDetalle.marca || '—'}</div>
+                    <div><strong style={{ color: '#aaa', display: 'block', fontSize: '0.75rem', textTransform: 'uppercase' }}>Modelo</strong> {motoDetalle.Modelo || motoDetalle.modelo || '—'}</div>
+                    <div><strong style={{ color: '#aaa', display: 'block', fontSize: '0.75rem', textTransform: 'uppercase' }}>Cilindraje</strong> {motoDetalle.Cilindraje || motoDetalle.cilindraje || '—'}</div>
+                    <div><strong style={{ color: '#aaa', display: 'block', fontSize: '0.75rem', textTransform: 'uppercase' }}>Kilometraje</strong> {motoDetalle.Kilometraje || motoDetalle.kilometraje || '—'}</div>
+                  </div>
+                </div>
+              )}
+              {ordenActual.observaciones && (
+                <div style={{ marginTop: '1rem', padding: '0.8rem', background: '#141414', borderRadius: '8px', borderLeft: '3px solid #555' }}>
+                  <strong style={{ color: '#aaa' }}>Observaciones:</strong>
+                  <p style={{ color: '#f5f5f5', margin: '0.3rem 0 0' }}>{ordenActual.observaciones}</p>
+                </div>
+              )}
+              
+              <div style={{ marginTop: '1.5rem', background: '#0d0d0d', border: '1px solid #222', borderRadius: '8px', padding: '1rem' }}>
+                <h4 style={{ color: '#ff6600', margin: '0 0 1rem', fontSize: '1rem' }}><i className="bi bi-list-check"></i> Servicios y Productos</h4>
+                {cargandoDetalles ? (
+                  <p style={{ color: '#aaa', textAlign: 'center' }}><i className="bi bi-hourglass-split"></i> Cargando detalles...</p>
+                ) : ordenDetalles.length === 0 ? (
+                  <p style={{ color: '#666', fontStyle: 'italic', margin: 0 }}>No hay servicios ni productos asignados.</p>
+                ) : (
+                  <div style={{ overflowX: 'auto' }}>
+                    <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.85rem' }}>
+                      <thead>
+                        <tr style={{ borderBottom: '1px solid #333', color: '#aaa' }}>
+                          <th style={{ textAlign: 'left', padding: '0.5rem' }}>Ítem</th>
+                          <th style={{ textAlign: 'center', padding: '0.5rem' }}>Cant.</th>
+                          <th style={{ textAlign: 'right', padding: '0.5rem' }}>Precio</th>
+                          <th style={{ textAlign: 'right', padding: '0.5rem' }}>Subtotal</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {ordenDetalles.map(det => (
+                          <tr key={det.ID_DETALLES_ORDEN_SERVICIO} style={{ borderBottom: '1px solid #1a1a1a', color: '#f5f5f5' }}>
+                            <td style={{ padding: '0.5rem' }}>
+                              {det.NombreServicio && <div style={{ color: '#4c6ef5' }}><i className="bi bi-wrench"></i> {det.NombreServicio}</div>}
+                              {det.NombreProducto && <div style={{ color: '#40c057' }}><i className="bi bi-box-seam"></i> {det.NombreProducto}</div>}
+                            </td>
+                            <td style={{ textAlign: 'center', padding: '0.5rem' }}>{det.cantidad}</td>
+                            <td style={{ textAlign: 'right', padding: '0.5rem' }}>${Number(det.Precio).toLocaleString('es-CO')}</td>
+                            <td style={{ textAlign: 'right', padding: '0.5rem', fontWeight: 600 }}>${Number(det.subtotal).toLocaleString('es-CO')}</td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                )}
+              </div>
+              {(() => {
+                const informeAsociado = informes.find(inf => String(inf.id_orden) === String(ordenActual.ID_ORDEN_SERVICIO));
+                if (!informeAsociado) return null;
+                return (
+                  <div style={{ marginTop: '1.5rem', background: 'linear-gradient(135deg,#1a1005,#140d05)', border: '1px solid #331f0a', borderLeft: '4px solid #ff6600', borderRadius: '8px', padding: '1rem' }}>
+                    <h4 style={{ color: '#ff6600', margin: '0 0 1rem', fontSize: '1rem' }}><i className="bi bi-file-earmark-text"></i> Informe Técnico Realizado</h4>
+                    <div style={{ display: 'grid', gridTemplateColumns: '1fr', gap: '0.8rem' }}>
+                      <div>
+                        <strong style={{ color: '#aaa', display: 'block', fontSize: '0.75rem', textTransform: 'uppercase' }}>Diagnóstico</strong>
+                        <p style={{ color: '#f5f5f5', margin: '0.2rem 0 0', fontSize: '0.9rem' }}>{informeAsociado.diagnostico || '—'}</p>
+                      </div>
+                      <div>
+                        <strong style={{ color: '#aaa', display: 'block', fontSize: '0.75rem', textTransform: 'uppercase' }}>Trabajo Realizado</strong>
+                        <p style={{ color: '#f5f5f5', margin: '0.2rem 0 0', fontSize: '0.9rem' }}>{informeAsociado.trabajo_realizado || '—'}</p>
+                      </div>
+                      <div>
+                        <strong style={{ color: '#aaa', display: 'block', fontSize: '0.75rem', textTransform: 'uppercase' }}>Recomendaciones</strong>
+                        <p style={{ color: '#f5f5f5', margin: '0.2rem 0 0', fontSize: '0.9rem' }}>{informeAsociado.recomendaciones || '—'}</p>
+                      </div>
+                    </div>
+                  </div>
+                );
+              })()}
+
+              {getEstadoConfig(ordenActual.Estado).label === 'En Proceso' && (
+                <button
+                  className="btn-guardar"
+                  style={{ marginTop: '1.5rem', background: 'linear-gradient(135deg,#00b4d8,#0077b6)' }}
+                  onClick={() => { setModalAbierto(false); abrirModalInforme(ordenActual); }}
+                >
+                  <i className="bi bi-file-earmark-plus"></i> Redactar Informe
+                </button>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ===== MODAL: CREAR INFORME ===== */}
+      {modalInformeAbierto && ordenActual && (
+        <div className="modal-overlay" onClick={() => setModalInformeAbierto(false)}>
+          <div className="modal-content modal-tecnico" onClick={e => e.stopPropagation()} style={{ maxWidth: '650px' }}>
+            <div className="modal-header">
+              <h3><i className="bi bi-file-earmark-plus"></i> Informe — {formatId('orden', ordenActual.ID_ORDEN_SERVICIO)}</h3>
+              <button className="modal-close" onClick={() => setModalInformeAbierto(false)}>×</button>
+            </div>
+            <div className="modal-body">
+              <div style={{ background: '#141414', borderRadius: '8px', padding: '0.8rem 1rem', marginBottom: '1.5rem', borderLeft: '3px solid #ff6600' }}>
+                <strong style={{ color: '#aaa', fontSize: '0.85rem' }}>ORDEN</strong>
+                <p style={{ color: '#f5f5f5', margin: '0.2rem 0 0' }}>
+                  {formatId('orden', ordenActual.ID_ORDEN_SERVICIO)} — Cliente: {ordenActual.ClienteNombre}
+                </p>
+              </div>
+
+              <div className="detalle-form">
+                {[
+                  { key: 'diagnostico', label: 'Diagnóstico', icon: 'bi-search', placeholder: 'Describe el problema encontrado en la moto...' },
+                  { key: 'trabajo_realizado', label: 'Trabajo Realizado', icon: 'bi-tools', placeholder: 'Detalla el trabajo realizado, piezas cambiadas, ajustes...' },
+                  { key: 'recomendaciones', label: 'Recomendaciones', icon: 'bi-chat-square-text', placeholder: 'Indica próximo mantenimiento, cuidados, etc...' },
+                ].map(({ key, label, icon, placeholder }) => (
+                  <div className="form-group" key={key} style={{ marginBottom: '1rem' }}>
+                    <label style={{ display: 'block', color: '#aaa', fontWeight: 600, fontSize: '0.85rem', marginBottom: '0.4rem', textTransform: 'uppercase' }}>
+                      <i className={`bi ${icon}`}></i> {label}
+                    </label>
+                    <textarea
+                      rows={3}
+                      placeholder={placeholder}
+                      value={(informeForm as any)[key]}
+                      onChange={e => setInformeForm({ ...informeForm, [key]: e.target.value })}
+                      style={{
+                        width: '100%', background: '#0d0d0d', border: '1px solid #333',
+                        borderRadius: '8px', color: '#f5f5f5', padding: '0.8rem',
+                        resize: 'vertical', fontFamily: 'inherit', fontSize: '0.9rem',
+                        boxSizing: 'border-box'
+                      }}
+                    />
+                  </div>
+                ))}
+
+                <div style={{ display: 'flex', gap: '1rem', marginTop: '0.5rem' }}>
+                  <button className="btn-guardar" onClick={guardarInforme} disabled={guardandoInforme} style={{ flex: 1 }}>
+                    {guardandoInforme
+                      ? <><i className="bi bi-hourglass-split"></i> Guardando...</>
+                      : <><i className="bi bi-check-circle-fill"></i> Guardar Informe</>
+                    }
+                  </button>
+                  <button
+                    onClick={() => setModalInformeAbierto(false)}
+                    style={{ padding: '0.8rem 1.5rem', background: 'transparent', border: '1px solid #444', borderRadius: '8px', color: '#aaa', cursor: 'pointer', fontWeight: 600 }}
+                  >
+                    Cancelar
+                  </button>
+                </div>
+              </div>
             </div>
           </div>
         </div>

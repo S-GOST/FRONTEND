@@ -164,7 +164,6 @@ function Dashboard() {
               <NavCard title="Servicios" icon="bi-wrench-adjustable" color="#06b6d4" onClick={() => navigate('/admin/servicios')} />
               <NavCard title="Productos" icon="bi-box-seam" color="#ec4899" onClick={() => navigate('/admin/productos')} />
               <NavCard title="Categorías" icon="bi-tags" color="#f97316" onClick={() => navigate('/admin/categorias')} />
-              <NavCard title="Motos" icon="bi-bicycle" color="#14b8a6" onClick={() => navigate('/admin/motos')} />
               <NavCard title="Informes Técnicos" icon="bi-file-earmark-text" color="#10b981" onClick={() => navigate('/admin/informe')} />
               <NavCard title="Comprobantes" icon="bi-receipt" color="#f59e0b" onClick={() => navigate('/admin/comprobante')} />
               <NavCard title="Historial Global" icon="bi-journal-text" color="#6b7280" onClick={() => navigate('/admin/historial')} />

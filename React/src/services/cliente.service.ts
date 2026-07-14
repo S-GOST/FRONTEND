@@ -32,7 +32,7 @@ const addCompatibility = (c: any): any => {
   if (!c) return c;
   return {
     ...c,
-    ID_CLIENTES: c.numero_documento,
+    ID_CLIENTES: c.id_usuario || c.numero_documento,
     Nombre: c.nombre,
     Ubicacion: c.ciudad,
   };
