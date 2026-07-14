@@ -72,11 +72,7 @@ const OrdenesAsignadas: React.FC<OrdenesActivasProps> = ({
           <span className="chip-num">{ordenes.length}</span>
           <span className="chip-lbl">Total</span>
         </div>
-        <div className="resumen-chip chip-pending" onClick={() => setFiltroEstado('Pendiente')}>
-          <i className="bi bi-clock"></i>
-          <span className="chip-num">{countByState('pendiente')}</span>
-          <span className="chip-lbl">Pendientes</span>
-        </div>
+
         <div className="resumen-chip chip-process" onClick={() => setFiltroEstado('En Proceso')}>
           <i className="bi bi-arrow-repeat"></i>
           <span className="chip-num">{countByState('proceso')}</span>
@@ -439,7 +435,9 @@ const TecnicoDashboard = () => {
       if (!esTerminada(o)) return false;
       if (!o.Fecha_fin) return false;
       const d = new Date(o.Fecha_fin);
-      return !isNaN(d.getTime()) && d.toDateString() === new Date().toDateString();
+      const now = new Date();
+      // Considerarla de hoy si se finalizó en las últimas 24 horas
+      return !isNaN(d.getTime()) && (now.getTime() - d.getTime()) < 86400000;
     }).length,
   };
 
