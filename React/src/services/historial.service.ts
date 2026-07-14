@@ -1,18 +1,19 @@
 import { BaseApiService } from './base.service';
 
 export interface HistorialPayload {
-  ID_HISTORIAL: string | number;
-  ID_ORDEN_SERVICIO?: string | null;
-  ID_COMPROBANTE?: string | null;
-  ID_INFORME?: string | null;
-  ID_TECNICOS?: string | null;
-  ID_CLIENTES?: string | null;
-  Descripcion: string;
-  Fecha_registro?: string;
+  id_historial?: string | number;
+  id_usuario: string | number;
+  tabla_afectada: string;
+  id_registro: string | number;
+  accion: string;
+  descripcion: string;
+  fecha_registro?: string;
 }
 
 // 👇 ASEGÚRATE DE EXPORTAR ESTA INTERFAZ TAMBIÉN PARA QUE EL COMPONENTE LA ENCUENTRE
-export interface HistorialRecord extends Required<HistorialPayload> {}
+export interface HistorialRecord extends HistorialPayload {
+  id_historial: number;
+}
 
 // Instanciar la API Base (ya no es abstracta, así que funciona 'new')
 export const historialService = new BaseApiService<HistorialPayload>({
