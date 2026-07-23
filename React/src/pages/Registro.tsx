@@ -37,7 +37,6 @@ const Registro: React.FC = () => {
   const {
     register,
     handleSubmit,
-    formState: { errors },
   } = useForm<RegistroFormInputs>();
 
   useEffect(() => {
