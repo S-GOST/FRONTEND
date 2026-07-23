@@ -63,7 +63,10 @@ function Dashboard() {
 
       const pendientes = ordenes.filter(o => o.Estado?.toLowerCase().includes('pendiente'));
       const enProceso = ordenes.filter(o => o.Estado?.toLowerCase().includes('proceso'));
-      const completadas = ordenes.filter(o => o.Estado?.toLowerCase().includes('completado'));
+      const completadas = ordenes.filter(o => {
+        const st = o.Estado?.toLowerCase() || '';
+        return st.includes('completado') || st.includes('finalizado') || st.includes('finalizada');
+      });
 
       setStats({
         usuarios: admins.length + tecnicos.length + clientes.length,

@@ -180,12 +180,6 @@ const OrdenesAsignadas: React.FC<OrdenesActivasProps> = ({
                         >
                           <i className="bi bi-play-circle-fill"></i> Iniciar Trabajo
                         </button>
-                        <button
-                          className="card-btn btn-cancelar-sm"
-                          onClick={() => onActualizarEstado(String(orden.ID_ORDEN_SERVICIO), 'Cancelada')}
-                        >
-                          <i className="bi bi-x-circle"></i> Cancelar
-                        </button>
                       </>
                     )}
                     {esEnProceso && (

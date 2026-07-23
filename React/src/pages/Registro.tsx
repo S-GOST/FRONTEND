@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
+import Swal from 'sweetalert2';
 import logo from '../assets/icons/rock.png';
 import './Registro.css';
 import { insertarCliente, ClientePayload } from '../services/cliente.service';
@@ -105,10 +106,18 @@ const Registro: React.FC = () => {
 
       await insertarMoto(motoData);
 
-      setServerSuccess('¡Registro completado exitosamente! Ahora puedes iniciar sesión.');
-      setTimeout(() => {
+      Swal.fire({
+        title: '¡Registro Exitoso!',
+        text: 'Bienvenido a KTM Rocket Service. Ahora puedes iniciar sesión.',
+        icon: 'success',
+        background: '#101010',
+        color: '#f5f5f5',
+        confirmButtonColor: '#ff6600',
+        timer: 3000,
+        showConfirmButton: false,
+      }).then(() => {
         navigate('/login');
-      }, 3000);
+      });
 
     } catch (err: any) {
       console.error(err);

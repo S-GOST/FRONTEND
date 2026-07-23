@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { useNavigate, Outlet, useLocation } from 'react-router-dom';
 import Swal from 'sweetalert2';
 import { obtenerMotos, type MotoRecord } from '../../services/moto.service';
-import { obtenerOrdenes, type OrdenServicioRecord } from '../../services/ordenServicioService';
+import { obtenerMisOrdenes, type OrdenServicioRecord } from '../../services/ordenServicioService';
 import { clearSession } from '../../services/auth.services'; // Asegúrate que el archivo se llama así
 import '../TableAdmin/Dashboard.css';
 import { formatId } from '../../utils/formatIds';
@@ -49,9 +49,8 @@ function ClienteDashboard() {
       const motos = extraerMotos(motosRes.data);
       const motosCliente = motos.filter(m => String(m.ID_CLIENTES) === String(clienteId));
 
-      const ordenesRes = await obtenerOrdenes().catch(() => ({ data: [] }));
-      const ordenes = extraerOrdenes(ordenesRes.data);
-      const ordenesCliente = ordenes.filter(o => String(o.ID_CLIENTES) === String(clienteId));
+      const ordenesRes = await obtenerMisOrdenes().catch(() => ({ data: [] }));
+      const ordenesCliente = extraerOrdenes(ordenesRes.data);
 
       const completadas = ordenesCliente.filter(o => ['Completado', 'completado'].includes(o.Estado)).length;
       const pendientes = ordenesCliente.filter(o => 
@@ -127,18 +126,21 @@ function ClienteDashboard() {
   );
 
   const getEstadoColor = (estado: string): string => {
-    const e = estado.toLowerCase();
-    if (e === 'completado') return '#00ff88';
-    if (e === 'en proceso') return '#ffd166';
-    if (e === 'pendiente') return '#ff6600';
+    if (!estado) return '#666';
+    const e = String(estado).toLowerCase().trim();
+    if (e.includes('completad') || e.includes('finalizad')) return '#00ff88';
+    if (e.includes('proceso')) return '#ffd166';
+    if (e.includes('pendient')) return '#ff6600';
+    if (e.includes('cancelad')) return '#ff4444';
     return '#666';
   };
 
   const getProgress = (estado: string): number => {
-    const e = estado.toLowerCase();
-    if (e === 'completado') return 100;
-    if (e === 'en proceso') return 50;
-    return 15; // Pendiente
+    if (!estado) return 15;
+    const e = String(estado).toLowerCase().trim();
+    if (e.includes('completad') || e.includes('finalizad')) return 100;
+    if (e.includes('proceso')) return 50;
+    return 15; // Pendiente o default
   };
 
   return (
@@ -202,13 +204,27 @@ function ClienteDashboard() {
                           <div key={orden.ID_ORDEN_SERVICIO} style={{ background: '#1a1a1a', borderRadius: '12px', padding: '20px', border: '1px solid #333', boxShadow: '0 4px 15px rgba(0,0,0,0.2)' }}>
                             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px', flexWrap: 'wrap', gap: '10px' }}>
                               <div>
-                                <strong style={{ color: '#ff6600', fontSize: '1.2rem', fontFamily: 'JetBrains Mono, monospace' }}>
+                                <strong style={{ color: '#ff6600', fontSize: '1.2rem', fontFamily: 'JetBrains Mono, monospace', display: 'block', marginBottom: '5px' }}>
                                   {formatId('orden', orden.ID_ORDEN_SERVICIO)}
                                 </strong>
-                                <span style={{ color: '#888', marginLeft: '15px', fontSize: '0.9rem' }}>
-                                  <i className="bi bi-calendar-event me-1"></i>
-                                  Inicio: {new Date(orden.Fecha_inicio).toLocaleDateString('es-CO')}
-                                </span>
+                                <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+                                  <span style={{ color: '#888', fontSize: '0.9rem' }}>
+                                    <i className="bi bi-calendar-event me-1"></i>
+                                    Inicio: {new Date(orden.Fecha_inicio).toLocaleDateString('es-CO')}
+                                  </span>
+                                  {orden.Fecha_estimada && (
+                                    <span style={{ color: '#aaa', fontSize: '0.85rem' }}>
+                                      <i className="bi bi-calendar-check me-1"></i>
+                                      Est. Entrega: {new Date(orden.Fecha_estimada).toLocaleDateString('es-CO')}
+                                    </span>
+                                  )}
+                                  {orden.Fecha_fin && (
+                                    <span style={{ color: '#00ff88', fontSize: '0.85rem' }}>
+                                      <i className="bi bi-calendar-check-fill me-1"></i>
+                                      Finalizado: {new Date(orden.Fecha_fin).toLocaleDateString('es-CO')}
+                                    </span>
+                                  )}
+                                </div>
                               </div>
                               <span style={{ 
                                 padding: '6px 14px', 

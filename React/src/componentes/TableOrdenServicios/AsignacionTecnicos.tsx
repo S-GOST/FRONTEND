@@ -114,7 +114,7 @@ const AsignacionTecnicos = () => {
   const enProceso = ordenesFiltered.filter(o => o.ID_TECNICOS && o.Estado?.toLowerCase() === 'en proceso');
   const completadas = ordenesFiltered.filter(o => {
     const st = o.Estado?.toLowerCase();
-    return st === 'completado' || st === 'cancelado' || st === 'finalizado';
+    return st === 'completado' || st === 'cancelado' || st === 'finalizado' || st === 'finalizada' || st === 'cancelada';
   });
 
   // Asignar técnico
@@ -138,6 +138,20 @@ const AsignacionTecnicos = () => {
               <span class="swal-ktm-info-value">${tecNombre}</span>
             </div>
           </div>
+          <div style="margin-top: 15px; text-align: left; display: flex; gap: 10px;">
+            <div style="flex: 1;">
+              <label for="fecha-estimada" style="display: block; color: #aaa; margin-bottom: 5px; font-size: 0.9rem;">Fecha Estimada</label>
+              <input type="date" id="fecha-estimada" class="swal2-input" style="width: 100%; max-width: 100%; background: #222; color: #fff; border: 1px solid #444; margin: 0; font-size: 0.9rem; padding: 0 10px;" />
+            </div>
+            <div style="flex: 1;">
+              <label for="garantia-productos" style="display: block; color: #aaa; margin-bottom: 5px; font-size: 0.9rem;">Garantía Productos (Días)</label>
+              <input type="number" id="garantia-productos" class="swal2-input" placeholder="Ej. 30" min="0" style="width: 100%; max-width: 100%; background: #222; color: #fff; border: 1px solid #444; margin: 0; font-size: 0.9rem; padding: 0 10px;" />
+            </div>
+            <div style="flex: 1;">
+              <label for="garantia-servicios" style="display: block; color: #aaa; margin-bottom: 5px; font-size: 0.9rem;">Garantía Servicios (Días)</label>
+              <input type="number" id="garantia-servicios" class="swal2-input" placeholder="Ej. 15" min="0" style="width: 100%; max-width: 100%; background: #222; color: #fff; border: 1px solid #444; margin: 0; font-size: 0.9rem; padding: 0 10px;" />
+            </div>
+          </div>
         </div>
       `,
       showCancelButton: true,
@@ -153,9 +167,17 @@ const AsignacionTecnicos = () => {
         confirmButton: 'swal-ktm-confirm',
         cancelButton: 'swal-ktm-cancel',
       },
+      preConfirm: () => {
+        return {
+          fecha: (document.getElementById('fecha-estimada') as HTMLInputElement)?.value,
+          garantiaProductos: (document.getElementById('garantia-productos') as HTMLInputElement)?.value,
+          garantiaServicios: (document.getElementById('garantia-servicios') as HTMLInputElement)?.value
+        };
+      }
     });
 
     if (!confirm.isConfirmed) return;
+    const { fecha, garantiaProductos, garantiaServicios } = confirm.value;
 
     try {
       setSubmitting(orden.ID_ORDEN_SERVICIO);
@@ -164,12 +186,12 @@ const AsignacionTecnicos = () => {
         ID_ADMINISTRADOR: orden.ID_ADMINISTRADOR || '',
         ID_TECNICOS: tecId,
         ID_MOTOS: orden.ID_MOTOS,
-        Fecha_inicio: orden.Fecha_inicio,
-        Fecha_estimada: orden.Fecha_estimada,
-        Fecha_fin: orden.Fecha_fin || '',
-        Estado: 'En Proceso',
+        Fecha_estimada: fecha || orden.Fecha_estimada,
+        garantia_productos: garantiaProductos ? Number(garantiaProductos) : undefined,
+        garantia_servicios: garantiaServicios ? Number(garantiaServicios) : undefined,
+        Estado: 'Pendiente',
         ClienteNombre: orden.ClienteNombre || '',
-      });
+      } as any);
 
       Swal.fire({
         title: '¡Asignado!',
@@ -209,8 +231,50 @@ const AsignacionTecnicos = () => {
     setSelectedTech(prev => ({ ...prev, [ordenId]: e.target.value }));
   };
 
+  const handleObservaciones = async (orden: OrdenServicioRecord) => {
+    const { value: observaciones } = await Swal.fire({
+      title: 'Observaciones / Garantía',
+      input: 'textarea',
+      inputLabel: 'Escribe las observaciones de entrega de esta orden:',
+      inputValue: orden.observaciones || '',
+      showCancelButton: true,
+      confirmButtonText: 'Guardar',
+      cancelButtonText: 'Cancelar',
+      background: '#0a0a0a',
+      color: '#f5f5f5',
+      confirmButtonColor: '#ff6600',
+      cancelButtonColor: '#1e1e1e',
+      customClass: { popup: 'swal-ktm-popup', title: 'swal-ktm-title' },
+      inputValidator: (val) => {
+        if (!val) return 'Debes escribir algo...';
+        return null;
+      }
+    });
+
+    if (observaciones) {
+      try {
+        setSubmitting(orden.ID_ORDEN_SERVICIO);
+        await actualizarOrden(orden.ID_ORDEN_SERVICIO, { observaciones } as any);
+        Swal.fire({
+          title: 'Guardado',
+          text: 'Las observaciones se guardaron con éxito',
+          icon: 'success',
+          timer: 1500,
+          showConfirmButton: false,
+          background: '#0a0a0a',
+          color: '#f5f5f5',
+        });
+        await cargarDatos();
+      } catch (err) {
+        Swal.fire('Error', 'No se pudieron guardar las observaciones', 'error');
+      } finally {
+        setSubmitting(null);
+      }
+    }
+  };
+
   // Formatear fecha
-  const formatFecha = (fecha: string) => {
+  const formatFecha = (fecha: string | null | undefined) => {
     if (!fecha) return '-';
     try {
       return new Date(fecha).toLocaleDateString('es-CO', {
@@ -303,6 +367,28 @@ const AsignacionTecnicos = () => {
                   <><i className="bi bi-check2" /> Asignar</>
                 )}
               </button>
+            </div>
+          )}
+
+          {(orden.Estado?.toLowerCase() === 'finalizado' || orden.Estado?.toLowerCase() === 'finalizada') && !orden.observaciones && (
+            <div className="tech-assign-row" style={{ marginTop: '10px' }}>
+              <button
+                className="btn-assign"
+                style={{ width: '100%', background: '#ff6600', color: '#fff' }}
+                onClick={() => handleObservaciones(orden)}
+              >
+                <i className="bi bi-pencil-square" /> Agregar Observaciones
+              </button>
+            </div>
+          )}
+          {(orden.Estado?.toLowerCase() === 'finalizado' || orden.Estado?.toLowerCase() === 'finalizada') && orden.observaciones && (
+            <div style={{ marginTop: '15px', padding: '12px', background: '#1a1a1a', borderRadius: '8px', borderLeft: '4px solid #4ade80' }}>
+              <span style={{ display: 'block', color: '#4ade80', fontSize: '0.8rem', fontWeight: 600, marginBottom: '6px', textTransform: 'uppercase', letterSpacing: '1px' }}>
+                <i className="bi bi-check-circle-fill" style={{ marginRight: '6px' }}/> Observaciones
+              </span>
+              <p style={{ margin: 0, color: '#ccc', fontSize: '0.9rem', lineHeight: '1.4' }}>
+                {orden.observaciones}
+              </p>
             </div>
           )}
         </div>

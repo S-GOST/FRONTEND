@@ -10,6 +10,7 @@ interface DetalleOrden {
   cantidad: number;
   precio_unitario: number;
   subtotal: number;
+  garantia?: number | null;
   NombreServicio: string | null;
   NombreProducto: string | null;
 }
@@ -210,13 +211,25 @@ const ClienteOrdenes = () => {
                     )}
                   </div>
 
-                  {/* Fecha */}
-                  <div>
-                    <span style={{ color: '#666', fontSize: '0.75rem', textTransform: 'uppercase', letterSpacing: '1px', display: 'block' }}>Fecha</span>
+                  {/* Fechas */}
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+                    <span style={{ color: '#666', fontSize: '0.75rem', textTransform: 'uppercase', letterSpacing: '1px', display: 'block' }}>Fechas</span>
                     <span style={{ color: '#ddd', fontSize: '0.9rem' }}>
                       <i className="bi bi-calendar-event" style={{ marginRight: '6px', color: '#888' }}></i>
                       {formatFecha(orden.Fecha_inicio)}
                     </span>
+                    {orden.Fecha_estimada && (
+                      <span style={{ color: '#aaa', fontSize: '0.85rem' }}>
+                        <i className="bi bi-calendar-check" style={{ marginRight: '6px', color: '#aaa' }}></i>
+                        Est: {formatFecha(orden.Fecha_estimada)}
+                      </span>
+                    )}
+                    {orden.Fecha_fin && (
+                      <span style={{ color: '#00ff88', fontSize: '0.85rem' }}>
+                        <i className="bi bi-calendar-check-fill" style={{ marginRight: '6px', color: '#00ff88' }}></i>
+                        Fin: {formatFecha(orden.Fecha_fin)}
+                      </span>
+                    )}
                   </div>
 
                   {/* Total */}
@@ -284,6 +297,7 @@ const ClienteOrdenes = () => {
                               <th style={{ padding: '10px 12px', textAlign: 'left', color: '#ff6600', fontSize: '0.8rem', textTransform: 'uppercase', letterSpacing: '1px' }}>Tipo</th>
                               <th style={{ padding: '10px 12px', textAlign: 'left', color: '#ff6600', fontSize: '0.8rem', textTransform: 'uppercase', letterSpacing: '1px' }}>Nombre</th>
                               <th style={{ padding: '10px 12px', textAlign: 'center', color: '#ff6600', fontSize: '0.8rem', textTransform: 'uppercase', letterSpacing: '1px' }}>Cant.</th>
+                              <th style={{ padding: '10px 12px', textAlign: 'center', color: '#ff6600', fontSize: '0.8rem', textTransform: 'uppercase', letterSpacing: '1px' }}>Garantía</th>
                               <th style={{ padding: '10px 12px', textAlign: 'right', color: '#ff6600', fontSize: '0.8rem', textTransform: 'uppercase', letterSpacing: '1px' }}>P. Unitario</th>
                               <th style={{ padding: '10px 12px', textAlign: 'right', color: '#ff6600', fontSize: '0.8rem', textTransform: 'uppercase', letterSpacing: '1px' }}>Subtotal</th>
                             </tr>
@@ -304,6 +318,9 @@ const ClienteOrdenes = () => {
                                   {[det.NombreServicio, det.NombreProducto].filter(Boolean).join(' + ') || '—'}
                                 </td>
                                 <td style={{ padding: '10px 12px', textAlign: 'center', color: '#ccc' }}>{det.cantidad}</td>
+                                <td style={{ padding: '10px 12px', textAlign: 'center', color: '#aaa', fontSize: '0.85rem' }}>
+                                  {det.garantia ? `${det.garantia} días` : '—'}
+                                </td>
                                 <td style={{ padding: '10px 12px', textAlign: 'right', color: '#ccc', fontFamily: 'JetBrains Mono, monospace' }}>
                                   {formatPrecio(det.precio_unitario)}
                                 </td>

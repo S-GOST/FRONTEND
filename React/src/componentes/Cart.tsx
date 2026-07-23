@@ -334,6 +334,8 @@ const Cart: React.FC<CartProps> = ({ onCheckout }) => {
           ID_SERVICIOS: !isProducto ? parseInt(item.id, 10) : null,
           ID_PRODUCTOS: isProducto ? parseInt(item.id, 10) : null,
           Garantia: null,
+          cantidad: item.quantity,
+          precio_unitario: item.price,
           Precio: item.price * item.quantity,
         };
       });
