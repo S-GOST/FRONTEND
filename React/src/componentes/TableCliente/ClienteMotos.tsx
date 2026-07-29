@@ -2,7 +2,6 @@ import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Swal from 'sweetalert2';
 import { obtenerMotos, insertarMoto, type MotoPayload } from '../../services/moto.service';
-import { obtenerClientes } from '../../services/cliente.service';
 import './ClienteMotos.css';
 
 function ClienteMotos() {
@@ -30,30 +29,18 @@ function ClienteMotos() {
     try {
       setLoading(true);
 
-      const [motosRes, clientesRes] = await Promise.all([
-        obtenerMotos(),
-        obtenerClientes()
-      ]);
-
-      // Resolver id_usuario del cliente
-      const rawClientes = clientesRes.data;
-      let clientesArr: any[] = [];
-      if (Array.isArray(rawClientes)) clientesArr = rawClientes;
-      else if (rawClientes?.data && Array.isArray(rawClientes.data)) clientesArr = rawClientes.data;
-
-      const clienteActual = clientesArr.find((c: any) =>
-        String(c.numero_documento) === String(userDocumento)
-      );
-      const clientId = clienteActual ? String(clienteActual.id_usuario) : String(userDocumento);
+      // 1) Obtener todas las motos (obtenerMotos ya está filtrado por backend o las trae todas)
+      const motosRes = await obtenerMotos();
+      const clientId = String(userDocumento); // En localStorage ya está el id_usuario
       setRealClientId(clientId);
-
+      
       // Extraer motos
       const rawMotos = motosRes.data;
       let motosArr: any[] = [];
       if (Array.isArray(rawMotos)) motosArr = rawMotos;
       else if (rawMotos?.data && Array.isArray(rawMotos.data)) motosArr = rawMotos.data;
 
-      // Filtrar motos del cliente
+      // Filtrar motos del cliente actual
       const misMotos = motosArr.filter((m: any) =>
         String(m.id_cliente ?? m.ID_CLIENTES ?? '') === clientId
       );

@@ -2,12 +2,15 @@ import { useEffect, useState, type ChangeEvent, type FormEvent } from 'react';
 import Swal from 'sweetalert2';
 import {
   obtenerInformes,
+  obtenerMisInformes,
+  generarReporte,
   crearInforme,
   actualizarInforme,
   eliminarInforme,
   type InformePayload,
   type InformeRecord,
 } from '../../services/informe.service';
+import { generarComprobante, obtenerComprobantes } from '../../services/comprobanteService';
 import { obtenerDetallesOrdenes, type DetalleOrdenServicioRecord } from '../../services/detalleOrdenServicioService';
 import { obtenerAdmins, type AdminRecord } from '../../services/admin.service';
 import { obtenerTecnicos, type TecnicoRecord } from '../../services/tecnico.service';
@@ -35,22 +38,29 @@ const TableInformes = () => {
   const [detallesOrdenes, setDetallesOrdenes] = useState<DetalleOrdenServicioRecord[]>([]);
   const [administradores, setAdministradores] = useState<AdminRecord[]>([]);
   const [tecnicos, setTecnicos] = useState<TecnicoRecord[]>([]);
+  const [comprobantesGenerados, setComprobantesGenerados] = useState<number[]>([]);
+
+  const userRole = localStorage.getItem('user_role');
+  
+  // HU-004.1 Reportes
+  const [showReportModal, setShowReportModal] = useState(false);
+  const [reportFechas, setReportFechas] = useState({ fecha_inicio: '', fecha_fin: '' });
 
   const cargarDatos = async () => {
     setLoading(true);
     try {
-      const [informesRes, detallesRes, adminsRes, tecnicosRes] = await Promise.all([
-        obtenerInformes(),
-        obtenerDetallesOrdenes(),
-        obtenerAdmins(),
-        obtenerTecnicos(),
+      const fetchInformes = userRole === 'tecnico' ? obtenerMisInformes : obtenerInformes;
+      
+      const [informesRes, comprobantesRes] = await Promise.all([
+        fetchInformes(),
+        userRole === 'admin' ? obtenerComprobantes() : Promise.resolve({ data: [] }),
       ]);
 
       setInformes(Array.isArray(informesRes.data) ? informesRes.data : informesRes.data?.data || []);
       setFilteredInformes(Array.isArray(informesRes.data) ? informesRes.data : informesRes.data?.data || []);
-      setDetallesOrdenes(Array.isArray(detallesRes.data) ? detallesRes.data : detallesRes.data?.data || []);
-      setAdministradores(Array.isArray(adminsRes.data) ? adminsRes.data : adminsRes.data?.data || []);
-      setTecnicos(Array.isArray(tecnicosRes.data) ? tecnicosRes.data : tecnicosRes.data?.data || []);
+      
+      const compData = Array.isArray(comprobantesRes.data) ? comprobantesRes.data : comprobantesRes.data?.data || [];
+      setComprobantesGenerados(compData.map((c: any) => c.id_orden));
     } catch (error) {
       console.error(error);
       Swal.fire({ title: 'Error', text: 'No se pudieron cargar los datos', icon: 'error', background: '#101010', color: '#f5f5f5' });
@@ -185,6 +195,61 @@ const TableInformes = () => {
     }
   };
 
+  const handleGenerarComprobante = async (informe: InformeRecord) => {
+    const result = await Swal.fire({
+      title: `Generar Comprobante`,
+      text: `Seleccione el método de pago para el informe #${informe.id_informe}:`,
+      input: 'select',
+      inputOptions: {
+        Efectivo: 'Efectivo',
+        Nequi: 'Nequi',
+        Daviplata: 'Daviplata',
+        Transferencia: 'Transferencia',
+        Tarjeta: 'Tarjeta'
+      },
+      inputPlaceholder: 'Seleccione un método',
+      showCancelButton: true,
+      confirmButtonColor: '#ff6600',
+      confirmButtonText: 'Generar',
+      background: '#101010',
+      color: '#f5f5f5',
+      inputValidator: (value) => {
+        if (!value) {
+          return 'Debe seleccionar un método de pago';
+        }
+      }
+    });
+    
+    if (!result.isConfirmed) return;
+    
+    try {
+      await generarComprobante(informe.id_informe, result.value);
+      showAlert('Éxito', 'Comprobante generado correctamente', 'success');
+      await cargarDatos();
+    } catch (err: any) {
+      console.error(err);
+      showAlert('Error', err.response?.data?.message || 'No se pudo generar', 'error');
+    }
+  };
+
+  const handleSubmitReport = async (e: FormEvent) => {
+    e.preventDefault();
+    if (!reportFechas.fecha_inicio || !reportFechas.fecha_fin) return;
+    
+    setLoading(true);
+    try {
+      const res = await generarReporte(reportFechas.fecha_inicio, reportFechas.fecha_fin);
+      setInformes(res.data || []);
+      setFilteredInformes(res.data || []);
+      setShowReportModal(false);
+      showAlert('Éxito', 'Reporte generado', 'success');
+    } catch (err: any) {
+      console.error(err);
+      showAlert('Error', err.response?.data?.message || 'Error al generar', 'error');
+      setLoading(false);
+    }
+  };
+
   return (
     <div className="motos-page">
       <div className="admin-section">
@@ -205,9 +270,6 @@ const TableInformes = () => {
             </button>
           </div>
           <div className="right-actions">
-            <button className="btn-create" onClick={openCreateModal}>
-              <i className="bi bi-file-earmark-plus"></i> Nuevo Informe
-            </button>
             <button className="btn-reset" onClick={handleReset}>
               <i className="bi bi-arrow-repeat"></i> Reset
             </button>
@@ -242,12 +304,19 @@ const TableInformes = () => {
                     <td>{(inf.trabajo_realizado || '').substring(0, 40)}...</td>
                     <td>{inf.fecha ? new Date(inf.fecha).toLocaleDateString() : '-'}</td>
                     <td className="actions-cell">
-                      <button className="btn-edit-ktm" onClick={() => openEditModal(inf)}>
+                      {userRole === 'admin' && !comprobantesGenerados.includes(inf.id_orden) && (
+                        <button className="btn-edit-ktm" style={{backgroundColor: '#28a745'}} onClick={() => handleGenerarComprobante(inf)} title="Generar Comprobante">
+                          <i className="bi bi-receipt"></i>
+                        </button>
+                      )}
+                      <button className="btn-edit-ktm" onClick={() => openEditModal(inf)} title="Editar">
                         <i className="bi bi-pencil-square"></i>
                       </button>
-                      <button className="btn-eliminar-ktm" onClick={() => handleDelete(inf)}>
-                        <i className="bi bi-trash3"></i>
-                      </button>
+                      {userRole === 'admin' && (
+                        <button className="btn-eliminar-ktm" onClick={() => handleDelete(inf)} title="Eliminar">
+                          <i className="bi bi-trash3"></i>
+                        </button>
+                      )}
                     </td>
                   </tr>
                 ))
@@ -307,6 +376,43 @@ const TableInformes = () => {
               <div className="modal-footer">
                 <button type="button" onClick={closeModal}>Cancelar</button>
                 <button type="submit">{editMode ? 'Actualizar' : 'Crear Informe'}</button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {showReportModal && (
+        <div className="modal-overlay" onClick={() => setShowReportModal(false)}>
+          <div className="modal-container" onClick={e => e.stopPropagation()}>
+            <div className="modal-header">
+              <h3>Generar Reporte por Fechas</h3>
+              <button className="close-btn" onClick={() => setShowReportModal(false)}>&times;</button>
+            </div>
+            <form onSubmit={handleSubmitReport}>
+              <div className="modal-body">
+                <div className="form-group">
+                  <label>Fecha Inicio *</label>
+                  <input
+                    type="date"
+                    value={reportFechas.fecha_inicio}
+                    onChange={(e) => setReportFechas(prev => ({...prev, fecha_inicio: e.target.value}))}
+                    required
+                  />
+                </div>
+                <div className="form-group">
+                  <label>Fecha Fin *</label>
+                  <input
+                    type="date"
+                    value={reportFechas.fecha_fin}
+                    onChange={(e) => setReportFechas(prev => ({...prev, fecha_fin: e.target.value}))}
+                    required
+                  />
+                </div>
+              </div>
+              <div className="modal-footer">
+                <button type="button" onClick={() => setShowReportModal(false)}>Cancelar</button>
+                <button type="submit">Generar</button>
               </div>
             </form>
           </div>

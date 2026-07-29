@@ -29,6 +29,8 @@ import ClienteDashboard from './componentes/TableCliente/ClienteDashboard';
 import Usuarios from './componentes/TableAdmin/Usuarios';
 import ClienteOrdenes from './componentes/TableCliente/ClienteOrdenes';
 import ClienteMotos from './componentes/TableCliente/ClienteMotos';
+import ClienteComprobantes from './componentes/TableCliente/ClienteComprobantes';
+import ClienteHistorial from './componentes/TableCliente/ClienteHistorial';
 import { obtenerProductos } from './services/producto.service';
 
 const HomePage: React.FC<{ addToCart: (service: Service) => void, productos: Service[] }> = ({ addToCart, productos }) => {
@@ -346,6 +348,7 @@ function App() {
         </Route>
         <Route element={<ProtectedTecnicoRoute />}>
           <Route path="/tecnico/dashboard" element={<TecnicoDashboard />} />
+          <Route path="/tecnico/informes" element={<Tableinforme />} />
         </Route>
         {/* Ruta protegida para cliente */}
         <Route
@@ -362,6 +365,8 @@ function App() {
           <Route path="dashboard" element={<div>Dashboard Cliente (próximamente)</div>} />
           <Route path="ordenes" element={<ClienteOrdenes />} />
           <Route path="motos" element={<ClienteMotos />} />
+          <Route path="comprobantes" element={<ClienteComprobantes />} />
+          <Route path="historial" element={<ClienteHistorial />} />
           <Route path="servicios" element={<div>Servicios</div>} />
           <Route path="perfil" element={<div>Mi Perfil</div>} />
           <Route path="*" element={<Navigate to="/cliente/dashboard" replace />} />

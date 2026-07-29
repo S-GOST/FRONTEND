@@ -6,6 +6,7 @@ import { ProductoPayload } from '../services/producto.service';
 import { ServicioPayload } from '../services/servicio.service';
 import { obtenerMotos, MotoRecord } from '../services/moto.service';
 import { obtenerClientes } from '../services/cliente.service';
+import { apiClient } from '../config/axios';
 import './Cart.css';
 
 interface CartItem {
@@ -246,31 +247,12 @@ const Cart: React.FC<CartProps> = ({ onCheckout }) => {
     try {
       setLoadingMotos(true);
       const userDocumento = localStorage.getItem('user_id');
+      const realClientId = String(userDocumento);
 
-      // 1) Obtener clientes y motos en paralelo
-      const [motosRes, clientesRes] = await Promise.all([
-        obtenerMotos(),
-        obtenerClientes()
-      ]);
+      console.log('🏍️ [MOTOS] ID Cliente actual:', realClientId);
 
-      // Extraer array de clientes (vienen de SELECT * FROM usuarios WHERE id_rol=3)
-      const rawClientes = clientesRes.data;
-      let clientesArr: any[] = [];
-      if (Array.isArray(rawClientes)) clientesArr = rawClientes;
-      else if (rawClientes?.data && Array.isArray(rawClientes.data)) clientesArr = rawClientes.data;
-      else if (rawClientes?.clientes && Array.isArray(rawClientes.clientes)) clientesArr = rawClientes.clientes;
-
-      // Buscar el cliente cuyo numero_documento coincida
-      const clienteActual = clientesArr.find((c: any) =>
-        String(c.numero_documento) === String(userDocumento)
-      );
-
-      // El campo id_usuario es lo que motos.id_cliente referencia
-      const realClientId = clienteActual
-        ? String(clienteActual.id_usuario)
-        : String(userDocumento);
-
-      console.log('🏍️ [MOTOS] numero_documento:', userDocumento, '→ id_usuario:', realClientId);
+      // 1) Obtener motos (solo necesitamos las motos)
+      const motosRes = await obtenerMotos();
 
       // 2) Extraer array de motos
       const rawMotos = motosRes.data;
@@ -348,18 +330,11 @@ const Cart: React.FC<CartProps> = ({ onCheckout }) => {
         observaciones: '',
       };
 
-      const res = await fetch('http://localhost:3000/api/ordenes_servicio/insertar', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`,
-        },
-        body: JSON.stringify(body),
-      });
+      const res = await apiClient.post('/ordenes_servicio/insertar', body);
 
-      const data = await res.json();
+      const data = res.data;
 
-      if (data.success) {
+      if (data.success || data.message?.includes('creada') || res.status === 200 || res.status === 201) {
         // Limpiar carrito
         setCart([]);
         localStorage.removeItem('ktmCart');

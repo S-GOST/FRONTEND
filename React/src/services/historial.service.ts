@@ -38,3 +38,9 @@ export const obtenerHistorialPorId = (id: string | number) => historialService.o
 export const insertarHistorial = (data: HistorialPayload) => historialService.crear(data);
 export const actualizarHistorial = (id: string | number, data: HistorialPayload) => historialService.actualizar(id, data);
 export const eliminarHistorial = (id: string | number) => historialService.eliminar(id);
+
+import apiClient from '../config/axios';
+export const obtenerMiHistorial = async () => {
+  const res = await apiClient.get('/historial/mi-historial');
+  return res.data;
+};

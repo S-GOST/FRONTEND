@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Swal from 'sweetalert2';
 import {
-  obtenerOrdenes,
+  obtenerMisOrdenes,
   actualizarOrden,
   obtenerDetallesPorOrden,
   type OrdenServicioRecord
@@ -13,7 +13,7 @@ import {
 } from '../../services/cliente.service';
 import { clearSession } from '../../services/auth.services';
 import { formatId } from '../../utils/formatIds';
-import { crearInforme, obtenerInformes, type InformeRecord } from '../../services/informe.service';
+import { crearInforme, obtenerMisInformes, type InformeRecord } from '../../services/informe.service';
 import { obtenerMotoPorId, type MotoRecord } from '../../services/moto.service';
 import './TecnicoDashboard.css';
 
@@ -54,7 +54,17 @@ const OrdenesAsignadas: React.FC<OrdenesActivasProps> = ({
   const [busqueda, setBusqueda] = useState('');
 
   const ordenesFiltradas = ordenes.filter(o => {
-    const matchEstado = filtroEstado === 'todas' || o.Estado?.toLowerCase().includes(filtroEstado.toLowerCase());
+    const estadoL = o.Estado?.toLowerCase() || '';
+    let matchEstado = false;
+    
+    if (filtroEstado === 'todas') {
+      matchEstado = true;
+    } else if (filtroEstado === 'Completado') {
+      matchEstado = estadoL.includes('finalizad') || estadoL.includes('completad');
+    } else {
+      matchEstado = estadoL.includes(filtroEstado.toLowerCase());
+    }
+
     const matchBusqueda = busqueda === '' ||
       o.ClienteNombre?.toLowerCase().includes(busqueda.toLowerCase()) ||
       String(o.ID_ORDEN_SERVICIO).includes(busqueda);
@@ -117,7 +127,7 @@ const OrdenesAsignadas: React.FC<OrdenesActivasProps> = ({
             const cfg = getEstadoConfig(orden.Estado);
             const esPendiente = cfg.label === 'Pendiente';
             const esEnProceso = cfg.label === 'En Proceso';
-            const esCompletada = cfg.label === 'Completado' || cfg.label === 'Cancelado';
+            const esCompletada = cfg.label === 'Finalizada' || cfg.label === 'Cancelada';
 
             return (
               <div key={orden.ID_ORDEN_SERVICIO} className={`orden-card ${cfg.class}`}>
@@ -285,9 +295,9 @@ const TecnicoDashboard = () => {
     setError(null);
     try {
       const [resOrdenes, resClientes, resInformes] = await Promise.all([
-        obtenerOrdenes(),
+        obtenerMisOrdenes(),
         obtenerClientes(),
-        obtenerInformes(),
+        obtenerMisInformes(),
       ]);
 
       const todasOrdenes = extraerDatos<OrdenServicioRecord>(resOrdenes.data);
@@ -295,14 +305,13 @@ const TecnicoDashboard = () => {
       const todosInformes = extraerDatos<InformeRecord>(resInformes.data);
 
       const misOrdenes: OrdenUI[] = todasOrdenes
-        .filter(o => Number(o.ID_TECNICOS) === tecnicoId)
         .map(o => {
           const cliente = todosClientes.find(c => String(c.ID_CLIENTES) === String(o.ID_CLIENTES));
           return { ...o, ClienteNombre: cliente?.Nombre || 'Sin nombre' } as OrdenUI;
         });
 
       setOrdenes(misOrdenes);
-      setInformes(todosInformes.filter(i => i.id_tecnico === tecnicoId));
+      setInformes(todosInformes);
     } catch (err: any) {
       setError(err.response?.data?.message || 'Error al cargar datos');
     } finally {
@@ -452,9 +461,6 @@ const TecnicoDashboard = () => {
             <p>Gestión técnica de órdenes asignadas</p>
           </div>
           <div className="header-actions">
-            <button className="nav-btn" onClick={() => navigate('/tecnico/menu')}>
-              <i className="bi bi-grid-3x3-gap"></i> Menú
-            </button>
             <button className="logout-btn" onClick={handleLogout}>
               <i className="bi bi-box-arrow-right"></i> Salir
             </button>
@@ -490,14 +496,8 @@ const TecnicoDashboard = () => {
           <i className="bi bi-lightning-charge-fill"></i><span>Ver Órdenes</span>
         </button>
         <button
-          className={`tab-button ${activeTab === 'historial' ? 'active' : ''}`}
-          onClick={() => setActiveTab('historial')}
-        >
-          <i className="bi bi-clock-history"></i><span>Historial</span>
-        </button>
-        <button
-          className={`tab-button tab-informes ${activeTab === 'informes' ? 'active' : ''}`}
-          onClick={() => setActiveTab('informes')}
+          className="tab-button tab-informes"
+          onClick={() => navigate('/tecnico/informes')}
         >
           <i className="bi bi-file-earmark-text-fill"></i><span>Mis Informes</span>
         </button>

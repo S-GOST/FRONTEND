@@ -42,3 +42,14 @@ export const eliminarInforme = async (id: number) => {
   const res = await apiClient.delete(`/informes/eliminar/${id}`);
   return res.data;
 };
+
+// HU-004.1
+export const obtenerMisInformes = async () => {
+  const res = await apiClient.get('/informes/mis-informes');
+  return res.data;
+};
+
+export const generarReporte = async (fecha_inicio: string, fecha_fin: string) => {
+  const res = await apiClient.post('/informes/generar-reporte', { fecha_inicio, fecha_fin });
+  return res.data;
+};

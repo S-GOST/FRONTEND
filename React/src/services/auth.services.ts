@@ -52,9 +52,17 @@ export const storeSession = (data: LoginResponse, role: 'admin' | 'tecnico' | 'c
   return { ...data, rol: role };
 };
 
-export const clearSession = () => {
-  localStorage.clear();
-  window.location.replace('/login');
+export const clearSession = async () => {
+  try {
+    // Intentar invalidar el refresh token en el servidor
+    await apiClient.post('/auth/logout');
+  } catch (error) {
+    console.warn('Fallo el logout en el servidor', error);
+  } finally {
+    // Limpiar siempre localmente
+    localStorage.clear();
+    window.location.replace('/login');
+  }
 };
 
 // 🚀 SERVICIO UNIFICADO DE LOGIN (usa /auth/login)
@@ -68,6 +76,13 @@ const mapRol = (rolId: number | string): 'admin' | 'tecnico' | 'cliente' => {
 export const loginService = async (usuario: string, contrasena: string) => {
   const user = usuario.trim();
   const pass = contrasena.trim();
+
+  // RFN-005: Aseguramos tener el token CSRF antes del POST de login
+  try {
+    await apiClient.get('/auth/csrf-token');
+  } catch (e) {
+    // Ignoramos si falla, el backend podría haberlo enviado antes
+  }
 
   const res = await apiClient.post<LoginResponse>('/auth/login', { usuario: user, password: pass });
   const role = mapRol(res.data.rol ?? 3);

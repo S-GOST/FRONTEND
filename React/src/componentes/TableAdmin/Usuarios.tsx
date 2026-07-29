@@ -348,13 +348,13 @@ function Usuarios() {
 
   const handleDelete = async (record: AdminRecord | TecnicoRecord | ClienteRecord) => {
     const result = await Swal.fire({
-      title: `¿Eliminar ${record.nombre}?`,
+      title: `¿Inhabilitar ${record.nombre}?`,
       text: 'Esta acción no se puede deshacer.',
       icon: 'warning',
       showCancelButton: true,
       confirmButtonColor: '#a51f1f',
       cancelButtonColor: '#2a2a2a',
-      confirmButtonText: 'Sí, eliminar',
+      confirmButtonText: 'Sí, inhabilitar',
       cancelButtonText: 'Cancelar',
       background: '#101010',
       color: '#f5f5f5',
@@ -366,10 +366,10 @@ function Usuarios() {
       if (activeTab === 'admins') await eliminarAdmin(record.numero_documento);
       if (activeTab === 'tecnicos') await eliminarTecnico(record.numero_documento);
       if (activeTab === 'clientes') await eliminarCliente(record.numero_documento);
-      await showAlert('Eliminado', `${getTabLabel(activeTab).slice(0, -1)} eliminado correctamente.`, 'success');
+      await showAlert('Inhabilitado', `${getTabLabel(activeTab).slice(0, -1)} inhabilitado correctamente.`, 'success');
       await cargarDatos();
     } catch (error) {
-      handleApiError(error, 'Ocurrió un error al eliminar el usuario.');
+      handleApiError(error, 'Ocurrió un error al inhabilitar el usuario.');
     }
   };
 
@@ -422,11 +422,13 @@ function Usuarios() {
               <i className="bi bi-search"></i>
             </button>
           </div>
-          <div className="right-actions">
-            <button className="btn-create" onClick={openCreateModal}>
-              <i className="bi bi-plus-circle"></i> Nuevo {getTabLabel(activeTab).slice(0, -1)}
-            </button>
-          </div>
+          {activeTab !== 'clientes' && (
+            <div className="right-actions">
+              <button className="btn-create" onClick={openCreateModal}>
+                <i className="bi bi-plus-circle"></i> Nuevo {getTabLabel(activeTab).slice(0, -1)}
+              </button>
+            </div>
+          )}
         </div>
 
         <div className="table-responsive">
@@ -440,7 +442,7 @@ function Usuarios() {
                 <th>Teléfono</th>
                 {activeTab === 'clientes' && <th>Ciudad</th>}
                 <th>Usuario</th>
-                <th>Acciones</th>
+                {activeTab !== 'clientes' && <th>Acciones</th>}
               </tr>
             </thead>
             <tbody>
@@ -460,14 +462,16 @@ function Usuarios() {
                     <td>{item.telefono}</td>
                     {activeTab === 'clientes' && <td>{(item as ClienteRecord).ciudad}</td>}
                     <td>{item.usuario}</td>
-                    <td className="actions-cell">
-                      <button className="btn-edit-ktm" onClick={() => openEditModal(item)}>
-                        <i className="bi bi-pencil-square"></i> Editar
-                      </button>
-                      <button className="btn-eliminar-ktm" onClick={() => handleDelete(item)}>
-                        <i className="bi bi-trash3"></i> Eliminar
-                      </button>
-                    </td>
+                    {activeTab !== 'clientes' && (
+                      <td className="actions-cell">
+                        <button className="btn-edit-ktm" onClick={() => openEditModal(item)}>
+                          <i className="bi bi-pencil-square"></i> Editar
+                        </button>
+                        <button className="btn-eliminar-ktm" onClick={() => handleDelete(item)}>
+                          <i className="bi bi-person-x"></i> Inhabilitar
+                        </button>
+                      </td>
+                    )}
                   </tr>
                 ))
               ) : (
