@@ -18,15 +18,9 @@ export interface ClientePayload {
 
 export type ClienteRecord = ClientePayload;
 
-export class ClienteService extends BaseApiService<ClientePayload> {
-  constructor() {
-    super({
-      baseUrl: '/clientes',
-    });
-  }
-}
-
-const clienteService = new ClienteService();
+export const clienteService = new BaseApiService<ClientePayload>({
+  baseUrl: '/clientes',
+});
 
 const addCompatibility = (c: any): any => {
   if (!c) return c;

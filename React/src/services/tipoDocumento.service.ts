@@ -7,15 +7,9 @@ export interface TipoDocumentoPayload {
 
 export type TipoDocumentoRecord = TipoDocumentoPayload;
 
-export class TipoDocumentoService extends BaseApiService<TipoDocumentoPayload> {
-  constructor() {
-    super({
-      baseUrl: '/tipos-documento',
-    });
-  }
-}
-
-const tipoDocumentoService = new TipoDocumentoService();
+export const tipoDocumentoService = new BaseApiService<TipoDocumentoPayload>({
+  baseUrl: '/tipos-documento',
+});
 
 export const obtenerTiposDocumento = () => tipoDocumentoService.obtenerTodos();
 export const obtenerTipoDocumentoPorId = (id: string | number) => tipoDocumentoService.obtenerPorId(id);

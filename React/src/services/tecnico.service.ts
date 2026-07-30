@@ -16,15 +16,9 @@ export interface TecnicoPayload {
 
 export type TecnicoRecord = TecnicoPayload;
 
-export class TecnicoService extends BaseApiService<TecnicoPayload> {
-  constructor() {
-    super({
-      baseUrl: '/tecnicos',
-    });
-  }
-}
-
-const tecnicoService = new TecnicoService();
+export const tecnicoService = new BaseApiService<TecnicoPayload>({
+  baseUrl: '/tecnicos',
+});
 
 const addCompatibility = (t: any): any => {
   if (!t) return t;

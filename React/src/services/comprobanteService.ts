@@ -1,4 +1,5 @@
 import { BaseApiService } from './base.service';
+import apiClient from '../config/axios';
 
 export type ComprobanteId = string | number;
 
@@ -34,7 +35,6 @@ export const actualizarComprobante = (id: ComprobanteId, datosActualizados: Comp
 export const eliminarComprobante = (id: ComprobanteId) => comprobanteService.eliminar(id);
 
 // HU-004.1
-import apiClient from '../config/axios';
 
 export const generarComprobante = async (idInforme: number | string, metodo_pago?: string) => {
   const res = await apiClient.post(`/comprobantes/generar/${idInforme}`, { metodo_pago });

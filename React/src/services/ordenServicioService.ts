@@ -39,15 +39,9 @@ export const actualizarOrden = (
 
 // Obtener solo las órdenes del cliente autenticado
 export const obtenerMisOrdenes = () => {
-  const token = localStorage.getItem('user_token');
-  return ordenServicioService['http'].get('/ordenes_servicio/mis-ordenes', {
-    headers: { Authorization: `Bearer ${token}` }
-  });
+  return ordenServicioService['http'].get('/ordenes_servicio/mis-ordenes');
 };
 
 export const obtenerDetallesPorOrden = (idOrden: string | number) => {
-  const token = localStorage.getItem('user_token');
-  return ordenServicioService['http'].get(`/detalles_orden_servicio/por_orden/${idOrden}`, {
-    headers: { Authorization: `Bearer ${token}` }
-  });
+  return ordenServicioService['http'].get(`/detalles_orden_servicio/por_orden/${idOrden}`);
 };

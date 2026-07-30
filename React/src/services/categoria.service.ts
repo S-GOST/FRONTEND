@@ -1,4 +1,5 @@
 import { BaseApiService } from './base.service';
+import apiClient from '../config/axios';
 
 export interface CategoriaPayload {
   ID_CATEGORIA?: number;
@@ -26,7 +27,6 @@ export const actualizarCategoria = (id: string | number, data: CategoriaPayload)
 export const eliminarCategoria = (id: string | number) => categoriaService.eliminar(id);
 
 // Función especial para obtener categorías por tipo
-import apiClient from '../config/axios';
 export const obtenerCategoriasPorTipo = async (tipo: 'PRODUCTO' | 'SERVICIO') => {
   return apiClient.get(`/categorias/tipo/${tipo}`);
 };
