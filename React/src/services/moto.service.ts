@@ -20,7 +20,7 @@ export interface MotoPayload {
 
 export interface MotoRecord extends MotoPayload {}
 
-export const motoService = new BaseApiService<MotoPayload>({
+const motoService = new BaseApiService<MotoPayload>({
   baseUrl: '/motos',
   routes: { deletePrimary: '/eliminar/:id', deleteFallback: '' }
 });

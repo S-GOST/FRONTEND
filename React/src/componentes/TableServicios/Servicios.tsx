@@ -452,7 +452,7 @@ function Servicios() {
                       >
                         <i className="bi bi-pencil-square"></i> Editar
                       </button>
-                       {servicio.Estado === 'Inactivo' ? (
+                       {String(servicio.Estado) === 'Inactivo' ? (
                          <button
                            className="btn-eliminar-ktm"
                            onClick={() => restaurarServicio(servicio)}

@@ -127,13 +127,5 @@ apiClient.interceptors.response.use(
   }
 );
 
-// Exponemos una función para obtener el token CSRF inicial (opcional, útil al cargar la app)
-export const fetchCsrfToken = async () => {
-  try {
-    await apiClient.get('/auth/csrf-token');
-  } catch (error) {
-    console.error('Error obteniendo token CSRF inicial', error);
-  }
-};
 
 export default apiClient;

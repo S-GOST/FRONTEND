@@ -115,15 +115,7 @@ function ClienteDashboard() {
     });
   };
 
-  const StatCard = ({ title, value, icon, color }: { title: string; value: number; icon: string; color: string }) => (
-    <div className="stat-card" style={{ borderLeftColor: color }}>
-      <div className="stat-icon" style={{ color }}><i className={`bi ${icon}`}></i></div>
-      <div className="stat-content">
-        <h3 className="stat-title">{title}</h3>
-        <p className="stat-value">{value}</p>
-      </div>
-    </div>
-  );
+
 
   const getEstadoColor = (estado: string): string => {
     if (!estado) return '#666';

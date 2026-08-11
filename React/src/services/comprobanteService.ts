@@ -3,7 +3,7 @@ import apiClient from '../config/axios';
 
 export type ComprobanteId = string | number;
 
-export interface ComprobantePayload {
+interface ComprobantePayload {
   id_comprobante?: ComprobanteId;
   id_orden: string | number;
   numero_comprobante?: string;
@@ -21,18 +21,13 @@ export interface ComprobanteRecord extends ComprobantePayload {
 }
 
 // 👉 Instancia centralizada que hereda autenticación, fallbacks y CRUD genérico
-export const comprobanteService = new BaseApiService<ComprobantePayload>({
+const comprobanteService = new BaseApiService<ComprobantePayload>({
   baseUrl: '/comprobantes',
   routes: { deletePrimary: '/eliminar/:id', deleteFallback: '' }
 });
 
 // 👉 Exportaciones idénticas para compatibilidad 100% con tus componentes
 export const obtenerComprobantes = () => comprobanteService.obtenerTodos();
-export const obtenerComprobantePorId = (id: ComprobanteId) => comprobanteService.obtenerPorId(id);
-export const insertarComprobante = (datos: ComprobantePayload) => comprobanteService.crear(datos);
-export const actualizarComprobante = (id: ComprobanteId, datosActualizados: ComprobantePayload) => 
-  comprobanteService.actualizar(id, datosActualizados);
-export const eliminarComprobante = (id: ComprobanteId) => comprobanteService.eliminar(id);
 
 // HU-004.1
 

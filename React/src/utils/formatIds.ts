@@ -21,10 +21,4 @@ export const formatId = (entity: string, id: number | string | null): string => 
   const prefix = prefixes[entity] || 'ID';
   return `${prefix}-${num}`;
 };
-
-// Inverso: extraer el número del ID formateado (útil para enviar al backend)
-export const parseId = (formattedId: string): number | null => {
-  if (!formattedId || formattedId === 'N/A') return null;
-  const parts = formattedId.split('-');
-  return parts.length > 1 ? parseInt(parts[1], 10) : null;
-};
+

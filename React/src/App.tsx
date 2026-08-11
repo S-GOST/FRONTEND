@@ -4,7 +4,7 @@ import Navbar from './componentes/Navbar';
 import Header from './componentes/Header';
 import ServiceSection from './componentes/ServiceSection';
 import InfoSection from './componentes/InfoSection';
-import AccessSection from './componentes/AccessSection';
+
 import Footer from './componentes/Footer';
 import Cart from './componentes/Cart';
 import Login from './pages/Login';
@@ -43,7 +43,7 @@ const HomePage: React.FC<{ addToCart: (service: Service) => void, productos: Ser
       <Header />
       <main className="main-content">
         <div className="container">
-          {categories.map((category, index) => {
+          {categories.map((category) => {
             const filteredServices = servicesData.filter(
               service => service.category === category
             );
@@ -61,7 +61,7 @@ const HomePage: React.FC<{ addToCart: (service: Service) => void, productos: Ser
             );
           })}
           
-          {Array.from(new Set(productos.map(p => p.category))).map((category, index) => {
+          {Array.from(new Set(productos.map(p => p.category))).map((category) => {
             const filteredProducts = productos.filter(
               product => product.category === category
             );

@@ -17,7 +17,9 @@ export interface AdministradorPayload {
 export interface AdministradorRecord extends AdministradorPayload {}
 export type AdminRecord = AdministradorRecord;
 
-export const adminService = new BaseApiService<AdministradorPayload>({
+
+
+const adminService = new BaseApiService<AdministradorPayload>({
   baseUrl: '/admins',
   routes: {
     deletePrimary: '/eliminar/:id',
@@ -48,17 +50,7 @@ export const obtenerAdmins = async () => {
   return res;
 };
 
-export const obtenerAdminPorId = async (id: string | number) => {
-  const res = await adminService.obtenerPorId(id);
-  if (res.data) {
-    if (res.data.data) {
-      res.data.data = addCompatibility(res.data.data);
-    } else {
-      res.data = addCompatibility(res.data);
-    }
-  }
-  return res;
-};
+
 
 export const insertarAdmin = (data: AdministradorPayload) => adminService.crear(data);
 export const actualizarAdmin = (id: string | number, data: AdministradorPayload) => adminService.actualizar(id, data);

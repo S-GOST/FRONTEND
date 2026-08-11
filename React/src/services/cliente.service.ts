@@ -18,7 +18,7 @@ export interface ClientePayload {
 
 export type ClienteRecord = ClientePayload;
 
-export const clienteService = new BaseApiService<ClientePayload>({
+const clienteService = new BaseApiService<ClientePayload>({
   baseUrl: '/clientes',
 });
 
@@ -46,17 +46,7 @@ export const obtenerClientes = async () => {
   return res;
 };
 
-export const obtenerClientePorId = async (id: string | number) => {
-  const res = await clienteService.obtenerPorId(id);
-  if (res.data) {
-    if (res.data.data) {
-      res.data.data = addCompatibility(res.data.data);
-    } else {
-      res.data = addCompatibility(res.data);
-    }
-  }
-  return res;
-};
+
 
 export const insertarCliente = (datos: ClientePayload) => clienteService.crear(datos);
 export const actualizarCliente = (id: string | number, datos: ClientePayload) => clienteService.actualizar(id, datos);

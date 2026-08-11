@@ -23,10 +23,6 @@ export const obtenerInformes = async () => {
   return res.data;
 };
 
-export const obtenerInformePorId = async (id: number) => {
-  const res = await apiClient.get(`/informes/buscar/${id}`);
-  return res.data;
-};
 
 export const crearInforme = async (data: InformePayload) => {
   const res = await apiClient.post('/informes/insertar', data);

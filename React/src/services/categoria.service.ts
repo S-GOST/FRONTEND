@@ -9,9 +9,7 @@ export interface CategoriaPayload {
   estado?: string;
 }
 
-export type CategoriaRecord = CategoriaPayload;
-
-export const categoriaService = new BaseApiService<CategoriaPayload>({
+const categoriaService = new BaseApiService<CategoriaPayload>({
   baseUrl: '/categorias',
   routes: {
     createPrimary: '/insertar',
@@ -22,7 +20,7 @@ export const categoriaService = new BaseApiService<CategoriaPayload>({
 
 // Funciones exportadas para compatibilidad
 export const obtenerCategorias = () => categoriaService.obtenerTodos();
-export const obtenerCategoriaPorId = (id: string | number) => categoriaService.obtenerPorId(id);
+
 export const insertarCategoria = (data: CategoriaPayload) => categoriaService.crear(data);
 export const actualizarCategoria = (id: string | number, data: CategoriaPayload) => categoriaService.actualizar(id, data);
 export const eliminarCategoria = (id: string | number, force?: boolean) => 

@@ -17,7 +17,7 @@ const decodeJwt = (token: string): any => {
   }
 };
 
-export const storeSession = (data: LoginResponse, role: 'admin' | 'tecnico' | 'cliente') => {
+const storeSession = (data: LoginResponse, role: 'admin' | 'tecnico' | 'cliente') => {
   if (!data.token) return data;
 
   localStorage.setItem('user_token', data.token);
@@ -89,8 +89,6 @@ export const loginService = async (usuario: string, contrasena: string) => {
   return storeSession(res.data, role);
 };
 
-// Alias para compatibilidad con Login.tsx que intenta loginClienteService como fallback
-export const loginClienteService = loginService;
 
 // Recuperación de Contraseña
 export const requestPasswordReset = async (correo: string) => {

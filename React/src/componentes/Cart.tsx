@@ -5,7 +5,7 @@ import { obtenerServicios } from '../services/servicio.service';
 import { ProductoPayload } from '../services/producto.service';
 import { ServicioPayload } from '../services/servicio.service';
 import { obtenerMotos, MotoRecord } from '../services/moto.service';
-import { obtenerClientes } from '../services/cliente.service';
+
 import { apiClient } from '../config/axios';
 import './Cart.css';
 
@@ -20,11 +20,9 @@ interface CartItem {
   type: 'producto' | 'servicio';
 }
 
-interface CartProps {
-  onCheckout?: (cartData: any) => void;
-}
+interface CartProps {}
 
-const Cart: React.FC<CartProps> = ({ onCheckout }) => {
+const Cart: React.FC<CartProps> = () => {
   const navigate = useNavigate();
   const [cart, setCart] = useState<CartItem[]>([]);
   const [discountApplied, setDiscountApplied] = useState(false);
@@ -309,7 +307,6 @@ const Cart: React.FC<CartProps> = ({ onCheckout }) => {
 
     setSavingOrder(true);
     try {
-      const token = localStorage.getItem('user_token');
       const detalles = cart.map(item => {
         const isProducto = (item as any).ID_PRODUCTOS !== undefined;
         return {

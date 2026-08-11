@@ -12,7 +12,7 @@ import { FormattedId } from '../../componentes/FormattedId';
 import './Categorias.css';
 
 const TIPOS_CATEGORIA = ['PRODUCTO', 'SERVICIO'] as const;
-export type TipoCategoria = (typeof TIPOS_CATEGORIA)[number];
+
 
 const createInitialFormData = (): CategoriaPayload => ({
   nombre: '',

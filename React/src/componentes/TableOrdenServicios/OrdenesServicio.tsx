@@ -11,7 +11,7 @@ import {
 import { obtenerClientes, type ClienteRecord } from '../../services/cliente.service';
 import { obtenerTecnicos, type TecnicoRecord } from '../../services/tecnico.service';
 import { obtenerMotos, type MotoRecord } from '../../services/moto.service';
-import { obtenerAdmins, type AdminRecord } from '../../services/admin.service';
+import { obtenerAdmins } from '../../services/admin.service';
 import { FormattedId } from '../../componentes/FormattedId';
 import './OrdenesServicio.css';
 
@@ -72,7 +72,7 @@ const OrdenesServicio = () => {
   const [clientes, setClientes] = useState<ClienteRecord[]>([]);
   const [tecnicos, setTecnicos] = useState<TecnicoRecord[]>([]);
   const [motos, setMotos] = useState<MotoRecord[]>([]);
-  const [administradores, setAdministradores] = useState<AdminRecord[]>([]);
+
 
   useEffect(() => {
     void cargarDatosIniciales();
@@ -92,7 +92,7 @@ const OrdenesServicio = () => {
   const cargarDatosIniciales = async () => {
     try {
       setLoading(true);
-      const [ordenesRes, clientesRes, tecnicosRes, motosRes, adminRes] = await Promise.all([
+      const [ordenesRes, clientesRes, tecnicosRes, motosRes] = await Promise.all([
         obtenerOrdenes(),
         obtenerClientes(),
         obtenerTecnicos(),
@@ -107,7 +107,6 @@ const OrdenesServicio = () => {
       setClientes(extractArray<ClienteRecord>(clientesRes.data));
       setTecnicos(extractArray<TecnicoRecord>(tecnicosRes.data));
       setMotos(extractArray<MotoRecord>(motosRes.data));
-      setAdministradores(extractArray<AdminRecord>(adminRes.data));
 
       setError(null);
     } catch (err) {
@@ -148,22 +147,7 @@ const OrdenesServicio = () => {
     setModalFormOpen(true);
   };
 
-  const openEditModal = (orden: OrdenServicioRecord) => {
-    setEditMode(true);
-    setFormData({
-      ID_CLIENTES: orden.ID_CLIENTES,
-      ID_ADMINISTRADOR: orden.ID_ADMINISTRADOR || '',
-      ID_TECNICOS: orden.ID_TECNICOS || '',
-      ID_MOTOS: orden.ID_MOTOS,
-      Fecha_inicio: orden.Fecha_inicio,
-      Fecha_estimada: orden.Fecha_estimada,
-      Fecha_fin: orden.Fecha_fin || '',
-      Estado: orden.Estado,
-      ClienteNombre: orden.ClienteNombre || '',
-    });
-    setSelectedOrder(orden);
-    setModalFormOpen(true);
-  };
+
 
   // --- NUEVA FUNCIÓN: Asignación rápida de técnico ---
   const asignarTecnicoRápido = async (orden: OrdenServicioRecord) => {
@@ -557,11 +541,11 @@ const OrdenesServicio = () => {
 
                 <div className="form-group">
                   <label>Fecha inicio *</label>
-                  <input type="date" name="Fecha_inicio" value={formData.Fecha_inicio} onChange={handleFormChange} required />
+                  <input type="date" name="Fecha_inicio" value={formData.Fecha_inicio || ''} onChange={handleFormChange} required />
                 </div>
                 <div className="form-group">
                   <label>Fecha estimada *</label>
-                  <input type="date" name="Fecha_estimada" value={formData.Fecha_estimada} onChange={handleFormChange} required />
+                  <input type="date" name="Fecha_estimada" value={formData.Fecha_estimada || ''} onChange={handleFormChange} required />
                 </div>
                 <div className="form-group">
                   <label>Fecha fin</label>

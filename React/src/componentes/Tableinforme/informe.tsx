@@ -11,9 +11,7 @@ import {
   type InformeRecord,
 } from '../../services/informe.service';
 import { generarComprobante, obtenerComprobantes } from '../../services/comprobanteService';
-import { obtenerDetallesOrdenes, type DetalleOrdenServicioRecord } from '../../services/detalleOrdenServicioService';
-import { obtenerAdmins, type AdminRecord } from '../../services/admin.service';
-import { obtenerTecnicos, type TecnicoRecord } from '../../services/tecnico.service';
+
 import { FormattedId } from '../../componentes/FormattedId';
 import './Informe.css';
 
@@ -35,9 +33,7 @@ const TableInformes = () => {
   const [currentInforme, setCurrentInforme] = useState<InformeRecord | null>(null);
   const [formData, setFormData] = useState<InformePayload>(initialFormState);
 
-  const [detallesOrdenes, setDetallesOrdenes] = useState<DetalleOrdenServicioRecord[]>([]);
-  const [administradores, setAdministradores] = useState<AdminRecord[]>([]);
-  const [tecnicos, setTecnicos] = useState<TecnicoRecord[]>([]);
+
   const [comprobantesGenerados, setComprobantesGenerados] = useState<number[]>([]);
 
   const userRole = localStorage.getItem('user_role');
@@ -125,12 +121,7 @@ const TableInformes = () => {
     setFormData(prev => ({ ...prev, [name]: sanitized === '' ? 0 : Number(sanitized) }));
   };
 
-  const openCreateModal = async () => {
-    setEditMode(false);
-    setCurrentInforme(null);
-    setFormData({ ...initialFormState });
-    setShowModal(true);
-  };
+
 
   const openEditModal = (informe: InformeRecord) => {
     setEditMode(true);

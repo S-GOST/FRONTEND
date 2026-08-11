@@ -16,7 +16,7 @@ export interface TecnicoPayload {
 
 export type TecnicoRecord = TecnicoPayload;
 
-export const tecnicoService = new BaseApiService<TecnicoPayload>({
+const tecnicoService = new BaseApiService<TecnicoPayload>({
   baseUrl: '/tecnicos',
 });
 
@@ -43,17 +43,7 @@ export const obtenerTecnicos = async () => {
   return res;
 };
 
-export const obtenerTecnicoPorId = async (id: string | number) => {
-  const res = await tecnicoService.obtenerPorId(id);
-  if (res.data) {
-    if (res.data.data) {
-      res.data.data = addCompatibility(res.data.data);
-    } else {
-      res.data = addCompatibility(res.data);
-    }
-  }
-  return res;
-};
+
 
 export const insertarTecnico = (datos: TecnicoPayload) => tecnicoService.crear(datos);
 export const actualizarTecnico = (id: string | number, datos: TecnicoPayload) => tecnicoService.actualizar(id, datos);

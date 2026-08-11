@@ -13,7 +13,7 @@ export interface ProductoPayload {
 // Al final del archivo, después de las interfaces
 export type ProductoRecord = ProductoPayload;   // 👈 Agrega esta línea
 // 👉 Sobreescribimos SOLO lo que cambia
-export const productoService = new BaseApiService<ProductoPayload>({
+const productoService = new BaseApiService<ProductoPayload>({
   baseUrl: '/productos',
   routes: {
     createPrimary: '/insertar',   // 👈 nuevo endpoint para creación
