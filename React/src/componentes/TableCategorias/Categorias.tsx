@@ -5,6 +5,7 @@ import {
   insertarCategoria,
   actualizarCategoria,
   eliminarCategoria,
+  habilitarCategoria,
   type CategoriaPayload,
 } from '../../services/categoria.service';
 import { FormattedId } from '../../componentes/FormattedId';
@@ -208,13 +209,13 @@ function Categorias() {
     if (!categoria.ID_CATEGORIA) return;
     
     const result = await Swal.fire({
-      title: `¿Estás seguro de eliminar "${categoria.nombre}"?`,
-      text: 'Asegúrese de que no haya productos o servicios asociados a esta categoría.',
+      title: `¿Estás seguro de inhabilitar "${categoria.nombre}"?`,
+      text: 'Se verificará si tiene servicios o productos asociados.',
       icon: 'warning',
       showCancelButton: true,
       confirmButtonColor: '#ff6600',
       cancelButtonColor: '#6c757d',
-      confirmButtonText: 'Sí, eliminar',
+      confirmButtonText: 'Sí, inhabilitar',
       cancelButtonText: 'Cancelar',
       background: '#101010',
       color: '#f5f5f5',
@@ -223,13 +224,80 @@ function Categorias() {
     
     try {
       await eliminarCategoria(categoria.ID_CATEGORIA);
-      setCategorias((prev) => prev.filter((c) => c.ID_CATEGORIA !== categoria.ID_CATEGORIA));
-      setFilteredCategorias((prev) =>
-        prev.filter((c) => c.ID_CATEGORIA !== categoria.ID_CATEGORIA)
-      );
+      actualizarEstadoLocal(categoria.ID_CATEGORIA);
+    } catch (err: any) {
+      if (err.response?.status === 409) {
+        const confirmResult = await Swal.fire({
+          title: 'Atención',
+          text: err.response.data.message,
+          icon: 'warning',
+          showCancelButton: true,
+          confirmButtonColor: '#ff6600',
+          cancelButtonColor: '#6c757d',
+          confirmButtonText: 'Sí, inhabilitar todo',
+          cancelButtonText: 'Cancelar',
+          background: '#101010',
+          color: '#f5f5f5',
+        });
+        if (confirmResult.isConfirmed) {
+            try {
+                await eliminarCategoria(categoria.ID_CATEGORIA, true);
+                actualizarEstadoLocal(categoria.ID_CATEGORIA);
+            } catch (e) {
+                console.error('Error al inhabilitar dependencias:', e);
+                showAlert('Error', 'No se pudo inhabilitar la categoría.', 'error');
+            }
+        }
+      } else {
+        console.error('Error al inhabilitar:', err);
+        showAlert('Error', 'No se pudo inhabilitar la categoría.', 'error');
+      }
+    }
+  };
+
+  const actualizarEstadoLocal = (id: number) => {
+      const updateFn = (prev: CategoriaPayload[]) => prev.map(c => c.ID_CATEGORIA === id ? { ...c, estado: 'Inactivo' } : c);
+      setCategorias(updateFn);
+      setFilteredCategorias(updateFn);
       Swal.fire({
-        title: 'Eliminada',
-        text: 'La categoría fue eliminada correctamente.',
+        title: 'Inhabilitada',
+        text: 'La categoría fue inhabilitada correctamente.',
+        icon: 'success',
+        confirmButtonColor: '#ff6600',
+        background: '#101010',
+        color: '#f5f5f5',
+        timer: 2000,
+        showConfirmButton: false,
+      });
+  };
+
+  const restaurarCategoria = async (categoria: CategoriaPayload) => {
+    if (!categoria.ID_CATEGORIA) return;
+    
+    const result = await Swal.fire({
+      title: `¿Estás seguro de habilitar "${categoria.nombre}"?`,
+      text: 'La categoría volverá a estar activa.',
+      icon: 'question',
+      showCancelButton: true,
+      confirmButtonColor: '#ff6600',
+      cancelButtonColor: '#6c757d',
+      confirmButtonText: 'Sí, habilitar',
+      cancelButtonText: 'Cancelar',
+      background: '#101010',
+      color: '#f5f5f5',
+    });
+    if (!result.isConfirmed) return;
+    
+    try {
+      await habilitarCategoria(categoria.ID_CATEGORIA);
+      
+      const updateFn = (prev: CategoriaPayload[]) => prev.map(c => c.ID_CATEGORIA === categoria.ID_CATEGORIA ? { ...c, estado: 'Activo' } : c);
+      setCategorias(updateFn);
+      setFilteredCategorias(updateFn);
+      
+      Swal.fire({
+        title: 'Habilitada',
+        text: 'La categoría fue habilitada correctamente.',
         icon: 'success',
         confirmButtonColor: '#ff6600',
         background: '#101010',
@@ -238,8 +306,8 @@ function Categorias() {
         showConfirmButton: false,
       });
     } catch (err) {
-      console.error('Error al eliminar:', err);
-      showAlert('Error', 'No se pudo eliminar la categoría. Puede que esté en uso.', 'error');
+      console.error('Error al habilitar:', err);
+      showAlert('Error', 'No se pudo habilitar la categoría.', 'error');
     }
   };
 
@@ -282,6 +350,7 @@ function Categorias() {
                 <th>Nombre</th>
                 <th>Tipo</th>
                 <th>Descripción</th>
+                <th>Estado</th>
                 <th>Acciones</th>
               </tr>
             </thead>
@@ -303,6 +372,11 @@ function Categorias() {
                       </span>
                     </td>
                     <td>{cat.descripcion || '-'}</td>
+                    <td>
+                      <span className={cat.estado === 'Inactivo' ? 'badge bg-secondary' : 'badge bg-success'}>
+                        {cat.estado || 'Activo'}
+                      </span>
+                    </td>
                     <td className="actions-cell">
                       <button
                         className="btn-edit-ktm"
@@ -311,13 +385,24 @@ function Categorias() {
                       >
                         <i className="bi bi-pencil-square"></i> Editar
                       </button>
-                      <button
-                        className="btn-eliminar-ktm"
-                        onClick={() => borrarCategoria(cat)}
-                        title="Eliminar"
-                      >
-                        <i className="bi bi-trash3"></i> Eliminar
-                      </button>
+                      {cat.estado === 'Inactivo' ? (
+                        <button
+                          className="btn-eliminar-ktm"
+                          onClick={() => restaurarCategoria(cat)}
+                          title="Habilitar"
+                          style={{ backgroundColor: '#28a745', color: '#fff' }}
+                        >
+                          <i className="bi bi-check-circle"></i> Habilitar
+                        </button>
+                      ) : (
+                        <button
+                          className="btn-eliminar-ktm"
+                          onClick={() => borrarCategoria(cat)}
+                          title="Inhabilitar"
+                        >
+                          <i className="bi bi-slash-circle"></i> Inhabilitar
+                        </button>
+                      )}
                     </td>
                   </tr>
                 ))

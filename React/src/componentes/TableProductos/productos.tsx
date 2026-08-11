@@ -5,6 +5,7 @@ import {
   insertarProducto,
   actualizarProducto,
   eliminarProducto,
+  habilitarProducto,
   type ProductoPayload,
   type ProductoRecord,
 } from '../../services/producto.service';
@@ -85,8 +86,8 @@ const formatPrecio = (precio: ProductoPayload['Precio']) => {
 };
 
 const getEstadoBadgeClass = (estado?: string) => {
-  if (estado === 'Disponibles') return 'bg-success';
-  if (estado === 'Próximamente') return 'bg-warning';
+  if (estado === 'Disponible' || estado === 'Disponibles' || estado === 'Activo') return 'bg-success';
+  if (estado === 'Próximamente' || estado === 'Inactivo') return 'bg-warning';
   return 'bg-danger';
 };
 
@@ -345,13 +346,13 @@ function TableProductos() {
 
   const borrarProducto = async (producto: ProductoRecord) => {
     const result = await Swal.fire({
-      title: `¿Estás seguro de eliminar "${producto.Nombre}"?`,
-      text: 'Esta acción no se puede deshacer.',
+      title: `¿Estás seguro de inhabilitar "${producto.Nombre}"?`,
+      text: 'El producto será marcado como Inactivo.',
       icon: 'warning',
       showCancelButton: true,
       confirmButtonColor: '#ff6600',
       cancelButtonColor: '#6c757d',
-      confirmButtonText: 'Sí, eliminar',
+      confirmButtonText: 'Sí, inhabilitar',
       cancelButtonText: 'Cancelar',
       background: '#101010',
       color: '#f5f5f5',
@@ -361,15 +362,13 @@ function TableProductos() {
 
     try {
       await eliminarProducto(producto.ID_PRODUCTOS);
-      setProductos((prev) =>
-        prev.filter((item) => item.ID_PRODUCTOS !== producto.ID_PRODUCTOS)
-      );
-      setFilteredProductos((prev) =>
-        prev.filter((item) => item.ID_PRODUCTOS !== producto.ID_PRODUCTOS)
-      );
+      const updateFn = (prev: ProductoRecord[]) =>
+        prev.map((item) => (item.ID_PRODUCTOS === producto.ID_PRODUCTOS ? { ...item, Estado: 'Inactivo' } : item));
+      setProductos(updateFn);
+      setFilteredProductos(updateFn);
       Swal.fire({
-        title: 'Eliminado',
-        text: 'El producto fue eliminado correctamente.',
+        title: 'Inhabilitado',
+        text: 'El producto fue inhabilitado correctamente.',
         icon: 'success',
         confirmButtonColor: '#ff6600',
         background: '#101010',
@@ -378,8 +377,46 @@ function TableProductos() {
         showConfirmButton: false,
       });
     } catch (error) {
-      console.error('Error al eliminar:', error);
-      showAlert('Error', 'No se pudo eliminar el producto.', 'error');
+      console.error('Error al inhabilitar:', error);
+      showAlert('Error', 'No se pudo inhabilitar el producto.', 'error');
+    }
+  };
+
+  const restaurarProducto = async (producto: ProductoRecord) => {
+    const result = await Swal.fire({
+      title: `¿Estás seguro de habilitar "${producto.Nombre}"?`,
+      text: 'El producto volverá a estar activo.',
+      icon: 'question',
+      showCancelButton: true,
+      confirmButtonColor: '#28a745',
+      cancelButtonColor: '#6c757d',
+      confirmButtonText: 'Sí, habilitar',
+      cancelButtonText: 'Cancelar',
+      background: '#101010',
+      color: '#f5f5f5',
+    });
+
+    if (!result.isConfirmed) return;
+
+    try {
+      await habilitarProducto(producto.ID_PRODUCTOS);
+      const updateFn = (prev: ProductoRecord[]) =>
+        prev.map((item) => (item.ID_PRODUCTOS === producto.ID_PRODUCTOS ? { ...item, Estado: 'Activo' } : item));
+      setProductos(updateFn);
+      setFilteredProductos(updateFn);
+      Swal.fire({
+        title: 'Habilitado',
+        text: 'El producto fue habilitado correctamente.',
+        icon: 'success',
+        confirmButtonColor: '#28a745',
+        background: '#101010',
+        color: '#f5f5f5',
+        timer: 2000,
+        showConfirmButton: false,
+      });
+    } catch (error) {
+      console.error('Error al habilitar:', error);
+      showAlert('Error', 'No se pudo habilitar el producto.', 'error');
     }
   };
 
@@ -465,13 +502,24 @@ function TableProductos() {
                       >
                         <i className="bi bi-pencil-square"></i> Editar
                       </button>
-                      <button
-                        className="btn-eliminar-ktm"
-                        onClick={() => borrarProducto(producto)}
-                        title="Eliminar"
-                      >
-                        <i className="bi bi-trash3"></i> Eliminar
-                      </button>
+                      {producto.Estado === 'Inactivo' ? (
+                        <button
+                          className="btn-eliminar-ktm"
+                          onClick={() => restaurarProducto(producto)}
+                          title="Habilitar"
+                          style={{ backgroundColor: '#28a745', color: '#fff' }}
+                        >
+                          <i className="bi bi-check-circle"></i> Habilitar
+                        </button>
+                      ) : (
+                        <button
+                          className="btn-eliminar-ktm"
+                          onClick={() => borrarProducto(producto)}
+                          title="Inhabilitar"
+                        >
+                          <i className="bi bi-slash-circle"></i> Inhabilitar
+                        </button>
+                      )}
                     </td>
                   </tr>
                 ))

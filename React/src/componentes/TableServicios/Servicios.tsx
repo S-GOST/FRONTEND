@@ -4,6 +4,7 @@ import {
   actualizarServicio,
   insertarServicio,
   eliminarServicio,
+  habilitarServicio,
   obtenerServicios,
   type ServicioPayload,
 } from '../../services/servicio.service';
@@ -72,6 +73,12 @@ const formatPrecio = (precio: ServicioPayload['Precio']) => {
   const numericValue = Number(precio);
   if (Number.isFinite(numericValue)) return numericValue.toLocaleString();
   return precio;
+};
+
+const getEstadoBadgeClass = (estado?: string) => {
+  if (estado === 'Disponible' || estado === 'Activo') return 'bg-success';
+  if (estado === 'No disponible' || estado === 'Inactivo') return 'bg-secondary';
+  return 'bg-danger';
 };
 
 function Servicios() {
@@ -294,15 +301,16 @@ function Servicios() {
     }
   };
 
+  // ✅ ELIMINAR (Inhabilitar) un servicio
   const borrarServicio = async (servicio: ServicioPayload) => {
     const result = await Swal.fire({
-      title: `¿Estás seguro de eliminar "${servicio.Nombre}"?`,
-      text: 'Esta acción no se puede deshacer.',
+      title: `¿Estás seguro de inhabilitar "${servicio.Nombre}"?`,
+      text: 'El servicio será marcado como Inactivo.',
       icon: 'warning',
       showCancelButton: true,
       confirmButtonColor: '#ff6600',
       cancelButtonColor: '#6c757d',
-      confirmButtonText: 'Sí, eliminar',
+      confirmButtonText: 'Sí, inhabilitar',
       cancelButtonText: 'Cancelar',
       background: '#101010',
       color: '#f5f5f5',
@@ -310,13 +318,13 @@ function Servicios() {
     if (!result.isConfirmed) return;
     try {
       await eliminarServicio(servicio.ID_SERVICIOS);
-      setServicios((prev) => prev.filter((s) => s.ID_SERVICIOS !== servicio.ID_SERVICIOS));
-      setFilteredServicios((prev) =>
-        prev.filter((s) => s.ID_SERVICIOS !== servicio.ID_SERVICIOS)
-      );
+      const updateFn = (prev: ServicioPayload[]) =>
+        prev.map((s) => (s.ID_SERVICIOS === servicio.ID_SERVICIOS ? { ...s, Estado: 'Inactivo' as any } : s));
+      setServicios(updateFn);
+      setFilteredServicios(updateFn);
       Swal.fire({
-        title: 'Eliminado',
-        text: 'El servicio fue eliminado correctamente.',
+        title: 'Inhabilitado',
+        text: 'El servicio fue inhabilitado correctamente.',
         icon: 'success',
         confirmButtonColor: '#ff6600',
         background: '#101010',
@@ -325,8 +333,45 @@ function Servicios() {
         showConfirmButton: false,
       });
     } catch (err) {
-      console.error('Error al eliminar:', err);
-      showAlert('Error', 'No se pudo eliminar el servicio.', 'error');
+      console.error('Error al inhabilitar:', err);
+      showAlert('Error', 'No se pudo inhabilitar el servicio.', 'error');
+    }
+  };
+
+  // ✅ RESTAURAR (Habilitar) un servicio
+  const restaurarServicio = async (servicio: ServicioPayload) => {
+    const result = await Swal.fire({
+      title: `¿Estás seguro de habilitar "${servicio.Nombre}"?`,
+      text: 'El servicio volverá a estar activo.',
+      icon: 'question',
+      showCancelButton: true,
+      confirmButtonColor: '#28a745',
+      cancelButtonColor: '#6c757d',
+      confirmButtonText: 'Sí, habilitar',
+      cancelButtonText: 'Cancelar',
+      background: '#101010',
+      color: '#f5f5f5',
+    });
+    if (!result.isConfirmed) return;
+    try {
+      await habilitarServicio(servicio.ID_SERVICIOS);
+      const updateFn = (prev: ServicioPayload[]) =>
+        prev.map((s) => (s.ID_SERVICIOS === servicio.ID_SERVICIOS ? { ...s, Estado: 'Activo' as any } : s));
+      setServicios(updateFn);
+      setFilteredServicios(updateFn);
+      Swal.fire({
+        title: 'Habilitado',
+        text: 'El servicio fue habilitado correctamente.',
+        icon: 'success',
+        confirmButtonColor: '#28a745',
+        background: '#101010',
+        color: '#f5f5f5',
+        timer: 2000,
+        showConfirmButton: false,
+      });
+    } catch (err) {
+      console.error('Error al habilitar:', err);
+      showAlert('Error', 'No se pudo habilitar el servicio.', 'error');
     }
   };
 
@@ -393,7 +438,11 @@ function Servicios() {
                     <td><FormattedId entity="servicio" value={servicio.ID_SERVICIOS} /></td>
                     <td>{getCategoriaNombre(servicio)}</td>
                     <td>{servicio.Nombre}</td>
-                    <td>{servicio.Estado}</td>
+                    <td>
+                      <span className={`estado-badge ${getEstadoBadgeClass(servicio.Estado)}`}>
+                        {servicio.Estado}
+                      </span>
+                    </td>
                     <td>${formatPrecio(servicio.Precio)}</td>
                     <td className="actions-cell">
                       <button
@@ -403,13 +452,24 @@ function Servicios() {
                       >
                         <i className="bi bi-pencil-square"></i> Editar
                       </button>
-                      <button
-                        className="btn-eliminar-ktm"
-                        onClick={() => borrarServicio(servicio)}
-                        title="Eliminar"
-                      >
-                        <i className="bi bi-trash3"></i> Eliminar
-                      </button>
+                       {servicio.Estado === 'Inactivo' ? (
+                         <button
+                           className="btn-eliminar-ktm"
+                           onClick={() => restaurarServicio(servicio)}
+                           title="Habilitar"
+                           style={{ backgroundColor: '#28a745', color: '#fff' }}
+                         >
+                           <i className="bi bi-check-circle"></i> Habilitar
+                         </button>
+                       ) : (
+                         <button
+                           className="btn-eliminar-ktm"
+                           onClick={() => borrarServicio(servicio)}
+                           title="Inhabilitar"
+                         >
+                           <i className="bi bi-slash-circle"></i> Inhabilitar
+                         </button>
+                       )}
                     </td>
                   </tr>
                 ))

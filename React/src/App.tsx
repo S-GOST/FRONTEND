@@ -9,6 +9,8 @@ import Footer from './componentes/Footer';
 import Cart from './componentes/Cart';
 import Login from './pages/Login';
 import Registro from './pages/Registro';
+import ForgotPassword from './pages/ForgotPassword/ForgotPassword';
+import ResetPassword from './pages/ResetPassword/ResetPassword';
 import Panel from './componentes/TableAdmin/Panel';
 import OrdenesServicio from './componentes/TableOrdenServicios/OrdenesServicio';
 import DetallesOrden from './componentes/TableOrdenServicios/DetallesOrden';
@@ -154,6 +156,8 @@ function App() {
   const particlesRef = useRef<HTMLDivElement>(null);
   const isLoginPage = location.pathname === '/login';
   const isRegistroPage = location.pathname === '/registro';
+  const isForgotPasswordPage = location.pathname === '/forgot-password';
+  const isResetPasswordPage = location.pathname.startsWith('/reset-password');
   const isAdminPage = location.pathname.startsWith('/admin');
   const isTecnicoPage = location.pathname.startsWith('/tecnico');
   const isClientePage = location.pathname.startsWith('/cliente');
@@ -277,7 +281,7 @@ function App() {
 
   return (
     <div className="app">
-      {!isLoginPage && !isRegistroPage && !isAdminPage && !isTecnicoPage && !isClientePage && !(isCartPage && userRole === 'cliente') && (
+      {!isLoginPage && !isRegistroPage && !isForgotPasswordPage && !isResetPasswordPage && !isAdminPage && !isTecnicoPage && !isClientePage && !(isCartPage && userRole === 'cliente') && (
         <Navbar
           cartCount={cartCount}
           onSearch={filterSuggestions}
@@ -315,6 +319,8 @@ function App() {
             )
           }
         />
+        <Route path="/forgot-password" element={<ForgotPassword />} />
+        <Route path="/reset-password/:token" element={<ResetPassword />} />
         <Route
           path="/carrito"
           element={<Cart />}

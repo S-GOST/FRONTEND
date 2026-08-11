@@ -91,3 +91,12 @@ export const loginService = async (usuario: string, contrasena: string) => {
 
 // Alias para compatibilidad con Login.tsx que intenta loginClienteService como fallback
 export const loginClienteService = loginService;
+
+// Recuperación de Contraseña
+export const requestPasswordReset = async (correo: string) => {
+  return apiClient.post('/auth/forgot-password', { correo });
+};
+
+export const resetPassword = async (token: string, password: string) => {
+  return apiClient.post('/auth/reset-password', { token, password });
+};

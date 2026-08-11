@@ -3,9 +3,10 @@ import apiClient from '../config/axios';
 
 export interface CategoriaPayload {
   ID_CATEGORIA?: number;
-  nombre: string;
-  tipo: 'PRODUCTO' | 'SERVICIO';
-  descripcion: string;
+  nombre?: string;
+  tipo?: string;
+  descripcion?: string | null;
+  estado?: string;
 }
 
 export type CategoriaRecord = CategoriaPayload;
@@ -24,7 +25,10 @@ export const obtenerCategorias = () => categoriaService.obtenerTodos();
 export const obtenerCategoriaPorId = (id: string | number) => categoriaService.obtenerPorId(id);
 export const insertarCategoria = (data: CategoriaPayload) => categoriaService.crear(data);
 export const actualizarCategoria = (id: string | number, data: CategoriaPayload) => categoriaService.actualizar(id, data);
-export const eliminarCategoria = (id: string | number) => categoriaService.eliminar(id);
+export const eliminarCategoria = (id: string | number, force?: boolean) => 
+  apiClient.delete(`/categorias/eliminar/${id}${force ? '?force=true' : ''}`);
+export const habilitarCategoria = (id: string | number) => 
+  apiClient.put(`/categorias/habilitar/${id}`);
 
 // Función especial para obtener categorías por tipo
 export const obtenerCategoriasPorTipo = async (tipo: 'PRODUCTO' | 'SERVICIO') => {

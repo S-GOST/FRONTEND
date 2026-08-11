@@ -1,4 +1,5 @@
 import { BaseApiService } from './base.service';
+import apiClient from '../config/axios';
 
 export interface ServicioPayload {
   ID_SERVICIOS: string | number;
@@ -23,3 +24,5 @@ export const obtenerServicioPorId = (id: string | number) => servicioService.obt
 export const insertarServicio = (data: ServicioPayload) => servicioService.crear(data);
 export const actualizarServicio = (id: string | number, data: ServicioPayload) => servicioService.actualizar(id, data);
 export const eliminarServicio = (id: string | number) => servicioService.eliminar(id);
+export const habilitarServicio = (id: string | number) => 
+  apiClient.put(`/servicios/habilitar/${id}`);

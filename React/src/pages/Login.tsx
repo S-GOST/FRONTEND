@@ -141,7 +141,11 @@ const Login: React.FC = () => {
                 )}
               </div>
 
-
+              <div className="forgot-password-row">
+                <Link to="/forgot-password" className="forgot-password-link">
+                  ¿Olvidó su contraseña?
+                </Link>
+              </div>
 
               <button type="submit" className="btn-ktm login-submit" disabled={loading}>
                 <span className="submit-content">

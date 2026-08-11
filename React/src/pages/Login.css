@@ -704,3 +704,22 @@
     min-height: 56px;
   }
 }
+
+/* Forgot Password Link */
+.forgot-password-row {
+  text-align: right;
+  margin-top: -5px;
+  margin-bottom: 5px;
+}
+
+.forgot-password-link {
+  color: #ff6600;
+  font-size: 13px;
+  text-decoration: none;
+  transition: color 0.3s;
+}
+
+.forgot-password-link:hover {
+  color: #ff8833;
+  text-decoration: underline;
+}
