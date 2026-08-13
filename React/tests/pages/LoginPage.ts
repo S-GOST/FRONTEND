@@ -40,8 +40,6 @@ export class LoginPage {
       await this.page.route('**/api/admins**', route => route.fulfill({ status: 200, json: { data: [] } }));
       await this.page.route('**/api/tecnicos**', route => route.fulfill({ status: 200, json: { data: [] } }));
       await this.page.route('**/api/clientes**', route => route.fulfill({ status: 200, json: { data: [] } }));
-      await this.page.route('**/api/ordenes**', route => route.fulfill({ status: 200, json: { data: [] } }));
-      await this.page.route('**/api/productos**', route => route.fulfill({ status: 200, json: { data: [] } }));
     }
   }
 }
