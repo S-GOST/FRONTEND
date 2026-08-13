@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import Swal from 'sweetalert2';
 import { obtenerAdmins } from '../../services/admin.service';
@@ -31,6 +31,29 @@ const extraerDatos = <T,>(payload: unknown): T[] => {
   }
   return [];
 };
+
+// ==================== SUB-COMPONENTES (MEMOIZADOS) ====================
+const StatCard = React.memo(({
+  title, value, icon, color, onClick
+}: {
+  title: string; value: number; icon: string; color: string; onClick?: () => void
+}) => (
+  <div className="stat-card" style={{ borderLeftColor: color }} onClick={onClick} role={onClick ? 'button' : undefined} tabIndex={onClick ? 0 : undefined}>
+    <div className="stat-icon" style={{ color }}><i className={`bi ${icon}`}></i></div>
+    <div className="stat-content">
+      <h3 className="stat-title">{title}</h3>
+      <p className="stat-value">{value}</p>
+    </div>
+  </div>
+));
+StatCard.displayName = 'StatCard';
+
+const NavCard = React.memo(({ title, icon, color, onClick }: { title: string; icon: string; color: string; onClick: () => void }) => (
+  <button className="action-btn" style={{ background: color, color: '#000' }} onClick={onClick}>
+    <i className={`bi ${icon}`}></i> {title}
+  </button>
+));
+NavCard.displayName = 'NavCard';
 
 // ==================== COMPONENTE ====================
 function Dashboard() {
@@ -85,7 +108,7 @@ function Dashboard() {
     }
   };
 
-  const handleLogout = () => {
+  const handleLogout = useCallback(() => {
     Swal.fire({
       title: "¿Salir del sistema?",
       text: "Tu sesión será cerrada.",
@@ -100,27 +123,9 @@ function Dashboard() {
         clearSession();
       }
     });
-  };
+  }, []);
 
-  const StatCard = ({
-    title, value, icon, color, onClick
-  }: {
-    title: string; value: number; icon: string; color: string; onClick?: () => void
-  }) => (
-    <div className="stat-card" style={{ borderLeftColor: color }} onClick={onClick} role={onClick ? 'button' : undefined} tabIndex={onClick ? 0 : undefined}>
-      <div className="stat-icon" style={{ color }}><i className={`bi ${icon}`}></i></div>
-      <div className="stat-content">
-        <h3 className="stat-title">{title}</h3>
-        <p className="stat-value">{value}</p>
-      </div>
-    </div>
-  );
-
-  const NavCard = ({ title, icon, color, onClick }: { title: string; icon: string; color: string; onClick: () => void }) => (
-    <button className="action-btn" style={{ background: color, color: '#000' }} onClick={onClick}>
-      <i className={`bi ${icon}`}></i> {title}
-    </button>
-  );
+  const handleNavigate = useCallback((path: string) => () => navigate(path), [navigate]);
 
   if (loading) return <div className="dashboard-loader">Cargando panel administrativo...</div>;
 
@@ -151,25 +156,25 @@ function Dashboard() {
       <div className="dashboard-page" style={{ paddingTop: '100px' }}>
         <div className="dashboard-section">
           <div className="stats-grid">
-            <StatCard title="Usuarios Totales" value={stats.usuarios} icon="bi-people" color="#00d4ff" onClick={() => navigate('/admin/usuarios')} />
-            <StatCard title="Técnicos" value={stats.tecnicos} icon="bi-person-badge" color="#ffd166" onClick={() => navigate('/admin/tecnicos')} />
-            <StatCard title="Clientes" value={stats.clientes} icon="bi-person-lines-fill" color="#00ff88" onClick={() => navigate('/admin/clientes')} />
-            <StatCard title="Órdenes Pendientes" value={stats.ordenesPendientes} icon="bi-clock-history" color="#ff6600" onClick={() => navigate('/admin/asignacion_tecnicos')} />
-            <StatCard title="En Proceso" value={stats.ordenesEnProceso} icon="bi-arrow-repeat" color="#3b82f6" onClick={() => navigate('/admin/asignacion_tecnicos')} />
-            <StatCard title="Completadas" value={stats.ordenesCompletadas} icon="bi-check-circle" color="#10b981" onClick={() => navigate('/admin/asignacion_tecnicos')} />
+            <StatCard title="Usuarios Totales" value={stats.usuarios} icon="bi-people" color="#00d4ff" onClick={handleNavigate('/admin/usuarios')} />
+            <StatCard title="Técnicos" value={stats.tecnicos} icon="bi-person-badge" color="#ffd166" onClick={handleNavigate('/admin/tecnicos')} />
+            <StatCard title="Clientes" value={stats.clientes} icon="bi-person-lines-fill" color="#00ff88" onClick={handleNavigate('/admin/clientes')} />
+            <StatCard title="Órdenes Pendientes" value={stats.ordenesPendientes} icon="bi-clock-history" color="#ff6600" onClick={handleNavigate('/admin/asignacion_tecnicos')} />
+            <StatCard title="En Proceso" value={stats.ordenesEnProceso} icon="bi-arrow-repeat" color="#3b82f6" onClick={handleNavigate('/admin/asignacion_tecnicos')} />
+            <StatCard title="Completadas" value={stats.ordenesCompletadas} icon="bi-check-circle" color="#10b981" onClick={handleNavigate('/admin/asignacion_tecnicos')} />
           </div>
 
           <div className="quick-actions">
             <h3 className="actions-title">Gestión Rápida</h3>
             <div className="actions-grid">
-              <NavCard title="Gestionar Usuarios" icon="bi-person-badge" color="#3b82f6" onClick={() => navigate('/admin/usuarios')} />
-              <NavCard title="Nuevas Órdenes" icon="bi-clipboard2-pulse" color="#8b5cf6" onClick={() => navigate('/admin/asignacion_tecnicos')} />
-              <NavCard title="Servicios" icon="bi-wrench-adjustable" color="#06b6d4" onClick={() => navigate('/admin/servicios')} />
-              <NavCard title="Productos" icon="bi-box-seam" color="#ec4899" onClick={() => navigate('/admin/productos')} />
-              <NavCard title="Categorías" icon="bi-tags" color="#f97316" onClick={() => navigate('/admin/categorias')} />
-              <NavCard title="Informes Técnicos" icon="bi-file-earmark-text" color="#10b981" onClick={() => navigate('/admin/informe')} />
-              <NavCard title="Comprobantes" icon="bi-receipt" color="#f59e0b" onClick={() => navigate('/admin/comprobante')} />
-              <NavCard title="Historial Global" icon="bi-journal-text" color="#6b7280" onClick={() => navigate('/admin/historial')} />
+              <NavCard title="Gestionar Usuarios" icon="bi-person-badge" color="#3b82f6" onClick={handleNavigate('/admin/usuarios')} />
+              <NavCard title="Nuevas Órdenes" icon="bi-clipboard2-pulse" color="#8b5cf6" onClick={handleNavigate('/admin/asignacion_tecnicos')} />
+              <NavCard title="Servicios" icon="bi-wrench-adjustable" color="#06b6d4" onClick={handleNavigate('/admin/servicios')} />
+              <NavCard title="Productos" icon="bi-box-seam" color="#ec4899" onClick={handleNavigate('/admin/productos')} />
+              <NavCard title="Categorías" icon="bi-tags" color="#f97316" onClick={handleNavigate('/admin/categorias')} />
+              <NavCard title="Informes Técnicos" icon="bi-file-earmark-text" color="#10b981" onClick={handleNavigate('/admin/informe')} />
+              <NavCard title="Comprobantes" icon="bi-receipt" color="#f59e0b" onClick={handleNavigate('/admin/comprobante')} />
+              <NavCard title="Historial Global" icon="bi-journal-text" color="#6b7280" onClick={handleNavigate('/admin/historial')} />
             </div>
           </div>
 

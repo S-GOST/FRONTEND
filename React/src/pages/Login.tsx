@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import type { AxiosError } from 'axios';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
 import { loginService } from '../services/auth.services';
 import logo from '../assets/icons/rock.png';
@@ -16,6 +16,7 @@ interface LoginErrorResponse {
 }
 
 const Login: React.FC = () => {
+  const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
   const [serverError, setServerError] = useState<string | null>(null);
   const [showPassword, setShowPassword] = useState(false);
@@ -23,14 +24,10 @@ const Login: React.FC = () => {
   const {
     register,
     handleSubmit,
-    reset,
     formState: { errors },
-  } = useForm<LoginFormInputs>();
-
-  // 🔹 Limpia los campos automáticamente al montar el componente
-  useEffect(() => {
-    reset({ usuario: '', contrasena: '' });
-  }, [reset]);
+  } = useForm<LoginFormInputs>({
+    defaultValues: { usuario: '', contrasena: '' },
+  });
 
   useEffect(() => {
     const previousBodyOverflow = document.body.style.overflow;
@@ -54,11 +51,11 @@ const Login: React.FC = () => {
       const userRole = response.rol ?? localStorage.getItem('user_role') ?? 'admin';
 
       if (userRole === 'tecnico') {
-        window.location.replace('/tecnico/dashboard');
+        navigate('/tecnico/dashboard', { replace: true });
       } else if (userRole === 'cliente') {
-        window.location.replace('/cliente/dashboard');
+        navigate('/cliente/dashboard', { replace: true });
       } else {
-        window.location.replace('/admin/dashboard');
+        navigate('/admin/dashboard', { replace: true });
       }
     } catch (err) {
       const error = err as AxiosError<LoginErrorResponse>;

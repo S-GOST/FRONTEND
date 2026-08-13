@@ -3,7 +3,19 @@ import apiClient from '../config/axios';
 export interface LoginResponse {
   token?: string;
   nombre?: string;
-  rol?: 'admin' | 'tecnico' | 'cliente';
+  rol?: 'admin' | 'tecnico' | 'cliente' | number;
+  id_usuario?: number;
+  numero_documento?: string;
+  id?: number | string;
+  usuario?: string;
+  email?: string;
+  data?: {
+    id_usuario?: number;
+    numero_documento?: string;
+    id?: number | string;
+    usuario?: string;
+    email?: string;
+  };
   [key: string]: any;
 }
 
@@ -52,16 +64,18 @@ const storeSession = (data: LoginResponse, role: 'admin' | 'tecnico' | 'cliente'
   return { ...data, rol: role };
 };
 
-export const clearSession = async () => {
+export const clearSession = async (redirectToLogin = true) => {
   try {
     // Intentar invalidar el refresh token en el servidor
     await apiClient.post('/auth/logout');
   } catch (error) {
-    console.warn('Fallo el logout en el servidor', error);
+    console.warn('Falló el logout en el servidor', error);
   } finally {
     // Limpiar siempre localmente
     localStorage.clear();
-    window.location.replace('/login');
+    if (redirectToLogin) {
+      window.location.replace('/login');
+    }
   }
 };
 

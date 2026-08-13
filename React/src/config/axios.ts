@@ -110,7 +110,7 @@ apiClient.interceptors.response.use(
         console.warn('⚠️ Sesión completamente expirada o inválida. Redirigiendo al login...');
         localStorage.clear();
         if (!window.location.pathname.includes('/login')) {
-          window.location.replace('/login');
+          window.dispatchEvent(new Event('auth:unauthorized'));
         }
         return Promise.reject(refreshError);
       } finally {
