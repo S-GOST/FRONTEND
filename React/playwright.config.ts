@@ -26,7 +26,7 @@ export default defineConfig({
   /* Configuraciones compartidas para todos los proyectos a continuación. Ver https://playwright.dev/docs/api/class-testoptions. */
   use: {
     /* URL base a usar en acciones como `await page.goto('')`. */
-    // baseURL: 'http://localhost:3000',
+
     baseURL: 'http://localhost:5173',
     /* Recolectar traza al reintentar la prueba fallida. Ver https://playwright.dev/docs/trace-viewer */
     trace: 'on-first-retry',
