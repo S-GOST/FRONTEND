@@ -18,8 +18,10 @@
     "jsx": "react-jsx",
     /* Tipos globales para Node (necesario para process.env) */
     "types": [
-      "node"
+      "node",
+      "jest"
     ],
+    "esModuleInterop": true,
     /* Linting */
     "strict": true,
     "noUnusedLocals": true,
