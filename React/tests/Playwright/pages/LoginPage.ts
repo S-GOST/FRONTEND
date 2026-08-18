@@ -48,7 +48,7 @@ export class LoginPage {
    * Realiza el proceso completo de inicio de sesión
    * @param username - Nombre de usuario a ingresar
    * @param password - Contraseña a ingresar
-   * 
+   *
    * Este método automatiza el llenado del formulario y el envío de credenciales
    */
   async login(username: string, password: string) {
@@ -63,48 +63,55 @@ export class LoginPage {
   }
 
   /**
-   * Configura mocks (respuestas simuladas) para las llamadas al backend
+   * Configura mocks (respuestas simuladas) para un login exitoso
    * Esto permite probar el frontend sin depender de un backend real,
    * haciendo las pruebas más rápidas, confiables y aisladas.
-   * 
-   * @param role - El rol del usuario que se simulará (por defecto: 1, que suele ser administrador)
+   *
+   * @param role - El rol del usuario que se simulará (por defecto: 1 = administrador)
    * @param dashboardDataMocks - Indica si se deben mockear también las llamadas del dashboard
    */
   async mockSuccessfulLogin(role: number = 1, dashboardDataMocks: boolean = true) {
     // Intercepta la petición al endpoint de CSRF token y responde con status 200
-    // El '**' es un patrón global que coincide con cualquier ruta que termine con '/api/auth/csrf-token'
     await this.page.route('**/api/auth/csrf-token', route => route.fulfill({ status: 200 }));
 
     // Intercepta la petición de login y responde con datos simulados de autenticación exitosa
     await this.page.route('**/api/auth/login', route => route.fulfill({
-      status: 200, // Código HTTP de éxito
+      status: 200,
       json: {
-        id_usuario: 1,           // ID del usuario autenticado
-        token: 'mock-token',     // Token JWT simulado
-        rol: role,               // Rol del usuario (parámetro configurable)
-        nombre: 'Usuario Prueba' // Nombre del usuario
+        id_usuario: 1,
+        token: 'mock-token',
+        rol: role,
+        nombre: 'Usuario Prueba'
       }
     }));
 
     // Si se solicitan mocks para los datos del dashboard, intercepta también esas rutas
     if (dashboardDataMocks) {
       // Mock para la lista de administradores
-      await this.page.route('**/api/admins**', route => route.fulfill({
-        status: 200,
-        json: { data: [] } // Respuesta con array vacío
-      }));
+      await this.page.route('**/api/admins**', route => route.fulfill({ status: 200, json: { data: [] } }));
 
       // Mock para la lista de técnicos
-      await this.page.route('**/api/tecnicos**', route => route.fulfill({
-        status: 200,
-        json: { data: [] }
-      }));
+      await this.page.route('**/api/tecnicos**', route => route.fulfill({ status: 200, json: { data: [] } }));
 
       // Mock para la lista de clientes
-      await this.page.route('**/api/clientes**', route => route.fulfill({
-        status: 200,
-        json: { data: [] }
-      }));
+      await this.page.route('**/api/clientes**', route => route.fulfill({ status: 200, json: { data: [] } }));
+
+      // Mock para la lista de órdenes
+      await this.page.route('**/api/ordenes**', route => route.fulfill({ status: 200, json: { data: [] } }));
     }
+  }
+
+  /**
+   * Configura mocks para simular un login fallido
+   * Útil para probar escenarios de credenciales incorrectas, usuario bloqueado, etc.
+   *
+   * @param status - Código HTTP de error (por defecto: 401 = No autorizado)
+   */
+  async mockFailedLogin(status: number = 401) {
+    await this.page.route('**/api/auth/csrf-token', route => route.fulfill({ status: 200 }));
+    await this.page.route('**/api/auth/login', route => route.fulfill({
+      status: status,
+      json: { message: 'Credenciales incorrectas' }
+    }));
   }
 }

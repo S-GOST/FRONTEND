@@ -1,8 +1,11 @@
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState, useCallback } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
+import Swal from 'sweetalert2';
 import Navbar from './componentes/Navbar';
 import AppRoutes from './routes/AppRoutes';
 import { useCart } from './hooks/useCart';
+import { useInactivityTimer } from './hooks/useInactivityTimer';
+import { clearSession } from './services/auth.services';
 import { Service, SearchSuggestion } from './types';
 import { servicesData, searchSuggestionsData } from './utils/constants';
 import { obtenerProductos } from './services/producto.service';
@@ -13,6 +16,22 @@ function App() {
   const location = useLocation();
   const navigate = useNavigate();
   const particlesRef = useRef<HTMLDivElement>(null);
+
+  const hasSession = !!localStorage.getItem('user_token');
+
+  // Inactividad (30 minutos = 1800000 ms)
+  const handleInactivityTimeout = useCallback(() => {
+    Swal.fire({
+      title: 'Sesión expirada por inactividad',
+      text: 'Tu sesión se cerró automáticamente por seguridad tras 30 minutos sin actividad.',
+      icon: 'warning',
+      confirmButtonColor: '#ff6600',
+    }).then(() => {
+      clearSession(true);
+    });
+  }, []);
+
+  useInactivityTimer(1800000, handleInactivityTimeout, hasSession);
 
   // Escuchar evento global de sesión expirada para redirección fluida
   useEffect(() => {
