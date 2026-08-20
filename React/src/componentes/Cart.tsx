@@ -341,7 +341,8 @@ const Cart: React.FC<CartProps> = () => {
         showNotification('¡Orden de servicio creada exitosamente!', 'success');
         setTimeout(() => navigate('/cliente/dashboard'), 2000);
       } else {
-        showNotification(`Error: ${data.error || 'No se pudo guardar la orden'}`, 'warning');
+        const backendError = data.error || data.message || 'No se pudo guardar la orden';
+        showNotification(`Error: ${backendError}`, 'warning');
       }
     } catch (error: any) {
       console.error('Error al guardar orden:', error);

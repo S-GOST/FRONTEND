@@ -146,6 +146,7 @@ const resolveTabFromPath = (pathname: string): UserTab => {
 function Usuarios() {
   const location = useLocation();
   const navigate = useNavigate();
+  const [showPassword, setShowPassword] = useState(false);
   const [activeTab, setActiveTab] = useState<UserTab>(() => resolveTabFromPath(location.pathname));
   const [admins, setAdmins] = useState<AdminRecord[]>([]);
   const [tecnicos, setTecnicos] = useState<TecnicoRecord[]>([]);
@@ -187,7 +188,14 @@ function Usuarios() {
     const axiosError = error as { response?: { status?: number; data?: any } };
     const status = axiosError?.response?.status;
     const data = axiosError?.response?.data;
-    const serverMessage = data?.message || data?.error || data?.msg || JSON.stringify(data || '');
+    
+    let serverMessage = data?.message || data?.error || data?.msg || JSON.stringify(data || '');
+
+    // Extraer array de errores de validación si existe (express-validator)
+    if (data?.errores && Array.isArray(data.errores)) {
+      const errorDetails = data.errores.map((err: any) => `- ${err.mensaje}`).join('\n');
+      serverMessage = `${serverMessage}:\n${errorDetails}`;
+    }
 
     if (status === 401 || status === 403) {
       localStorage.clear();
@@ -576,14 +584,32 @@ function Usuarios() {
               </div>
               <div className="form-group">
                 <label>{showCreateModal ? 'Contraseña' : 'Nueva contraseña'}</label>
-                <input
-                  type="password"
-                  name="password"
-                  value={formData.password}
-                  onChange={handleInputChange}
-                  placeholder={showCreateModal ? 'Ingresa la contraseña' : 'Dejar en blanco para mantener la actual'}
-                  {...(showCreateModal ? { required: true } : {})}
-                />
+                <div style={{ position: 'relative', display: 'flex', alignItems: 'center' }}>
+                  <input
+                    type={showPassword ? 'text' : 'password'}
+                    name="password"
+                    value={formData.password}
+                    onChange={handleInputChange}
+                    placeholder={showCreateModal ? 'Ingresa la contraseña' : 'Dejar en blanco para mantener la actual'}
+                    {...(showCreateModal ? { required: true } : {})}
+                    style={{ flex: 1, paddingRight: '40px' }}
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowPassword(!showPassword)}
+                    tabIndex={-1}
+                    style={{
+                      position: 'absolute',
+                      right: '10px',
+                      background: 'none',
+                      border: 'none',
+                      color: '#ff6b00',
+                      cursor: 'pointer'
+                    }}
+                  >
+                    <i className={`bi ${showPassword ? 'bi-eye-slash' : 'bi-eye'}`}></i>
+                  </button>
+                </div>
               </div>
               <div className="modal-footer">
                 <button type="button" onClick={showCreateModal ? closeCreateModal : closeEditModal}>

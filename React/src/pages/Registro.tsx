@@ -7,6 +7,7 @@ import './Registro.css';
 import { insertarCliente, ClientePayload } from '../services/cliente.service';
 import { insertarMoto, MotoPayload } from '../services/moto.service';
 import { obtenerTiposDocumento, TipoDocumentoPayload } from '../services/tipoDocumento.service';
+import { loginService } from '../services/auth.services';
 
 interface RegistroFormInputs {
   // Cliente
@@ -30,13 +31,16 @@ interface RegistroFormInputs {
 const Registro: React.FC = () => {
   const [loading, setLoading] = useState(false);
   const [serverError, setServerError] = useState<string | null>(null);
+  const [serverErrors, setServerErrors] = useState<Array<{campo: string; mensaje: string}>>([]);
   const [serverSuccess, setServerSuccess] = useState<string | null>(null);
   const [tiposDocumento, setTiposDocumento] = useState<TipoDocumentoPayload[]>([]);
+  const [showPassword, setShowPassword] = useState(false);
   const navigate = useNavigate();
 
   const {
     register,
     handleSubmit,
+    formState: { errors },
   } = useForm<RegistroFormInputs>();
 
   useEffect(() => {
@@ -59,6 +63,7 @@ const Registro: React.FC = () => {
 
   const onSubmit = async (data: RegistroFormInputs) => {
     setServerError(null);
+    setServerErrors([]);
     setServerSuccess(null);
     setLoading(true);
 
@@ -86,6 +91,13 @@ const Registro: React.FC = () => {
       } else if (resCliente.data && (resCliente.data as any).id_usuario) {
         idCliente = (resCliente.data as any).id_usuario;
       }
+
+      // 1.5 Auto-login para obtener el token necesario para registrar la moto
+      await loginService(data.usuario, data.contrasena);
+      
+      // En este backend, Usuario.findByPk en realidad busca por numero_documento
+      // por lo que debemos usar la cédula como id_cliente, NO el id_usuario autoincremental
+      idCliente = data.numero_documento;
 
       // 2. Registrar Moto
       const motoData: MotoPayload = {
@@ -120,7 +132,13 @@ const Registro: React.FC = () => {
 
     } catch (err: any) {
       console.error(err);
-      setServerError(err.response?.data?.message || 'Error al registrar. Verifica los datos e intenta nuevamente.');
+      const resData = err.response?.data;
+      if (resData?.errores && Array.isArray(resData.errores)) {
+        setServerErrors(resData.errores);
+        setServerError(resData.message || 'Errores de validación');
+      } else {
+        setServerError(resData?.message || 'Error al registrar. Verifica los datos e intenta nuevamente.');
+      }
     } finally {
       setLoading(false);
     }
@@ -144,7 +162,16 @@ const Registro: React.FC = () => {
         {serverError && (
           <div className="alert-error">
             <i className="bi bi-exclamation-triangle-fill"></i>
-            <span>{serverError}</span>
+            <div>
+              <span>{serverError}</span>
+              {serverErrors.length > 0 && (
+                <ul style={{ margin: '0.5rem 0 0', paddingLeft: '1.2rem', fontSize: '0.85rem' }}>
+                  {serverErrors.map((e, i) => (
+                    <li key={i}><strong>{e.campo}:</strong> {e.mensaje}</li>
+                  ))}
+                </ul>
+              )}
+            </div>
           </div>
         )}
 
@@ -253,15 +280,36 @@ const Registro: React.FC = () => {
                 <div className="input-glow"></div>
               </div>
 
-              <div className="input-shell">
-                <i className="bi bi-shield-lock input-icon"></i>
-                <input
-                  type="password"
-                  className="registro-input"
-                  placeholder="Contraseña"
-                  {...register('contrasena', { required: true })}
-                />
-                <div className="input-glow"></div>
+              <div className="input-group-wrapper">
+                <div className="input-shell">
+                  <i className="bi bi-shield-lock input-icon"></i>
+                  <input
+                    type={showPassword ? 'text' : 'password'}
+                    className={`registro-input ${errors.contrasena ? 'input-error' : ''}`}
+                    placeholder="Contraseña"
+                    {...register('contrasena', {
+                      required: 'La contraseña es requerida',
+                      minLength: { value: 8, message: 'Mínimo 8 caracteres' },
+                      pattern: {
+                        value: /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]).{8,}$/,
+                        message: 'Debe incluir mayúsculas, minúsculas, números y símbolos'
+                      }
+                    })}
+                  />
+                  <button
+                    type="button"
+                    className="password-toggle-btn"
+                    onClick={() => setShowPassword(!showPassword)}
+                    tabIndex={-1}
+                  >
+                    <i className={`bi ${showPassword ? 'bi-eye-slash' : 'bi-eye'}`}></i>
+                  </button>
+                  <div className="input-glow"></div>
+                </div>
+                {errors.contrasena && (
+                  <span className="field-error-msg">{errors.contrasena.message}</span>
+                )}
+                <span className="field-hint">Mín. 8 caracteres: mayúsculas, minúsculas, números y símbolos</span>
               </div>
 
             </div>
@@ -296,15 +344,25 @@ const Registro: React.FC = () => {
                 <div className="input-glow"></div>
               </div>
 
-              <div className="input-shell">
-                <i className="bi bi-motorcycle input-icon"></i>
-                <input
-                  type="text"
-                  className="registro-input"
-                  placeholder="Modelo"
-                  {...register('modelo', { required: true })}
-                />
-                <div className="input-glow"></div>
+              <div className="input-group-wrapper">
+                <div className="input-shell">
+                  <i className="bi bi-motorcycle input-icon"></i>
+                  <input
+                    type="number"
+                    className={`registro-input ${errors.modelo ? 'input-error' : ''}`}
+                    placeholder="Modelo (Año)"
+                    {...register('modelo', { 
+                      required: 'El modelo es requerido',
+                      min: { value: 1900, message: 'Debe ser mayor o igual a 1900' },
+                      max: { value: new Date().getFullYear() + 1, message: 'No puede ser un año futuro lejano' },
+                      pattern: { value: /^\d{4}$/, message: 'Debe ser un año de 4 dígitos' }
+                    })}
+                  />
+                  <div className="input-glow"></div>
+                </div>
+                {errors.modelo && (
+                  <span className="field-error-msg">{errors.modelo.message}</span>
+                )}
               </div>
 
               <div className="input-shell">

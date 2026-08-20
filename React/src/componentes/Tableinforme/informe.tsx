@@ -242,7 +242,7 @@ const TableInformes = () => {
   };
 
   return (
-    <div className="motos-page">
+    <div className="informes-page">
       <div className="admin-section">
         <h1 className="admin-title">Informes Técnicos</h1>
 
