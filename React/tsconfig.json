@@ -19,7 +19,7 @@
     /* Tipos globales para Node (necesario para process.env) */
     "types": [
       "node",
-      "jest"
+      "vitest/globals"
     ],
     "esModuleInterop": true,
     /* Linting */
