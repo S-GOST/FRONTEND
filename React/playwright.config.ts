@@ -12,7 +12,7 @@ import { defineConfig, devices } from '@playwright/test';
  * Ver https://playwright.dev/docs/test-configuration.
  */
 export default defineConfig({
-  testDir: './tests/Playwright',
+  testDir: './tests/Pruebas automatizadas',
   /* Ejecutar pruebas en archivos en paralelo */
   fullyParallel: true,
   /* Fallar la build en CI si accidentalmente dejaste test.only en el código fuente. */

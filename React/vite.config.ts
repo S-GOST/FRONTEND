@@ -10,7 +10,7 @@ export default defineConfig({
     environment: 'jsdom',               // ← Simula el navegador
     globals: true,                       // ← Permite usar describe/it/expect sin importarlos
     setupFiles: './src/setupTests.ts',   // ← Archivo que se ejecuta antes de cada prueba
-    include: ['src/**/*.{test,spec}.{js,ts,jsx,tsx}'],  // ← Dónde buscar pruebas
-    exclude: ['tests/**', 'node_modules/**', 'dist/**'], // ← Qué ignorar
+    include: ['tests/Pruebas unitarias/**/*.{test,spec}.{js,ts,jsx,tsx}'],  // ← Dónde buscar pruebas
+    exclude: ['tests/Pruebas automatizadas/**', 'node_modules/**', 'dist/**'], // ← Qué ignorar
   }
 })
