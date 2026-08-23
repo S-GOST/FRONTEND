@@ -37,3 +37,10 @@ dist-ssr
 /blob-report/
 /playwright/.cache/
 /playwright/.auth/
+
+# =====================================================================
+# SONARQUBE
+# =====================================================================
+coverage/
+.scannerwork/
+test-report.xml

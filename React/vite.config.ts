@@ -1,4 +1,4 @@
-import { defineConfig } from 'vitest/config'
+﻿import { defineConfig } from 'vitest/config'
 import react from '@vitejs/plugin-react'
 
 export default defineConfig({
@@ -7,10 +7,16 @@ export default defineConfig({
     host: 'localhost',
   },
   test: {
-    environment: 'jsdom',               // ← Simula el navegador
-    globals: true,                       // ← Permite usar describe/it/expect sin importarlos
-    setupFiles: './src/setupTests.ts',   // ← Archivo que se ejecuta antes de cada prueba
-    include: ['tests/Pruebas unitarias/**/*.{test,spec}.{js,ts,jsx,tsx}'],  // ← Dónde buscar pruebas
-    exclude: ['tests/Pruebas automatizadas/**', 'node_modules/**', 'dist/**'], // ← Qué ignorar
+    environment: 'jsdom',
+    globals: true,
+    setupFiles: './src/setupTests.ts',
+    include: ['tests/Pruebas unitarias/**/*.{test,spec}.{js,ts,jsx,tsx}'],
+    exclude: ['tests/Pruebas automatizadas/**', 'node_modules/**', 'dist/**'],
+    coverage: {
+      provider: 'v8',
+      reporter: ['lcov', 'text'],
+      include: ['src/**/*.{ts,tsx}'],
+      exclude: ['src/setupTests.ts']
+    }
   }
 })
