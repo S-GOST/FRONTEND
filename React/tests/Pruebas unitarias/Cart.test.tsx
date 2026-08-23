@@ -66,7 +66,7 @@ describe('Componente Cart (Carrito de compras)', () => {
 
     // 3. VALIDACIÓN:
     // Debe mostrar el nombre del producto
-    expect(screen.getByText(/Aceite Motul 7100/i)).toBeInTheDocument();
+    expect(screen.getAllByText(/Aceite Motul 7100/i)[0]).toBeInTheDocument();
     
     // Debe mostrar la sección de resumen ya que hay items
     expect(screen.getByText(/RESUMEN DEL PEDIDO/i)).toBeInTheDocument();
