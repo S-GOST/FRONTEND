@@ -26,7 +26,7 @@ const productoService = new BaseApiService<ProductoPayload>({
 const normalizarProducto = (p: ProductoPayload) => ({
   ...p,
   ID_CATEGORIA: Number(p.ID_CATEGORIA),
-  precio_venta: Number(p.Precio)
+  precio_venta: Number(p.precio_venta)
 });
 
 export const insertarProducto = (data: ProductoPayload) => productoService.crear(normalizarProducto(data));

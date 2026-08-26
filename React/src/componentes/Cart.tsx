@@ -143,7 +143,7 @@ const Cart: React.FC<CartProps> = () => {
     const type = isProducto ? 'producto' : 'servicio';
     const id = `${type === 'producto' ? 'prod' : 'serv'}_${rawId}`;
     const name = product.Nombre;
-    const price = Number(product.Precio);
+    const price = Number(isProducto ? product.precio_venta : product.Precio);
     const category = product.categoria_nombre || 'Sin categoría';
 
     const existingIndex = cart.findIndex(item => item.id === id);
@@ -544,10 +544,10 @@ const Cart: React.FC<CartProps> = () => {
               <div className="recommendations-grid">
                 {products.slice(0, 6).map((product) => {
                   const isProducto = 'ID_PRODUCTOS' in product;
-                  const rawId = isProducto ? String(product.ID_PRODUCTOS) : String(product.ID_SERVICIOS);
+                  const rawId = isProducto ? String((product as ProductoPayload).ID_PRODUCTOS) : String((product as ServicioPayload).ID_SERVICIOS);
                   const id = `${isProducto ? 'prod' : 'serv'}_${rawId}`;
                   const name = product.Nombre;
-                  const price = Number(product.Precio);
+                  const price = Number(isProducto ? (product as ProductoPayload).precio_venta : (product as ServicioPayload).Precio);
                   const category = product.categoria_nombre || (isProducto ? 'Producto' : 'Servicio');
 
                   const iconMap: { [key: string]: string } = {
