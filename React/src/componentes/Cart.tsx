@@ -8,7 +8,7 @@ import { obtenerMotos, MotoRecord } from '../services/moto.service';
 
 import { apiClient } from '../config/axios';
 import './Cart.css';
-
+//
 interface CartItem {
   id: string;
   name: string;
@@ -20,7 +20,7 @@ interface CartItem {
   type: 'producto' | 'servicio';
 }
 
-interface CartProps {}
+interface CartProps { }
 
 const Cart: React.FC<CartProps> = () => {
   const navigate = useNavigate();
@@ -38,7 +38,7 @@ const Cart: React.FC<CartProps> = () => {
   const [loadingMotos, setLoadingMotos] = useState(false);
   const [selectedMotoId, setSelectedMotoId] = useState<string>('new');
   const [selectedMetodoPago, setSelectedMetodoPago] = useState<string>('');
-  
+
   const [motoForm, setMotoForm] = useState({
     placa: '',
     marca: '',
@@ -239,7 +239,7 @@ const Cart: React.FC<CartProps> = () => {
       setTimeout(() => navigate('/login'), 1500);
       return;
     }
-    
+
     // Load motos — el user_id en localStorage es el numero_documento,
     // pero la tabla motos usa id_cliente que apunta a usuarios.id_usuario.
     // Necesitamos obtener el id_usuario del cliente logueado.
@@ -705,8 +705,8 @@ const Cart: React.FC<CartProps> = () => {
                     ></i>
                     <h5>{clientMotos.length > 0 ? 'Selecciona tu moto' : 'Registra tu moto'}</h5>
                     <p style={{ color: '#aaa', fontSize: '0.9rem' }}>
-                      {clientMotos.length > 0 
-                        ? 'Elige la motocicleta para esta orden de servicio.' 
+                      {clientMotos.length > 0
+                        ? 'Elige la motocicleta para esta orden de servicio.'
                         : 'Estos datos quedarán asociados a tu orden de servicio.'}
                     </p>
                   </div>

@@ -14,8 +14,12 @@
   "dependencies": {
     "axios": "^1.15.0",
     "bootstrap-icons": "^1.13.1",
+<<<<<<< HEAD
     "jspdf": "^4.2.1",
     "jspdf-autotable": "^5.0.8",
+=======
+    "legacy": "^0.0.3",
+>>>>>>> 4bd9d5b82fb6f2e6b79146e56b3a3e160c0e9b3b
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "react-hook-form": "^7.71.2",
@@ -26,9 +30,11 @@
     "@playwright/test": "^1.62.1",
     "@testing-library/jest-dom": "^7.0.1",
     "@testing-library/react": "^16.3.2",
-    "@types/node": "^26.2.0",
-    "@types/react": "^18.2.66",
-    "@types/react-dom": "^18.2.22",
+    "@testing-library/user-event": "^14.6.6",
+    "@types/jest": "^30.0.0",
+    "@types/node": "^26.3.0",
+    "@types/react": "^18.3.31",
+    "@types/react-dom": "^18.3.7",
     "@typescript-eslint/eslint-plugin": "^7.2.0",
     "@typescript-eslint/parser": "^7.2.0",
     "@vitejs/plugin-react": "^6.0.5",
