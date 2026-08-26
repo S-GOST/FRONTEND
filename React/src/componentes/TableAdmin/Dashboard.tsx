@@ -3,7 +3,7 @@ import { useNavigate, Link } from 'react-router-dom';
 import Swal from 'sweetalert2';
 import { obtenerAdmins } from '../../services/admin.service';
 import { obtenerTecnicos } from '../../services/tecnico.service';
-import { obtenerClientes } from '../../services/cliente.service';
+import { obtenerClientes, obtenerClientesPendientes } from '../../services/cliente.service';
 import { obtenerOrdenes } from '../../services/ordenServicioService';
 import { clearSession } from '../../services/auth.services';
 import rock from "../../assets/icons/rock.png";
@@ -16,6 +16,7 @@ interface AdminStats {
   usuarios: number;
   tecnicos: number;
   clientes: number;
+  clientesPendientes: number;
   ordenesPendientes: number;
   ordenesEnProceso: number;
   ordenesCompletadas: number;
@@ -34,12 +35,12 @@ const extraerDatos = <T,>(payload: unknown): T[] => {
 
 // ==================== SUB-COMPONENTES (MEMOIZADOS) ====================
 const StatCard = React.memo(({
-  title, value, icon, color, onClick
+  title, value, icon, color, onClick, className = ''
 }: {
-  title: string; value: number; icon: string; color: string; onClick?: () => void
+  title: string; value: number; icon: string; color: string; onClick?: () => void; className?: string;
 }) => (
-  <div className="stat-card" style={{ borderLeftColor: color }} onClick={onClick} role={onClick ? 'button' : undefined} tabIndex={onClick ? 0 : undefined}>
-    <div className="stat-icon" style={{ color }}><i className={`bi ${icon}`}></i></div>
+  <div className={`stat-card ${className}`} style={{ '--card-color': color } as React.CSSProperties} onClick={onClick} role={onClick ? 'button' : undefined} tabIndex={onClick ? 0 : undefined}>
+    <div className="stat-icon" style={{ color, background: `linear-gradient(135deg, ${color}22, ${color}05)` }}><i className={`bi ${icon}`}></i></div>
     <div className="stat-content">
       <h3 className="stat-title">{title}</h3>
       <p className="stat-value">{value}</p>
@@ -48,9 +49,12 @@ const StatCard = React.memo(({
 ));
 StatCard.displayName = 'StatCard';
 
-const NavCard = React.memo(({ title, icon, color, onClick }: { title: string; icon: string; color: string; onClick: () => void }) => (
-  <button className="action-btn" style={{ background: color, color: '#000' }} onClick={onClick}>
-    <i className={`bi ${icon}`}></i> {title}
+const NavCard = React.memo(({ title, icon, color, onClick, className = '' }: { title: string; icon: string; color: string; onClick: () => void; className?: string; }) => (
+  <button className={`action-btn ${className}`} onClick={onClick}>
+    <div className="action-icon-wrapper" style={{ color: color, background: `linear-gradient(135deg, ${color}22, ${color}05)` }}>
+      <i className={`bi ${icon}`}></i>
+    </div>
+    <span className="action-title">{title}</span>
   </button>
 ));
 NavCard.displayName = 'NavCard';
@@ -61,7 +65,7 @@ function Dashboard() {
   const userName = localStorage.getItem('user_name') || 'Administrador';
 
   const [stats, setStats] = useState<AdminStats>({
-    usuarios: 0, tecnicos: 0, clientes: 0,
+    usuarios: 0, tecnicos: 0, clientes: 0, clientesPendientes: 0,
     ordenesPendientes: 0, ordenesEnProceso: 0, ordenesCompletadas: 0
   });
   const [loading, setLoading] = useState(true);
@@ -71,10 +75,11 @@ function Dashboard() {
   const cargarEstadisticas = async () => {
     setLoading(true);
     try {
-      const [adminsRes, tecnicosRes, clientesRes, ordenesRes] = await Promise.all([
+      const [adminsRes, tecnicosRes, clientesRes, clientesPendRes, ordenesRes] = await Promise.all([
         obtenerAdmins().catch(() => ({ data: [] })),
         obtenerTecnicos().catch(() => ({ data: [] })),
         obtenerClientes().catch(() => ({ data: [] })),
+        obtenerClientesPendientes().catch(() => ({ data: [] })),
         obtenerOrdenes().catch(() => ({ data: [] }))
       ]);
 
@@ -82,6 +87,7 @@ function Dashboard() {
       const admins = extraerDatos<any>(adminsRes.data);
       const tecnicos = extraerDatos<any>(tecnicosRes.data);
       const clientes = extraerDatos<any>(clientesRes.data);
+      const clientesPend = extraerDatos<any>(clientesPendRes.data);
       const ordenes = extraerDatos<any>(ordenesRes.data);
 
       const pendientes = ordenes.filter(o => o.Estado?.toLowerCase().includes('pendiente'));
@@ -95,6 +101,7 @@ function Dashboard() {
         usuarios: admins.length + tecnicos.length + clientes.length,
         tecnicos: tecnicos.length,
         clientes: clientes.length,
+        clientesPendientes: clientesPend.length,
         ordenesPendientes: pendientes.length,
         ordenesEnProceso: enProceso.length,
         ordenesCompletadas: completadas.length
@@ -159,7 +166,7 @@ function Dashboard() {
             <StatCard title="Usuarios Totales" value={stats.usuarios} icon="bi-people" color="#00d4ff" onClick={handleNavigate('/admin/usuarios')} />
             <StatCard title="Técnicos" value={stats.tecnicos} icon="bi-person-badge" color="#ffd166" onClick={handleNavigate('/admin/tecnicos')} />
             <StatCard title="Clientes" value={stats.clientes} icon="bi-person-lines-fill" color="#00ff88" onClick={handleNavigate('/admin/clientes')} />
-            <StatCard title="Órdenes Pendientes" value={stats.ordenesPendientes} icon="bi-clock-history" color="#ff6600" onClick={handleNavigate('/admin/asignacion_tecnicos')} />
+            <StatCard title="Órdenes Pendientes" value={stats.ordenesPendientes} icon="bi-clock-history" color="#ff6600" onClick={handleNavigate('/admin/asignacion_tecnicos')} className={stats.ordenesPendientes > 0 ? 'pulse-alert' : ''} />
             <StatCard title="En Proceso" value={stats.ordenesEnProceso} icon="bi-arrow-repeat" color="#3b82f6" onClick={handleNavigate('/admin/asignacion_tecnicos')} />
             <StatCard title="Completadas" value={stats.ordenesCompletadas} icon="bi-check-circle" color="#10b981" onClick={handleNavigate('/admin/asignacion_tecnicos')} />
           </div>
@@ -167,7 +174,7 @@ function Dashboard() {
           <div className="quick-actions">
             <h3 className="actions-title">Gestión Rápida</h3>
             <div className="actions-grid">
-              <NavCard title="Gestionar Usuarios" icon="bi-person-badge" color="#3b82f6" onClick={handleNavigate('/admin/usuarios')} />
+              <NavCard title="Gestionar Usuarios" icon="bi-person-badge" color="#3b82f6" onClick={handleNavigate('/admin/usuarios')} className={stats.clientesPendientes > 0 ? 'pulse-alert' : ''} />
               <NavCard title="Nuevas Órdenes" icon="bi-clipboard2-pulse" color="#8b5cf6" onClick={handleNavigate('/admin/asignacion_tecnicos')} />
               <NavCard title="Servicios" icon="bi-wrench-adjustable" color="#06b6d4" onClick={handleNavigate('/admin/servicios')} />
               <NavCard title="Productos" icon="bi-box-seam" color="#ec4899" onClick={handleNavigate('/admin/productos')} />
@@ -175,6 +182,8 @@ function Dashboard() {
               <NavCard title="Informes Técnicos" icon="bi-file-earmark-text" color="#10b981" onClick={handleNavigate('/admin/informe')} />
               <NavCard title="Comprobantes" icon="bi-receipt" color="#f59e0b" onClick={handleNavigate('/admin/comprobante')} />
               <NavCard title="Historial Global" icon="bi-journal-text" color="#6b7280" onClick={handleNavigate('/admin/historial')} />
+              <NavCard title="Productividad" icon="bi-graph-up-arrow" color="#14b8a6" onClick={handleNavigate('/admin/productividad')} />
+              <NavCard title="Inventario" icon="bi-box-seam" color="#8b5cf6" onClick={handleNavigate('/admin/inventario')} />
             </div>
           </div>
 

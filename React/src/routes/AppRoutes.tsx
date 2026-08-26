@@ -25,6 +25,8 @@ const Motos = React.lazy(() => import('../componentes/TableMotos/Motos'));
 const Tableinforme = React.lazy(() => import('../componentes/Tableinforme/informe'));
 const Tablehistorial = React.lazy(() => import('../componentes/Tablehistorial/historial'));
 const TableComprobante = React.lazy(() => import('../componentes/TableComprobante/Comprobante'));
+const Productividad = React.lazy(() => import('../componentes/TableAdmin/Productividad'));
+const ReporteInventario = React.lazy(() => import('../componentes/TableAdmin/ReporteInventario'));
 const TecnicoDashboard = React.lazy(() => import('../componentes/TableTecnico/TecnicoDashboard'));
 const ClienteDashboard = React.lazy(() => import('../componentes/TableCliente/ClienteDashboard'));
 const ClienteOrdenes = React.lazy(() => import('../componentes/TableCliente/ClienteOrdenes'));
@@ -189,6 +191,7 @@ const AppRoutes: React.FC<AppRoutesProps> = ({
           <Route path="detalles-orden" element={<DetallesOrden />} />
           <Route path="tecnicos" element={<Usuarios />} />
           <Route path="clientes" element={<Usuarios />} />
+          <Route path="pendientes" element={<Usuarios />} />
           <Route path="servicios" element={<Servicios />} />
           <Route path="productos" element={<TableProductos />} />
           <Route path="categorias" element={<Categorias />} />
@@ -196,6 +199,8 @@ const AppRoutes: React.FC<AppRoutesProps> = ({
           <Route path="informe" element={<Tableinforme />} />
           <Route path="comprobante" element={<TableComprobante />} />
           <Route path="historial" element={<Tablehistorial />} />
+          <Route path="productividad" element={<Productividad />} />
+          <Route path="inventario" element={<ReporteInventario />} />
           <Route path="*" element={<Navigate to="/admin/dashboard" replace />} />
         </Route>
 
@@ -203,6 +208,7 @@ const AppRoutes: React.FC<AppRoutesProps> = ({
         <Route element={<ProtectedRoute allowedRole="tecnico" />}>
           <Route path="/tecnico/dashboard" element={<TecnicoDashboard />} />
           <Route path="/tecnico/informes" element={<Tableinforme />} />
+            <Route path="/tecnico/inventario" element={<ReporteInventario />} />
         </Route>
 
         {/* ========== Rutas de Cliente ========== */}

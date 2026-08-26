@@ -41,7 +41,7 @@ export const obtenerMisComprobantes = async () => {
   return res.data;
 };
 
-export const pagarComprobante = async (id: ComprobanteId) => {
-  const res = await apiClient.put(`/comprobantes/pagar/${id}`);
+export const pagarComprobante = async (id: ComprobanteId, metodo_pago?: string) => {
+  const res = await apiClient.put(`/comprobantes/pagar/${id}`, { metodo_pago });
   return res.data;
 };

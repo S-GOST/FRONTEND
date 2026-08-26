@@ -61,6 +61,9 @@ const Login: React.FC = () => {
       const error = err as AxiosError<LoginErrorResponse>;
       if (error.response?.status === 401) {
         setServerError('Credenciales incorrectas. Verifica tu usuario y contraseña.');
+      } else if (error.response?.status === 403) {
+        const msg = error.response?.data?.mensaje || error.response?.data?.message || 'Tu cuenta no tiene acceso al sistema.';
+        setServerError(msg);
       } else {
         setServerError('Error de conexión con el servidor KTM.');
       }

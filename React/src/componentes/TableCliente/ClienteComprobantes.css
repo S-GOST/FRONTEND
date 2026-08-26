@@ -120,3 +120,25 @@
   border-radius: 12px;
   border: 1px dashed #444;
 }
+
+.action-btn {
+  border: none;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-weight: 600;
+  border-radius: 6px;
+}
+
+.action-btn-primary {
+  background: linear-gradient(135deg, #ff6600, #cc5200);
+  color: #fff;
+  padding: 6px 14px;
+  font-size: 0.85rem;
+  box-shadow: 0 2px 4px rgba(255, 102, 0, 0.2);
+}
+
+.action-btn-primary:hover {
+  background: linear-gradient(135deg, #ff8533, #e65c00);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(255, 102, 0, 0.4);
+}

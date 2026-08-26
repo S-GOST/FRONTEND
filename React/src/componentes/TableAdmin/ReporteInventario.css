@@ -1,0 +1,234 @@
+/* =====================================================
+   REPORTEINVENTARIO.CSS – RF-0035 Informe de Inventario
+   KTM-inspired dark theme
+   ===================================================== */
+
+   .inventario-page {
+    padding: 2rem 2.5rem;
+    background: #0a0a0a;
+    min-height: 100vh;
+    color: #f5f5f5;
+    font-family: 'Inter', 'Segoe UI', sans-serif;
+  }
+  
+  /* ===== HEADER ===== */
+  .inventario-header {
+    margin-bottom: 2rem;
+  }
+  
+  .inventario-header h1 {
+    font-size: 2rem;
+    font-weight: 800;
+    background: linear-gradient(135deg, #ff6600, #ff9933);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    margin-bottom: 0.25rem;
+  }
+  
+  .inventario-header p {
+    color: #888;
+    font-size: 0.95rem;
+  }
+  
+  /* ===== FILTROS ===== */
+  .inventario-filters {
+    display: flex;
+    align-items: flex-end;
+    gap: 1.25rem;
+    flex-wrap: wrap;
+    background: #111;
+    border: 1px solid #222;
+    border-radius: 14px;
+    padding: 1.5rem 2rem;
+    margin-bottom: 2rem;
+  }
+  
+  .filter-group {
+    display: flex;
+    flex-direction: column;
+    gap: 0.4rem;
+  }
+  
+  .filter-group label {
+    font-size: 0.75rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: #888;
+  }
+  
+  .filter-group input[type="date"],
+  .filter-group select {
+    background: #1a1a1a;
+    border: 1px solid #333;
+    border-radius: 8px;
+    padding: 0.65rem 1rem;
+    color: #fff;
+    font-size: 0.95rem;
+    outline: none;
+    transition: border-color 0.2s;
+    min-width: 180px;
+  }
+  
+  .filter-group input[type="date"]:focus,
+  .filter-group select:focus {
+    border-color: #ff6600;
+    box-shadow: 0 0 0 3px rgba(255, 102, 0, 0.15);
+  }
+  
+  /* ===== RESUMEN KPI ===== */
+  .inventario-kpis {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 1.25rem;
+    margin-bottom: 2.5rem;
+  }
+  
+  .kpi-card {
+    background: #111;
+    border: 1px solid #222;
+    border-radius: 14px;
+    padding: 1.5rem;
+    text-align: center;
+    transition: all 0.25s ease;
+  }
+  
+  .kpi-card:hover {
+    border-color: #ff660044;
+    transform: translateY(-3px);
+    box-shadow: 0 8px 25px rgba(255, 102, 0, 0.08);
+  }
+  
+  .kpi-value {
+    font-size: 2.5rem;
+    font-weight: 800;
+    background: linear-gradient(135deg, #ff6600, #ff9933);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    line-height: 1.1;
+  }
+
+  .kpi-value.venta {
+    background: linear-gradient(135deg, #22c55e, #4ade80);
+    -webkit-background-clip: text;
+  }
+  
+  .kpi-label {
+    font-size: 0.8rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: #888;
+    margin-top: 0.5rem;
+  }
+  
+  /* ===== SECCIONES ===== */
+  .inventario-section {
+    background: #111;
+    border: 1px solid #222;
+    border-radius: 14px;
+    padding: 1.75rem 2rem;
+    margin-bottom: 2rem;
+  }
+  
+  .inventario-section h2 {
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: #f5f5f5;
+    margin-bottom: 1.25rem;
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+  }
+  
+  .inventario-section h2 i {
+    color: #ff6600;
+  }
+
+  .inventario-section.alert-section {
+    border-color: rgba(239, 68, 68, 0.3);
+    background: linear-gradient(to bottom right, #111, rgba(239, 68, 68, 0.05));
+  }
+  .inventario-section.alert-section h2 i {
+    color: #ef4444;
+  }
+  
+  /* ===== TABLA ===== */
+  .inv-table {
+    width: 100%;
+    border-collapse: collapse;
+  }
+  
+  .inv-table thead th {
+    background: #0d0d0d;
+    color: #aaa;
+    font-size: 0.75rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    padding: 0.85rem 1rem;
+    text-align: left;
+    border-bottom: 1px solid #222;
+  }
+  
+  .inv-table tbody tr {
+    transition: background 0.15s;
+  }
+  
+  .inv-table tbody tr:hover {
+    background: #1a1a1a;
+  }
+  
+  .inv-table tbody td {
+    padding: 0.85rem 1rem;
+    font-size: 0.95rem;
+    border-bottom: 1px solid #1a1a1a;
+    color: #ddd;
+  }
+  
+  .inv-table tbody td:first-child {
+    font-weight: 600;
+    color: #fff;
+  }
+  
+  /* Badges */
+  .badge-cantidad {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 40px;
+    padding: 0.3rem 0.75rem;
+    border-radius: 50px;
+    font-weight: 700;
+    font-size: 0.9rem;
+    background: rgba(255, 102, 0, 0.12);
+    color: #ff8533;
+    border: 1px solid rgba(255, 102, 0, 0.25);
+  }
+
+  .badge-alerta {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 40px;
+    padding: 0.3rem 0.75rem;
+    border-radius: 50px;
+    font-weight: 700;
+    font-size: 0.9rem;
+    background: rgba(239, 68, 68, 0.15);
+    color: #f87171;
+    border: 1px solid rgba(239, 68, 68, 0.3);
+  }
+  
+  /* ===== RESPONSIVE ===== */
+  @media (max-width: 768px) {
+    .inventario-page {
+      padding: 1.25rem;
+    }
+    .inventario-filters {
+      flex-direction: column;
+      align-items: stretch;
+    }
+  }

@@ -48,3 +48,4 @@ export const obtenerTecnicos = async () => {
 export const insertarTecnico = (datos: TecnicoPayload) => tecnicoService.crear(datos);
 export const actualizarTecnico = (id: string | number, datos: TecnicoPayload) => tecnicoService.actualizar(id, datos);
 export const eliminarTecnico = (id: string | number) => tecnicoService.eliminar(id);
+export const habilitarTecnico = (id: string | number) => tecnicoService['http'].put(`/tecnicos/actualizar/${id}`, { estado: 'Activo' });

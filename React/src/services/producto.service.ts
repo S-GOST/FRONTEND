@@ -6,7 +6,7 @@ export interface ProductoPayload {
   ID_CATEGORIA: number | string;
   Marca: string;
   Nombre: string;
-  Precio: number;
+  precio_venta: number;
   Estado?: string;
   categoria_nombre?: string; // viene del JOIN en el backend
 }
@@ -26,7 +26,7 @@ const productoService = new BaseApiService<ProductoPayload>({
 const normalizarProducto = (p: ProductoPayload) => ({
   ...p,
   ID_CATEGORIA: Number(p.ID_CATEGORIA),
-  Precio: Number(p.Precio)
+  precio_venta: Number(p.Precio)
 });
 
 export const insertarProducto = (data: ProductoPayload) => productoService.crear(normalizarProducto(data));

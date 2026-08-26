@@ -49,3 +49,19 @@ export const generarReporte = async (fecha_inicio: string, fecha_fin: string) =>
   const res = await apiClient.post('/informes/generar-reporte', { fecha_inicio, fecha_fin });
   return res.data;
 };
+
+// RF-0036
+export const obtenerReporteProductividad = async (fecha_inicio: string, fecha_fin: string) => {
+  const res = await apiClient.get(`/informes/productividad?fecha_inicio=${fecha_inicio}&fecha_fin=${fecha_fin}`);
+  return res.data;
+};
+
+// RF-0035
+export const obtenerReporteInventario = async (fecha_inicio?: string, fecha_fin?: string, categoria?: string) => {
+  const params = new URLSearchParams();
+  if (fecha_inicio) params.append('fecha_inicio', fecha_inicio);
+  if (fecha_fin) params.append('fecha_fin', fecha_fin);
+  if (categoria) params.append('categoria', categoria);
+  const res = await apiClient.get(`/informes/inventario?${params.toString()}`);
+  return res.data;
+};

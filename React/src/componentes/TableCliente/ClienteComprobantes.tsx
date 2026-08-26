@@ -31,27 +31,60 @@ const ClienteComprobantes = () => {
   }, []);
 
   const handlePagar = async (id: string | number) => {
-    const result = await Swal.fire({
-      title: '¿Desea pagar este comprobante?',
-      text: "Se simulará el proceso de pago y se notificará al administrador.",
+    const { value: metodoPago } = await Swal.fire({
+      title: 'Seleccione método de pago',
+      html: `
+        <div style="text-align:left; margin-top:1rem; width: 100%; box-sizing: border-box;">
+          <label style="display:block; color:#aaa; font-size:0.85rem; font-weight:600; margin-bottom:0.5rem; text-transform:uppercase;">
+            Método de pago
+          </label>
+          <select id="swal-metodo-pago" style="
+            width:100%; 
+            padding:1rem; 
+            background:#1a1a1a; 
+            border:1px solid #333;
+            border-radius:8px; 
+            color:#fff; 
+            font-size:1rem; 
+            cursor:pointer;
+            box-sizing: border-box;
+            outline: none;
+          ">
+            <option value="">-- Seleccione --</option>
+            <option value="Efectivo">💵 Efectivo</option>
+            <option value="Tarjeta">💳 Tarjeta de crédito/débito</option>
+            <option value="Transferencia">🏦 Transferencia bancaria</option>
+            <option value="Nequi">📱 Nequi</option>
+            <option value="Daviplata">📲 Daviplata</option>
+          </select>
+        </div>
+      `,
       icon: 'question',
       showCancelButton: true,
       confirmButtonColor: '#ff6600',
       cancelButtonColor: '#555',
-      confirmButtonText: 'Sí, pagar',
+      confirmButtonText: 'Confirmar pago',
       cancelButtonText: 'Cancelar',
       background: '#101010',
-      color: '#f5f5f5'
+      color: '#f5f5f5',
+      preConfirm: () => {
+        const select = document.getElementById('swal-metodo-pago') as HTMLSelectElement;
+        if (!select?.value) {
+          Swal.showValidationMessage('Debe seleccionar un método de pago');
+          return false;
+        }
+        return select.value;
+      }
     });
 
-    if (result.isConfirmed) {
+    if (metodoPago) {
       try {
         setLoading(true);
-        await pagarComprobante(id);
+        await pagarComprobante(id, metodoPago);
         
         Swal.fire({
           title: '¡Pagado!',
-          text: 'El comprobante ha sido pagado exitosamente.',
+          text: `Comprobante pagado exitosamente con ${metodoPago}.`,
           icon: 'success',
           confirmButtonColor: '#ff6600',
           background: '#101010',
@@ -128,7 +161,6 @@ const ClienteComprobantes = () => {
                     <button 
                       className="action-btn action-btn-primary" 
                       onClick={() => handlePagar(comp.id_comprobante)}
-                      style={{ padding: '4px 10px', fontSize: '12px' }}
                     >
                       Pagar
                     </button>

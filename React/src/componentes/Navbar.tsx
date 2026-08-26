@@ -138,14 +138,24 @@ const Navbar: React.FC<NavbarProps> = ({ cartCount: initialCartCount, onSearch, 
             <span>Carrito</span>
             <span className="cart-count">{cartCount}</span>
           </Link>
-          <Link to="/login" className="nav-btn btn-login">
-            <i className="bi bi-box-arrow-in-right"></i>
-            <span>Iniciar Sesión</span>
-          </Link>
-          <Link to="/registro" className="nav-btn btn-register">
-            <i className="bi bi-person-plus"></i>
-            <span>Registrarse</span>
-          </Link>
+          
+          {localStorage.getItem('user_token') ? (
+            <Link to={`/${localStorage.getItem('user_role') || 'cliente'}/dashboard`} className="nav-btn btn-login">
+              <i className="bi bi-person-circle"></i>
+              <span>Volver al panel</span>
+            </Link>
+          ) : (
+            <>
+              <Link to="/login" className="nav-btn btn-login">
+                <i className="bi bi-box-arrow-in-right"></i>
+                <span>Iniciar Sesión</span>
+              </Link>
+              <Link to="/registro" className="nav-btn btn-register">
+                <i className="bi bi-person-plus"></i>
+                <span>Registrarse</span>
+              </Link>
+            </>
+          )}
         </div>
       </div>
     </nav>

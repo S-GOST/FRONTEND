@@ -1,0 +1,302 @@
+/* =====================================================
+   PRODUCTIVIDAD.CSS – RF-0036 Informe de Productividad
+   KTM-inspired dark theme
+   ===================================================== */
+
+.productividad-page {
+  padding: 2rem 2.5rem;
+  background: #0a0a0a;
+  min-height: 100vh;
+  color: #f5f5f5;
+  font-family: 'Inter', 'Segoe UI', sans-serif;
+}
+
+/* ===== HEADER ===== */
+.productividad-header {
+  margin-bottom: 2rem;
+}
+
+.productividad-header h1 {
+  font-size: 2rem;
+  font-weight: 800;
+  background: linear-gradient(135deg, #ff6600, #ff9933);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  margin-bottom: 0.25rem;
+}
+
+.productividad-header p {
+  color: #888;
+  font-size: 0.95rem;
+}
+
+/* ===== FILTROS ===== */
+.productividad-filters {
+  display: flex;
+  align-items: flex-end;
+  gap: 1.25rem;
+  flex-wrap: wrap;
+  background: #111;
+  border: 1px solid #222;
+  border-radius: 14px;
+  padding: 1.5rem 2rem;
+  margin-bottom: 2rem;
+}
+
+.filter-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+
+.filter-group label {
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: #888;
+}
+
+.filter-group input[type="date"] {
+  background: #1a1a1a;
+  border: 1px solid #333;
+  border-radius: 8px;
+  padding: 0.65rem 1rem;
+  color: #fff;
+  font-size: 0.95rem;
+  outline: none;
+  transition: border-color 0.2s;
+  min-width: 180px;
+}
+
+.filter-group input[type="date"]:focus {
+  border-color: #ff6600;
+  box-shadow: 0 0 0 3px rgba(255, 102, 0, 0.15);
+}
+
+.btn-generar {
+  background: linear-gradient(135deg, #ff6600, #cc5200);
+  color: #fff;
+  border: none;
+  padding: 0.65rem 2rem;
+  border-radius: 8px;
+  font-weight: 700;
+  font-size: 0.95rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.btn-generar:hover {
+  background: linear-gradient(135deg, #ff8533, #e65c00);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 15px rgba(255, 102, 0, 0.35);
+}
+
+.btn-generar:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
+}
+
+/* ===== RESUMEN KPI ===== */
+.productividad-kpis {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 1.25rem;
+  margin-bottom: 2.5rem;
+}
+
+.kpi-card {
+  background: #111;
+  border: 1px solid #222;
+  border-radius: 14px;
+  padding: 1.5rem;
+  text-align: center;
+  transition: all 0.25s ease;
+}
+
+.kpi-card:hover {
+  border-color: #ff660044;
+  transform: translateY(-3px);
+  box-shadow: 0 8px 25px rgba(255, 102, 0, 0.08);
+}
+
+.kpi-value {
+  font-size: 2.5rem;
+  font-weight: 800;
+  background: linear-gradient(135deg, #ff6600, #ff9933);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  line-height: 1.1;
+}
+
+.kpi-label {
+  font-size: 0.8rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: #888;
+  margin-top: 0.5rem;
+}
+
+/* ===== SECCIONES ===== */
+.productividad-section {
+  background: #111;
+  border: 1px solid #222;
+  border-radius: 14px;
+  padding: 1.75rem 2rem;
+  margin-bottom: 2rem;
+}
+
+.productividad-section h2 {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: #f5f5f5;
+  margin-bottom: 1.25rem;
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+}
+
+.productividad-section h2 i {
+  color: #ff6600;
+}
+
+/* ===== TABLA ===== */
+.prod-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.prod-table thead th {
+  background: #0d0d0d;
+  color: #aaa;
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  padding: 0.85rem 1rem;
+  text-align: left;
+  border-bottom: 1px solid #222;
+}
+
+.prod-table tbody tr {
+  transition: background 0.15s;
+}
+
+.prod-table tbody tr:hover {
+  background: #1a1a1a;
+}
+
+.prod-table tbody td {
+  padding: 0.85rem 1rem;
+  font-size: 0.95rem;
+  border-bottom: 1px solid #1a1a1a;
+  color: #ddd;
+}
+
+.prod-table tbody td:first-child {
+  font-weight: 600;
+  color: #fff;
+}
+
+/* Badge de cantidad */
+.badge-cantidad {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 40px;
+  padding: 0.3rem 0.75rem;
+  border-radius: 50px;
+  font-weight: 700;
+  font-size: 0.9rem;
+  background: rgba(255, 102, 0, 0.12);
+  color: #ff8533;
+  border: 1px solid rgba(255, 102, 0, 0.25);
+}
+
+/* Badge de tiempo */
+.badge-tiempo {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.3rem 0.75rem;
+  border-radius: 50px;
+  font-weight: 600;
+  font-size: 0.85rem;
+  background: rgba(59, 130, 246, 0.12);
+  color: #60a5fa;
+  border: 1px solid rgba(59, 130, 246, 0.25);
+}
+
+/* ===== SIN DATOS ===== */
+.productividad-empty {
+  text-align: center;
+  padding: 4rem 2rem;
+  background: #111;
+  border: 1px dashed #333;
+  border-radius: 14px;
+  margin-top: 2rem;
+}
+
+.productividad-empty i {
+  font-size: 3rem;
+  color: #333;
+  margin-bottom: 1rem;
+  display: block;
+}
+
+.productividad-empty p {
+  color: #666;
+  font-size: 1.1rem;
+}
+
+/* ===== LOADER ===== */
+.productividad-loader {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 4rem;
+  color: #888;
+  gap: 1rem;
+}
+
+.productividad-loader .spinner {
+  width: 40px;
+  height: 40px;
+  border: 3px solid #222;
+  border-top-color: #ff6600;
+  border-radius: 50%;
+  animation: spin 0.7s linear infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+/* ===== RESPONSIVE ===== */
+@media (max-width: 768px) {
+  .productividad-page {
+    padding: 1.25rem;
+  }
+
+  .productividad-filters {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .productividad-kpis {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .prod-table {
+    font-size: 0.85rem;
+  }
+}

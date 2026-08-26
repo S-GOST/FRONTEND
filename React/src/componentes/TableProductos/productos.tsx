@@ -24,7 +24,7 @@ const createInitialFormData = (): ProductoPayload => ({
   ID_CATEGORIA: '',
   Marca: '',
   Nombre: '',
-  Precio: 0,
+  precio_venta: 0,
   Estado: 'Disponibles',
 });
 
@@ -37,7 +37,7 @@ const buildProductoPayload = (formData: ProductoPayload): ProductoPayload => {
   const idCategoria = Number(formData.ID_CATEGORIA);
   const nombre = String(formData.Nombre ?? '').trim();
   const marca = String(formData.Marca ?? '').trim();
-  const precio = Number(formData.Precio);
+  const precio = Number(formData.precio_venta);
   const estado = String(formData.Estado ?? 'Disponibles').trim() as EstadoType;
 
   if (!id) throw new Error('El ID del producto es obligatorio.');
@@ -54,7 +54,7 @@ const buildProductoPayload = (formData: ProductoPayload): ProductoPayload => {
     ID_CATEGORIA: idCategoria,
     Nombre: nombre,
     Marca: marca,
-    Precio: precio,
+    precio_venta: precio,
     Estado: estado,
   };
 };
@@ -79,7 +79,7 @@ const isSuccessfulResponse = (payload: unknown) => {
   return Boolean((payload as { success?: boolean }).success);
 };
 
-const formatPrecio = (precio: ProductoPayload['Precio']) => {
+const formatPrecio = (precio: ProductoPayload['precio_venta']) => {
   const numericValue = Number(precio);
   if (Number.isFinite(numericValue)) return numericValue.toLocaleString();
   return precio;
@@ -240,7 +240,7 @@ function TableProductos() {
       ID_CATEGORIA: producto.ID_CATEGORIA,
       Marca: producto.Marca,
       Nombre: producto.Nombre,
-      Precio: producto.Precio,
+      precio_venta: producto.precio_venta,
       Estado: (producto.Estado as EstadoType) ?? 'Disponibles',
     });
     setShowEditModal(true);
@@ -262,7 +262,7 @@ function TableProductos() {
     const nombre = String(formData.Nombre ?? '').trim();
     const marca = String(formData.Marca ?? '').trim();
     const idCategoria = Number(formData.ID_CATEGORIA);
-    const precio = Number(formData.Precio);
+    const precio = Number(formData.precio_venta);
     const estado = String(formData.Estado ?? '').trim();
 
     if (!id) return 'El ID del producto es obligatorio.';
@@ -465,7 +465,7 @@ function TableProductos() {
                 <th>Categoría</th>
                 <th>Marca</th>
                 <th>Nombre</th>
-                <th>Precio</th>
+                <th>Precio de Venta</th>
                 <th>Estado</th>
                 <th>Acciones</th>
               </tr>
@@ -484,7 +484,7 @@ function TableProductos() {
                     <td>{getCategoriaNombre(producto)}</td>
                     <td>{producto.Marca}</td>
                     <td>{producto.Nombre}</td>
-                    <td>${formatPrecio(producto.Precio)}</td>
+                    <td>${formatPrecio(producto.precio_venta)}</td>
                     <td>
                       <span
                         className={`estado-badge ${getEstadoBadgeClass(
@@ -594,14 +594,14 @@ function TableProductos() {
                 />
               </div>
               <div className="form-group">
-                <label>Precio</label>
+                <label>Precio de Venta</label>
                 <div className="input-with-icon">
                   <span>$</span>
                   <input
                     type="number"
                     step="0.01"
-                    name="Precio"
-                    value={formData.Precio}
+                    name="precio_venta"
+                    value={formData.precio_venta}
                     onChange={handleInputChange}
                     required
                   />
@@ -693,14 +693,14 @@ function TableProductos() {
                 />
               </div>
               <div className="form-group">
-                <label>Precio</label>
+                <label>Precio de Venta</label>
                 <div className="input-with-icon">
                   <span>$</span>
                   <input
                     type="number"
                     step="0.01"
-                    name="Precio"
-                    value={formData.Precio}
+                    name="precio_venta"
+                    value={formData.precio_venta}
                     onChange={handleInputChange}
                     required
                   />

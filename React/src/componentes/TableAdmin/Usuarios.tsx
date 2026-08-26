@@ -6,6 +6,7 @@ import {
   insertarAdmin,
   actualizarAdmin,
   eliminarAdmin,
+  habilitarAdmin,
   type AdminRecord,
   type AdministradorPayload as AdminPayload,
 } from '../../services/admin.service';
@@ -14,6 +15,7 @@ import {
   insertarTecnico,
   actualizarTecnico,
   eliminarTecnico,
+  habilitarTecnico,
   type TecnicoRecord,
   type TecnicoPayload,
 } from '../../services/tecnico.service';
@@ -22,6 +24,9 @@ import {
   insertarCliente,
   actualizarCliente,
   eliminarCliente,
+  habilitarCliente,
+  obtenerClientesPendientes,
+  procesarAprobacionCliente,
   type ClienteRecord,
   type ClientePayload,
 } from '../../services/cliente.service';
@@ -32,7 +37,7 @@ import {
 import { FormattedId } from '../../componentes/FormattedId';
 import './Admin.css';
 
-const TAB_KEYS = ['admins', 'tecnicos', 'clientes'] as const;
+const TAB_KEYS = ['admins', 'tecnicos', 'clientes', 'pendientes'] as const;
 
 type UserTab = (typeof TAB_KEYS)[number];
 
@@ -63,6 +68,7 @@ const getTabLabel = (tab: UserTab) => {
     case 'admins': return 'Administradores';
     case 'tecnicos': return 'Técnicos';
     case 'clientes': return 'Clientes';
+    case 'pendientes': return 'Pendientes';
     default: return 'Usuarios';
   }
 };
@@ -140,6 +146,7 @@ const resolveTabFromPath = (pathname: string): UserTab => {
 
   if (section === 'tecnicos') return 'tecnicos';
   if (section === 'clientes') return 'clientes';
+  if (section === 'pendientes') return 'pendientes';
   return 'admins';
 };
 
@@ -151,9 +158,11 @@ function Usuarios() {
   const [admins, setAdmins] = useState<AdminRecord[]>([]);
   const [tecnicos, setTecnicos] = useState<TecnicoRecord[]>([]);
   const [clientes, setClientes] = useState<ClienteRecord[]>([]);
+  const [clientesPendientes, setClientesPendientes] = useState<ClienteRecord[]>([]);
   const [filteredAdmins, setFilteredAdmins] = useState<AdminRecord[]>([]);
   const [filteredTecnicos, setFilteredTecnicos] = useState<TecnicoRecord[]>([]);
   const [filteredClientes, setFilteredClientes] = useState<ClienteRecord[]>([]);
+  const [filteredPendientes, setFilteredPendientes] = useState<ClienteRecord[]>([]);
   const [tiposDocumento, setTiposDocumento] = useState<TipoDocumentoRecord[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
@@ -210,33 +219,39 @@ function Usuarios() {
   const cargarDatos = async () => {
     setLoading(true);
     try {
-      const [adminsRes, tecnicosRes, clientesRes, tiposRes] = await Promise.all([
+      const [adminsRes, tecnicosRes, clientesRes, pendientesRes, tiposRes] = await Promise.all([
         obtenerAdmins(),
         obtenerTecnicos(),
         obtenerClientes(),
+        obtenerClientesPendientes(),
         obtenerTiposDocumento(),
       ]);
 
       const adminData = extractArray<AdminRecord>(adminsRes.data, 'admins');
       const tecnicoData = extractArray<TecnicoRecord>(tecnicosRes.data, 'tecnicos');
       const clienteData = extractArray<ClienteRecord>(clientesRes.data, 'clientes');
+      const pendientesData = extractArray<ClienteRecord>(pendientesRes.data, 'data');
       const tipos = extractArray<TipoDocumentoRecord>(tiposRes.data);
 
       setAdmins(adminData);
       setTecnicos(tecnicoData);
       setClientes(clienteData);
+      setClientesPendientes(pendientesData);
       setFilteredAdmins(adminData);
       setFilteredTecnicos(tecnicoData);
       setFilteredClientes(clienteData);
+      setFilteredPendientes(pendientesData);
       setTiposDocumento(tipos);
     } catch (error) {
       handleApiError(error, 'No se pudieron cargar los usuarios.');
       setAdmins([]);
       setTecnicos([]);
       setClientes([]);
+      setClientesPendientes([]);
       setFilteredAdmins([]);
       setFilteredTecnicos([]);
       setFilteredClientes([]);
+      setFilteredPendientes([]);
     } finally {
       setLoading(false);
     }
@@ -250,6 +265,7 @@ function Usuarios() {
     if (tab === 'admins') setFilteredAdmins(admins);
     if (tab === 'tecnicos') setFilteredTecnicos(tecnicos);
     if (tab === 'clientes') setFilteredClientes(clientes);
+    if (tab === 'pendientes') setFilteredPendientes(clientesPendientes);
   };
 
   const handleSearch = () => {
@@ -257,12 +273,14 @@ function Usuarios() {
       setFilteredAdmins(admins);
       setFilteredTecnicos(tecnicos);
       setFilteredClientes(clientes);
+      setFilteredPendientes(clientesPendientes);
       return;
     }
 
     setFilteredAdmins(filterUsers(admins, searchTerm));
     setFilteredTecnicos(filterUsers(tecnicos, searchTerm));
     setFilteredClientes(filterUsers(clientes, searchTerm));
+    setFilteredPendientes(filterUsers(clientesPendientes, searchTerm));
   };
 
   const resetForm = () => {
@@ -381,12 +399,131 @@ function Usuarios() {
     }
   };
 
-  const currentItems = activeTab === 'admins' ? filteredAdmins : activeTab === 'tecnicos' ? filteredTecnicos : filteredClientes;
+  const handleEnable = async (record: AdminRecord | TecnicoRecord | ClienteRecord) => {
+    const result = await Swal.fire({
+      title: `¿Habilitar a ${record.nombre}?`,
+      text: 'El usuario podrá acceder nuevamente al sistema.',
+      icon: 'question',
+      showCancelButton: true,
+      confirmButtonColor: '#10b981',
+      cancelButtonColor: '#2a2a2a',
+      confirmButtonText: 'Sí, habilitar',
+      cancelButtonText: 'Cancelar',
+      background: '#101010',
+      color: '#f5f5f5',
+    });
+
+    if (!result.isConfirmed) return;
+
+    try {
+      if (activeTab === 'admins') await habilitarAdmin(record.numero_documento);
+      if (activeTab === 'tecnicos') await habilitarTecnico(record.numero_documento);
+      if (activeTab === 'clientes') await habilitarCliente(record.numero_documento);
+      await showAlert('Habilitado', `${getTabLabel(activeTab).slice(0, -1)} habilitado correctamente.`, 'success');
+      await cargarDatos();
+    } catch (error) {
+      handleApiError(error, 'Ocurrió un error al habilitar el usuario.');
+    }
+  };
+
+  const handleAprobar = async (record: ClienteRecord) => {
+    const result = await Swal.fire({
+      title: `¿Aprobar a ${record.nombre}?`,
+      text: 'El cliente será notificado por correo electrónico.',
+      icon: 'question',
+      showCancelButton: true,
+      confirmButtonColor: '#10b981',
+      cancelButtonColor: '#2a2a2a',
+      confirmButtonText: 'Sí, aprobar',
+      cancelButtonText: 'Cancelar',
+      background: '#101010',
+      color: '#f5f5f5',
+    });
+
+    if (!result.isConfirmed) return;
+
+    try {
+      await procesarAprobacionCliente(record.numero_documento, 'Aprobar');
+      await showAlert('Aprobado', `Cliente aprobado exitosamente. Se ha notificado al cliente.`, 'success');
+      await cargarDatos();
+    } catch (error) {
+      handleApiError(error, 'Ocurrió un error al aprobar el cliente.');
+    }
+  };
+
+  const handleRechazar = async (record: ClienteRecord) => {
+    const result = await Swal.fire({
+      title: `¿Rechazar a ${record.nombre}?`,
+      text: 'Ingresa la justificación (obligatoria):',
+      input: 'textarea',
+      inputPlaceholder: 'Ej. Documento no válido...',
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#ef4444',
+      cancelButtonColor: '#2a2a2a',
+      confirmButtonText: 'Rechazar cliente',
+      cancelButtonText: 'Cancelar',
+      background: '#101010',
+      color: '#f5f5f5',
+      preConfirm: (justificacion) => {
+        if (!justificacion || justificacion.trim() === '') {
+          Swal.showValidationMessage('Se requiere justificación para rechazar un cliente.');
+          return false;
+        }
+        return justificacion;
+      }
+    });
+
+    if (!result.isConfirmed) return;
+
+    try {
+      await procesarAprobacionCliente(record.numero_documento, 'Rechazar', result.value);
+      await showAlert('Rechazado', `Cliente rechazado exitosamente. Se ha notificado al cliente.`, 'success');
+      await cargarDatos();
+    } catch (error) {
+      handleApiError(error, 'Ocurrió un error al rechazar el cliente.');
+    }
+  };
+
+  const currentItems = activeTab === 'admins' ? filteredAdmins : activeTab === 'tecnicos' ? filteredTecnicos : activeTab === 'pendientes' ? filteredPendientes : filteredClientes;
 
   return (
     <div className="admin-page">
       <div className="admin-section">
-        <h1 className="admin-title">Usuarios</h1>
+        <div className="header-with-back" style={{ display: 'flex', alignItems: 'center', gap: '1rem', marginBottom: '1rem' }}>
+          <button 
+            onClick={() => navigate('/admin/dashboard')} 
+            className="btn-back-dashboard"
+            title="Volver al Dashboard"
+            style={{
+              background: '#1a1a1a',
+              border: '1px solid #333',
+              color: '#fff',
+              width: '40px',
+              height: '40px',
+              borderRadius: '50%',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              cursor: 'pointer',
+              transition: 'all 0.2s ease',
+              fontSize: '1.2rem'
+            }}
+            onMouseOver={(e) => {
+              e.currentTarget.style.background = '#ff6600';
+              e.currentTarget.style.borderColor = '#ff6600';
+              e.currentTarget.style.color = '#000';
+            }}
+            onMouseOut={(e) => {
+              e.currentTarget.style.background = '#1a1a1a';
+              e.currentTarget.style.borderColor = '#333';
+              e.currentTarget.style.color = '#fff';
+            }}
+          >
+            <i className="bi bi-arrow-left"></i>
+          </button>
+          <h1 className="admin-title" style={{ marginBottom: 0 }}>Usuarios</h1>
+        </div>
 
         <div className="user-summary-cards">
           <div className="summary-card admin-card">
@@ -400,6 +537,10 @@ function Usuarios() {
           <div className="summary-card cliente-card">
             <span>Clientes</span>
             <strong>{clientes.length}</strong>
+          </div>
+          <div className="summary-card pendiente-card" style={{ borderColor: '#ef4444' }}>
+            <span>Pendientes</span>
+            <strong>{clientesPendientes.length}</strong>
           </div>
         </div>
 
@@ -430,7 +571,7 @@ function Usuarios() {
               <i className="bi bi-search"></i>
             </button>
           </div>
-          {activeTab !== 'clientes' && (
+          {(activeTab !== 'clientes' && activeTab !== 'pendientes') && (
             <div className="right-actions">
               <button className="btn-create" onClick={openCreateModal}>
                 <i className="bi bi-plus-circle"></i> Nuevo {getTabLabel(activeTab).slice(0, -1)}
@@ -448,43 +589,71 @@ function Usuarios() {
                 <th>Correo</th>
                 <th>Documento</th>
                 <th>Teléfono</th>
-                {activeTab === 'clientes' && <th>Ciudad</th>}
+                {(activeTab === 'clientes' || activeTab === 'pendientes') && <th>Ciudad</th>}
                 <th>Usuario</th>
-                {activeTab !== 'clientes' && <th>Acciones</th>}
+                <th>Estado</th>
+                <th>Acciones</th>
               </tr>
             </thead>
             <tbody>
               {loading ? (
                 <tr>
-                  <td colSpan={activeTab === 'clientes' ? 8 : activeTab === 'tecnicos' ? 8 : 7} className="loading-row">
+                  <td colSpan={(activeTab === 'clientes' || activeTab === 'pendientes') ? 10 : 9} className="loading-row">
                     Cargando usuarios...
                   </td>
                 </tr>
               ) : currentItems.length > 0 ? (
                 currentItems.map(item => (
-                  <tr key={item.numero_documento}>
+                  <tr key={item.numero_documento} style={{ opacity: ((item as any).estado === 0 || (item as any).estado === '0' || String((item as any).estado ?? (item as any).Estado).toLowerCase() === 'inactivo') ? 0.5 : 1 }}>
                     <td><FormattedId entity={activeTab === 'admins' ? 'admin' : activeTab === 'tecnicos' ? 'tecnico' : 'cliente'} value={item.numero_documento} /></td>
                     <td>{item.nombre}</td>
                     <td>{item.correo}</td>
                     <td>{formatTipoDocumento(tiposDocumento, item.id_tipo_documento)}</td>
                     <td>{item.telefono}</td>
-                    {activeTab === 'clientes' && <td>{(item as ClienteRecord).ciudad}</td>}
+                    {(activeTab === 'clientes' || activeTab === 'pendientes') && <td>{(item as ClienteRecord).ciudad}</td>}
                     <td>{item.usuario}</td>
-                    {activeTab !== 'clientes' && (
-                      <td className="actions-cell">
-                        <button className="btn-edit-ktm" onClick={() => openEditModal(item)}>
-                          <i className="bi bi-pencil-square"></i> Editar
-                        </button>
-                        <button className="btn-eliminar-ktm" onClick={() => handleDelete(item)}>
-                          <i className="bi bi-person-x"></i> Inhabilitar
-                        </button>
-                      </td>
-                    )}
+                    <td>
+                      {(() => {
+                        const est = (item as any).estado ?? (item as any).Estado;
+                        if (est === 'Pendiente') return <span style={{ background: '#f59e0b', padding: '4px 8px', borderRadius: '4px', fontSize: '0.75rem', fontWeight: 'bold' }}>Pendiente</span>;
+                        if (est === 'Rechazado') return <span style={{ background: '#ef4444', padding: '4px 8px', borderRadius: '4px', fontSize: '0.75rem', fontWeight: 'bold' }}>Rechazado</span>;
+                        if (est === undefined || est === null) return <span style={{ background: '#10b981', padding: '4px 8px', borderRadius: '4px', fontSize: '0.75rem', fontWeight: 'bold' }}>Activo</span>;
+                        const isInactive = est === 0 || est === '0' || String(est).toLowerCase() === 'inactivo' || est === false;
+                        return <span style={{ background: isInactive ? '#ef4444' : '#10b981', padding: '4px 8px', borderRadius: '4px', fontSize: '0.75rem', fontWeight: 'bold' }}>{isInactive ? 'Inactivo' : 'Activo'}</span>;
+                      })()}
+                    </td>
+                    <td className="actions-cell">
+                      {activeTab === 'pendientes' ? (
+                        <>
+                          <button className="btn-edit-ktm" style={{ background: '#064e3b', borderColor: '#10b981', marginRight: '5px' }} onClick={() => handleAprobar(item as ClienteRecord)}>
+                            <i className="bi bi-check-circle"></i> Aprobar
+                          </button>
+                          <button className="btn-eliminar-ktm" onClick={() => handleRechazar(item as ClienteRecord)}>
+                            <i className="bi bi-x-circle"></i> Rechazar
+                          </button>
+                        </>
+                      ) : (
+                        <>
+                          <button className="btn-edit-ktm" onClick={() => openEditModal(item)}>
+                            <i className="bi bi-pencil-square"></i> Editar
+                          </button>
+                          {((item as any).estado === 0 || (item as any).estado === '0' || String((item as any).estado ?? (item as any).Estado).toLowerCase() === 'inactivo' || String((item as any).estado ?? (item as any).Estado).toLowerCase() === 'rechazado') ? (
+                            <button className="btn-edit-ktm" style={{ background: '#064e3b', borderColor: '#10b981' }} onClick={() => handleEnable(item)}>
+                              <i className="bi bi-check-circle"></i> Habilitar
+                            </button>
+                          ) : (
+                            <button className="btn-eliminar-ktm" onClick={() => handleDelete(item)}>
+                              <i className="bi bi-person-x"></i> Inhabilitar
+                            </button>
+                          )}
+                        </>
+                      )}
+                    </td>
                   </tr>
                 ))
               ) : (
                 <tr>
-                  <td colSpan={activeTab === 'clientes' ? 8 : activeTab === 'tecnicos' ? 8 : 7} className="loading-row">
+                  <td colSpan={(activeTab === 'clientes' || activeTab === 'pendientes') ? 10 : 9} className="loading-row">
                     No se encontraron resultados para {getTabLabel(activeTab).toLowerCase()}.
                   </td>
                 </tr>

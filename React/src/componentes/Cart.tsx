@@ -37,6 +37,7 @@ const Cart: React.FC<CartProps> = () => {
   const [clientMotos, setClientMotos] = useState<MotoRecord[]>([]);
   const [loadingMotos, setLoadingMotos] = useState(false);
   const [selectedMotoId, setSelectedMotoId] = useState<string>('new');
+  const [selectedMetodoPago, setSelectedMetodoPago] = useState<string>('');
   
   const [motoForm, setMotoForm] = useState({
     placa: '',
@@ -305,6 +306,11 @@ const Cart: React.FC<CartProps> = () => {
       return;
     }
 
+    if (!selectedMetodoPago) {
+      showNotification('Por favor selecciona un método de pago', 'warning');
+      return;
+    }
+
     setSavingOrder(true);
     try {
       const detalles = cart.map(item => {
@@ -324,6 +330,7 @@ const Cart: React.FC<CartProps> = () => {
         id_moto: selectedMotoId !== 'new' ? Number(selectedMotoId) : undefined,
         detalles,
         total: totals.subtotal,
+        metodo_pago: selectedMetodoPago,
         observaciones: '',
       };
 
@@ -338,6 +345,7 @@ const Cart: React.FC<CartProps> = () => {
         setShowCheckoutModal(false);
         setCheckoutStep(1);
         setMotoForm({ placa: '', marca: '', modelo: '', cilindraje: '', kilometraje: '' });
+        setSelectedMetodoPago('');
         showNotification('¡Orden de servicio creada exitosamente!', 'success');
         setTimeout(() => navigate('/cliente/dashboard'), 2000);
       } else {
@@ -851,6 +859,42 @@ const Cart: React.FC<CartProps> = () => {
                       </div>
                     );
                   })()}
+
+                  {/* ── Selector de Método de Pago ── */}
+                  <div style={{ marginTop: '1.5rem' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '0.8rem' }}>
+                      <i className="bi bi-credit-card-2-front" style={{ color: 'var(--ktm-orange)', fontSize: '1.2rem' }}></i>
+                      <span style={{ fontWeight: 600, color: '#fff', fontSize: '1rem' }}>Método de Pago</span>
+                    </div>
+                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '10px' }}>
+                      {[
+                        { id: 'efectivo', label: 'Efectivo', icon: 'bi-cash-stack' },
+                        { id: 'tarjeta', label: 'Tarjeta', icon: 'bi-credit-card' },
+                        { id: 'transferencia', label: 'Transferencia', icon: 'bi-bank' },
+                      ].map(metodo => (
+                        <div
+                          key={metodo.id}
+                          onClick={() => setSelectedMetodoPago(metodo.id)}
+                          style={{
+                            display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
+                            gap: '6px', padding: '14px 8px', borderRadius: '12px', cursor: 'pointer',
+                            border: selectedMetodoPago === metodo.id ? '2px solid var(--ktm-orange)' : '2px solid #333',
+                            background: selectedMetodoPago === metodo.id ? 'rgba(255, 102, 0, 0.1)' : '#1a1a2e',
+                            transition: 'all 0.3s ease',
+                          }}
+                        >
+                          <i className={`bi ${metodo.icon}`} style={{
+                            fontSize: '1.5rem',
+                            color: selectedMetodoPago === metodo.id ? 'var(--ktm-orange)' : '#888',
+                          }}></i>
+                          <span style={{
+                            fontSize: '0.8rem', fontWeight: 600,
+                            color: selectedMetodoPago === metodo.id ? '#fff' : '#888',
+                          }}>{metodo.label}</span>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
 
                   <div className="checkout-summary" style={{ marginTop: '1rem' }}>
                     <div style={{ display: 'flex', justifyContent: 'space-between', fontWeight: 'bold' }}>

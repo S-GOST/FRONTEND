@@ -55,3 +55,4 @@ export const obtenerAdmins = async () => {
 export const insertarAdmin = (data: AdministradorPayload) => adminService.crear(data);
 export const actualizarAdmin = (id: string | number, data: AdministradorPayload) => adminService.actualizar(id, data);
 export const eliminarAdmin = (id: string | number) => adminService.eliminar(id);
+export const habilitarAdmin = (id: string | number) => adminService['http'].put(`/admins/actualizar/${id}`, { estado: 'Activo' });

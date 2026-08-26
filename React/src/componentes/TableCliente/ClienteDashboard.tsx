@@ -166,53 +166,95 @@ function ClienteDashboard() {
             <div className="loading-container"><p className="loading-text">Cargando tu información...</p></div>
           ) : (
             <>
+              <div className="stats-grid" style={{ gridTemplateColumns: 'repeat(4, 1fr)', marginBottom: '2rem' }}>
+                <div className="stat-card" style={{ '--card-color': '#00d4ff' } as React.CSSProperties}>
+                  <div className="stat-icon" style={{ color: '#00d4ff', background: `linear-gradient(135deg, #00d4ff22, #00d4ff05)` }}><i className="bi bi-clipboard-data"></i></div>
+                  <div className="stat-content">
+                    <h3 className="stat-title">Total Órdenes</h3>
+                    <p className="stat-value">{stats.totalOrdenes}</p>
+                  </div>
+                </div>
+                <div className="stat-card" style={{ '--card-color': '#10b981' } as React.CSSProperties}>
+                  <div className="stat-icon" style={{ color: '#10b981', background: `linear-gradient(135deg, #10b98122, #10b98105)` }}><i className="bi bi-check-circle"></i></div>
+                  <div className="stat-content">
+                    <h3 className="stat-title">Completadas</h3>
+                    <p className="stat-value">{stats.ordenesCompletadas}</p>
+                  </div>
+                </div>
+                <div className="stat-card" style={{ '--card-color': '#ff6600' } as React.CSSProperties}>
+                  <div className="stat-icon" style={{ color: '#ff6600', background: `linear-gradient(135deg, #ff660022, #ff660005)` }}><i className="bi bi-clock-history"></i></div>
+                  <div className="stat-content">
+                    <h3 className="stat-title">Pendientes</h3>
+                    <p className="stat-value">{stats.ordenesPendientes}</p>
+                  </div>
+                </div>
+                <div className="stat-card" style={{ '--card-color': '#ffd166' } as React.CSSProperties}>
+                  <div className="stat-icon" style={{ color: '#ffd166', background: `linear-gradient(135deg, #ffd16622, #ffd16605)` }}><i className="bi bi-bicycle"></i></div>
+                  <div className="stat-content">
+                    <h3 className="stat-title">Mis Motos</h3>
+                    <p className="stat-value">{stats.totalMotos}</p>
+                  </div>
+                </div>
+              </div>
               <div className="quick-actions">
                 <h3 className="actions-title">Acciones Rápidas</h3>
                 <div className="actions-grid">
-                  <button className="action-btn action-btn-primary" onClick={() => navigate('/cliente/ordenes')}>
-                    <i className="bi bi-clipboard-check"></i> Ver Órdenes
+                  <button className="action-btn" onClick={() => navigate('/cliente/ordenes')}>
+                    <div className="action-icon-wrapper" style={{ color: '#00d4ff', background: `linear-gradient(135deg, #00d4ff22, #00d4ff05)` }}>
+                      <i className="bi bi-clipboard-check"></i>
+                    </div>
+                    <span className="action-title">Ver Órdenes</span>
                   </button>
-                  <button className="action-btn action-btn-secondary" onClick={() => navigate('/cliente/motos')}>
-                    <i className="bi bi-bicycle"></i> Mis Motos
+                  <button className="action-btn" onClick={() => navigate('/cliente/motos')}>
+                    <div className="action-icon-wrapper" style={{ color: '#ffd166', background: `linear-gradient(135deg, #ffd16622, #ffd16605)` }}>
+                      <i className="bi bi-bicycle"></i>
+                    </div>
+                    <span className="action-title">Mis Motos</span>
                   </button>
-                  <button className="action-btn action-btn-tertiary" onClick={() => navigate('/cliente/comprobantes')}>
-                    <i className="bi bi-receipt"></i> Comprobantes
+                  <button className="action-btn" onClick={() => navigate('/cliente/comprobantes')}>
+                    <div className="action-icon-wrapper" style={{ color: '#00ff88', background: `linear-gradient(135deg, #00ff8822, #00ff8805)` }}>
+                      <i className="bi bi-receipt"></i>
+                    </div>
+                    <span className="action-title">Comprobantes</span>
                   </button>
-                  <button className="action-btn action-btn-quaternary" onClick={() => navigate('/cliente/historial')}>
-                    <i className="bi bi-journal-text"></i> Historial
+                  <button className="action-btn" onClick={() => navigate('/cliente/historial')}>
+                    <div className="action-icon-wrapper" style={{ color: '#ff6600', background: `linear-gradient(135deg, #ff660022, #ff660005)` }}>
+                      <i className="bi bi-journal-text"></i>
+                    </div>
+                    <span className="action-title">Historial</span>
                   </button>
                 </div>
               </div>
 
-              <div className="info-section">
-                <div className="info-card" style={{ gridColumn: '1 / -1' }}>
-                  <h3><i className="bi bi-rocket-takeoff" style={{ marginRight: '8px' }}></i> Seguimiento de Órdenes</h3>
+              <div className="info-section" style={{ gridTemplateColumns: '1fr' }}>
+                <div className="info-card">
+                  <h3><i className="bi bi-rocket-takeoff" style={{ marginRight: '8px', color: 'var(--dashboard-accent)' }}></i> Seguimiento de Órdenes Recientes</h3>
                   {ordenesRecientes.length > 0 ? (
-                    <div style={{ display: 'flex', flexDirection: 'column', gap: '20px', marginTop: '20px' }}>
+                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(350px, 1fr))', gap: '20px', marginTop: '20px' }}>
                       {ordenesRecientes.map((orden) => {
                         const progress = getProgress(orden.Estado);
                         const color = getEstadoColor(orden.Estado);
                         return (
-                          <div key={orden.ID_ORDEN_SERVICIO} style={{ background: '#1a1a1a', borderRadius: '12px', padding: '20px', border: '1px solid #333', boxShadow: '0 4px 15px rgba(0,0,0,0.2)' }}>
-                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px', flexWrap: 'wrap', gap: '10px' }}>
+                          <div key={orden.ID_ORDEN_SERVICIO} style={{ background: 'linear-gradient(145deg, #111111, #050505)', borderRadius: '12px', padding: '20px', border: '1px solid #1a1a1a', boxShadow: '0 4px 15px rgba(0,0,0,0.2)', transition: 'transform 0.3s' }}>
+                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '20px', flexWrap: 'wrap', gap: '10px' }}>
                               <div>
-                                <strong style={{ color: '#ff6600', fontSize: '1.2rem', fontFamily: 'JetBrains Mono, monospace', display: 'block', marginBottom: '5px' }}>
-                                  {formatId('orden', orden.ID_ORDEN_SERVICIO)}
+                                <strong style={{ color: '#fff', fontSize: '1.2rem', display: 'block', marginBottom: '5px' }}>
+                                  Orden {formatId('orden', orden.ID_ORDEN_SERVICIO)}
                                 </strong>
-                                <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
-                                  <span style={{ color: '#888', fontSize: '0.9rem' }}>
-                                    <i className="bi bi-calendar-event me-1"></i>
+                                <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+                                  <span style={{ color: '#888', fontSize: '0.85rem' }}>
+                                    <i className="bi bi-calendar-event me-2"></i>
                                     Inicio: {new Date(orden.Fecha_inicio).toLocaleDateString('es-CO')}
                                   </span>
                                   {orden.Fecha_estimada && (
                                     <span style={{ color: '#aaa', fontSize: '0.85rem' }}>
-                                      <i className="bi bi-calendar-check me-1"></i>
+                                      <i className="bi bi-calendar-check me-2"></i>
                                       Est. Entrega: {new Date(orden.Fecha_estimada).toLocaleDateString('es-CO')}
                                     </span>
                                   )}
                                   {orden.Fecha_fin && (
-                                    <span style={{ color: '#00ff88', fontSize: '0.85rem' }}>
-                                      <i className="bi bi-calendar-check-fill me-1"></i>
+                                    <span style={{ color: '#10b981', fontSize: '0.85rem' }}>
+                                      <i className="bi bi-calendar-check-fill me-2"></i>
                                       Finalizado: {new Date(orden.Fecha_fin).toLocaleDateString('es-CO')}
                                     </span>
                                   )}
@@ -224,17 +266,17 @@ function ClienteDashboard() {
                                 backgroundColor: `${color}15`, 
                                 color: color, 
                                 fontWeight: 'bold', 
-                                fontSize: '0.85rem', 
+                                fontSize: '0.8rem', 
                                 border: `1px solid ${color}40`,
                                 textTransform: 'uppercase',
-                                letterSpacing: '1px'
+                                letterSpacing: '0.5px'
                               }}>
                                 {orden.Estado}
                               </span>
                             </div>
                             
                             {/* Progress Bar Container */}
-                            <div style={{ position: 'relative', height: '10px', background: '#2a2a2a', borderRadius: '5px', overflow: 'hidden', marginBottom: '12px', border: '1px solid #333' }}>
+                            <div style={{ position: 'relative', height: '8px', background: '#2a2a2a', borderRadius: '4px', overflow: 'hidden', marginBottom: '12px', border: '1px solid #1f1f1f' }}>
                               <div style={{ 
                                 position: 'absolute', top: 0, left: 0, height: '100%', 
                                 width: `${progress}%`, 
@@ -244,31 +286,24 @@ function ClienteDashboard() {
                               }}></div>
                             </div>
                             
-                            <div style={{ display: 'flex', justifyContent: 'space-between', color: '#888', fontSize: '0.85rem', fontWeight: 600, textTransform: 'uppercase' }}>
+                            <div style={{ display: 'flex', justifyContent: 'space-between', color: '#888', fontSize: '0.75rem', fontWeight: 600, textTransform: 'uppercase' }}>
                               <span style={{ color: progress >= 15 ? '#ddd' : '#666' }}>Recepcionada</span>
                               <span style={{ color: progress >= 50 ? '#ddd' : '#666' }}>En Taller</span>
-                              <span style={{ color: progress >= 100 ? '#ddd' : '#666' }}>Lista para Entrega</span>
+                              <span style={{ color: progress >= 100 ? '#ddd' : '#666' }}>Lista</span>
                             </div>
                           </div>
                         )
                       })}
                     </div>
                   ) : (
-                    <div style={{ textAlign: 'center', padding: '40px 20px', color: '#888' }}>
-                      <i className="bi bi-inbox" style={{ fontSize: '3rem', marginBottom: '10px', display: 'block', color: '#444' }}></i>
-                      <p>No tienes órdenes de servicio activas en este momento.</p>
+                    <div style={{ textAlign: 'center', padding: '60px 20px', color: '#888', background: 'linear-gradient(145deg, #111111, #050505)', borderRadius: '12px', border: '1px dashed #333' }}>
+                      <div style={{ background: '#1a1a1a', width: '80px', height: '80px', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 20px auto' }}>
+                        <i className="bi bi-inbox" style={{ fontSize: '2.5rem', color: '#555' }}></i>
+                      </div>
+                      <p style={{ fontSize: '1.1rem', margin: 0 }}>No tienes órdenes de servicio recientes.</p>
+                      <p style={{ fontSize: '0.9rem', color: '#666', marginTop: '10px' }}>Las órdenes activas aparecerán aquí para que puedas darles seguimiento.</p>
                     </div>
                   )}
-                </div>
-
-                <div className="info-card">
-                  <h3>📊 Resumen de tu Cuenta</h3>
-                  <ul className="info-list">
-                    <li><span className="info-label">Total de Órdenes:</span><span className="info-value">{stats.totalOrdenes}</span></li>
-                    <li><span className="info-label">Completadas:</span><span className="info-value info-positive">{stats.ordenesCompletadas}</span></li>
-                    <li><span className="info-label">Pendientes:</span><span className="info-value info-negative">{stats.ordenesPendientes}</span></li>
-                    <li><span className="info-label">Motos Registradas:</span><span className="info-value">{stats.totalMotos}</span></li>
-                  </ul>
                 </div>
               </div>
             </>
