@@ -154,10 +154,10 @@ function ClienteMotos() {
               />
             </div>
             <div className="cm-field">
-              <label><i className="bi bi-wrench"></i> Modelo</label>
+              <label><i className="bi bi-wrench"></i> Modelo (Año)</label>
               <input
-                type="text"
-                placeholder="Ej: Duke 390"
+                type="number"
+                placeholder="Ej: 2020"
                 value={form.modelo}
                 onChange={(e) => setForm({ ...form, modelo: e.target.value })}
               />

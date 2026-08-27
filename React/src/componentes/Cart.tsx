@@ -811,7 +811,7 @@ const Cart: React.FC<CartProps> = () => {
                               <input
                                 type="text"
                                 className="moto-form-input"
-                                placeholder="Ej: Duke 390"
+                                placeholder="Ej: 2020"
                                 value={motoForm.modelo}
                                 onChange={(e) => setMotoForm({ ...motoForm, modelo: e.target.value })}
                               />
@@ -824,7 +824,7 @@ const Cart: React.FC<CartProps> = () => {
                                 <input
                                   type="text"
                                   className="moto-form-input"
-                                  placeholder="Ej: 373cc"
+                                  placeholder="Ej: 390cc"
                                   value={motoForm.cilindraje}
                                   onChange={(e) => setMotoForm({ ...motoForm, cilindraje: e.target.value })}
                                 />

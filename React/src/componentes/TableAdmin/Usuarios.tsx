@@ -690,6 +690,9 @@ function Usuarios() {
                   name="nombre"
                   value={formData.nombre}
                   onChange={handleInputChange}
+                  onKeyDown={(e) => { if (/\d/.test(e.key)) e.preventDefault(); }}
+                  pattern="^[A-Za-zÁÉÍÓÚáéíóúÑñÜü\s]+$"
+                  title="El nombre solo debe contener letras"
                   required
                 />
               </div>

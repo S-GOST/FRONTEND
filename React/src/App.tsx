@@ -79,7 +79,7 @@ function App() {
               id: String(p.ID_PRODUCTOS),
               name: p.Nombre,
               category: p.categoria_nombre || 'Producto',
-              price: Number(p.Precio),
+              price: Number(p.precio_venta ?? p.Precio_Venta ?? p.Precio ?? 0),
               description: `Producto de la marca ${p.Marca || 'KTM'}`,
               icon: 'bi-box-seam',
               ID_PRODUCTOS: p.ID_PRODUCTOS
