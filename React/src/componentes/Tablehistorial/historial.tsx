@@ -24,8 +24,7 @@ function TableHistorial() {
   const [loading, setLoading] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
   const [filterAccion, setFilterAccion] = useState('');
-  const [showJsonModal, setShowJsonModal] = useState(false);
-  const [jsonModalData, setJsonModalData] = useState<{ antes: any; despues: any; accion: string } | null>(null);
+
 
   useEffect(() => {
     void cargarDatosIniciales();
