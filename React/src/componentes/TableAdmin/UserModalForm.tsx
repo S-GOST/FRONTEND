@@ -44,19 +44,29 @@ export const UserModalForm: React.FC<UserModalFormProps> = ({
 
   if (!showCreateModal && !showEditModal) return null;
 
+  const closeModal = showCreateModal ? closeCreateModal : closeEditModal;
+
   return (
-    <div className="modal-overlay" onClick={showCreateModal ? closeCreateModal : closeEditModal}>
-      <div className="modal-container" onClick={e => e.stopPropagation()}>
+    <div
+      className="modal-overlay"
+      role="dialog"
+      aria-modal="true"
+      onClick={closeModal}
+      onKeyDown={(e) => { if (e.key === 'Escape') closeModal(); }}
+      tabIndex={-1}
+    >
+      <div className="modal-container" role="document" onClick={e => e.stopPropagation()} onKeyDown={e => e.stopPropagation()}>
         <div className="modal-header">
           <h3>{showCreateModal ? `Crear ${getTabLabel(activeTab).slice(0, -1)}` : `Editar ${getTabLabel(activeTab).slice(0, -1)}`}</h3>
-          <button type="button" className="close-btn" onClick={showCreateModal ? closeCreateModal : closeEditModal}>
+          <button type="button" className="close-btn" onClick={closeModal}>
             &times;
           </button>
         </div>
         <form onSubmit={showCreateModal ? handleCreate : handleUpdate}>
           <div className="form-group">
-            <label>Documento</label>
+            <label htmlFor="user-numero_documento">Documento</label>
             <input
+              id="user-numero_documento"
               type="text"
               name="numero_documento"
               value={formData.numero_documento}
@@ -65,8 +75,9 @@ export const UserModalForm: React.FC<UserModalFormProps> = ({
             />
           </div>
           <div className="form-group">
-            <label>Nombre</label>
+            <label htmlFor="user-nombre">Nombre</label>
             <input
+              id="user-nombre"
               type="text"
               name="nombre"
               value={formData.nombre}
@@ -77,8 +88,9 @@ export const UserModalForm: React.FC<UserModalFormProps> = ({
             />
           </div>
           <div className="form-group">
-            <label>Correo</label>
+            <label htmlFor="user-correo">Correo</label>
             <input
+              id="user-correo"
               type="email"
               name="correo"
               value={formData.correo}
@@ -88,8 +100,9 @@ export const UserModalForm: React.FC<UserModalFormProps> = ({
           </div>
           {(activeTab === 'clientes' || activeTab === 'pendientes') && (
             <div className="form-group">
-              <label>Ubicación (Ciudad)</label>
+              <label htmlFor="user-ciudad">Ubicación (Ciudad)</label>
               <input
+                id="user-ciudad"
                 type="text"
                 name="ciudad"
                 value={formData.ciudad || ''}
@@ -99,8 +112,9 @@ export const UserModalForm: React.FC<UserModalFormProps> = ({
             </div>
           )}
           <div className="form-group">
-            <label>Tipo de documento</label>
+            <label htmlFor="user-id_tipo_documento">Tipo de documento</label>
             <select
+              id="user-id_tipo_documento"
               name="id_tipo_documento"
               value={String(formData.id_tipo_documento || '')}
               onChange={handleInputChange}
@@ -115,8 +129,9 @@ export const UserModalForm: React.FC<UserModalFormProps> = ({
             </select>
           </div>
           <div className="form-group">
-            <label>Teléfono</label>
+            <label htmlFor="user-telefono">Teléfono</label>
             <input
+              id="user-telefono"
               type="text"
               name="telefono"
               value={formData.telefono}
@@ -125,8 +140,9 @@ export const UserModalForm: React.FC<UserModalFormProps> = ({
             />
           </div>
           <div className="form-group">
-            <label>Usuario</label>
+            <label htmlFor="user-usuario">Usuario</label>
             <input
+              id="user-usuario"
               type="text"
               name="usuario"
               value={formData.usuario}
@@ -135,9 +151,10 @@ export const UserModalForm: React.FC<UserModalFormProps> = ({
             />
           </div>
           <div className="form-group">
-            <label>{showCreateModal ? 'Contraseña' : 'Nueva contraseña'}</label>
+            <label htmlFor="user-password">{showCreateModal ? 'Contraseña' : 'Nueva contraseña'}</label>
             <div style={{ position: 'relative', display: 'flex', alignItems: 'center' }}>
               <input
+                id="user-password"
                 type={showPassword ? 'text' : 'password'}
                 name="password"
                 value={formData.password || ''}
@@ -150,6 +167,7 @@ export const UserModalForm: React.FC<UserModalFormProps> = ({
                 type="button"
                 onClick={() => setShowPassword(!showPassword)}
                 tabIndex={-1}
+                aria-label={showPassword ? 'Ocultar contraseña' : 'Mostrar contraseña'}
                 style={{
                   position: 'absolute',
                   right: '10px',
@@ -164,7 +182,7 @@ export const UserModalForm: React.FC<UserModalFormProps> = ({
             </div>
           </div>
           <div className="modal-footer">
-            <button type="button" onClick={showCreateModal ? closeCreateModal : closeEditModal}>
+            <button type="button" onClick={closeModal}>
               Cancelar
             </button>
             <button type="submit">{showCreateModal ? 'Guardar' : 'Guardar cambios'}</button>

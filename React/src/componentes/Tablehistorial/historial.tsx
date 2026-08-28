@@ -99,7 +99,7 @@ function TableHistorial() {
 
         <p style={{ color: '#aaa', marginBottom: '15px', display: 'flex', alignItems: 'center', gap: '8px' }}>
           <i className="bi bi-shield-lock" style={{ color: 'var(--ktm-orange)' }}></i>
-          Este registro es inmutable. No se permite modificar ni eliminar entradas de auditoría.
+          {' '}Este registro es inmutable. No se permite modificar ni eliminar entradas de auditoría.
         </p>
 
         <div className="action-bar">

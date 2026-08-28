@@ -57,7 +57,7 @@ import Footer from '../componentes/Footer';
 
 const HomePage: React.FC<HomePageProps> = ({ addToCart, productos, servicios }) => {
   // Extraer dinámicamente las categorías reales que tienen los servicios
-  const dynamicCategories = Array.from(new Set(servicios.map(s => s.category))).sort();
+  const dynamicCategories = Array.from(new Set(servicios.map(s => s.category))).sort((a, b) => a.localeCompare(b));
 
   return (
     <>

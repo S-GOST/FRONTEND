@@ -65,8 +65,8 @@ const Productividad: React.FC = () => {
     setConsultado(true);
     try {
       const res = await obtenerReporteProductividad(fechaInicio, fechaFin);
-      if (res.success) {
-        setData(res.data);
+      if (res.data?.success) {
+        setData(res.data.data);
       } else {
         setData(null);
       }
@@ -130,12 +130,12 @@ const Productividad: React.FC = () => {
           {loading ? (
             <>
               <span className="spinner" style={{ width: 16, height: 16, borderWidth: 2 }}></span>
-              Consultando...
+              {' '}Consultando...
             </>
           ) : (
             <>
               <i className="bi bi-lightning-charge-fill"></i>
-              Generar Reporte
+              {' '}Generar Reporte
             </>
           )}
         </button>

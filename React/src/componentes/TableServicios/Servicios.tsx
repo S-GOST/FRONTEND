@@ -505,8 +505,9 @@ function Servicios() {
             <form onSubmit={handleCreate} className="ktm-form">
               <div className="ktm-form-body">
                 <div className="ktm-form-group">
-                <label className="ktm-form-label"><i className="bi bi-hash"></i> ID Servicio</label>
+                <label className="ktm-form-label" htmlFor="serv-0"><i className="bi bi-hash"></i> ID Servicio</label>
                 <input
+                  id="serv-0"
                   type="text"
                   name="ID_SERVICIOS"
                   className="ktm-form-input"
@@ -517,8 +518,9 @@ function Servicios() {
                 />
               </div>
               <div className="ktm-form-group">
-                <label className="ktm-form-label"><i className="bi bi-tags"></i> Categoría</label>
+                <label className="ktm-form-label" htmlFor="serv-1"><i className="bi bi-tags"></i> Categoría</label>
                 <select
+                  id="serv-1"
                   name="ID_CATEGORIA"
                   className="ktm-form-input"
                   value={formData.ID_CATEGORIA}
@@ -534,8 +536,9 @@ function Servicios() {
                 </select>
               </div>
               <div className="ktm-form-group">
-                <label className="ktm-form-label"><i className="bi bi-card-text"></i> Nombre</label>
+                <label className="ktm-form-label" htmlFor="serv-2"><i className="bi bi-card-text"></i> Nombre</label>
                 <input
+                  id="serv-2"
                   type="text"
                   name="Nombre"
                   className="ktm-form-input"
@@ -547,8 +550,9 @@ function Servicios() {
               </div>
               <div className="ktm-form-row">
                 <div className="ktm-form-group">
-                  <label className="ktm-form-label"><i className="bi bi-activity"></i> Estado</label>
+                  <label className="ktm-form-label" htmlFor="serv-3"><i className="bi bi-activity"></i> Estado</label>
                   <select
+                  id="serv-3"
                     name="Estado"
                     className="ktm-form-input"
                     value={formData.Estado}
@@ -563,8 +567,9 @@ function Servicios() {
                   </select>
                 </div>
                 <div className="ktm-form-group">
-                  <label className="ktm-form-label"><i className="bi bi-currency-dollar"></i> Precio</label>
+                  <label className="ktm-form-label" htmlFor="serv-4"><i className="bi bi-currency-dollar"></i> Precio</label>
                   <input
+                  id="serv-4"
                     type="number"
                     step="0.01"
                     name="Precio"
@@ -601,8 +606,9 @@ function Servicios() {
             <form onSubmit={handleUpdate} className="ktm-form">
               <div className="ktm-form-body">
                 <div className="ktm-form-group">
-                <label className="ktm-form-label"><i className="bi bi-hash"></i> ID Servicio</label>
+                <label className="ktm-form-label" htmlFor="serv-5"><i className="bi bi-hash"></i> ID Servicio</label>
                 <input
+                  id="serv-5"
                   type="text"
                   name="ID_SERVICIOS"
                   className="ktm-form-input"
@@ -613,8 +619,9 @@ function Servicios() {
                 />
               </div>
               <div className="ktm-form-group">
-                <label className="ktm-form-label"><i className="bi bi-tags"></i> Categoría</label>
+                <label className="ktm-form-label" htmlFor="serv-6"><i className="bi bi-tags"></i> Categoría</label>
                 <select
+                  id="serv-6"
                   name="ID_CATEGORIA"
                   className="ktm-form-input"
                   value={formData.ID_CATEGORIA}
@@ -630,8 +637,9 @@ function Servicios() {
                 </select>
               </div>
               <div className="ktm-form-group">
-                <label className="ktm-form-label"><i className="bi bi-card-text"></i> Nombre</label>
+                <label className="ktm-form-label" htmlFor="serv-7"><i className="bi bi-card-text"></i> Nombre</label>
                 <input
+                  id="serv-7"
                   type="text"
                   name="Nombre"
                   className="ktm-form-input"
@@ -642,8 +650,9 @@ function Servicios() {
               </div>
               <div className="ktm-form-row">
                 <div className="ktm-form-group">
-                  <label className="ktm-form-label"><i className="bi bi-activity"></i> Estado</label>
+                  <label className="ktm-form-label" htmlFor="serv-8"><i className="bi bi-activity"></i> Estado</label>
                   <select
+                  id="serv-8"
                     name="Estado"
                     className="ktm-form-input"
                     value={formData.Estado}
@@ -658,8 +667,9 @@ function Servicios() {
                   </select>
                 </div>
                 <div className="ktm-form-group">
-                  <label className="ktm-form-label"><i className="bi bi-currency-dollar"></i> Precio</label>
+                  <label className="ktm-form-label" htmlFor="serv-9"><i className="bi bi-currency-dollar"></i> Precio</label>
                   <input
+                  id="serv-9"
                     type="number"
                     step="0.01"
                     name="Precio"

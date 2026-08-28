@@ -39,7 +39,7 @@ const StatCard = React.memo(({
 }: {
   title: string; value: number; icon: string; color: string; onClick?: () => void; className?: string;
 }) => (
-  <div className={`stat-card ${className}`} style={{ '--card-color': color } as React.CSSProperties} onClick={onClick} role={onClick ? 'button' : undefined} tabIndex={onClick ? 0 : undefined}>
+  <div className={`stat-card ${className}`} style={{ '--card-color': color } as React.CSSProperties} onClick={onClick} onKeyDown={onClick ? (e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); onClick(); } } : undefined} role={onClick ? 'button' : undefined} tabIndex={onClick ? 0 : undefined}>
     <div className="stat-icon" style={{ color, background: `linear-gradient(135deg, ${color}22, ${color}05)` }}><i className={`bi ${icon}`}></i></div>
     <div className="stat-content">
       <h3 className="stat-title">{title}</h3>

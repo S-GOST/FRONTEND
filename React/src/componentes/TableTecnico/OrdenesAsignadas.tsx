@@ -62,17 +62,17 @@ export const OrdenesAsignadas: React.FC<OrdenesActivasProps> = ({
     <div className="ordenes-panel">
       {/* Resumen rápido */}
       <div className="ordenes-resumen">
-        <div className="resumen-chip chip-all" onClick={() => setFiltroEstado('todas')}>
+        <div className="resumen-chip chip-all" role="button" tabIndex={0} onClick={() => setFiltroEstado('todas')} onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); setFiltroEstado('todas'); } }}>
           <span className="chip-num">{ordenes.length}</span>
           <span className="chip-lbl">Total</span>
         </div>
 
-        <div className="resumen-chip chip-process" onClick={() => setFiltroEstado('En Proceso')}>
+        <div className="resumen-chip chip-process" role="button" tabIndex={0} onClick={() => setFiltroEstado('En Proceso')} onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); setFiltroEstado('En Proceso'); } }}>
           <i className="bi bi-arrow-repeat"></i>
           <span className="chip-num">{countByState('proceso')}</span>
           <span className="chip-lbl">En Proceso</span>
         </div>
-        <div className="resumen-chip chip-done" onClick={() => setFiltroEstado('Completado')}>
+        <div className="resumen-chip chip-done" role="button" tabIndex={0} onClick={() => setFiltroEstado('Completado')} onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); setFiltroEstado('Completado'); } }}>
           <i className="bi bi-check-circle"></i>
           <span className="chip-num">{countByState('finalizada') + countByState('completado')}</span>
           <span className="chip-lbl">Finalizadas</span>

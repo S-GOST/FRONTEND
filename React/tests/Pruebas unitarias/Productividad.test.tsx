@@ -1,4 +1,3 @@
-import { Mock } from 'vitest';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import '@testing-library/jest-dom';
 import Productividad from '../../src/componentes/TableAdmin/Productividad';
@@ -6,10 +5,10 @@ import { obtenerReporteProductividad } from '../../src/services/informe.service'
 import Swal from 'sweetalert2';
 
 // Mock del servicio
-Mock('../../services/informe.service');
+vi.mock('../../services/informe.service');
 
 // Mock de SweetAlert2
-Mock('sweetalert2', () => ({
+vi.mock('sweetalert2', () => ({
   fire: vi.fn(),
 }));
 
@@ -90,9 +89,11 @@ describe('Productividad Component', () => {
     };
 
     jest.mocked(obtenerReporteProductividad).mockResolvedValue({
-      success: true,
-      data: mockData
-    });
+      data: {
+        success: true,
+        data: mockData
+      }
+    } as any);
 
     render(<Productividad />);
     
@@ -124,12 +125,14 @@ describe('Productividad Component', () => {
   // 5. PRUEBA DE ESTADO SIN DATOS
   it('debería mostrar mensaje de sin datos cuando no hay resultados', async () => {
     jest.mocked(obtenerReporteProductividad).mockResolvedValue({
-      success: true,
       data: {
-        ordenesCompletadas: [],
-        promediosServicios: []
+        success: true,
+        data: {
+          ordenesCompletadas: [],
+          promediosServicios: []
+        }
       }
-    });
+    } as any);
 
     render(<Productividad />);
     
@@ -221,9 +224,11 @@ describe('Productividad Component', () => {
     };
 
     jest.mocked(obtenerReporteProductividad).mockResolvedValue({
-      success: true,
-      data: mockData
-    });
+      data: {
+        success: true,
+        data: mockData
+      }
+    } as any);
 
     render(<Productividad />);
     
@@ -239,12 +244,14 @@ describe('Productividad Component', () => {
   // 11. PRUEBA DE KPIs CON DATOS VACÍOS
   it('debería mostrar ceros en KPIs cuando no hay datos', async () => {
     jest.mocked(obtenerReporteProductividad).mockResolvedValue({
-      success: true,
       data: {
-        ordenesCompletadas: [],
-        promediosServicios: []
+        success: true,
+        data: {
+          ordenesCompletadas: [],
+          promediosServicios: []
+        }
       }
-    });
+    } as any);
 
     render(<Productividad />);
     
@@ -267,9 +274,11 @@ describe('Productividad Component', () => {
     };
 
     jest.mocked(obtenerReporteProductividad).mockResolvedValue({
-      success: true,
-      data: mockData
-    });
+      data: {
+        success: true,
+        data: mockData
+      }
+    } as any);
 
     render(<Productividad />);
     

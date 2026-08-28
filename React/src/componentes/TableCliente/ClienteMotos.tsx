@@ -166,8 +166,9 @@ function ClienteMotos() {
           </div>
           <div className="cm-form-grid">
             <div className="cm-field">
-              <label><i className="bi bi-card-text"></i> Placa</label>
+              <label htmlFor="cm-placa"><i className="bi bi-card-text"></i> Placa</label>
               <input
+                id="cm-placa"
                 type="text"
                 placeholder="Ej: ABC123"
                 value={form.placa}
@@ -176,8 +177,9 @@ function ClienteMotos() {
               />
             </div>
             <div className="cm-field">
-              <label><i className="bi bi-tag"></i> Marca</label>
+              <label htmlFor="cm-marca"><i className="bi bi-tag"></i> Marca</label>
               <input
+                id="cm-marca"
                 type="text"
                 placeholder="Ej: KTM"
                 value={form.marca}
@@ -185,8 +187,9 @@ function ClienteMotos() {
               />
             </div>
             <div className="cm-field">
-              <label><i className="bi bi-wrench"></i> Modelo (Año)</label>
+              <label htmlFor="cm-modelo"><i className="bi bi-wrench"></i> Modelo (Año)</label>
               <input
+                id="cm-modelo"
                 type="number"
                 placeholder="Ej: 2020"
                 value={form.modelo}
@@ -194,8 +197,9 @@ function ClienteMotos() {
               />
             </div>
             <div className="cm-field">
-              <label><i className="bi bi-speedometer2"></i> Cilindraje (cc)</label>
+              <label htmlFor="cm-cilindraje"><i className="bi bi-speedometer2"></i> Cilindraje (cc)</label>
               <input
+                id="cm-cilindraje"
                 type="number"
                 placeholder="Ej: 390"
                 value={form.cilindraje}
@@ -203,8 +207,9 @@ function ClienteMotos() {
               />
             </div>
             <div className="cm-field">
-              <label><i className="bi bi-signpost"></i> Kilometraje</label>
+              <label htmlFor="cm-kilometraje"><i className="bi bi-signpost"></i> Kilometraje</label>
               <input
+                id="cm-kilometraje"
                 type="number"
                 placeholder="Ej: 15000"
                 value={form.kilometraje}
@@ -245,7 +250,7 @@ function ClienteMotos() {
         </div>
       ) : (
         <div className="cm-grid cm-fade-in">
-          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
           {motos.map((moto: any, index: number) => {
             const placa = moto.placa || moto.Placa || '---';
             const marca = moto.marca || moto.Marca || '---';

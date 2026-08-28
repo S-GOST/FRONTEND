@@ -313,7 +313,7 @@ const Cart: React.FC<CartProps> = () => {
       const detalles = cart.map(item => {
         const isProducto = item.type === 'producto';
         const precio = Number(item.price) || 0;
-        const rawId = parseInt(item.id.replace('prod_', '').replace('serv_', ''), 10);
+        const rawId = Number.parseInt(item.id.replace('prod_', '').replace('serv_', ''), 10);
         return {
           ID_SERVICIOS: !isProducto ? rawId : null,
           ID_PRODUCTOS: isProducto ? rawId : null,
@@ -954,7 +954,10 @@ const Cart: React.FC<CartProps> = () => {
                       ].map(metodo => (
                         <div
                           key={metodo.id}
+                          role="button"
+                          tabIndex={0}
                           onClick={() => setSelectedMetodoPago(metodo.id)}
+                          onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); setSelectedMetodoPago(metodo.id); } }}
                           style={{
                             display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
                             gap: '6px', padding: '14px 8px', borderRadius: '12px', cursor: 'pointer',

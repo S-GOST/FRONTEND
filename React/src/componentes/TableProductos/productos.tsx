@@ -519,7 +519,7 @@ function TableProductos() {
                     <td>{getCategoriaNombre(producto)}</td>
                     <td>{producto.Marca}</td>
                     <td>{producto.Nombre}</td>
-                    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                    {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
                     <td>${formatPrecio(producto.precio_costo ?? (producto as any).Precio_Costo ?? (producto as any).precioCosto)}</td>
                     <td>${formatPrecio(producto.precio_venta)}</td>
                     <td className={producto.stock <= producto.stock_minimo ? 'stock-bajo' : ''}>{producto.stock}</td>
@@ -587,8 +587,9 @@ function TableProductos() {
 
             <form onSubmit={handleCreate}>
               <div className="form-group">
-                <label>ID Producto</label>
+                <label htmlFor="prod-ID_PRODUCTOS-8">ID Producto</label>
                 <input
+                  id="prod-ID_PRODUCTOS-8"
                   type="text"
                   name="ID_PRODUCTOS"
                   value={formData.ID_PRODUCTOS}
@@ -613,8 +614,9 @@ function TableProductos() {
                 </select>
               </div>
               <div className="form-group">
-                <label>Marca</label>
+                <label htmlFor="prod-Marca-10">Marca</label>
                 <input
+                  id="prod-Marca-10"
                   type="text"
                   name="Marca"
                   value={formData.Marca}
@@ -623,8 +625,9 @@ function TableProductos() {
                 />
               </div>
               <div className="form-group">
-                <label>Nombre</label>
+                <label htmlFor="prod-c-nombre">Nombre</label>
                 <input
+                  id="prod-c-nombre"
                   type="text"
                   name="Nombre"
                   value={formData.Nombre}
@@ -633,11 +636,12 @@ function TableProductos() {
                 />
               </div>
               <div className="form-group form-group-half">
-                <label>Precio de Costo</label>
+                <label htmlFor="prod-precio_costo-0">Precio de Costo</label>
                 <div className="input-with-icon">
                   <span>$</span>
                   <input
-                    type="number"
+                    id="prod-precio_costo-0"
+                  type="number"
                     step="0.01"
                     name="precio_costo"
                     value={formData.precio_costo}
@@ -647,11 +651,12 @@ function TableProductos() {
                 </div>
               </div>
               <div className="form-group form-group-half">
-                <label>Precio de Venta</label>
+                <label htmlFor="prod-precio_venta-2">Precio de Venta</label>
                 <div className="input-with-icon">
                   <span>$</span>
                   <input
-                    type="number"
+                    id="prod-precio_venta-2"
+                  type="number"
                     step="0.01"
                     name="precio_venta"
                     value={formData.precio_venta}
@@ -661,8 +666,9 @@ function TableProductos() {
                 </div>
               </div>
               <div className="form-group form-group-half">
-                <label>Stock</label>
+                <label htmlFor="prod-stock-4">Stock</label>
                 <input
+                  id="prod-stock-4"
                   type="number"
                   name="stock"
                   value={formData.stock}
@@ -681,8 +687,9 @@ function TableProductos() {
                 />
               </div>
               <div className="form-group">
-                <label>Estado</label>
+                <label htmlFor="prod-Estado-6">Estado</label>
                 <select
+                  id="prod-Estado-6"
                   name="Estado"
                   value={formData.Estado}
                   onChange={handleInputChange}
@@ -720,8 +727,9 @@ function TableProductos() {
 
             <form onSubmit={handleUpdate}>
               <div className="form-group">
-                <label>ID Producto</label>
+                <label htmlFor="prod-ID_PRODUCTOS-9">ID Producto</label>
                 <input
+                  id="prod-ID_PRODUCTOS-9"
                   type="text"
                   name="ID_PRODUCTOS"
                   value={formData.ID_PRODUCTOS}
@@ -746,8 +754,9 @@ function TableProductos() {
                 </select>
               </div>
               <div className="form-group">
-                <label>Marca</label>
+                <label htmlFor="prod-Marca-11">Marca</label>
                 <input
+                  id="prod-Marca-11"
                   type="text"
                   name="Marca"
                   value={formData.Marca}
@@ -756,8 +765,9 @@ function TableProductos() {
                 />
               </div>
               <div className="form-group">
-                <label>Nombre</label>
+                <label htmlFor="prod-Nombre-12">Nombre</label>
                 <input
+                  id="prod-Nombre-12"
                   type="text"
                   name="Nombre"
                   value={formData.Nombre}
@@ -766,11 +776,12 @@ function TableProductos() {
                 />
               </div>
               <div className="form-group form-group-half">
-                <label>Precio de Costo</label>
+                <label htmlFor="prod-precio_costo-1">Precio de Costo</label>
                 <div className="input-with-icon">
                   <span>$</span>
                   <input
-                    type="number"
+                    id="prod-precio_costo-1"
+                  type="number"
                     step="0.01"
                     name="precio_costo"
                     value={formData.precio_costo}
@@ -780,11 +791,12 @@ function TableProductos() {
                 </div>
               </div>
               <div className="form-group form-group-half">
-                <label>Precio de Venta</label>
+                <label htmlFor="prod-precio_venta-3">Precio de Venta</label>
                 <div className="input-with-icon">
                   <span>$</span>
                   <input
-                    type="number"
+                    id="prod-precio_venta-3"
+                  type="number"
                     step="0.01"
                     name="precio_venta"
                     value={formData.precio_venta}
@@ -794,8 +806,9 @@ function TableProductos() {
                 </div>
               </div>
               <div className="form-group form-group-half">
-                <label>Stock</label>
+                <label htmlFor="prod-stock-5">Stock</label>
                 <input
+                  id="prod-stock-5"
                   type="number"
                   name="stock"
                   value={formData.stock}
@@ -814,8 +827,9 @@ function TableProductos() {
                 />
               </div>
               <div className="form-group">
-                <label>Estado</label>
+                <label htmlFor="prod-Estado-7">Estado</label>
                 <select
+                  id="prod-Estado-7"
                   name="Estado"
                   value={formData.Estado}
                   onChange={handleInputChange}
