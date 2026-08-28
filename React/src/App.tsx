@@ -7,11 +7,13 @@ import { useCart } from './hooks/useCart';
 import { useInactivityTimer } from './hooks/useInactivityTimer';
 import { clearSession } from './services/auth.services';
 import { Service, SearchSuggestion } from './types';
-import { servicesData, searchSuggestionsData } from './utils/constants';
+
 import { obtenerProductos } from './services/producto.service';
+import { obtenerServicios } from './services/servicio.service';
 
 function App() {
   const [productos, setProductos] = useState<Service[]>([]);
+  const [servicios, setServicios] = useState<Service[]>([]);
   const { addToCart, cartCount } = useCart();
   const location = useLocation();
   const navigate = useNavigate();
@@ -68,21 +70,27 @@ function App() {
           let productosArray = [];
           if (Array.isArray(res.data)) {
             productosArray = res.data;
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
           } else if (res.data && typeof res.data === 'object' && Array.isArray((res.data as any).data)) {
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
             productosArray = (res.data as any).data;
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
           } else if (res.data && typeof res.data === 'object' && Array.isArray((res.data as any).productos)) {
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
             productosArray = (res.data as any).productos;
           }
 
           if (productosArray.length > 0) {
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
             const mappedProductos = productosArray.map((p: any) => ({
-              id: String(p.ID_PRODUCTOS),
+              id: `prod_${p.ID_PRODUCTOS}`,
               name: p.Nombre,
               category: p.categoria_nombre || 'Producto',
-              price: Number(p.Precio),
+              price: Number(p.precio_venta ?? p.Precio_Venta ?? p.Precio ?? 0),
               description: `Producto de la marca ${p.Marca || 'KTM'}`,
               icon: 'bi-box-seam',
-              ID_PRODUCTOS: p.ID_PRODUCTOS
+              ID_PRODUCTOS: p.ID_PRODUCTOS,
+              type: 'producto'
             }));
             setProductos(mappedProductos);
           }
@@ -91,7 +99,49 @@ function App() {
         console.error('Error al cargar productos:', error);
       }
     };
+
+    const fetchServicios = async () => {
+      try {
+        const res = await obtenerServicios();
+        if (res && res.data) {
+          let serviciosArray = [];
+          if (Array.isArray(res.data)) {
+            serviciosArray = res.data;
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          } else if (res.data && typeof res.data === 'object' && Array.isArray((res.data as any).data)) {
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            serviciosArray = (res.data as any).data;
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          } else if (res.data && typeof res.data === 'object' && Array.isArray((res.data as any).servicios)) {
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            serviciosArray = (res.data as any).servicios;
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          } else if (res.data && typeof res.data === 'object' && Array.isArray((res.data as any).result)) {
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            serviciosArray = (res.data as any).result;
+          }
+
+          if (serviciosArray.length > 0) {
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            const mappedServicios = serviciosArray.map((s: any) => ({
+              id: `serv_${s.ID_SERVICIOS}`,
+              name: s.Nombre,
+              category: s.Categoria || 'Servicios Generales',
+              price: Number(s.Precio || 0),
+              description: `Servicio de ${s.Nombre}`,
+              icon: 'bi-wrench',
+              type: 'servicio'
+            }));
+            setServicios(mappedServicios);
+          }
+        }
+      } catch (error) {
+        console.error('Error al cargar servicios:', error);
+      }
+    };
+
     fetchProductos();
+    fetchServicios();
   }, []);
 
   // Efecto de partículas decorativas (solo en la tienda principal)
@@ -118,7 +168,10 @@ function App() {
     const dynamicProductSuggestions: SearchSuggestion[] = productos.map(p => ({
       id: p.id, name: p.name, category: p.category, icon: p.icon, price: p.price.toString()
     }));
-    const allSuggestions = [...searchSuggestionsData, ...dynamicProductSuggestions];
+    const dynamicServiceSuggestions: SearchSuggestion[] = servicios.map(s => ({
+      id: s.id, name: s.name, category: s.category, icon: s.icon, price: s.price.toString()
+    }));
+    const allSuggestions = [...dynamicServiceSuggestions, ...dynamicProductSuggestions];
     return allSuggestions
       .filter(item =>
         item.name.toLowerCase().includes(query.toLowerCase()) ||
@@ -128,7 +181,7 @@ function App() {
   };
 
   const handleSuggestionClick = (suggestion: SearchSuggestion) => {
-    const service = servicesData.find(item => item.id === suggestion.id);
+    const service = servicios.find(item => item.id === suggestion.id);
     if (service) {
       addToCart(service);
     } else {
@@ -149,6 +202,7 @@ function App() {
       <AppRoutes
         addToCart={addToCart}
         productos={productos}
+        servicios={servicios}
         particlesRef={particlesRef}
         filterSuggestions={filterSuggestions}
         handleSuggestionClick={handleSuggestionClick}

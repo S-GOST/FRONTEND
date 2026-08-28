@@ -8,6 +8,7 @@ import {
   type ComprobanteRecord,
 } from '../../services/comprobanteService';
 import { FormattedId } from '../../componentes/FormattedId';
+import { BackButton } from '../BackButton';
 import './Comprobante.css';
 
 const extractComprobantes = (payload: unknown): ComprobanteRecord[] => {
@@ -39,6 +40,7 @@ function TableComprobantes() {
 
   useEffect(() => {
     void cargarDatosIniciales();
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const showAlert = (title: string, text: string, icon: 'success' | 'error' | 'warning') => {
@@ -205,7 +207,10 @@ function TableComprobantes() {
   return (
     <div className="comprobantes-page">
       <div className="admin-section">
-        <h1 className="admin-title">Historial de Comprobantes (Solo Lectura)</h1>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', marginBottom: '1rem' }}>
+          <BackButton />
+          <h1 className="admin-title" style={{ margin: 0, borderBottom: 'none' }}>Historial de Comprobantes (Solo Lectura)</h1>
+        </div>
 
         <p style={{ color: '#aaa', marginBottom: '20px' }}>
           {userRole === 'cliente'

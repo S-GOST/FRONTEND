@@ -16,6 +16,10 @@
     "bootstrap-icons": "^1.13.1",
     "jspdf": "^4.2.1",
     "jspdf-autotable": "^5.0.8",
+<<<<<<< HEAD
+=======
+    "legacy": "^0.0.3",
+>>>>>>> bfd9f45d16e44e132c9a8e48f5e6e7a89c4f137e
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "react-hook-form": "^7.71.2",

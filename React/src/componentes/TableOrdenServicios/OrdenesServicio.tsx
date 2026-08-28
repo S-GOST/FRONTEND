@@ -13,6 +13,7 @@ import { obtenerTecnicos, type TecnicoRecord } from '../../services/tecnico.serv
 import { obtenerMotos, type MotoRecord } from '../../services/moto.service';
 import { obtenerAdmins } from '../../services/admin.service';
 import { FormattedId } from '../../componentes/FormattedId';
+import { BackButton } from '../BackButton';
 import './OrdenesServicio.css';
 
 // Extractor de datos para órdenes
@@ -76,6 +77,7 @@ const OrdenesServicio = () => {
 
   useEffect(() => {
     void cargarDatosIniciales();
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const showAlert = (title: string, text: string, icon: 'success' | 'error' | 'warning') => {
@@ -345,7 +347,10 @@ const OrdenesServicio = () => {
   return (
     <div className="ordenes-servicio-page">
       <div className="ordenes-servicio-section">
-        <h1 className="ordenes-servicio-title">Órdenes de Servicio</h1>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', marginBottom: '1rem' }}>
+          <BackButton />
+          <h1 className="ordenes-servicio-title" style={{ margin: 0, borderBottom: 'none' }}>Órdenes de Servicio</h1>
+        </div>
         <p className="ordenes-servicio-subtitle">Gestión completa de órdenes (CRUD)</p>
 
         {/* Barra de acciones */}

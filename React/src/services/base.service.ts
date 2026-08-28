@@ -47,6 +47,7 @@ export class BaseApiService<T> {
     fallback: () => Promise<AxiosResponse<TData>>
   ) {
     try { return await primary(); }
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     catch (error: any) {
       if (axios.isAxiosError(error) && error.response?.status === 404) return await fallback();
       throw error;

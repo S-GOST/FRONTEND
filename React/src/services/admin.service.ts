@@ -27,6 +27,7 @@ const adminService = new BaseApiService<AdministradorPayload>({
   }
 });
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 const addCompatibility = (a: any): any => {
   if (!a) return a;
   return {

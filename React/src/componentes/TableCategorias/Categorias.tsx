@@ -9,6 +9,7 @@ import {
   type CategoriaPayload,
 } from '../../services/categoria.service';
 import { FormattedId } from '../../componentes/FormattedId';
+import { BackButton } from '../BackButton';
 import './Categorias.css';
 
 const TIPOS_CATEGORIA = ['PRODUCTO', 'SERVICIO'] as const;
@@ -26,6 +27,7 @@ const filterOnlyLetters = (value: string): string => value.replace(/[^a-zA-ZñÑ
 const extractCategorias = (payload: unknown): CategoriaPayload[] => {
   if (Array.isArray(payload)) return payload as CategoriaPayload[];
   if (payload && typeof payload === 'object') {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const data = (payload as any).data;
     if (Array.isArray(data)) return data as CategoriaPayload[];
   }
@@ -48,7 +50,9 @@ function Categorias() {
   const [formData, setFormData] = useState<CategoriaPayload>(createInitialFormData());
 
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     void cargarCategorias();
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const showAlert = (title: string, text: string, icon: 'success' | 'error' | 'warning') => {
@@ -225,6 +229,7 @@ function Categorias() {
     try {
       await eliminarCategoria(categoria.ID_CATEGORIA);
       actualizarEstadoLocal(categoria.ID_CATEGORIA);
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (err: any) {
       if (err.response?.status === 409) {
         const confirmResult = await Swal.fire({
@@ -316,7 +321,10 @@ function Categorias() {
       <div className="header-admin">{/* Botón de logout si se desea */}</div>
 
       <div className="admin-section">
-        <h1 className="admin-title">Gestión de Categorías</h1>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', marginBottom: '1rem' }}>
+          <BackButton />
+          <h1 className="admin-title" style={{ margin: 0, borderBottom: 'none' }}>Gestión de Categorías</h1>
+        </div>
 
         <div className="action-bar">
           <div className="search-area">

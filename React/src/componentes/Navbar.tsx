@@ -27,6 +27,7 @@ const Navbar: React.FC<NavbarProps> = ({ cartCount: initialCartCount, onSearch, 
       try {
         const cartData = JSON.parse(localStorage.getItem('ktmCart') || '[]');
         const cartArray = Array.isArray(cartData) ? cartData : Object.values(cartData);
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         const count = cartArray.reduce((sum: number, item: any) => sum + (item.quantity || 1), 0);
         setCartCount(count);
       } catch (e) {

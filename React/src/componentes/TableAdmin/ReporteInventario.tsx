@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import Swal from 'sweetalert2';
 import { obtenerReporteInventario } from '../../services/informe.service';
 import { obtenerCategoriasPorTipo, CategoriaPayload } from '../../services/categoria.service';
+import { BackButton } from '../BackButton';
 import './ReporteInventario.css';
 
 // ==================== TIPOS ====================
@@ -67,6 +68,7 @@ const ReporteInventario: React.FC = () => {
 
   useEffect(() => {
     // Cargar categorias de PRODUCTO y SERVICIO
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const extract = (res: any) => {
       if (res.data && res.data.success) return res.data.data;
       if (Array.isArray(res.data)) return res.data;
@@ -100,6 +102,7 @@ const ReporteInventario: React.FC = () => {
       } else {
         setData(null);
       }
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (err: any) {
       if (err.response?.status === 404) {
         setData(null);
@@ -117,7 +120,10 @@ const ReporteInventario: React.FC = () => {
     <div className="inventario-page">
       {/* HEADER */}
       <div className="inventario-header">
-        <h1><i className="bi bi-box-seam"></i> Inventario de Productos</h1>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', marginBottom: '1.5rem' }}>
+          <BackButton />
+          <h1 style={{ margin: 0, borderBottom: 'none' }}><i className="bi bi-box-seam"></i> Inventario de Productos</h1>
+        </div>
         <p>Análisis de uso, alertas de stock bajo y valorización.</p>
       </div>
 

@@ -1,7 +1,6 @@
 import React, { Suspense } from 'react';
 import { Route, Routes, Navigate } from 'react-router-dom';
 import { Service, SearchSuggestion } from '../types';
-import { servicesData } from '../utils/constants';
 
 // Importaciones directas (componentes livianos que se necesitan de inmediato)
 import Login from '../pages/Login';
@@ -12,33 +11,42 @@ import Cart from '../componentes/Cart';
 import ProtectedRoute from './ProtectedRoute';
 
 // Lazy Loading: Estos componentes pesados solo se descargan cuando el usuario navega a ellos
-const Dashboard = React.lazy(() => import('../componentes/TableAdmin/Dashboard'));
-const Panel = React.lazy(() => import('../componentes/TableAdmin/Panel'));
-const Usuarios = React.lazy(() => import('../componentes/TableAdmin/Usuarios'));
-const OrdenesServicio = React.lazy(() => import('../componentes/TableOrdenServicios/OrdenesServicio'));
-const DetallesOrden = React.lazy(() => import('../componentes/TableOrdenServicios/DetallesOrden'));
-const AsignacionTecnicos = React.lazy(() => import('../componentes/TableOrdenServicios/AsignacionTecnicos'));
-const Servicios = React.lazy(() => import('../componentes/TableServicios/Servicios'));
-const TableProductos = React.lazy(() => import('../componentes/TableProductos/productos'));
+// Lazy Loading: Componentes pesados
+// 1. Componentes Generales / Catálogos
 const Categorias = React.lazy(() => import('../componentes/TableCategorias/Categorias'));
 const Motos = React.lazy(() => import('../componentes/TableMotos/Motos'));
-const Tableinforme = React.lazy(() => import('../componentes/Tableinforme/informe'));
-const Tablehistorial = React.lazy(() => import('../componentes/Tablehistorial/historial'));
-const TableComprobante = React.lazy(() => import('../componentes/TableComprobante/Comprobante'));
+const Servicios = React.lazy(() => import('../componentes/TableServicios/Servicios'));
+const TableProductos = React.lazy(() => import('../componentes/TableProductos/productos'));
+const Usuarios = React.lazy(() => import('../componentes/TableAdmin/Usuarios'));
+
+// 2. Componentes de Administración
+const Dashboard = React.lazy(() => import('../componentes/TableAdmin/Dashboard'));
+const Panel = React.lazy(() => import('../componentes/TableAdmin/Panel'));
 const Productividad = React.lazy(() => import('../componentes/TableAdmin/Productividad'));
 const ReporteInventario = React.lazy(() => import('../componentes/TableAdmin/ReporteInventario'));
-const TecnicoDashboard = React.lazy(() => import('../componentes/TableTecnico/TecnicoDashboard'));
-const ClienteDashboard = React.lazy(() => import('../componentes/TableCliente/ClienteDashboard'));
-const ClienteOrdenes = React.lazy(() => import('../componentes/TableCliente/ClienteOrdenes'));
-const ClienteMotos = React.lazy(() => import('../componentes/TableCliente/ClienteMotos'));
+
+// 3. Órdenes de Servicio e Informes
+const AsignacionTecnicos = React.lazy(() => import('../componentes/TableOrdenServicios/AsignacionTecnicos'));
+const DetallesOrden = React.lazy(() => import('../componentes/TableOrdenServicios/DetallesOrden'));
+const OrdenesServicio = React.lazy(() => import('../componentes/TableOrdenServicios/OrdenesServicio'));
+const TableComprobante = React.lazy(() => import('../componentes/TableComprobante/Comprobante'));
+const Tablehistorial = React.lazy(() => import('../componentes/Tablehistorial/historial'));
+const Tableinforme = React.lazy(() => import('../componentes/Tableinforme/informe'));
+
+// 4. Perfiles Específicos (Cliente / Técnico)
 const ClienteComprobantes = React.lazy(() => import('../componentes/TableCliente/ClienteComprobantes'));
+const ClienteDashboard = React.lazy(() => import('../componentes/TableCliente/ClienteDashboard'));
 const ClienteHistorial = React.lazy(() => import('../componentes/TableCliente/ClienteHistorial'));
+const ClienteMotos = React.lazy(() => import('../componentes/TableCliente/ClienteMotos'));
+const ClienteOrdenes = React.lazy(() => import('../componentes/TableCliente/ClienteOrdenes'));
+const TecnicoDashboard = React.lazy(() => import('../componentes/TableTecnico/TecnicoDashboard'));
 
 // ==================== Componentes de página ====================
 
 interface HomePageProps {
   addToCart: (service: Service) => void;
   productos: Service[];
+  servicios: Service[];
 }
 
 // Importaciones dinámicas de componentes de la tienda
@@ -47,22 +55,24 @@ import ServiceSection from '../componentes/ServiceSection';
 import InfoSection from '../componentes/InfoSection';
 import Footer from '../componentes/Footer';
 
-const HomePage: React.FC<HomePageProps> = ({ addToCart, productos }) => {
-  const categories = ['Mantenimiento', 'Reparaciones', 'Diagnósticos', 'Instalaciones'];
+const HomePage: React.FC<HomePageProps> = ({ addToCart, productos, servicios }) => {
+  // Extraer dinámicamente las categorías reales que tienen los servicios
+  const dynamicCategories = Array.from(new Set(servicios.map(s => s.category))).sort();
 
   return (
     <>
       <Header />
       <main className="main-content">
         <div className="container">
-          {categories.map((category) => {
-            const filteredServices = servicesData.filter(
+          {dynamicCategories.length > 0 && dynamicCategories.map((category) => {
+            const filteredServices = servicios.filter(
               service => service.category === category
             );
+            if (filteredServices.length === 0) return null;
             return (
               <React.Fragment key={category}>
                 <ServiceSection
-                  title={category}
+                  title={category.toUpperCase()}
                   subtitle="Categorías"
                   services={filteredServices}
                   onAddToCart={addToCart}
@@ -101,6 +111,7 @@ const HomePage: React.FC<HomePageProps> = ({ addToCart, productos }) => {
 interface AppRoutesProps {
   addToCart: (service: Service) => void;
   productos: Service[];
+  servicios: Service[];
   particlesRef: React.RefObject<HTMLDivElement>;
   filterSuggestions: (query: string) => SearchSuggestion[];
   handleSuggestionClick: (suggestion: SearchSuggestion) => void;
@@ -126,6 +137,7 @@ const RouteLoader = () => (
 const AppRoutes: React.FC<AppRoutesProps> = ({
   addToCart,
   productos,
+  servicios,
   particlesRef,
 }) => {
   const isAuthenticated = Boolean(localStorage.getItem('user_token'));
@@ -148,7 +160,7 @@ const AppRoutes: React.FC<AppRoutesProps> = ({
             <>
               <div className="particles" ref={particlesRef}></div>
               <div className="ktm-container">
-                <HomePage addToCart={addToCart} productos={productos} />
+                <HomePage addToCart={addToCart} productos={productos} servicios={servicios} />
                 <Footer />
               </div>
             </>

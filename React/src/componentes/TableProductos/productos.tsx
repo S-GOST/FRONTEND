@@ -14,6 +14,7 @@ import {
   type CategoriaPayload,
 } from '../../services/categoria.service';
 import { FormattedId } from '../../componentes/FormattedId';
+import { BackButton } from '../BackButton';
 import './Productos.css';
 
 const ESTADOS = ['Disponibles', 'Agotados', 'Próximamente'] as const;
@@ -24,8 +25,11 @@ const createInitialFormData = (): ProductoPayload => ({
   ID_CATEGORIA: '',
   Marca: '',
   Nombre: '',
+  precio_costo: 0,
   precio_venta: 0,
   Estado: 'Disponibles',
+  stock: 0,
+  stock_minimo: 0,
 });
 
 // ✅ FUNCIONES AUXILIARES DE VALIDACIÓN
@@ -37,15 +41,27 @@ const buildProductoPayload = (formData: ProductoPayload): ProductoPayload => {
   const idCategoria = Number(formData.ID_CATEGORIA);
   const nombre = String(formData.Nombre ?? '').trim();
   const marca = String(formData.Marca ?? '').trim();
-  const precio = Number(formData.precio_venta);
+  const precioCosto = Number(formData.precio_costo);
+  const precioVenta = Number(formData.precio_venta);
+  const stock = Number(formData.stock);
+  const stockMinimo = Number(formData.stock_minimo);
   const estado = String(formData.Estado ?? 'Disponibles').trim() as EstadoType;
 
   if (!id) throw new Error('El ID del producto es obligatorio.');
   if (!idCategoria) throw new Error('Debe seleccionar una categoría.');
   if (!nombre) throw new Error('El nombre del producto es obligatorio.');
   if (!marca) throw new Error('La marca del producto es obligatoria.');
-  if (Number.isNaN(precio) || precio <= 0) {
-    throw new Error('El precio debe ser mayor a 0.');
+  if (Number.isNaN(precioCosto) || precioCosto < 0) {
+    throw new Error('El precio de costo debe ser válido.');
+  }
+  if (Number.isNaN(precioVenta) || precioVenta <= 0) {
+    throw new Error('El precio de venta debe ser mayor a 0.');
+  }
+  if (Number.isNaN(stock) || stock < 0) {
+    throw new Error('El stock debe ser válido.');
+  }
+  if (Number.isNaN(stockMinimo) || stockMinimo < 0) {
+    throw new Error('El stock mínimo debe ser válido.');
   }
   if (!estado) throw new Error('Debe seleccionar un estado.');
 
@@ -54,12 +70,15 @@ const buildProductoPayload = (formData: ProductoPayload): ProductoPayload => {
     ID_CATEGORIA: idCategoria,
     Nombre: nombre,
     Marca: marca,
-    precio_venta: precio,
+    precio_costo: precioCosto,
+    precio_venta: precioVenta,
+    stock: stock,
+    stock_minimo: stockMinimo,
     Estado: estado,
   };
 };
 
-const readProductoArray = (value: unknown): ProductoRecord[] | null => {
+const readProductoArray = (value: any): ProductoRecord[] | null => {
   if (Array.isArray(value)) return value as ProductoRecord[];
   if (value && typeof value === 'object') {
     const nested = value as Record<string, unknown>;
@@ -71,10 +90,10 @@ const readProductoArray = (value: unknown): ProductoRecord[] | null => {
   return null;
 };
 
-const extractProductos = (payload: unknown): ProductoRecord[] =>
+const extractProductos = (payload: any): ProductoRecord[] =>
   readProductoArray(payload) ?? [];
 
-const isSuccessfulResponse = (payload: unknown) => {
+const isSuccessfulResponse = (payload: any) => {
   if (!payload || typeof payload !== 'object' || !('success' in payload)) return true;
   return Boolean((payload as { success?: boolean }).success);
 };
@@ -105,12 +124,14 @@ function TableProductos() {
   useEffect(() => {
     void cargarProductos();
     void cargarCategorias();
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const cargarCategorias = async () => {
     try {
       const response = await obtenerCategoriasPorTipo('PRODUCTO');
       const data = response.data;
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const cats = Array.isArray(data) ? data : (data as any)?.data ?? [];
       setCategorias(cats);
     } catch (error) {
@@ -240,7 +261,10 @@ function TableProductos() {
       ID_CATEGORIA: producto.ID_CATEGORIA,
       Marca: producto.Marca,
       Nombre: producto.Nombre,
+      precio_costo: producto.precio_costo,
       precio_venta: producto.precio_venta,
+      stock: producto.stock,
+      stock_minimo: producto.stock_minimo,
       Estado: (producto.Estado as EstadoType) ?? 'Disponibles',
     });
     setShowEditModal(true);
@@ -262,16 +286,22 @@ function TableProductos() {
     const nombre = String(formData.Nombre ?? '').trim();
     const marca = String(formData.Marca ?? '').trim();
     const idCategoria = Number(formData.ID_CATEGORIA);
-    const precio = Number(formData.precio_venta);
+    const precioCosto = Number(formData.precio_costo);
+    const precioVenta = Number(formData.precio_venta);
+    const stock = Number(formData.stock);
+    const stockMinimo = Number(formData.stock_minimo);
     const estado = String(formData.Estado ?? '').trim();
 
     if (!id) return 'El ID del producto es obligatorio.';
     if (!nombre) return 'El nombre del producto es obligatorio.';
     if (!marca) return 'La marca del producto es obligatoria.';
     if (!idCategoria) return 'Debe seleccionar una categoría.';
-    if (Number.isNaN(precio) || precio <= 0) {
-      return 'El precio debe ser un número válido mayor a 0.';
+    if (Number.isNaN(precioCosto) || precioCosto < 0) return 'El precio de costo debe ser válido.';
+    if (Number.isNaN(precioVenta) || precioVenta <= 0) {
+      return 'El precio de venta debe ser un número válido mayor a 0.';
     }
+    if (Number.isNaN(stock) || stock < 0) return 'El stock debe ser válido.';
+    if (Number.isNaN(stockMinimo) || stockMinimo < 0) return 'El stock mínimo debe ser válido.';
     if (!estado) return 'Debe seleccionar un estado.';
     return null;
   };
@@ -430,7 +460,10 @@ function TableProductos() {
   return (
     <div className="productos-page">
       <div className="admin-section">
-        <h1 className="admin-title">Gestión de Productos</h1>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', marginBottom: '1rem' }}>
+          <BackButton />
+          <h1 className="admin-title" style={{ margin: 0, borderBottom: 'none' }}>Gestión de Productos</h1>
+        </div>
 
         <div className="action-bar">
           <div className="search-area">
@@ -465,7 +498,10 @@ function TableProductos() {
                 <th>Categoría</th>
                 <th>Marca</th>
                 <th>Nombre</th>
+                <th>Precio de Costo</th>
                 <th>Precio de Venta</th>
+                <th>Stock</th>
+                <th>Min</th>
                 <th>Estado</th>
                 <th>Acciones</th>
               </tr>
@@ -473,7 +509,7 @@ function TableProductos() {
             <tbody>
               {loading ? (
                 <tr>
-                  <td colSpan={7} className="loading-row">
+                  <td colSpan={10} className="loading-row">
                     Cargando productos...
                   </td>
                 </tr>
@@ -484,7 +520,11 @@ function TableProductos() {
                     <td>{getCategoriaNombre(producto)}</td>
                     <td>{producto.Marca}</td>
                     <td>{producto.Nombre}</td>
+                    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                    <td>${formatPrecio(producto.precio_costo ?? (producto as any).Precio_Costo ?? (producto as any).precioCosto)}</td>
                     <td>${formatPrecio(producto.precio_venta)}</td>
+                    <td className={producto.stock <= producto.stock_minimo ? 'stock-bajo' : ''}>{producto.stock}</td>
+                    <td>{producto.stock_minimo}</td>
                     <td>
                       <span
                         className={`estado-badge ${getEstadoBadgeClass(
@@ -525,7 +565,7 @@ function TableProductos() {
                 ))
               ) : (
                 <tr>
-                  <td colSpan={7} className="loading-row">
+                  <td colSpan={10} className="loading-row">
                     No hay productos registrados.
                   </td>
                 </tr>
@@ -593,7 +633,21 @@ function TableProductos() {
                   required
                 />
               </div>
-              <div className="form-group">
+              <div className="form-group form-group-half">
+                <label>Precio de Costo</label>
+                <div className="input-with-icon">
+                  <span>$</span>
+                  <input
+                    type="number"
+                    step="0.01"
+                    name="precio_costo"
+                    value={formData.precio_costo}
+                    onChange={handleInputChange}
+                    required
+                  />
+                </div>
+              </div>
+              <div className="form-group form-group-half">
                 <label>Precio de Venta</label>
                 <div className="input-with-icon">
                   <span>$</span>
@@ -606,6 +660,26 @@ function TableProductos() {
                     required
                   />
                 </div>
+              </div>
+              <div className="form-group form-group-half">
+                <label>Stock</label>
+                <input
+                  type="number"
+                  name="stock"
+                  value={formData.stock}
+                  onChange={handleInputChange}
+                  required
+                />
+              </div>
+              <div className="form-group form-group-half">
+                <label>Stock Mínimo</label>
+                <input
+                  type="number"
+                  name="stock_minimo"
+                  value={formData.stock_minimo}
+                  onChange={handleInputChange}
+                  required
+                />
               </div>
               <div className="form-group">
                 <label>Estado</label>
@@ -692,7 +766,21 @@ function TableProductos() {
                   required
                 />
               </div>
-              <div className="form-group">
+              <div className="form-group form-group-half">
+                <label>Precio de Costo</label>
+                <div className="input-with-icon">
+                  <span>$</span>
+                  <input
+                    type="number"
+                    step="0.01"
+                    name="precio_costo"
+                    value={formData.precio_costo}
+                    onChange={handleInputChange}
+                    required
+                  />
+                </div>
+              </div>
+              <div className="form-group form-group-half">
                 <label>Precio de Venta</label>
                 <div className="input-with-icon">
                   <span>$</span>
@@ -705,6 +793,26 @@ function TableProductos() {
                     required
                   />
                 </div>
+              </div>
+              <div className="form-group form-group-half">
+                <label>Stock</label>
+                <input
+                  type="number"
+                  name="stock"
+                  value={formData.stock}
+                  onChange={handleInputChange}
+                  required
+                />
+              </div>
+              <div className="form-group form-group-half">
+                <label>Stock Mínimo</label>
+                <input
+                  type="number"
+                  name="stock_minimo"
+                  value={formData.stock_minimo}
+                  onChange={handleInputChange}
+                  required
+                />
               </div>
               <div className="form-group">
                 <label>Estado</label>

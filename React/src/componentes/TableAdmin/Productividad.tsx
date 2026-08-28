@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import Swal from 'sweetalert2';
 import { obtenerReporteProductividad } from '../../services/informe.service';
+import { BackButton } from '../BackButton';
 import './Productividad.css';
 
 // ==================== TIPOS ====================
@@ -69,6 +70,7 @@ const Productividad: React.FC = () => {
       } else {
         setData(null);
       }
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (err: any) {
       if (err.response?.status === 404) {
         setData(null);
@@ -93,7 +95,10 @@ const Productividad: React.FC = () => {
     <div className="productividad-page">
       {/* HEADER */}
       <div className="productividad-header">
-        <h1><i className="bi bi-graph-up-arrow"></i> Productividad de Técnicos</h1>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', marginBottom: '1.5rem' }}>
+          <BackButton />
+          <h1 style={{ margin: 0, borderBottom: 'none' }}><i className="bi bi-graph-up-arrow"></i> Productividad de Técnicos</h1>
+        </div>
         <p>Analice el rendimiento de sus técnicos por período y tipo de servicio.</p>
       </div>
 

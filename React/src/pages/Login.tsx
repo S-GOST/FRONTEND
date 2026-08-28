@@ -13,6 +13,7 @@ interface LoginFormInputs {
 
 interface LoginErrorResponse {
   message?: string;
+  mensaje?: string;
 }
 
 const Login: React.FC = () => {

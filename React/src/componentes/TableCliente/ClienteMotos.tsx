@@ -2,13 +2,16 @@ import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Swal from 'sweetalert2';
 import { obtenerMotos, insertarMoto, type MotoPayload } from '../../services/moto.service';
+import { obtenerMisOrdenes } from '../../services/ordenServicioService';
 import './ClienteMotos.css';
 
 function ClienteMotos() {
   const navigate = useNavigate();
   const userDocumento = localStorage.getItem('user_id') || '';
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const [motos, setMotos] = useState<any[]>([]);
+  const [motosConOrdenes, setMotosConOrdenes] = useState<Set<string>>(new Set());
   const [loading, setLoading] = useState(true);
   const [realClientId, setRealClientId] = useState<string>('');
   const [showForm, setShowForm] = useState(false);
@@ -22,7 +25,9 @@ function ClienteMotos() {
   });
 
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     cargarMotos();
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const cargarMotos = async () => {
@@ -36,16 +41,40 @@ function ClienteMotos() {
       
       // Extraer motos
       const rawMotos = motosRes.data;
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       let motosArr: any[] = [];
       if (Array.isArray(rawMotos)) motosArr = rawMotos;
       else if (rawMotos?.data && Array.isArray(rawMotos.data)) motosArr = rawMotos.data;
 
       // Filtrar motos del cliente actual
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const misMotos = motosArr.filter((m: any) =>
         String(m.id_cliente ?? m.ID_CLIENTES ?? '') === clientId
       );
 
       setMotos(misMotos);
+
+      // 2) Obtener las órdenes del cliente para saber qué motos tienen órdenes
+      try {
+        const ordenesRes = await obtenerMisOrdenes();
+        // Manejar correctamente la estructura de respuesta que puede venir anidada
+        const ordenes = ordenesRes.data?.data || ordenesRes.data || [];
+        const ordenesArray = Array.isArray(ordenes) ? ordenes : [];
+        console.log('📦 Órdenes recibidas (limpias):', ordenesArray);
+        
+        const motosIdsConOrdenes = new Set<string>();
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        ordenesArray.forEach((o: any) => {
+          if (o.ID_MOTOS) motosIdsConOrdenes.add(String(o.ID_MOTOS));
+          if (o.id_moto) motosIdsConOrdenes.add(String(o.id_moto));
+        });
+        console.log('🏍️ IDs de motos con órdenes (Set):', Array.from(motosIdsConOrdenes));
+        console.log('🏍️ Mis motos cargadas:', misMotos);
+        setMotosConOrdenes(motosIdsConOrdenes);
+      } catch (errOrdenes) {
+        console.error('No se pudieron obtener las órdenes para validar los botones:', errOrdenes);
+      }
+
     } catch (err) {
       console.error('Error cargando motos:', err);
     } finally {
@@ -66,6 +95,7 @@ function ClienteMotos() {
 
     try {
       setSaving(true);
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const payload: any = {
         ID_CLIENTES: realClientId,
         id_cliente: Number(realClientId),
@@ -92,6 +122,7 @@ function ClienteMotos() {
       setForm({ placa: '', marca: '', modelo: '', cilindraje: '', kilometraje: '' });
       setShowForm(false);
       await cargarMotos();
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (err: any) {
       const msg = err.response?.data?.message || err.message || 'Error del servidor';
       Swal.fire('Error', msg, 'error');
@@ -154,10 +185,10 @@ function ClienteMotos() {
               />
             </div>
             <div className="cm-field">
-              <label><i className="bi bi-wrench"></i> Modelo</label>
+              <label><i className="bi bi-wrench"></i> Modelo (Año)</label>
               <input
-                type="text"
-                placeholder="Ej: Duke 390"
+                type="number"
+                placeholder="Ej: 2020"
                 value={form.modelo}
                 onChange={(e) => setForm({ ...form, modelo: e.target.value })}
               />
@@ -214,6 +245,7 @@ function ClienteMotos() {
         </div>
       ) : (
         <div className="cm-grid cm-fade-in">
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
           {motos.map((moto: any, index: number) => {
             const placa = moto.placa || moto.Placa || '---';
             const marca = moto.marca || moto.Marca || '---';
@@ -247,6 +279,27 @@ function ClienteMotos() {
                       <i className="bi bi-signpost"></i>
                       <span>{Number(kilometraje).toLocaleString('es-CO')} km</span>
                     </div>
+                  )}
+                </div>
+
+                {/* Acciones de Ordenes */}
+                <div style={{ marginTop: '1.5rem', display: 'flex', justifyContent: 'center' }}>
+                  {motosConOrdenes.has(String(moto.id_moto || moto.ID_MOTOS)) ? (
+                    <button 
+                      className="cm-submit-btn" 
+                      style={{ padding: '0.6rem 1rem', fontSize: '0.9rem', width: '100%' }}
+                      onClick={() => navigate('/cliente/ordenes')}
+                    >
+                      <i className="bi bi-eye"></i> Ver Órdenes
+                    </button>
+                  ) : (
+                    <button 
+                      className="cm-add-btn" 
+                      style={{ padding: '0.6rem 1rem', fontSize: '0.9rem', width: '100%' }}
+                      onClick={() => navigate('/')}
+                    >
+                      <i className="bi bi-plus-circle"></i> Crear Nueva Orden
+                    </button>
                   )}
                 </div>
               </div>

@@ -5,12 +5,9 @@ import Swal from 'sweetalert2';
 import logo from '../assets/icons/rock.png';
 import './Registro.css';
 import { insertarCliente, ClientePayload } from '../services/cliente.service';
-import { insertarMoto, MotoPayload } from '../services/moto.service';
 import { obtenerTiposDocumento, TipoDocumentoPayload } from '../services/tipoDocumento.service';
-import { loginService } from '../services/auth.services';
 
 interface RegistroFormInputs {
-  // Cliente
   numero_documento: string;
   id_tipo_documento: string;
   ciudad: string;
@@ -19,13 +16,6 @@ interface RegistroFormInputs {
   contrasena: string;
   correo: string;
   telefono: string;
-
-  // Moto
-  placa: string;
-  modelo: string;
-  marca: string;
-  cilindraje: string;
-  kilometraje: string;
 }
 
 const Registro: React.FC = () => {
@@ -68,7 +58,6 @@ const Registro: React.FC = () => {
     setLoading(true);
 
     try {
-      // 1. Registrar Cliente
       const clienteData: ClientePayload = {
         numero_documento: data.numero_documento,
         id_tipo_documento: Number(data.id_tipo_documento) || 1,
@@ -80,56 +69,31 @@ const Registro: React.FC = () => {
         telefono: data.telefono,
       };
 
-      const resCliente = await insertarCliente(clienteData);
-      
-      // Intentar obtener el ID del cliente recién creado.
-      // Dependiendo de la respuesta del backend, puede estar en resCliente.data.id o similar.
-      // Si no retorna ID, usamos el numero_documento que a menudo sirve como ID_CLIENTES por retrocompatibilidad.
-      let idCliente = clienteData.numero_documento;
-      if (resCliente.data && (resCliente.data as any).data && (resCliente.data as any).data.id_usuario) {
-        idCliente = (resCliente.data as any).data.id_usuario;
-      } else if (resCliente.data && (resCliente.data as any).id_usuario) {
-        idCliente = (resCliente.data as any).id_usuario;
-      }
-
-      // 1.5 Auto-login para obtener el token necesario para registrar la moto
-      await loginService(data.usuario, data.contrasena);
-      
-      // En este backend, Usuario.findByPk en realidad busca por numero_documento
-      // por lo que debemos usar la cédula como id_cliente, NO el id_usuario autoincremental
-      idCliente = data.numero_documento;
-
-      // 2. Registrar Moto
-      const motoData: MotoPayload = {
-        ID_CLIENTES: idCliente,
-        id_cliente: idCliente,
-        Placa: data.placa,
-        placa: data.placa,
-        Modelo: data.modelo,
-        modelo: data.modelo,
-        Marca: data.marca,
-        marca: data.marca,
-        Cilindraje: data.cilindraje,
-        cilindraje: data.cilindraje,
-        Kilometraje: data.kilometraje,
-        kilometraje: data.kilometraje,
-      };
-
-      await insertarMoto(motoData);
+      await insertarCliente(clienteData);
 
       Swal.fire({
-        title: '¡Registro Exitoso!',
-        text: 'Bienvenido a KTM Rocket Service. Ahora puedes iniciar sesión.',
-        icon: 'success',
+        title: '¡Cuenta Registrada!',
+        html: `
+          <div style="text-align: center;">
+            <p style="font-size: 1.05rem; margin-bottom: 0.8rem;">
+              Tu cuenta ha sido creada exitosamente y está <strong style="color: #ff9800;">pendiente de aprobación</strong> por parte del administrador.
+            </p>
+            <p style="font-size: 0.92rem; color: #aaa;">
+              📧 Recibirás un correo electrónico cuando tu cuenta sea aprobada y podrás iniciar sesión.
+            </p>
+          </div>
+        `,
+        icon: 'info',
         background: '#101010',
         color: '#f5f5f5',
         confirmButtonColor: '#ff6600',
-        timer: 3000,
-        showConfirmButton: false,
+        confirmButtonText: 'Entendido',
+        showConfirmButton: true,
       }).then(() => {
         navigate('/login');
       });
 
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (err: any) {
       console.error(err);
       const resData = err.response?.data;
@@ -156,7 +120,7 @@ const Registro: React.FC = () => {
             <img src={logo} alt="Logo KTM Rocket Service" className="registro-card-logo" />
           </Link>
           <h2>Únete a KTM</h2>
-          <p className="registro-card-copy">Registra tus datos y los de tu motocicleta para acceder a nuestros servicios.</p>
+          <p className="registro-card-copy">Registra tus datos para acceder a nuestros servicios.</p>
         </div>
 
         {serverError && (
@@ -231,7 +195,14 @@ const Registro: React.FC = () => {
                   type="text"
                   className="registro-input"
                   placeholder="Nombre Completo"
-                  {...register('nombre', { required: true })}
+                  onKeyDown={(e) => { if (/\d/.test(e.key)) e.preventDefault(); }}
+                  {...register('nombre', {
+                    required: 'El nombre es requerido',
+                    pattern: {
+                      value: /^[A-Za-zÁÉÍÓÚáéíóúÑñÜü\s]+$/,
+                      message: 'El nombre solo debe contener letras'
+                    }
+                  })}
                 />
                 <div className="input-glow"></div>
               </div>
@@ -291,6 +262,7 @@ const Registro: React.FC = () => {
                       required: 'La contraseña es requerida',
                       minLength: { value: 8, message: 'Mínimo 8 caracteres' },
                       pattern: {
+                        // eslint-disable-next-line no-useless-escape
                         value: /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]).{8,}$/,
                         message: 'Debe incluir mayúsculas, minúsculas, números y símbolos'
                       }
@@ -315,80 +287,6 @@ const Registro: React.FC = () => {
             </div>
           </div>
 
-          {/* SECCIÓN MOTO */}
-          <div>
-            <h3 className="registro-section-title">
-              <i className="bi bi-bicycle input-icon"></i> Datos de la Motocicleta
-            </h3>
-            <div className="registro-grid">
-
-              <div className="input-shell">
-                <i className="bi bi-upc-scan input-icon"></i>
-                <input
-                  type="text"
-                  className="registro-input"
-                  placeholder="Placa"
-                  {...register('placa', { required: true })}
-                />
-                <div className="input-glow"></div>
-              </div>
-
-              <div className="input-shell">
-                <i className="bi bi-tag input-icon"></i>
-                <input
-                  type="text"
-                  className="registro-input"
-                  placeholder="Marca (Ej: KTM)"
-                  {...register('marca', { required: true })}
-                />
-                <div className="input-glow"></div>
-              </div>
-
-              <div className="input-group-wrapper">
-                <div className="input-shell">
-                  <i className="bi bi-motorcycle input-icon"></i>
-                  <input
-                    type="number"
-                    className={`registro-input ${errors.modelo ? 'input-error' : ''}`}
-                    placeholder="Modelo (Año)"
-                    {...register('modelo', { 
-                      required: 'El modelo es requerido',
-                      min: { value: 1900, message: 'Debe ser mayor o igual a 1900' },
-                      max: { value: new Date().getFullYear() + 1, message: 'No puede ser un año futuro lejano' },
-                      pattern: { value: /^\d{4}$/, message: 'Debe ser un año de 4 dígitos' }
-                    })}
-                  />
-                  <div className="input-glow"></div>
-                </div>
-                {errors.modelo && (
-                  <span className="field-error-msg">{errors.modelo.message}</span>
-                )}
-              </div>
-
-              <div className="input-shell">
-                <i className="bi bi-speedometer2 input-icon"></i>
-                <input
-                  type="text"
-                  className="registro-input"
-                  placeholder="Cilindraje"
-                  {...register('cilindraje', { required: true })}
-                />
-                <div className="input-glow"></div>
-              </div>
-
-              <div className="input-shell">
-                <i className="bi bi-signpost-split input-icon"></i>
-                <input
-                  type="number"
-                  className="registro-input"
-                  placeholder="Kilometraje"
-                  {...register('kilometraje', { required: true })}
-                />
-                <div className="input-glow"></div>
-              </div>
-
-            </div>
-          </div>
 
           <button type="submit" className="btn-ktm registro-submit" disabled={loading}>
             <span className="submit-content">

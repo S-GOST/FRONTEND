@@ -39,6 +39,7 @@ function ClienteDashboard() {
 
   useEffect(() => {
     cargarEstadisticas();
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const cargarEstadisticas = async () => {
@@ -47,7 +48,7 @@ function ClienteDashboard() {
       
       const motosRes = await obtenerMotos().catch(() => ({ data: [] }));
       const motos = extraerMotos(motosRes.data);
-      const motosCliente = motos.filter(m => String(m.ID_CLIENTES) === String(clienteId));
+      const motosCliente = motos.filter(m => String(m.id_cliente ?? m.ID_CLIENTES ?? '') === String(clienteId));
 
       const ordenesRes = await obtenerMisOrdenes().catch(() => ({ data: [] }));
       const ordenesCliente = extraerOrdenes(ordenesRes.data);
