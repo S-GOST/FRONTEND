@@ -66,7 +66,28 @@ const storeSession = (data: LoginResponse, role: 'admin' | 'tecnico' | 'cliente'
   return { ...data, rol: role };
 };
 
+
+// ==================== AUDITORIA ====================
+export const registrarAuditoria = async (id_usuario: string | number, accion: string, descripcion: string) => {
+  try {
+    await apiClient.post('/historial/insertar', {
+      id_usuario: id_usuario,
+      tabla_afectada: 'usuarios',
+      id_registro: id_usuario,
+      accion,
+      descripcion
+    });
+  } catch (error) {
+    console.warn('No se pudo registrar la auditor�a:', error);
+  }
+};
+
 export const clearSession = async (redirectToLogin = true) => {
+  const userId = localStorage.getItem('user_id');
+  const userName = localStorage.getItem('user_name') || 'Usuario';
+  if (userId) {
+    await registrarAuditoria(userId, 'LOGOUT', `Cierre de sesi�n de: ${userName}`);
+  }
   try {
     // Intentar invalidar el refresh token en el servidor
     await apiClient.post('/auth/logout');
@@ -102,13 +123,20 @@ export const loginService = async (usuario: string, contrasena: string) => {
 
   const res = await apiClient.post<LoginResponse>('/auth/login', { usuario: user, password: pass });
   const role = mapRol(res.data.rol ?? 3);
-  return storeSession(res.data, role);
+  const sessionData = storeSession(res.data, role);
+  const userId = localStorage.getItem('user_id');
+  if (userId) {
+    void registrarAuditoria(userId, 'LOGIN', `Inicio de sesi�n exitoso para usuario: ${user}`);
+  }
+  return sessionData;
 };
 
 
 // Recuperación de Contraseña
 export const requestPasswordReset = async (correo: string) => {
-  return apiClient.post('/auth/forgot-password', { correo });
+  const res = await apiClient.post('/auth/forgot-password', { correo });
+  void registrarAuditoria(0, 'PASSWORD_RESET_REQUEST', `Solicitud de recuperaci�n de contrase�a para: ${correo}`);
+  return res;
 };
 
 export const resetPassword = async (token: string, password: string) => {

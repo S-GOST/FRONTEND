@@ -171,7 +171,7 @@ function Dashboard() {
             <StatCard title="Usuarios Totales" value={stats.usuarios} icon="bi-people" color="#00d4ff" onClick={handleNavigate('/admin/usuarios')} />
             <StatCard title="Técnicos" value={stats.tecnicos} icon="bi-person-badge" color="#ffd166" onClick={handleNavigate('/admin/tecnicos')} />
             <StatCard title="Clientes" value={stats.clientes} icon="bi-person-lines-fill" color="#00ff88" onClick={handleNavigate('/admin/clientes')} />
-            <StatCard title="Clientes por Aprobar" value={stats.clientesPendientes} icon="bi-person-plus-fill" color="#ff9800" onClick={handleNavigate('/admin/usuarios')} className={stats.clientesPendientes > 0 ? 'pulse-alert' : ''} />
+            <StatCard title="Clientes por Aprobar" value={stats.clientesPendientes} icon="bi-person-plus-fill" color="#ff9800" onClick={handleNavigate('/admin/pendientes')} className={stats.clientesPendientes > 0 ? 'pulse-alert' : ''} />
             <StatCard title="Órdenes Pendientes" value={stats.ordenesPendientes} icon="bi-clock-history" color="#ff6600" onClick={handleNavigate('/admin/asignacion_tecnicos')} className={stats.ordenesPendientes > 0 ? 'pulse-alert' : ''} />
             <StatCard title="En Proceso" value={stats.ordenesEnProceso} icon="bi-arrow-repeat" color="#3b82f6" onClick={handleNavigate('/admin/asignacion_tecnicos')} />
             <StatCard title="Completadas" value={stats.ordenesCompletadas} icon="bi-check-circle" color="#10b981" onClick={handleNavigate('/admin/asignacion_tecnicos')} />
