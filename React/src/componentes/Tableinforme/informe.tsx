@@ -13,6 +13,7 @@ import {
 import { generarComprobante, obtenerComprobantes } from '../../services/comprobanteService';
 
 import { FormattedId } from '../../componentes/FormattedId';
+import { BackButton } from '../BackButton';
 import './Informe.css';
 
 const initialFormState: InformePayload = {
@@ -187,34 +188,53 @@ const TableInformes = () => {
   };
 
   const handleGenerarComprobante = async (informe: InformeRecord) => {
-    const result = await Swal.fire({
-      title: `Generar Comprobante`,
-      text: `Seleccione el método de pago para el informe #${informe.id_informe}:`,
-      input: 'select',
-      inputOptions: {
-        Efectivo: 'Efectivo',
-        Nequi: 'Nequi',
-        Daviplata: 'Daviplata',
-        Transferencia: 'Transferencia',
-        Tarjeta: 'Tarjeta'
-      },
-      inputPlaceholder: 'Seleccione un método',
-      showCancelButton: true,
-      confirmButtonColor: '#ff6600',
-      confirmButtonText: 'Generar',
-      background: '#101010',
-      color: '#f5f5f5',
-      inputValidator: (value) => {
-        if (!value) {
-          return 'Debe seleccionar un método de pago';
+    let metodoPago = 'Pendiente';
+
+    // Solo mostrar selector de método de pago si NO es admin
+    if (userRole !== 'admin' && userRole !== 'administrador') {
+      const result = await Swal.fire({
+        title: `Generar Comprobante`,
+        text: `Seleccione el método de pago para el informe #${informe.id_informe}:`,
+        input: 'select',
+        inputOptions: {
+          Efectivo: 'Efectivo',
+          Nequi: 'Nequi',
+          Daviplata: 'Daviplata',
+          Transferencia: 'Transferencia',
+          Tarjeta: 'Tarjeta'
+        },
+        inputPlaceholder: 'Seleccione un método',
+        showCancelButton: true,
+        confirmButtonColor: '#ff6600',
+        confirmButtonText: 'Generar',
+        background: '#101010',
+        color: '#f5f5f5',
+        inputValidator: (value) => {
+          if (!value) {
+            return 'Debe seleccionar un método de pago';
+          }
         }
-      }
-    });
-    
-    if (!result.isConfirmed) return;
+      });
+      if (!result.isConfirmed) return;
+      metodoPago = result.value;
+    } else {
+      // Para admin, confirmar sin pedir método de pago
+      const confirmResult = await Swal.fire({
+        title: 'Generar Comprobante',
+        text: `¿Generar comprobante para el informe #${informe.id_informe}?`,
+        icon: 'question',
+        showCancelButton: true,
+        confirmButtonColor: '#ff6600',
+        confirmButtonText: 'Sí, generar',
+        cancelButtonText: 'Cancelar',
+        background: '#101010',
+        color: '#f5f5f5',
+      });
+      if (!confirmResult.isConfirmed) return;
+    }
     
     try {
-      await generarComprobante(informe.id_informe, result.value);
+      await generarComprobante(informe.id_informe, metodoPago);
       showAlert('Éxito', 'Comprobante generado correctamente', 'success');
       await cargarDatos();
     } catch (err: any) {
@@ -244,7 +264,10 @@ const TableInformes = () => {
   return (
     <div className="informes-page">
       <div className="admin-section">
-        <h1 className="admin-title">Informes Técnicos</h1>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', marginBottom: '1rem' }}>
+          <BackButton to={userRole === 'tecnico' ? '/tecnico/dashboard' : '/admin/dashboard'} title={userRole === 'tecnico' ? 'Volver al Dashboard Técnico' : 'Volver al Dashboard'} />
+          <h1 className="admin-title" style={{ margin: 0, borderBottom: 'none' }}>Informes Técnicos</h1>
+        </div>
 
         <div className="action-bar">
           <div className="search-area">

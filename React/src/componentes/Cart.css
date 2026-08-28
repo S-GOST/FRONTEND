@@ -651,6 +651,10 @@
   box-shadow: 0 10px 40px rgba(255, 102, 0, 0.2);
   max-width: 500px;
   width: 90%;
+  max-height: 90vh;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
   animation: modalSlideIn 0.3s ease-out;
 }
 
@@ -672,6 +676,7 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
+  flex-shrink: 0;
 }
 
 .modal-title {
@@ -706,6 +711,10 @@
   background-color: #0A0A0A;
   padding: 30px;
   color: #fff;
+  overflow-y: auto;
+  overflow-x: hidden;
+  flex: 1;
+  min-height: 0;
 }
 
 .modal-footer {
@@ -715,6 +724,7 @@
   display: flex;
   justify-content: flex-end;
   gap: 10px;
+  flex-shrink: 0;
 }
 
 .btn {

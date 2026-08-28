@@ -111,6 +111,92 @@ const ClienteComprobantes = () => {
     }
   };
 
+  const handleDescargar = (comp: any) => {
+    const printWindow = window.open('', '', 'width=600,height=800');
+    if (!printWindow) return;
+
+    const html = `
+      <html>
+        <head>
+          <title>Comprobante ${comp.numero_comprobante || comp.id_comprobante}</title>
+          <style>
+            body { font-family: 'Courier New', Courier, monospace; padding: 20px; color: #000; }
+            .receipt { max-width: 400px; margin: 0 auto; border: 1px dashed #ccc; padding: 20px; }
+            .header { text-align: center; margin-bottom: 20px; border-bottom: 1px dashed #ccc; padding-bottom: 10px; }
+            .title { font-size: 24px; font-weight: bold; margin-bottom: 5px; }
+            .subtitle { font-size: 14px; color: #555; }
+            .row { display: flex; justify-content: space-between; margin-bottom: 10px; }
+            .label { font-weight: bold; }
+            .total { font-size: 18px; font-weight: bold; border-top: 1px dashed #ccc; padding-top: 10px; margin-top: 20px; text-align: right; }
+            .footer { text-align: center; margin-top: 30px; font-size: 12px; color: #888; }
+          </style>
+        </head>
+        <body>
+          <div class="receipt">
+            <div class="header">
+              <div class="title">TALLER KTM</div>
+              <div class="subtitle">Comprobante de Servicio</div>
+            </div>
+            
+            <div class="row">
+              <span class="label">N° Comprobante:</span>
+              <span>${comp.numero_comprobante || comp.id_comprobante}</span>
+            </div>
+            <div class="row">
+              <span class="label">Fecha:</span>
+              <span>${new Date(comp.fecha).toLocaleDateString()}</span>
+            </div>
+            <div class="row">
+              <span class="label">Orden:</span>
+              <span>ORD-${comp.id_orden.toString().padStart(4, '0')}</span>
+            </div>
+            <div class="row">
+              <span class="label">Ingreso Moto:</span>
+              <span>${comp.fecha_ingreso ? new Date(comp.fecha_ingreso).toLocaleDateString() : '—'}</span>
+            </div>
+            <div class="row">
+              <span class="label">Método Pago:</span>
+              <span>${comp.metodo_pago || '—'}</span>
+            </div>
+            
+            <div style="margin-top: 20px;">
+              <div class="label">Diagnóstico:</div>
+              <div style="margin-top: 5px; font-size: 14px;">${comp.diagnostico || '—'}</div>
+            </div>
+            
+            <div style="margin-top: 15px;">
+              <div class="label">Trabajo Realizado:</div>
+              <div style="margin-top: 5px; font-size: 14px;">${comp.trabajo_realizado || '—'}</div>
+            </div>
+
+            <div class="row" style="margin-top: 15px;">
+              <span class="label">Estado:</span>
+              <span style="text-transform: uppercase;">${comp.estado || 'Pendiente'}</span>
+            </div>
+            
+            <div class="total">
+              Total: $${Number(comp.total_pagar || 0).toLocaleString()}
+            </div>
+            
+            <div class="footer">
+              ¡Gracias por confiar en nosotros!<br>
+              Taller Especializado KTM
+            </div>
+          </div>
+          <script>
+            window.onload = () => {
+              window.print();
+              setTimeout(() => window.close(), 500);
+            }
+          </script>
+        </body>
+      </html>
+    `;
+    
+    printWindow.document.write(html);
+    printWindow.document.close();
+  };
+
   return (
     <div className="cliente-comprobantes-page">
       <h1 className="cliente-comprobantes-title">Mis Comprobantes</h1>
@@ -157,6 +243,14 @@ const ClienteComprobantes = () => {
               <div className="comprobante-footer">
                 <span className="comprobante-monto">${Number(comp.total_pagar || 0).toLocaleString()}</span>
                 <div style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
+                  <button 
+                    className="action-btn"
+                    style={{ background: 'transparent', border: '1px solid #ff6600', color: '#ff6600', padding: '6px 12px', borderRadius: '4px', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '5px' }}
+                    onClick={() => handleDescargar(comp)}
+                    title="Descargar / Imprimir"
+                  >
+                    <i className="bi bi-download"></i> Descargar
+                  </button>
                   {(!comp.estado || comp.estado.toLowerCase() === 'pendiente') && (
                     <button 
                       className="action-btn action-btn-primary" 

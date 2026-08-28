@@ -461,13 +461,6 @@ const TecnicoDashboard = () => {
             <p>Gestión técnica de órdenes asignadas</p>
           </div>
             <div className="header-actions">
-              <button 
-                className="logout-btn" 
-                onClick={() => navigate('/tecnico/inventario')}
-                style={{ marginRight: '10px', background: 'rgba(139, 92, 246, 0.15)', color: '#a78bfa', borderColor: 'rgba(139, 92, 246, 0.3)' }}
-              >
-                <i className="bi bi-box-seam"></i> Inventario
-              </button>
               <button className="logout-btn" onClick={handleLogout}>
                 <i className="bi bi-box-arrow-right"></i> Salir
               </button>

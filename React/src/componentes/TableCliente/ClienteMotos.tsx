@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Swal from 'sweetalert2';
 import { obtenerMotos, insertarMoto, type MotoPayload } from '../../services/moto.service';
+import { obtenerMisOrdenes } from '../../services/ordenServicioService';
 import './ClienteMotos.css';
 
 function ClienteMotos() {
@@ -9,6 +10,7 @@ function ClienteMotos() {
   const userDocumento = localStorage.getItem('user_id') || '';
 
   const [motos, setMotos] = useState<any[]>([]);
+  const [motosConOrdenes, setMotosConOrdenes] = useState<Set<string>>(new Set());
   const [loading, setLoading] = useState(true);
   const [realClientId, setRealClientId] = useState<string>('');
   const [showForm, setShowForm] = useState(false);
@@ -46,6 +48,27 @@ function ClienteMotos() {
       );
 
       setMotos(misMotos);
+
+      // 2) Obtener las órdenes del cliente para saber qué motos tienen órdenes
+      try {
+        const ordenesRes = await obtenerMisOrdenes();
+        // Manejar correctamente la estructura de respuesta que puede venir anidada
+        const ordenes = ordenesRes.data?.data || ordenesRes.data || [];
+        const ordenesArray = Array.isArray(ordenes) ? ordenes : [];
+        console.log('📦 Órdenes recibidas (limpias):', ordenesArray);
+        
+        const motosIdsConOrdenes = new Set<string>();
+        ordenesArray.forEach((o: any) => {
+          if (o.ID_MOTOS) motosIdsConOrdenes.add(String(o.ID_MOTOS));
+          if (o.id_moto) motosIdsConOrdenes.add(String(o.id_moto));
+        });
+        console.log('🏍️ IDs de motos con órdenes (Set):', Array.from(motosIdsConOrdenes));
+        console.log('🏍️ Mis motos cargadas:', misMotos);
+        setMotosConOrdenes(motosIdsConOrdenes);
+      } catch (errOrdenes) {
+        console.error('No se pudieron obtener las órdenes para validar los botones:', errOrdenes);
+      }
+
     } catch (err) {
       console.error('Error cargando motos:', err);
     } finally {
@@ -247,6 +270,27 @@ function ClienteMotos() {
                       <i className="bi bi-signpost"></i>
                       <span>{Number(kilometraje).toLocaleString('es-CO')} km</span>
                     </div>
+                  )}
+                </div>
+
+                {/* Acciones de Ordenes */}
+                <div style={{ marginTop: '1.5rem', display: 'flex', justifyContent: 'center' }}>
+                  {motosConOrdenes.has(String(moto.id_moto || moto.ID_MOTOS)) ? (
+                    <button 
+                      className="cm-submit-btn" 
+                      style={{ padding: '0.6rem 1rem', fontSize: '0.9rem', width: '100%' }}
+                      onClick={() => navigate('/cliente/ordenes')}
+                    >
+                      <i className="bi bi-eye"></i> Ver Órdenes
+                    </button>
+                  ) : (
+                    <button 
+                      className="cm-add-btn" 
+                      style={{ padding: '0.6rem 1rem', fontSize: '0.9rem', width: '100%' }}
+                      onClick={() => navigate('/')}
+                    >
+                      <i className="bi bi-plus-circle"></i> Crear Nueva Orden
+                    </button>
                   )}
                 </div>
               </div>

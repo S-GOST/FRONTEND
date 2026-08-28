@@ -9,6 +9,7 @@ import {
   type CategoriaPayload,
 } from '../../services/categoria.service';
 import { FormattedId } from '../../componentes/FormattedId';
+import { BackButton } from '../BackButton';
 import './Categorias.css';
 
 const TIPOS_CATEGORIA = ['PRODUCTO', 'SERVICIO'] as const;
@@ -316,7 +317,10 @@ function Categorias() {
       <div className="header-admin">{/* Botón de logout si se desea */}</div>
 
       <div className="admin-section">
-        <h1 className="admin-title">Gestión de Categorías</h1>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', marginBottom: '1rem' }}>
+          <BackButton />
+          <h1 className="admin-title" style={{ margin: 0, borderBottom: 'none' }}>Gestión de Categorías</h1>
+        </div>
 
         <div className="action-bar">
           <div className="search-area">

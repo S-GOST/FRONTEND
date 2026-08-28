@@ -6,6 +6,7 @@ import {
   type HistorialRecord,
 } from '../../services/historial.service';
 import { FormattedId } from '../../componentes/FormattedId';
+import { BackButton } from '../BackButton';
 import './Historial.css';
 
 const extractHistorial = (payload: unknown): HistorialRecord[] => {
@@ -19,7 +20,7 @@ const extractHistorial = (payload: unknown): HistorialRecord[] => {
 
 function TableHistorial() {
   const [historial, setHistorial] = useState<HistorialRecord[]>([]);
-  const [filteredHistorial, setFilteredHistorial] = useState<HistorialRecord[]>([]);
+
   const [loading, setLoading] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
   const [filterAccion, setFilterAccion] = useState('');
@@ -47,7 +48,6 @@ function TableHistorial() {
       const historialRes = await obtenerHistorial();
       const historialData = extractHistorial(historialRes.data);
       setHistorial(historialData);
-      setFilteredHistorial(historialData);
     } catch (error) {
       console.error(error);
       showAlert('Error', 'No se pudieron cargar los datos del historial.', 'error');
@@ -56,51 +56,24 @@ function TableHistorial() {
     }
   };
 
-  const handleSearch = () => {
-    let filtered = [...historial];
-
-    if (searchTerm.trim()) {
-      const term = searchTerm.toLowerCase();
-      filtered = filtered.filter(h =>
-        String(h.id_historial).toLowerCase().includes(term) ||
-        String(h.id_usuario).toLowerCase().includes(term) ||
-        String(h.id_registro).toLowerCase().includes(term) ||
-        (h.tabla_afectada && h.tabla_afectada.toLowerCase().includes(term)) ||
-        (h.descripcion && h.descripcion.toLowerCase().includes(term))
-      );
-    }
-
-    if (filterAccion) {
-      filtered = filtered.filter(h =>
-        h.accion?.toUpperCase() === filterAccion.toUpperCase()
-      );
-    }
-
-    setFilteredHistorial(filtered);
-  };
-
   const handleReset = () => {
     setSearchTerm('');
     setFilterAccion('');
-    setFilteredHistorial(historial);
   };
 
-  // Abrir modal con JSON de datos_antes y datos_despues
-  const verDetalleJson = (h: HistorialRecord) => {
-    const record = h as any;
-    let antes = null;
-    let despues = null;
-
-    try {
-      antes = record.datos_antes ? (typeof record.datos_antes === 'string' ? JSON.parse(record.datos_antes) : record.datos_antes) : null;
-    } catch { antes = record.datos_antes; }
-    try {
-      despues = record.datos_despues ? (typeof record.datos_despues === 'string' ? JSON.parse(record.datos_despues) : record.datos_despues) : null;
-    } catch { despues = record.datos_despues; }
-
-    setJsonModalData({ antes, despues, accion: h.accion || 'N/A' });
-    setShowJsonModal(true);
-  };
+  // Filtrado
+  const filteredHistorial = historial.filter(h => {
+    const matchesSearch = !searchTerm || 
+      String(h.id_historial).includes(searchTerm.toLowerCase()) ||
+      String(h.id_usuario).includes(searchTerm.toLowerCase()) ||
+      (h.tabla_afectada || '').toLowerCase().includes(searchTerm.toLowerCase()) ||
+      (h.accion || '').toLowerCase().includes(searchTerm.toLowerCase()) ||
+      (h.descripcion || '').toLowerCase().includes(searchTerm.toLowerCase());
+    
+    const matchesAccion = !filterAccion || h.accion?.toUpperCase() === filterAccion.toUpperCase();
+    
+    return matchesSearch && matchesAccion;
+  });
 
   // Badge de color según la acción
   const getAccionBadge = (accion: string) => {
@@ -126,7 +99,10 @@ function TableHistorial() {
   return (
     <div className="historial-page">
       <div className="admin-section">
-        <h1 className="admin-title">Registro de Auditoría (Historial)</h1>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', marginBottom: '1rem' }}>
+          <BackButton />
+          <h1 className="admin-title" style={{ margin: 0, borderBottom: 'none' }}>Registro de Auditoría (Historial)</h1>
+        </div>
 
         <p style={{ color: '#aaa', marginBottom: '15px', display: 'flex', alignItems: 'center', gap: '8px' }}>
           <i className="bi bi-shield-lock" style={{ color: 'var(--ktm-orange)' }}></i>
@@ -141,7 +117,6 @@ function TableHistorial() {
               placeholder="Buscar por ID, tabla, usuario o descripción"
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              onKeyDown={(e) => e.key === 'Enter' && handleSearch()}
             />
             <select
               className="search-input"
@@ -156,9 +131,6 @@ function TableHistorial() {
               <option value="LOGIN">LOGIN</option>
               <option value="LOGOUT">LOGOUT</option>
             </select>
-            <button className="btn-search" onClick={handleSearch}>
-              <i className="bi bi-search"></i>
-            </button>
           </div>
           <div className="right-actions">
             <button className="btn-reset" onClick={handleReset}>
@@ -178,13 +150,12 @@ function TableHistorial() {
                 <th>Acción</th>
                 <th>Descripción</th>
                 <th>Fecha</th>
-                <th>Detalle</th>
               </tr>
             </thead>
             <tbody>
               {loading ? (
                 <tr>
-                  <td colSpan={8} className="loading-row">Cargando historial...</td>
+                  <td colSpan={7} className="loading-row">Cargando historial...</td>
                 </tr>
               ) : filteredHistorial.length > 0 ? (
                 filteredHistorial.map((h) => (
@@ -198,25 +169,11 @@ function TableHistorial() {
                       {h.descripcion || '-'}
                     </td>
                     <td>{h.fecha_registro ? new Date(h.fecha_registro).toLocaleString() : '-'}</td>
-                    <td className="actions-cell">
-                      <button
-                        onClick={() => verDetalleJson(h)}
-                        title="Ver datos antes/después"
-                        style={{
-                          background: 'linear-gradient(135deg, #6c5ce7, #a29bfe)',
-                          border: 'none', color: '#fff', padding: '6px 12px',
-                          borderRadius: '8px', cursor: 'pointer', fontSize: '0.8rem',
-                          fontWeight: 600, display: 'flex', alignItems: 'center', gap: '5px',
-                        }}
-                      >
-                        <i className="bi bi-code-slash"></i> JSON
-                      </button>
-                    </td>
                   </tr>
                 ))
               ) : (
                 <tr>
-                  <td colSpan={8} className="loading-row">No hay registros en el historial.</td>
+                  <td colSpan={7} className="loading-row">No hay registros en el historial.</td>
                 </tr>
               )}
             </tbody>
@@ -224,73 +181,7 @@ function TableHistorial() {
         </div>
       </div>
 
-      {/* Modal JSON — Datos Antes / Después */}
-      {showJsonModal && jsonModalData && (
-        <div
-          style={{
-            position: 'fixed', top: 0, left: 0, width: '100vw', height: '100vh',
-            background: 'rgba(0,0,0,0.7)', display: 'flex', alignItems: 'center',
-            justifyContent: 'center', zIndex: 9999,
-          }}
-          onClick={() => setShowJsonModal(false)}
-        >
-          <div
-            onClick={(e) => e.stopPropagation()}
-            style={{
-              background: '#1a1a2e', borderRadius: '16px', padding: '24px',
-              maxWidth: '700px', width: '90%', maxHeight: '80vh', overflow: 'auto',
-              border: '1px solid #333',
-            }}
-          >
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
-              <h3 style={{ margin: 0, color: '#fff', display: 'flex', alignItems: 'center', gap: '8px' }}>
-                <i className="bi bi-code-slash" style={{ color: 'var(--ktm-orange)' }}></i>
-                Detalle de Operación ({jsonModalData.accion})
-              </h3>
-              <button
-                onClick={() => setShowJsonModal(false)}
-                style={{ background: 'none', border: 'none', color: '#888', fontSize: '1.5rem', cursor: 'pointer' }}
-              >×</button>
-            </div>
 
-            {jsonModalData.antes && (
-              <div style={{ marginBottom: '16px' }}>
-                <h4 style={{ color: '#dc3545', marginBottom: '8px', fontSize: '0.9rem' }}>
-                  <i className="bi bi-arrow-left-circle"></i> Datos ANTES
-                </h4>
-                <pre style={{
-                  background: '#0d0d1a', padding: '12px', borderRadius: '8px',
-                  color: '#e0e0e0', fontSize: '0.8rem', overflow: 'auto', maxHeight: '200px',
-                  border: '1px solid #333',
-                }}>
-                  {JSON.stringify(jsonModalData.antes, null, 2)}
-                </pre>
-              </div>
-            )}
-
-            {jsonModalData.despues && (
-              <div>
-                <h4 style={{ color: '#28a745', marginBottom: '8px', fontSize: '0.9rem' }}>
-                  <i className="bi bi-arrow-right-circle"></i> Datos DESPUÉS
-                </h4>
-                <pre style={{
-                  background: '#0d0d1a', padding: '12px', borderRadius: '8px',
-                  color: '#e0e0e0', fontSize: '0.8rem', overflow: 'auto', maxHeight: '200px',
-                  border: '1px solid #333',
-                }}>
-                  {JSON.stringify(jsonModalData.despues, null, 2)}
-                </pre>
-              </div>
-            )}
-
-            {!jsonModalData.antes && !jsonModalData.despues && (
-              <p style={{ color: '#888', textAlign: 'center', padding: '2rem' }}>
-                No hay datos JSON disponibles para esta operación.
-              </p>
-            )}
-          </div>
-        </div>
-      )}
     </div>
   );
 }

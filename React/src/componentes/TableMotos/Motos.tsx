@@ -12,6 +12,7 @@ import {
 import { obtenerClientes, type ClienteRecord } from '../../services/cliente.service';
 import './Motos.css';
 import { FormattedId } from '../../componentes/FormattedId';
+import { BackButton } from '../BackButton';
 
 const createInitialFormData = (): MotoPayload => ({
   ID_MOTOS: '',
@@ -333,7 +334,10 @@ function TableMotos() {
   return (
     <div className="motos-page">
       <div className="admin-section">
-        <h1 className="admin-title">Gestión de Motos</h1>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', marginBottom: '1rem' }}>
+          <BackButton />
+          <h1 className="admin-title" style={{ margin: 0, borderBottom: 'none' }}>Gestión de Motos</h1>
+        </div>
 
         <div className="action-bar">
           <div className="search-area">

@@ -13,6 +13,7 @@ import {
   type CategoriaPayload,
 } from '../../services/categoria.service';
 import { FormattedId } from '../../componentes/FormattedId';
+import { BackButton } from '../BackButton';
 import './Servicios.css';
 
 const ESTADOS = ['Disponible', 'No disponible'] as const;
@@ -387,7 +388,10 @@ function Servicios() {
       <div className="header-admin">{/* Botón de logout si se desea */}</div>
 
       <div className="admin-section">
-        <h1 className="admin-title">Gestión de Servicios</h1>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', marginBottom: '1rem' }}>
+          <BackButton />
+          <h1 className="admin-title" style={{ margin: 0, borderBottom: 'none' }}>Gestión de Servicios</h1>
+        </div>
 
         <div className="action-bar">
           <div className="search-area">
@@ -495,21 +499,25 @@ function Servicios() {
                 &times;
               </button>
             </div>
-            <form onSubmit={handleCreate}>
-              <div className="form-group">
-                <label>ID Servicio</label>
+            <form onSubmit={handleCreate} className="ktm-form">
+              <div className="ktm-form-body">
+                <div className="ktm-form-group">
+                <label className="ktm-form-label"><i className="bi bi-hash"></i> ID Servicio</label>
                 <input
                   type="text"
                   name="ID_SERVICIOS"
+                  className="ktm-form-input"
+                  placeholder="Ej: SER001"
                   value={formData.ID_SERVICIOS}
                   onChange={handleNumberOnlyInput}
                   required
                 />
               </div>
-              <div className="form-group">
-                <label>Categoría</label>
+              <div className="ktm-form-group">
+                <label className="ktm-form-label"><i className="bi bi-tags"></i> Categoría</label>
                 <select
                   name="ID_CATEGORIA"
+                  className="ktm-form-input"
                   value={formData.ID_CATEGORIA}
                   onChange={handleInputChange}
                   required
@@ -522,44 +530,49 @@ function Servicios() {
                   ))}
                 </select>
               </div>
-              <div className="form-group">
-                <label>Nombre</label>
+              <div className="ktm-form-group">
+                <label className="ktm-form-label"><i className="bi bi-card-text"></i> Nombre</label>
                 <input
                   type="text"
                   name="Nombre"
+                  className="ktm-form-input"
+                  placeholder="Ej: Mantenimiento Preventivo"
                   value={formData.Nombre}
                   onChange={handleTextOnlyInput}
                   required
                 />
               </div>
-              <div className="form-group">
-                <label>Estado</label>
-                <select
-                  name="Estado"
-                  value={formData.Estado}
-                  onChange={handleInputChange}
-                  required
-                >
-                  {ESTADOS.map((est) => (
-                    <option key={est} value={est}>
-                      {est}
-                    </option>
-                  ))}
-                </select>
-              </div>
-              <div className="form-group">
-                <label>Precio</label>
-                <div className="input-with-icon">
-                  <span>$</span>
+              <div className="ktm-form-row">
+                <div className="ktm-form-group">
+                  <label className="ktm-form-label"><i className="bi bi-activity"></i> Estado</label>
+                  <select
+                    name="Estado"
+                    className="ktm-form-input"
+                    value={formData.Estado}
+                    onChange={handleInputChange}
+                    required
+                  >
+                    {ESTADOS.map((est) => (
+                      <option key={est} value={est}>
+                        {est}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+                <div className="ktm-form-group">
+                  <label className="ktm-form-label"><i className="bi bi-currency-dollar"></i> Precio</label>
                   <input
                     type="number"
                     step="0.01"
                     name="Precio"
+                    className="ktm-form-input"
+                    placeholder="Ej: 50000"
                     value={formData.Precio}
                     onChange={handleInputChange}
                     required
                   />
                 </div>
+              </div>
               </div>
               <div className="modal-footer">
                 <button type="button" onClick={closeCreateModal}>
@@ -577,26 +590,30 @@ function Servicios() {
         <div className="modal-overlay" onClick={closeEditModal}>
           <div className="modal-container" onClick={(e) => e.stopPropagation()}>
             <div className="modal-header">
-              <h3>Editar Servicio</h3>
+              <h3><i className="bi bi-pencil-square"></i> Editar Servicio</h3>
               <button type="button" className="close-btn" onClick={closeEditModal}>
                 &times;
               </button>
             </div>
-            <form onSubmit={handleUpdate}>
-              <div className="form-group">
-                <label>ID Servicio</label>
+            <form onSubmit={handleUpdate} className="ktm-form">
+              <div className="ktm-form-body">
+                <div className="ktm-form-group">
+                <label className="ktm-form-label"><i className="bi bi-hash"></i> ID Servicio</label>
                 <input
                   type="text"
                   name="ID_SERVICIOS"
+                  className="ktm-form-input"
                   value={formData.ID_SERVICIOS}
                   required
+                  readOnly
                   title="El ID no se puede modificar"
                 />
               </div>
-              <div className="form-group">
-                <label>Categoría</label>
+              <div className="ktm-form-group">
+                <label className="ktm-form-label"><i className="bi bi-tags"></i> Categoría</label>
                 <select
                   name="ID_CATEGORIA"
+                  className="ktm-form-input"
                   value={formData.ID_CATEGORIA}
                   onChange={handleInputChange}
                   required
@@ -609,44 +626,47 @@ function Servicios() {
                   ))}
                 </select>
               </div>
-              <div className="form-group">
-                <label>Nombre</label>
+              <div className="ktm-form-group">
+                <label className="ktm-form-label"><i className="bi bi-card-text"></i> Nombre</label>
                 <input
                   type="text"
                   name="Nombre"
+                  className="ktm-form-input"
                   value={formData.Nombre}
                   onChange={handleTextOnlyInput}
                   required
                 />
               </div>
-              <div className="form-group">
-                <label>Estado</label>
-                <select
-                  name="Estado"
-                  value={formData.Estado}
-                  onChange={handleInputChange}
-                  required
-                >
-                  {ESTADOS.map((est) => (
-                    <option key={est} value={est}>
-                      {est}
-                    </option>
-                  ))}
-                </select>
-              </div>
-              <div className="form-group">
-                <label>Precio</label>
-                <div className="input-with-icon">
-                  <span>$</span>
+              <div className="ktm-form-row">
+                <div className="ktm-form-group">
+                  <label className="ktm-form-label"><i className="bi bi-activity"></i> Estado</label>
+                  <select
+                    name="Estado"
+                    className="ktm-form-input"
+                    value={formData.Estado}
+                    onChange={handleInputChange}
+                    required
+                  >
+                    {ESTADOS.map((est) => (
+                      <option key={est} value={est}>
+                        {est}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+                <div className="ktm-form-group">
+                  <label className="ktm-form-label"><i className="bi bi-currency-dollar"></i> Precio</label>
                   <input
                     type="number"
                     step="0.01"
                     name="Precio"
+                    className="ktm-form-input"
                     value={formData.Precio}
                     onChange={handleInputChange}
                     required
                   />
                 </div>
+              </div>
               </div>
               <div className="modal-footer">
                 <button type="button" onClick={closeEditModal}>

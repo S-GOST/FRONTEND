@@ -8,6 +8,7 @@ import {
 import { obtenerClientes, type ClienteRecord } from '../../services/cliente.service';
 import { obtenerTecnicos, type TecnicoRecord } from '../../services/tecnico.service';
 import { FormattedId } from '../../componentes/FormattedId';
+import { BackButton } from '../BackButton';
 import './AsignacionTecnicos.css';
 
 // ── Helpers ──
@@ -414,7 +415,10 @@ const AsignacionTecnicos = () => {
     <div className="asignacion-page">
       {/* Header */}
       <div className="asignacion-header">
-        <h1>Asignación de Técnicos</h1>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', marginBottom: '1.5rem' }}>
+          <BackButton />
+          <h1 style={{ margin: 0, borderBottom: 'none' }}>Asignación de Técnicos</h1>
+        </div>
         <p>Gestiona y asigna técnicos a las órdenes de servicio del sistema</p>
       </div>
 
