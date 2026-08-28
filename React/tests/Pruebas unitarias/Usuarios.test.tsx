@@ -12,27 +12,27 @@ import Swal from 'sweetalert2';
 const mockNavigate = vi.fn();
 
 // 2. MOCKS DE MÓDULOS EXTERNOS
-Mock('sweetalert2', () => ({
+vi.mock('sweetalert2', () => ({
   fire: vi.fn().mockResolvedValue({ isConfirmed: true, value: 'Documento no válido' }),
   showValidationMessage: vi.fn(),
 }));
 
-Mock('react-router-dom', () => ({
+vi.mock('react-router-dom', () => ({
   ...vi.importActual('react-router-dom'),
   useNavigate: () => mockNavigate,
   useLocation: () => ({ pathname: '/admin/usuarios' }),
 }));
 
 // Mock del componente FormattedId para simplificar
-Mock('../../src/componentes/FormattedId', () => ({
+vi.mock('../../src/componentes/FormattedId', () => ({
   FormattedId: ({ value }: any) => <span data-testid="formatted-id">{value}</span>,
 }));
 
 // 3. MOCKS DE SERVICIOS (mismas rutas que los imports)
-Mock('../../src/services/admin.service');
-Mock('../../src/services/tecnico.service');
-Mock('../../src/services/cliente.service');
-Mock('../../src/services/tipoDocumento.service');
+vi.mock('../../src/services/admin.service');
+vi.mock('../../src/services/tecnico.service');
+vi.mock('../../src/services/cliente.service');
+vi.mock('../../src/services/tipoDocumento.service');
 
 // ==================== DATOS DE PRUEBA ====================
 const mockAdmins = [

@@ -2,7 +2,7 @@ import { Mock } from 'vitest';
 import axios from 'axios';
 
 // Mock de axios
-Mock('axios', () => {
+vi.mock('axios', () => {
   const mockAxios = {
     create: vi.fn(() => ({
       interceptors: {

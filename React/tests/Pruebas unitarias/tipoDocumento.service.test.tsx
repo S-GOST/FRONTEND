@@ -3,7 +3,7 @@ import { obtenerTiposDocumento } from '../../src/services/tipoDocumento.service'
 import { BaseApiService } from '../../src/services/base.service';
 
 // 1. MOCK DE BaseApiService (vi.fn DENTRO de la fábrica)
-Mock('../../src/services/base.service', () => {
+vi.mock('../../src/services/base.service', () => {
   const instance = {
     obtenerTodos: vi.fn(),
     crear: vi.fn(),

@@ -1,4 +1,3 @@
-import { Mock } from 'vitest';
 import { describe, it, expect, beforeEach, vi } from 'vitest'; // Agregar vi aquí
 import { BaseApiService } from '../../src/services/base.service';
 

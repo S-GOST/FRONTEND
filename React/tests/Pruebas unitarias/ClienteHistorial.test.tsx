@@ -1,4 +1,3 @@
-import { Mock } from 'vitest';
 import { render, screen, waitFor } from '@testing-library/react';
 import '@testing-library/jest-dom';
 import ClienteHistorial from '../../src/componentes/TableCliente/ClienteHistorial';
@@ -6,12 +5,12 @@ import * as historialService from '../../src/services/historial.service';
 import Swal from 'sweetalert2';
 
 // 1. MOCKS DE MÓDULOS EXTERNOS
-Mock('sweetalert2', () => ({
+vi.mock('sweetalert2', () => ({
   fire: vi.fn(),
 }));
 
 // 2. MOCKS DE SERVICIOS (mismas rutas que los imports)
-Mock('../../src/services/historial.service');
+vi.mock('../../src/services/historial.service');
 
 // ==================== DATOS DE PRUEBA ====================
 const mockHistorial = [

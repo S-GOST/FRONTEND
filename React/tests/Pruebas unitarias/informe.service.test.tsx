@@ -1,4 +1,3 @@
-import { Mock } from 'vitest';
 import {
   obtenerInformes,
   crearInforme,
@@ -11,7 +10,7 @@ import {
 } from '../../src/services/informe.service';
 
 // 1. MOCK DEL CLIENTE AXIOS
-Mock('../../src/config/axios', () => ({
+vi.mock('../../src/config/axios', () => ({
   __esModule: true,
   default: {
     get: vi.fn(),

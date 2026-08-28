@@ -1,4 +1,3 @@
-import { Mock } from 'vitest';
 import { render, screen } from '@testing-library/react';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import Cart from '../../src/componentes/Cart';
@@ -7,15 +6,15 @@ import { BrowserRouter } from 'react-router-dom';
 // 1. MOCK DE DEPENDENCIAS Y SERVICIOS
 // Como Cart hace peticiones a la base de datos (APIs), simulamos las respuestas
 // para que la prueba sea rápida y no dependa del backend real.
-Mock('../../src/services/producto.service', () => ({
+vi.mock('../../src/services/producto.service', () => ({
   obtenerProductos: vi.fn(() => Promise.resolve({ data: [] }))
 }));
 
-Mock('../../src/services/servicio.service', () => ({
+vi.mock('../../src/services/servicio.service', () => ({
   obtenerServicios: vi.fn(() => Promise.resolve({ data: [] }))
 }));
 
-Mock('../../src/services/moto.service', () => ({
+vi.mock('../../src/services/moto.service', () => ({
   obtenerMotos: vi.fn(() => Promise.resolve({ data: [] }))
 }));
 

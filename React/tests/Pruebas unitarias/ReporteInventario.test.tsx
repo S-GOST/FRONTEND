@@ -7,11 +7,11 @@ import { obtenerCategoriasPorTipo } from '../../src/services/categoria.service';
 import Swal from 'sweetalert2';
 
 // Mock de servicios (RUTAS DEBEN COINCIDIR CON LOS IMPORTS)
-Mock('../../src/services/informe.service');
-Mock('../../src/services/categoria.service');
+vi.mock('../../src/services/informe.service');
+vi.mock('../../src/services/categoria.service');
 
 // Mock de SweetAlert2
-Mock('sweetalert2', () => ({
+vi.mock('sweetalert2', () => ({
   fire: vi.fn(),
 }));
 

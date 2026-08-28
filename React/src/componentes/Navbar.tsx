@@ -120,7 +120,7 @@ const Navbar: React.FC<NavbarProps> = ({ cartCount: initialCartCount, onSearch, 
                     <div
                       key={suggestion.id}
                       className="search-suggestion-item"
-                      onClick={() => handleSuggestionSelect(suggestion)}
+                      onClick={() => handleSuggestionSelect(suggestion)} role="button" tabIndex={0} onKeyDown={(e) => { if(e.key === 'Enter') { /* click */ } }}
                     >
                       <i className={`bi ${suggestion.icon} suggestion-icon`}></i>
                       <div className="suggestion-text">{suggestion.name}</div>

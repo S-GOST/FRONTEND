@@ -6,16 +6,16 @@ import { requestPasswordReset } from '../../src/services/auth.services';
 import Swal from 'sweetalert2';
 
 // 1. MOCKS DE MÓDULOS EXTERNOS
-Mock('sweetalert2', () => ({
+vi.mock('sweetalert2', () => ({
   fire: vi.fn(),
 }));
 
-Mock('react-router-dom', () => ({
+vi.mock('react-router-dom', () => ({
   ...vi.importActual('react-router-dom'),
   useNavigate: () => vi.fn(),
 }));
 
-Mock('../../src/services/auth.services');
+vi.mock('../../src/services/auth.services');
 
 describe('ForgotPassword Component', () => {
   const mockNavigate = vi.fn();

@@ -9,24 +9,24 @@ import * as ordenService from '../../src/services/ordenServicioService';
 import Swal from 'sweetalert2';
 
 // 1. MOCKS DE MÓDULOS EXTERNOS
-Mock('sweetalert2', () => ({
+vi.mock('sweetalert2', () => ({
   fire: vi.fn().mockResolvedValue({ isConfirmed: true }),
 }));
 
-Mock('react-router-dom', () => ({
+vi.mock('react-router-dom', () => ({
   Link: ({ children, to }: { children: React.ReactNode; to: string }) => <a href={to}>{children}</a>,
 }));
 
 // Mock del componente FormattedId
-Mock('../../src/componentes/FormattedId', () => ({
+vi.mock('../../src/componentes/FormattedId', () => ({
   FormattedId: ({ value }: any) => <span data-testid="formatted-id">{value}</span>,
 }));
 
 // 2. MOCKS DE SERVICIOS (mismas rutas que los imports)
-Mock('../../src/services/detalleOrdenServicioService');
-Mock('../../src/services/servicio.service');
-Mock('../../src/services/producto.service');
-Mock('../../src/services/ordenServicioService');
+vi.mock('../../src/services/detalleOrdenServicioService');
+vi.mock('../../src/services/servicio.service');
+vi.mock('../../src/services/producto.service');
+vi.mock('../../src/services/ordenServicioService');
 
 // ==================== DATOS DE PRUEBA ====================
 const mockDetalles = [

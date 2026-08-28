@@ -5,12 +5,12 @@ import Login from '../../src/pages/Login';
 import { loginService } from '../../src/services/auth.services';
 
 // 1. MOCKS DE MÓDULOS EXTERNOS
-Mock('react-router-dom', () => ({
+vi.mock('react-router-dom', () => ({
   ...vi.importActual('react-router-dom'),
   useNavigate: () => vi.fn(),
 }));
 
-Mock('../../src/services/auth.services');
+vi.mock('../../src/services/auth.services');
 
 describe('Login Component', () => {
   const mockNavigate = vi.fn();

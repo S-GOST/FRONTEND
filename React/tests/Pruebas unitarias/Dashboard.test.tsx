@@ -6,11 +6,11 @@ import '@testing-library/jest-dom'; // Asegura que los matchers como toBeInTheDo
 const mockNavigate = vi.fn();
 
 // 2. MOCKS DE MÓDULOS EXTERNOS
-Mock('sweetalert2', () => ({
+vi.mock('sweetalert2', () => ({
   fire: vi.fn().mockResolvedValue({ isConfirmed: true }),
 }));
 
-Mock('react-router-dom', () => {
+vi.mock('react-router-dom', () => {
   const originalModule = vi.importActual('react-router-dom');
   return {
     ...originalModule,
@@ -20,11 +20,11 @@ Mock('react-router-dom', () => {
 });
 
 // 3. MOCKS DE SERVICIOS
-Mock('../../src/services/admin.service');
-Mock('../../src/services/tecnico.service');
-Mock('../../src/services/cliente.service');
-Mock('../../src/services/ordenServicioService');
-Mock('../../src/services/auth.services');
+vi.mock('../../src/services/admin.service');
+vi.mock('../../src/services/tecnico.service');
+vi.mock('../../src/services/cliente.service');
+vi.mock('../../src/services/ordenServicioService');
+vi.mock('../../src/services/auth.services');
 
 // 4. IMPORTAR EL COMPONENTE Y LOS SERVICIOS
 import Dashboard from '../../src/componentes/TableAdmin/Dashboard';

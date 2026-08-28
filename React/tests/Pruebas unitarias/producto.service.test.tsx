@@ -8,7 +8,7 @@ import {
 } from '../../src/services/producto.service';
 import { BaseApiService } from '../../src/services/base.service';
 
-Mock('../../src/services/base.service', () => {
+vi.mock('../../src/services/base.service', () => {
   const instance = {
     obtenerTodos: vi.fn(),
     crear: vi.fn(),
@@ -21,7 +21,7 @@ Mock('../../src/services/base.service', () => {
   };
 });
 
-Mock('../../src/config/axios', () => ({
+vi.mock('../../src/config/axios', () => ({
   __esModule: true,
   default: {
     get: vi.fn(),

@@ -151,7 +151,7 @@ const DetallesOrden = () => {
 
   const validarFormulario = (): boolean => {
     const detalleId = formData.ID_DETALLES_ORDEN_SERVICIO;
-    if (!detalleId || detalleId === 0 || isNaN(detalleId)) {
+    if (!detalleId || detalleId === 0 || Number.isNaN(detalleId)) {
       showAlert('Error', 'El ID del detalle es obligatorio', 'error');
       return false;
     }
@@ -164,7 +164,7 @@ const DetallesOrden = () => {
     }
 
     const ordenIdStr = formData.ID_ORDEN_SERVICIO;
-    if (!ordenIdStr || ordenIdStr === 0 || isNaN(Number(ordenIdStr))) {
+    if (!ordenIdStr || ordenIdStr === 0 || Number.isNaN(Number(ordenIdStr))) {
       showAlert('Error', 'El ID de la orden de servicio es obligatorio', 'error');
       return false;
     }
@@ -361,7 +361,7 @@ const DetallesOrden = () => {
       {/* Modal con selects mejorados y sin campo Estado */}
       {modalFormOpen && (
         <div className="modal-overlay" onClick={() => setModalFormOpen(false)}>
-          <div className="modal-container" onClick={(e) => e.stopPropagation()}>
+          <div className="modal-container" onClick={(e) => e.stopPropagation()} role="button" tabIndex={0} onKeyDown={(e) => { if(e.key === 'Enter') { /* click */ } }}>
             <div className="modal-header">
               <h3>{editMode ? 'Editar Detalle' : 'Nuevo Detalle de Orden'}</h3>
               <button type="button" className="close-btn" onClick={() => setModalFormOpen(false)}>&times;</button>
@@ -369,8 +369,8 @@ const DetallesOrden = () => {
             <form onSubmit={handleSubmit}>
               <div className="modal-body">
                 <div className="form-group">
-                  <label>ID Detalle *</label>
-                  <input
+                  <label htmlFor="det-input-0">ID Detalle *</label>
+                  <input id="det-input-0"
                     type="number"
                     name="ID_DETALLES_ORDEN_SERVICIO"
                     value={formData.ID_DETALLES_ORDEN_SERVICIO}
@@ -385,8 +385,8 @@ const DetallesOrden = () => {
                 </div>
 
                 <div className="form-group">
-                  <label>ID Orden de Servicio *</label>
-                  <select
+                  <label htmlFor="det-input-1">ID Orden de Servicio *</label>
+                  <select id="det-input-1"
                     name="ID_ORDEN_SERVICIO"
                     value={formData.ID_ORDEN_SERVICIO}
                     onChange={handleFormChange}
@@ -402,8 +402,8 @@ const DetallesOrden = () => {
                 </div>
 
                 <div className="form-group">
-                  <label>Servicio (opcional, pero al menos uno)</label>
-                  <select
+                  <label htmlFor="det-input-2">Servicio (opcional, pero al menos uno)</label>
+                  <select id="det-input-2"
                     name="ID_SERVICIOS"
                     value={formData.ID_SERVICIOS}
                     onChange={handleFormChange}
@@ -418,8 +418,8 @@ const DetallesOrden = () => {
                 </div>
 
                 <div className="form-group">
-                  <label>Producto (opcional, pero al menos uno)</label>
-                  <select
+                  <label htmlFor="det-input-3">Producto (opcional, pero al menos uno)</label>
+                  <select id="det-input-3"
                     name="ID_PRODUCTOS"
                     value={formData.ID_PRODUCTOS}
                     onChange={handleFormChange}
@@ -434,8 +434,8 @@ const DetallesOrden = () => {
                 </div>
 
                 <div className="form-group">
-                  <label>Garantía (meses)</label>
-                  <input
+                  <label htmlFor="det-input-4">Garantía (meses)</label>
+                  <input id="det-input-4"
                     type="number"
                     name="Garantia"
                     value={formData.Garantia}
@@ -447,8 +447,8 @@ const DetallesOrden = () => {
                 </div>
 
                 <div className="form-group">
-                  <label>Precio *</label>
-                  <input
+                  <label htmlFor="det-input-5">Precio *</label>
+                  <input id="det-input-5"
                     type="number"
                     name="Precio"
                     value={formData.Precio}

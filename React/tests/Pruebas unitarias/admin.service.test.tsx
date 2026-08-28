@@ -16,7 +16,7 @@ const mockEliminar = vi.fn();     // Cambio: jest -> vi
 const mockPut = vi.fn();          // Cambio: jest -> vi
 
 // 2. MOCK DE LA CLASE BaseApiService (misma ruta que usa admin.service)
-Mock('../../src/services/base.service', () => ({ // Cambio: Mock -> Mock
+vi.mock('../../src/services/base.service', () => ({ // Cambio: Mock -> Mock
   BaseApiService: vi.fn().mockImplementation(() => ({ // Cambio: vi.fn -> vi.fn
     obtenerTodos: mockObtenerTodos,
     crear: mockCrear,

@@ -40,7 +40,7 @@ const buildMotoPayload = (formData: MotoPayload): MotoPayload => {
   if (!placa) throw new Error('La placa es obligatoria.');
   if (!modelo) throw new Error('El modelo es obligatorio.');
   if (!marca) throw new Error('La marca es obligatoria.');
-  if (isNaN(recorrido) || recorrido < 0) {
+  if (Number.isNaN(recorrido) || recorrido < 0) {
     throw new Error('El recorrido debe ser un número válido >= 0');
   }
 
@@ -222,7 +222,7 @@ function TableMotos() {
     if (!placa) return 'La placa es obligatoria.';
     if (!modelo) return 'El modelo es obligatorio.';
     if (!marca) return 'La marca es obligatoria.';
-    if (isNaN(Number(recorrido)) || Number(recorrido) < 0) {
+    if (Number.isNaN(Number(recorrido)) || Number(recorrido) < 0) {
       return 'El recorrido debe ser un número válido mayor o igual a 0.';
     }
     return null;
@@ -387,7 +387,7 @@ function TableMotos() {
       {/* Modal Crear Moto */}
       {showCreateModal && (
         <div className="modal-overlay" onClick={closeCreateModal}>
-          <div className="modal-container" onClick={e => e.stopPropagation()}>
+          <div className="modal-container" onClick={e => e.stopPropagation()} role="button" tabIndex={0} onKeyDown={(e) => { if(e.key === 'Enter') { /* click */ } }}>
             <div className="modal-header">
               <h3>Registrar Nueva Moto</h3>
               <button type="button" className="close-btn" onClick={closeCreateModal}>
@@ -396,8 +396,8 @@ function TableMotos() {
             </div>
             <form onSubmit={handleCreate}>
               <div className="form-group">
-                <label>ID Moto</label>
-                <input
+                <label htmlFor="moto-input-0">ID Moto</label>
+                  <input id="moto-input-0"
                   type="text"
                   name="ID_MOTOS"
                   value={formData.ID_MOTOS}
@@ -407,8 +407,8 @@ function TableMotos() {
                 />
               </div>
               <div className="form-group">
-                <label>Cliente *</label>
-                <select
+                <label htmlFor="moto-input-1">Cliente *</label>
+                  <select id="moto-input-1"
                   name="ID_CLIENTES"
                   value={formData.ID_CLIENTES}
                   onChange={handleInputChange}
@@ -425,8 +425,8 @@ function TableMotos() {
                 {loadingClientes && <small>Cargando clientes...</small>}
               </div>
               <div className="form-group">
-                <label>Placa</label>
-                <input
+                <label htmlFor="moto-input-2">Placa</label>
+                  <input id="moto-input-2"
                   type="text"
                   name="Placa"
                   value={formData.Placa}
@@ -436,8 +436,8 @@ function TableMotos() {
                 />
               </div>
               <div className="form-group">
-                <label>Modelo</label>
-                <input
+                <label htmlFor="moto-input-3">Modelo</label>
+                  <input id="moto-input-3"
                   type="text"
                   name="Modelo"
                   value={formData.Modelo}
@@ -447,8 +447,8 @@ function TableMotos() {
                 />
               </div>
               <div className="form-group">
-                <label>Marca</label>
-                <input
+                <label htmlFor="moto-input-4">Marca</label>
+                  <input id="moto-input-4"
                   type="text"
                   name="Marca"
                   value={formData.Marca}
@@ -458,8 +458,8 @@ function TableMotos() {
                 />
               </div>
               <div className="form-group">
-                <label>Recorrido (km)</label>
-                <input
+                <label htmlFor="moto-input-5">Recorrido (km)</label>
+                  <input id="moto-input-5"
                   type="number"
                   step="0.01"
                   name="Recorrido"
@@ -481,7 +481,7 @@ function TableMotos() {
       {/* Modal Editar Moto */}
       {showEditModal && currentMoto && (
         <div className="modal-overlay" onClick={closeEditModal}>
-          <div className="modal-container" onClick={e => e.stopPropagation()}>
+          <div className="modal-container" onClick={e => e.stopPropagation()} role="button" tabIndex={0} onKeyDown={(e) => { if(e.key === 'Enter') { /* click */ } }}>
             <div className="modal-header">
               <h3>Editar Moto</h3>
               <button type="button" className="close-btn" onClick={closeEditModal}>
@@ -490,8 +490,8 @@ function TableMotos() {
             </div>
             <form onSubmit={handleUpdate}>
               <div className="form-group">
-                <label>ID Moto</label>
-                <input
+                <label htmlFor="moto-input-6">ID Moto</label>
+                  <input id="moto-input-6"
                   type="text"
                   name="ID_MOTOS"
                   value={formData.ID_MOTOS}
@@ -501,8 +501,8 @@ function TableMotos() {
                 />
               </div>
               <div className="form-group">
-                <label>Cliente *</label>
-                <select
+                <label htmlFor="moto-input-7">Cliente *</label>
+                  <select id="moto-input-7"
                   name="ID_CLIENTES"
                   value={formData.ID_CLIENTES}
                   onChange={handleInputChange}
@@ -519,8 +519,8 @@ function TableMotos() {
                 {loadingClientes && <small>Cargando clientes...</small>}
               </div>
               <div className="form-group">
-                <label>Placa</label>
-                <input
+                <label htmlFor="moto-input-8">Placa</label>
+                  <input id="moto-input-8"
                   type="text"
                   name="Placa"
                   value={formData.Placa}
@@ -529,8 +529,8 @@ function TableMotos() {
                 />
               </div>
               <div className="form-group">
-                <label>Modelo</label>
-                <input
+                <label htmlFor="moto-input-9">Modelo</label>
+                  <input id="moto-input-9"
                   type="text"
                   name="Modelo"
                   value={formData.Modelo}
@@ -539,8 +539,8 @@ function TableMotos() {
                 />
               </div>
               <div className="form-group">
-                <label>Marca</label>
-                <input
+                <label htmlFor="moto-input-10">Marca</label>
+                  <input id="moto-input-10"
                   type="text"
                   name="Marca"
                   value={formData.Marca}
@@ -549,8 +549,8 @@ function TableMotos() {
                 />
               </div>
               <div className="form-group">
-                <label>Recorrido (km)</label>
-                <input
+                <label htmlFor="moto-input-11">Recorrido (km)</label>
+                  <input id="moto-input-11"
                   type="number"
                   step="0.01"
                   name="Recorrido"

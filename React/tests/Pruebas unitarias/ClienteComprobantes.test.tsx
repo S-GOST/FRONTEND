@@ -6,18 +6,18 @@ import * as comprobanteService from '../../src/services/comprobanteService';
 import Swal from 'sweetalert2';
 
 // 1. MOCKS DE MÓDULOS EXTERNOS
-Mock('sweetalert2', () => ({
+vi.mock('sweetalert2', () => ({
   fire: vi.fn().mockResolvedValue({ isConfirmed: true }),
   showValidationMessage: vi.fn(),
 }));
 
 // Mock del componente FormattedId para simplificar
-Mock('../../src/componentes/FormattedId', () => ({
+vi.mock('../../src/componentes/FormattedId', () => ({
   FormattedId: ({ value }: any) => <span data-testid="formatted-id">{value}</span>,
 }));
 
 // 2. MOCKS DE SERVICIOS (mismas rutas que los imports)
-Mock('../../src/services/comprobanteService');
+vi.mock('../../src/services/comprobanteService');
 
 // ==================== DATOS DE PRUEBA ====================
 const mockComprobantes = [

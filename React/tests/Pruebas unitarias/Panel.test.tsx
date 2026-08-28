@@ -6,12 +6,12 @@ import * as authService from '../../src/services/auth.services';
 import Swal from 'sweetalert2';
 
 // Mock de SweetAlert2
-Mock('sweetalert2', () => ({
+vi.mock('sweetalert2', () => ({
   fire: vi.fn().mockResolvedValue({ isConfirmed: false }),
 }));
 
 // Mock de React Router DOM
-Mock('react-router-dom', () => {
+vi.mock('react-router-dom', () => {
   const originalModule = vi.importActual('react-router-dom');
   return {
     ...originalModule,
@@ -23,7 +23,7 @@ Mock('react-router-dom', () => {
 });
 
 // Mock del servicio de autenticación
-Mock('../../services/auth.services');
+vi.mock('../../services/auth.services');
 
 describe('Panel Component', () => {
   beforeEach(() => {

@@ -153,9 +153,9 @@ function App() {
     for (let i = 0; i < 30; i += 1) {
       const particle = document.createElement('div');
       particle.className = 'particle';
-      particle.style.left = `${Math.random() * 100}%`;
-      particle.style.top = `${Math.random() * 100}%`;
-      particle.style.animation = `float ${5 + Math.random() * 10}s linear infinite`;
+      particle.style.left = `${(window.crypto.getRandomValues(new Uint32Array(1))[0] / 4294967295) * 100}%`;
+      particle.style.top = `${(window.crypto.getRandomValues(new Uint32Array(1))[0] / 4294967295) * 100}%`;
+      particle.style.animation = `float ${5 + (window.crypto.getRandomValues(new Uint32Array(1))[0] / 4294967295) * 10}s linear infinite`;
       container.appendChild(particle);
     }
 

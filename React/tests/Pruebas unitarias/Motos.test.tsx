@@ -7,18 +7,18 @@ import * as clienteService from '../../src/services/cliente.service';
 import Swal from 'sweetalert2';
 
 // 1. MOCKS DE MÓDULOS EXTERNOS
-Mock('sweetalert2', () => ({
+vi.mock('sweetalert2', () => ({
   fire: vi.fn().mockResolvedValue({ isConfirmed: true }),
 }));
 
 // Mock del componente FormattedId
-Mock('../../src/componentes/FormattedId', () => ({
+vi.mock('../../src/componentes/FormattedId', () => ({
   FormattedId: ({ value }: any) => <span data-testid="formatted-id">{value}</span>,
 }));
 
 // 2. MOCKS DE SERVICIOS (mismas rutas que los imports)
-Mock('../../src/services/moto.service');
-Mock('../../src/services/cliente.service');
+vi.mock('../../src/services/moto.service');
+vi.mock('../../src/services/cliente.service');
 
 // ==================== DATOS DE PRUEBA ====================
 const mockMotos = [

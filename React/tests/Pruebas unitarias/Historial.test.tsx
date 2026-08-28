@@ -6,17 +6,17 @@ import * as historialService from '../../src/services/historial.service';
 import Swal from 'sweetalert2';
 
 // 1. MOCKS DE MÓDULOS EXTERNOS
-Mock('sweetalert2', () => ({
+vi.mock('sweetalert2', () => ({
   fire: vi.fn(),
 }));
 
 // Mock del componente FormattedId
-Mock('../../src/componentes/FormattedId', () => ({
+vi.mock('../../src/componentes/FormattedId', () => ({
   FormattedId: ({ value }: any) => <span data-testid="formatted-id">{value}</span>,
 }));
 
 // 2. MOCKS DE SERVICIOS (mismas rutas que los imports)
-Mock('../../src/services/historial.service');
+vi.mock('../../src/services/historial.service');
 
 // ==================== DATOS DE PRUEBA ====================
 const mockHistorial = [

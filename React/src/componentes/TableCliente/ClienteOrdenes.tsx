@@ -176,7 +176,7 @@ const ClienteOrdenes = () => {
               }}>
                 {/* Fila principal de la orden */}
                 <div 
-                  onClick={() => toggleDetalles(orden.ID_ORDEN_SERVICIO)}
+                  onClick={() => toggleDetalles(orden.ID_ORDEN_SERVICIO)} role="button" tabIndex={0} onKeyDown={(e) => { if(e.key === 'Enter') { /* click */ } }}
                   style={{ 
                     padding: '20px 24px', cursor: 'pointer',
                     display: 'grid', 

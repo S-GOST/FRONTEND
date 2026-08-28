@@ -12,11 +12,11 @@ const mockNavigate = vi.fn();
 let mockPathname = '/cliente/dashboard';
 
 // 2. MOCKS DE MÓDULOS EXTERNOS
-Mock('sweetalert2', () => ({
+vi.mock('sweetalert2', () => ({
   fire: vi.fn().mockResolvedValue({ isConfirmed: true }),
 }));
 
-Mock('react-router-dom', () => ({
+vi.mock('react-router-dom', () => ({
   ...vi.importActual('react-router-dom'),
   useNavigate: () => mockNavigate,
   useLocation: () => ({ pathname: mockPathname }),
@@ -24,14 +24,14 @@ Mock('react-router-dom', () => ({
 }));
 
 // Mock de formatId para simplificar
-Mock('../../src/utils/formatIds', () => ({
+vi.mock('../../src/utils/formatIds', () => ({
   formatId: (entity: string, id: any) => `${entity}-${id}`,
 }));
 
 // 3. MOCKS DE SERVICIOS (mismas rutas que los imports)
-Mock('../../src/services/moto.service');
-Mock('../../src/services/ordenServicioService');
-Mock('../../src/services/auth.services');
+vi.mock('../../src/services/moto.service');
+vi.mock('../../src/services/ordenServicioService');
+vi.mock('../../src/services/auth.services');
 
 // ==================== DATOS DE PRUEBA ====================
 const mockMotos = [

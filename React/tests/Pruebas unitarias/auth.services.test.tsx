@@ -8,7 +8,7 @@ import {
 import apiClient from '../../src/config/axios';
 
 // 1. MOCK DEL CLIENTE AXIOS (get/post como vi.fn dentro de la fábrica)
-Mock('../../src/config/axios', () => ({
+vi.mock('../../src/config/axios', () => ({
   __esModule: true,
   default: {
     get: vi.fn(),

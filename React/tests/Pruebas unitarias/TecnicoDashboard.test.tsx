@@ -1,4 +1,3 @@
-import { Mock } from 'vitest';
 import { render, screen, fireEvent, waitFor, within } from '@testing-library/react';
 import '@testing-library/jest-dom';
 import TecnicoDashboard from '../../src/componentes/TableTecnico/TecnicoDashboard';
@@ -13,25 +12,25 @@ import Swal from 'sweetalert2';
 const mockNavigate = vi.fn();
 
 // 2. MOCKS DE MÓDULOS EXTERNOS
-Mock('sweetalert2', () => ({
+vi.mock('sweetalert2', () => ({
   fire: vi.fn().mockResolvedValue({ isConfirmed: true }),
 }));
 
-Mock('react-router-dom', () => ({
+vi.mock('react-router-dom', () => ({
   ...vi.importActual('react-router-dom'),
   useNavigate: () => mockNavigate,
 }));
 
-Mock('../../src/utils/formatIds', () => ({
+vi.mock('../../src/utils/formatIds', () => ({
   formatId: (tipo: string, id: any) => `${tipo}-${id}`,
 }));
 
 // 3. MOCKS DE SERVICIOS (mismas rutas que los imports)
-Mock('../../src/services/ordenServicioService');
-Mock('../../src/services/cliente.service');
-Mock('../../src/services/auth.services');
-Mock('../../src/services/informe.service');
-Mock('../../src/services/moto.service');
+vi.mock('../../src/services/ordenServicioService');
+vi.mock('../../src/services/cliente.service');
+vi.mock('../../src/services/auth.services');
+vi.mock('../../src/services/informe.service');
+vi.mock('../../src/services/moto.service');
 
 // ==================== DATOS DE PRUEBA ====================
 const mockOrdenes = [

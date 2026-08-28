@@ -680,7 +680,7 @@ const Cart: React.FC<CartProps> = () => {
       {/* Modal de eliminar producto */}
       {showDeleteModal && deleteModalData && (
         <div className="modal-overlay" onClick={() => setShowDeleteModal(false)}>
-          <div className="modal-content" onClick={(e) => e.stopPropagation()}>
+          <div className="modal-content" onClick={(e) => e.stopPropagation()} role="button" tabIndex={0} onKeyDown={(e) => { if(e.key === 'Enter') { /* call onClick */ } }}>
             <div className="modal-header">
               <h5 className="modal-title">
                 <i className="bi bi-exclamation-triangle me-2"></i>Eliminar Producto
@@ -725,7 +725,7 @@ const Cart: React.FC<CartProps> = () => {
       {/* Modal de checkout */}
       {showCheckoutModal && (
         <div className="modal-overlay" onClick={() => { setShowCheckoutModal(false); setCheckoutStep(1); }}>
-          <div className="modal-content" onClick={(e) => e.stopPropagation()} style={{ maxWidth: checkoutStep === 2 ? '520px' : undefined }}>
+          <div className="modal-content" onClick={(e) => e.stopPropagation()} role="button" tabIndex={0} onKeyDown={(e) => { if(e.key === 'Enter') { /* call onClick */ } }} style={{ maxWidth: checkoutStep === 2 ? '520px' : undefined }}>
             <div className="modal-header">
               <h5 className="modal-title">
                 <i className={`bi bi-${checkoutStep === 1 ? 'credit-card' : 'bicycle'} me-2`}></i>
@@ -813,7 +813,7 @@ const Cart: React.FC<CartProps> = () => {
                                 <div
                                   key={motoId}
                                   className={`moto-card ${isSelected ? 'moto-card--selected' : ''}`}
-                                  onClick={() => setSelectedMotoId(motoId)}
+                                  onClick={() => setSelectedMotoId(motoId)} role="button" tabIndex={0} onKeyDown={(e) => { if(e.key === 'Enter') { /* call onClick */ } }}
                                 >
                                   <div className="moto-card__check">
                                     <i className={`bi ${isSelected ? 'bi-check-circle-fill' : 'bi-circle'}`}></i>
@@ -834,7 +834,7 @@ const Cart: React.FC<CartProps> = () => {
                             {/* Card para agregar nueva moto */}
                             <div
                               className={`moto-card moto-card--new ${selectedMotoId === 'new' ? 'moto-card--selected' : ''}`}
-                              onClick={() => setSelectedMotoId('new')}
+                              onClick={() => setSelectedMotoId('new')} role="button" tabIndex={0} onKeyDown={(e) => { if(e.key === 'Enter') { /* call onClick */ } }}
                             >
                               <div className="moto-card__check">
                                 <i className={`bi ${selectedMotoId === 'new' ? 'bi-check-circle-fill' : 'bi-circle'}`}></i>

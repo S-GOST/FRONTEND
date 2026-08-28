@@ -1,4 +1,3 @@
-import { Mock } from 'vitest';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import '@testing-library/jest-dom';
 import ClienteMotos from '../../src/componentes/TableCliente/ClienteMotos';
@@ -9,17 +8,17 @@ import Swal from 'sweetalert2';
 const mockNavigate = vi.fn();
 
 // 2. MOCKS DE MÓDULOS EXTERNOS
-Mock('sweetalert2', () => ({
+vi.mock('sweetalert2', () => ({
   fire: vi.fn().mockResolvedValue({ isConfirmed: true }),
 }));
 
-Mock('react-router-dom', () => ({
+vi.mock('react-router-dom', () => ({
   ...vi.importActual('react-router-dom'),
   useNavigate: () => mockNavigate,
 }));
 
 // 3. MOCKS DE SERVICIOS (mismas rutas que los imports)
-Mock('../../src/services/moto.service');
+vi.mock('../../src/services/moto.service');
 
 // ==================== DATOS DE PRUEBA ====================
 const mockMotos = [

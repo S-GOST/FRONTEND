@@ -11,12 +11,12 @@ import autoTable from 'jspdf-autotable';
 const mockSave = vi.fn();
 
 // 2. MOCKS DE MÓDULOS EXTERNOS
-Mock('sweetalert2', () => ({
+vi.mock('sweetalert2', () => ({
   fire: vi.fn(),
 }));
 
 // Mock de jsPDF para no generar PDFs reales en las pruebas
-Mock('jspdf', () => ({
+vi.mock('jspdf', () => ({
   __esModule: true,
   default: vi.fn().mockImplementation(() => ({
     setFillColor: vi.fn(),
@@ -30,18 +30,18 @@ Mock('jspdf', () => ({
   })),
 }));
 
-Mock('jspdf-autotable', () => ({
+vi.mock('jspdf-autotable', () => ({
   __esModule: true,
   default: vi.fn(),
 }));
 
 // Mock del componente FormattedId
-Mock('../../src/componentes/FormattedId', () => ({
+vi.mock('../../src/componentes/FormattedId', () => ({
   FormattedId: ({ value }: any) => <span data-testid="formatted-id">{value}</span>,
 }));
 
 // 3. MOCKS DE SERVICIOS (mismas rutas que los imports)
-Mock('../../src/services/comprobanteService');
+vi.mock('../../src/services/comprobanteService');
 
 // ==================== DATOS DE PRUEBA ====================
 const mockComprobantes = [

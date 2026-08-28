@@ -11,7 +11,7 @@ import {
 import { BaseApiService } from '../../src/services/base.service';
 
 // 1. MOCK DE BaseApiService (vi.fn DENTRO de la fábrica → sin errores de hoisting)
-Mock('../../src/services/base.service', () => {
+vi.mock('../../src/services/base.service', () => {
   const instance = {
     obtenerTodos: vi.fn(),
     crear: vi.fn(),

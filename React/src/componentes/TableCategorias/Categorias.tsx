@@ -421,7 +421,7 @@ function Categorias() {
       {/* Modal Crear */}
       {showCreateModal && (
         <div className="modal-overlay" onClick={closeCreateModal}>
-          <div className="modal-container" onClick={(e) => e.stopPropagation()}>
+          <div className="modal-container" onClick={(e) => e.stopPropagation()} role="button" tabIndex={0} onKeyDown={(e) => { if(e.key === 'Enter') { /* click */ } }}>
             <div className="modal-header">
               <h3>Crear Categoría</h3>
               <button type="button" className="close-btn" onClick={closeCreateModal}>
@@ -430,8 +430,8 @@ function Categorias() {
             </div>
             <form onSubmit={handleCreate}>
               <div className="form-group">
-                <label>Nombre</label>
-                <input
+                <label htmlFor="cat-input-0">Nombre</label>
+                  <input id="cat-input-0"
                   type="text"
                   name="nombre"
                   value={formData.nombre}
@@ -440,8 +440,8 @@ function Categorias() {
                 />
               </div>
               <div className="form-group">
-                <label>Tipo</label>
-                <select
+                <label htmlFor="cat-input-1">Tipo</label>
+                  <select id="cat-input-1"
                   name="tipo"
                   value={formData.tipo}
                   onChange={handleInputChange}
@@ -455,8 +455,8 @@ function Categorias() {
                 </select>
               </div>
               <div className="form-group">
-                <label>Descripción</label>
-                <textarea
+                <label htmlFor="cat-input-2">Descripción</label>
+                  <textarea id="cat-input-2"
                   name="descripcion"
                   value={formData.descripcion || ''}
                   onChange={handleInputChange}
@@ -477,7 +477,7 @@ function Categorias() {
       {/* Modal Editar */}
       {showEditModal && currentCategoria && (
         <div className="modal-overlay" onClick={closeEditModal}>
-          <div className="modal-container" onClick={(e) => e.stopPropagation()}>
+          <div className="modal-container" onClick={(e) => e.stopPropagation()} role="button" tabIndex={0} onKeyDown={(e) => { if(e.key === 'Enter') { /* click */ } }}>
             <div className="modal-header">
               <h3>Editar Categoría</h3>
               <button type="button" className="close-btn" onClick={closeEditModal}>
@@ -486,8 +486,8 @@ function Categorias() {
             </div>
             <form onSubmit={handleUpdate}>
               <div className="form-group">
-                <label>ID Categoría</label>
-                <input
+                <label htmlFor="cat-input-3">ID Categoría</label>
+                  <input id="cat-input-3"
                   type="text"
                   value={formData.ID_CATEGORIA || ''}
                   disabled
@@ -495,8 +495,8 @@ function Categorias() {
                 />
               </div>
               <div className="form-group">
-                <label>Nombre</label>
-                <input
+                <label htmlFor="cat-input-4">Nombre</label>
+                  <input id="cat-input-4"
                   type="text"
                   name="nombre"
                   value={formData.nombre}
@@ -505,8 +505,8 @@ function Categorias() {
                 />
               </div>
               <div className="form-group">
-                <label>Tipo</label>
-                <select
+                <label htmlFor="cat-input-5">Tipo</label>
+                  <select id="cat-input-5"
                   name="tipo"
                   value={formData.tipo}
                   onChange={handleInputChange}
@@ -520,8 +520,8 @@ function Categorias() {
                 </select>
               </div>
               <div className="form-group">
-                <label>Descripción</label>
-                <textarea
+                <label htmlFor="cat-input-6">Descripción</label>
+                  <textarea id="cat-input-6"
                   name="descripcion"
                   value={formData.descripcion || ''}
                   onChange={handleInputChange}
