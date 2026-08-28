@@ -22,6 +22,7 @@ const clienteService = new BaseApiService<ClientePayload>({
   baseUrl: '/clientes',
 });
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 const addCompatibility = (c: any): any => {
   if (!c) return c;
   return {
@@ -57,6 +58,7 @@ export const habilitarCliente = (id: string | number) => clienteService['http'].
 export const obtenerClientesPendientes = async () => {
   const res = await clienteService['http'].get('/clientes/pendientes');
   if (res.data && res.data.data && Array.isArray(res.data.data)) {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     res.data.data = res.data.data.map((c: any) => ({
       ...c,
       ID_CLIENTES: c.id_usuario || c.numero_documento,

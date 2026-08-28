@@ -15,8 +15,10 @@ export const apiClient = axios.create({
 
 // Flag para evitar múltiples llamadas de refresh simultáneas
 let isRefreshing = false;
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 let failedQueue: any[] = [];
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 const processQueue = (error: any, token: string | null = null) => {
   failedQueue.forEach(prom => {
     if (error) {

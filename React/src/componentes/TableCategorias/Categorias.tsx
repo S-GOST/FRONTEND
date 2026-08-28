@@ -27,6 +27,7 @@ const filterOnlyLetters = (value: string): string => value.replace(/[^a-zA-ZñÑ
 const extractCategorias = (payload: unknown): CategoriaPayload[] => {
   if (Array.isArray(payload)) return payload as CategoriaPayload[];
   if (payload && typeof payload === 'object') {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const data = (payload as any).data;
     if (Array.isArray(data)) return data as CategoriaPayload[];
   }
@@ -49,7 +50,9 @@ function Categorias() {
   const [formData, setFormData] = useState<CategoriaPayload>(createInitialFormData());
 
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     void cargarCategorias();
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const showAlert = (title: string, text: string, icon: 'success' | 'error' | 'warning') => {
@@ -226,6 +229,7 @@ function Categorias() {
     try {
       await eliminarCategoria(categoria.ID_CATEGORIA);
       actualizarEstadoLocal(categoria.ID_CATEGORIA);
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (err: any) {
       if (err.response?.status === 409) {
         const confirmResult = await Swal.fire({

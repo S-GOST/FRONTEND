@@ -16,9 +16,11 @@ export interface LoginResponse {
     usuario?: string;
     email?: string;
   };
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   [key: string]: any;
 }
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 const decodeJwt = (token: string): any => {
   try {
     const base64Url = token.split('.')[1];

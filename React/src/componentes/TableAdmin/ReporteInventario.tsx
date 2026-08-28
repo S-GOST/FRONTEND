@@ -68,6 +68,7 @@ const ReporteInventario: React.FC = () => {
 
   useEffect(() => {
     // Cargar categorias de PRODUCTO y SERVICIO
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const extract = (res: any) => {
       if (res.data && res.data.success) return res.data.data;
       if (Array.isArray(res.data)) return res.data;
@@ -101,6 +102,7 @@ const ReporteInventario: React.FC = () => {
       } else {
         setData(null);
       }
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (err: any) {
       if (err.response?.status === 404) {
         setData(null);

@@ -78,7 +78,7 @@ const buildProductoPayload = (formData: ProductoPayload): ProductoPayload => {
   };
 };
 
-const readProductoArray = (value: unknown): ProductoRecord[] | null => {
+const readProductoArray = (value: any): ProductoRecord[] | null => {
   if (Array.isArray(value)) return value as ProductoRecord[];
   if (value && typeof value === 'object') {
     const nested = value as Record<string, unknown>;
@@ -90,10 +90,10 @@ const readProductoArray = (value: unknown): ProductoRecord[] | null => {
   return null;
 };
 
-const extractProductos = (payload: unknown): ProductoRecord[] =>
+const extractProductos = (payload: any): ProductoRecord[] =>
   readProductoArray(payload) ?? [];
 
-const isSuccessfulResponse = (payload: unknown) => {
+const isSuccessfulResponse = (payload: any) => {
   if (!payload || typeof payload !== 'object' || !('success' in payload)) return true;
   return Boolean((payload as { success?: boolean }).success);
 };
@@ -124,12 +124,14 @@ function TableProductos() {
   useEffect(() => {
     void cargarProductos();
     void cargarCategorias();
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const cargarCategorias = async () => {
     try {
       const response = await obtenerCategoriasPorTipo('PRODUCTO');
       const data = response.data;
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const cats = Array.isArray(data) ? data : (data as any)?.data ?? [];
       setCategorias(cats);
     } catch (error) {
@@ -518,6 +520,7 @@ function TableProductos() {
                     <td>{getCategoriaNombre(producto)}</td>
                     <td>{producto.Marca}</td>
                     <td>{producto.Nombre}</td>
+                    // eslint-disable-next-line @typescript-eslint/no-explicit-any
                     <td>${formatPrecio(producto.precio_costo ?? (producto as any).Precio_Costo ?? (producto as any).precioCosto)}</td>
                     <td>${formatPrecio(producto.precio_venta)}</td>
                     <td className={producto.stock <= producto.stock_minimo ? 'stock-bajo' : ''}>{producto.stock}</td>

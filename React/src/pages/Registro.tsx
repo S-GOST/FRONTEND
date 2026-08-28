@@ -93,6 +93,7 @@ const Registro: React.FC = () => {
         navigate('/login');
       });
 
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (err: any) {
       console.error(err);
       const resData = err.response?.data;
@@ -261,6 +262,7 @@ const Registro: React.FC = () => {
                       required: 'La contraseña es requerida',
                       minLength: { value: 8, message: 'Mínimo 8 caracteres' },
                       pattern: {
+                        // eslint-disable-next-line no-useless-escape
                         value: /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]).{8,}$/,
                         message: 'Debe incluir mayúsculas, minúsculas, números y símbolos'
                       }

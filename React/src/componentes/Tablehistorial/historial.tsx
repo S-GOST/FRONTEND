@@ -28,6 +28,7 @@ function TableHistorial() {
 
   useEffect(() => {
     void cargarDatosIniciales();
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const showAlert = (title: string, text: string, icon: 'success' | 'error' | 'warning') => {

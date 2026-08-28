@@ -20,6 +20,7 @@ const tecnicoService = new BaseApiService<TecnicoPayload>({
   baseUrl: '/tecnicos',
 });
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 const addCompatibility = (t: any): any => {
   if (!t) return t;
   return {

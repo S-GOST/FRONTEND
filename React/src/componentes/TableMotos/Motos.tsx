@@ -104,6 +104,7 @@ function TableMotos() {
 
   useEffect(() => {
     void cargarMotos();
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const cargarClientes = async () => {

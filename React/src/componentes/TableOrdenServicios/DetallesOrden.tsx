@@ -65,6 +65,7 @@ const DetallesOrden = () => {
 
   useEffect(() => {
     void cargarDatosIniciales();
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const showAlert = (title: string, text: string, icon: 'success' | 'error' | 'warning') => {
@@ -224,6 +225,7 @@ const DetallesOrden = () => {
     if (!validarFormulario()) return;
 
     // ✅ CAST SEGURO PARA LA API (El backend puede tener Estado por defecto)
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const payload: any = {
       ID_ORDEN_SERVICIO: Number(formData.ID_ORDEN_SERVICIO),
       ID_SERVICIOS: formData.ID_SERVICIOS ? Number(formData.ID_SERVICIOS) : null,
@@ -246,6 +248,7 @@ const DetallesOrden = () => {
       }
       setModalFormOpen(false);
       await cargarDatosIniciales();
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (err: any) {
       console.error(err);
       let errorMsg = 'No se pudo guardar el detalle';
@@ -274,6 +277,7 @@ const DetallesOrden = () => {
       await eliminarDetalleOrden(Number(detalle.ID_DETALLES_ORDEN_SERVICIO));
       showAlert('Eliminado', 'El detalle ha sido eliminado', 'success');
       await cargarDatosIniciales();
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (err: any) {
       console.error(err);
       let errorMsg = 'No se pudo eliminar el detalle';

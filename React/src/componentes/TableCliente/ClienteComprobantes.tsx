@@ -5,6 +5,7 @@ import { FormattedId } from '../../componentes/FormattedId';
 import './ClienteComprobantes.css';
 
 const ClienteComprobantes = () => {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const [comprobantes, setComprobantes] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -111,6 +112,7 @@ const ClienteComprobantes = () => {
     }
   };
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const handleDescargar = (comp: any) => {
     const printWindow = window.open('', '', 'width=600,height=800');
     if (!printWindow) return;

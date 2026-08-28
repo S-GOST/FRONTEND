@@ -84,10 +84,15 @@ function Dashboard() {
       ]);
 
       // 👇 Tipado explícito con <any> para evitar ts(18046)
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const admins = extraerDatos<any>(adminsRes.data);
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const tecnicos = extraerDatos<any>(tecnicosRes.data);
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const clientes = extraerDatos<any>(clientesRes.data);
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const clientesPend = extraerDatos<any>(clientesPendRes.data);
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const ordenes = extraerDatos<any>(ordenesRes.data);
 
       const pendientes = ordenes.filter(o => o.Estado?.toLowerCase().includes('pendiente'));

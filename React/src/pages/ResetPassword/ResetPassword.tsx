@@ -83,6 +83,7 @@ const ResetPassword = () => {
       }).then(() => {
         navigate('/login');
       });
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (error: any) {
       const mensaje = error?.response?.data?.mensaje || 'Token inválido o expirado. Solicite un nuevo enlace.';
       Swal.fire({

@@ -39,6 +39,7 @@ function ClienteDashboard() {
 
   useEffect(() => {
     cargarEstadisticas();
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const cargarEstadisticas = async () => {

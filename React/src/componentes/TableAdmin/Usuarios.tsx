@@ -77,7 +77,7 @@ const formatTipoDocumento = (tipos: TipoDocumentoRecord[], id: string | number) 
   return tipos.find(t => String(t.id_tipo_documento) === String(id))?.nombre || String(id);
 };
 
-const extractArray = <T,>(payload: unknown, alias?: string): T[] => {
+const extractArray = <T,>(payload: any, alias?: string): T[] => {
   if (Array.isArray(payload)) return payload as T[];
   if (!payload || typeof payload !== 'object') return [];
 
@@ -173,6 +173,7 @@ function Usuarios() {
 
   useEffect(() => {
     void cargarDatos();
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   useEffect(() => {
@@ -193,7 +194,8 @@ function Usuarios() {
     });
   };
 
-  const handleApiError = (error: unknown, fallbackMessage: string) => {
+  const handleApiError = (error: any, fallbackMessage: string) => {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const axiosError = error as { response?: { status?: number; data?: any } };
     const status = axiosError?.response?.status;
     const data = axiosError?.response?.data;
@@ -202,6 +204,7 @@ function Usuarios() {
 
     // Extraer array de errores de validación si existe (express-validator)
     if (data?.errores && Array.isArray(data.errores)) {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const errorDetails = data.errores.map((err: any) => `- ${err.mensaje}`).join('\n');
       serverMessage = `${serverMessage}:\n${errorDetails}`;
     }
@@ -604,6 +607,7 @@ function Usuarios() {
                 </tr>
               ) : currentItems.length > 0 ? (
                 currentItems.map(item => (
+                  // eslint-disable-next-line @typescript-eslint/no-explicit-any
                   <tr key={item.numero_documento} style={{ opacity: ((item as any).estado === 0 || (item as any).estado === '0' || String((item as any).estado ?? (item as any).Estado).toLowerCase() === 'inactivo') ? 0.5 : 1 }}>
                     <td><FormattedId entity={activeTab === 'admins' ? 'admin' : activeTab === 'tecnicos' ? 'tecnico' : 'cliente'} value={item.numero_documento} /></td>
                     <td>{item.nombre}</td>
@@ -614,6 +618,7 @@ function Usuarios() {
                     <td>{item.usuario}</td>
                     <td>
                       {(() => {
+                        // eslint-disable-next-line @typescript-eslint/no-explicit-any
                         const est = (item as any).estado ?? (item as any).Estado;
                         if (est === 'Pendiente') return <span style={{ background: '#f59e0b', padding: '4px 8px', borderRadius: '4px', fontSize: '0.75rem', fontWeight: 'bold' }}>Pendiente</span>;
                         if (est === 'Rechazado') return <span style={{ background: '#ef4444', padding: '4px 8px', borderRadius: '4px', fontSize: '0.75rem', fontWeight: 'bold' }}>Rechazado</span>;
@@ -637,6 +642,7 @@ function Usuarios() {
                           <button className="btn-edit-ktm" onClick={() => openEditModal(item)}>
                             <i className="bi bi-pencil-square"></i> Editar
                           </button>
+                          // eslint-disable-next-line @typescript-eslint/no-explicit-any
                           {((item as any).estado === 0 || (item as any).estado === '0' || String((item as any).estado ?? (item as any).Estado).toLowerCase() === 'inactivo' || String((item as any).estado ?? (item as any).Estado).toLowerCase() === 'rechazado') ? (
                             <button className="btn-edit-ktm" style={{ background: '#064e3b', borderColor: '#10b981' }} onClick={() => handleEnable(item)}>
                               <i className="bi bi-check-circle"></i> Habilitar

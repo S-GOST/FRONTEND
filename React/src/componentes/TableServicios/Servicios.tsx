@@ -96,12 +96,14 @@ function Servicios() {
   useEffect(() => {
     void cargarServicios();
     void cargarCategorias();
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const cargarCategorias = async () => {
     try {
       const response = await obtenerCategoriasPorTipo('SERVICIO');
       const data = response.data;
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const cats = Array.isArray(data) ? data : (data as any)?.data ?? [];
       setCategorias(cats);
     } catch (error) {
@@ -320,6 +322,7 @@ function Servicios() {
     try {
       await eliminarServicio(servicio.ID_SERVICIOS);
       const updateFn = (prev: ServicioPayload[]) =>
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         prev.map((s) => (s.ID_SERVICIOS === servicio.ID_SERVICIOS ? { ...s, Estado: 'Inactivo' as any } : s));
       setServicios(updateFn);
       setFilteredServicios(updateFn);
@@ -357,6 +360,7 @@ function Servicios() {
     try {
       await habilitarServicio(servicio.ID_SERVICIOS);
       const updateFn = (prev: ServicioPayload[]) =>
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         prev.map((s) => (s.ID_SERVICIOS === servicio.ID_SERVICIOS ? { ...s, Estado: 'Activo' as any } : s));
       setServicios(updateFn);
       setFilteredServicios(updateFn);

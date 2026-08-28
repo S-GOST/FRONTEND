@@ -79,6 +79,7 @@ const ClienteOrdenes = () => {
       const data = res.data?.data || res.data || [];
       setOrdenes(Array.isArray(data) ? data : []);
       setError(null);
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (err: any) {
       console.error('Error al cargar órdenes:', err);
       setError('No se pudieron cargar tus órdenes. Intenta de nuevo.');

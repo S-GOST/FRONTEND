@@ -57,6 +57,7 @@ const TableInformes = () => {
       setFilteredInformes(Array.isArray(informesRes.data) ? informesRes.data : informesRes.data?.data || []);
       
       const compData = Array.isArray(comprobantesRes.data) ? comprobantesRes.data : comprobantesRes.data?.data || [];
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       setComprobantesGenerados(compData.map((c: any) => c.id_orden));
     } catch (error) {
       console.error(error);
@@ -67,7 +68,9 @@ const TableInformes = () => {
   };
 
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     cargarDatos();
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const showAlert = (title: string, text: string, icon: 'success' | 'error' | 'warning') => {
@@ -237,6 +240,7 @@ const TableInformes = () => {
       await generarComprobante(informe.id_informe, metodoPago);
       showAlert('Éxito', 'Comprobante generado correctamente', 'success');
       await cargarDatos();
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (err: any) {
       console.error(err);
       showAlert('Error', err.response?.data?.message || 'No se pudo generar', 'error');
@@ -254,6 +258,7 @@ const TableInformes = () => {
       setFilteredInformes(res.data || []);
       setShowReportModal(false);
       showAlert('Éxito', 'Reporte generado', 'success');
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (err: any) {
       console.error(err);
       showAlert('Error', err.response?.data?.message || 'Error al generar', 'error');

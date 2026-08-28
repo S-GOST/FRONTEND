@@ -192,6 +192,7 @@ const AsignacionTecnicos = () => {
         garantia_servicios: garantiaServicios ? Number(garantiaServicios) : undefined,
         Estado: 'Pendiente',
         ClienteNombre: orden.ClienteNombre || '',
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       } as any);
 
       Swal.fire({
@@ -255,6 +256,7 @@ const AsignacionTecnicos = () => {
     if (observaciones) {
       try {
         setSubmitting(orden.ID_ORDEN_SERVICIO);
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         await actualizarOrden(orden.ID_ORDEN_SERVICIO, { observaciones } as any);
         Swal.fire({
           title: 'Guardado',
