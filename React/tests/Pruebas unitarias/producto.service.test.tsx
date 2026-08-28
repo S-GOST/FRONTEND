@@ -1,0 +1,123 @@
+import {
+  obtenerProductos,
+  insertarProducto,
+  actualizarProducto,
+  eliminarProducto,
+  habilitarProducto,
+} from '../../src/services/producto.service';
+import { BaseApiService } from '../../src/services/base.service';
+
+jest.mock('../../src/services/base.service', () => {
+  const instance = {
+    obtenerTodos: jest.fn(),
+    crear: jest.fn(),
+    actualizar: jest.fn(),
+    eliminar: jest.fn(),
+  };
+  return {
+    __esModule: true,
+    BaseApiService: jest.fn(() => instance),
+  };
+});
+
+jest.mock('../../src/config/axios', () => ({
+  __esModule: true,
+  default: {
+    get: jest.fn(),
+    post: jest.fn(),
+    put: jest.fn(),
+    delete: jest.fn(),
+  },
+}));
+
+const base = (BaseApiService as unknown as jest.Mock).mock.results[0].value;
+
+describe('producto.service', () => {
+  let apiClient: any;
+
+  beforeEach(async () => {
+    jest.clearAllMocks();
+    const axiosModule = await import('../../src/config/axios');
+    apiClient = axiosModule.default;
+  });
+
+  // 1. OBTENER PRODUCTOS
+  it('debería delegar en obtenerTodos del BaseApiService', async () => {
+    base.obtenerTodos.mockResolvedValue({ data: [] });
+    await obtenerProductos();
+    expect(base.obtenerTodos).toHaveBeenCalled();
+  });
+
+  // 2. INSERTAR PRODUCTO CON NORMALIZACIÓN
+  it('debería normalizar ID_CATEGORIA y precio_venta antes de crear', async () => {
+    base.crear.mockResolvedValue({ data: { success: true } });
+    const mockPayload = {
+      ID_PRODUCTOS: '5',
+      ID_CATEGORIA: '30',
+      Marca: 'KTM',
+      Nombre: 'Aceite Sintético',
+      precio_venta: 50000,
+      Estado: 'Disponible',
+    };
+    await insertarProducto(mockPayload);
+    expect(base.crear).toHaveBeenCalledWith({
+      ...mockPayload,
+      ID_CATEGORIA: 30,
+      precio_venta: 50000,
+    });
+  });
+
+  // 3. ACTUALIZAR PRODUCTO CON NORMALIZACIÓN
+  it('debería normalizar los datos antes de actualizar', async () => {
+    base.actualizar.mockResolvedValue({ data: { success: true } });
+    const mockPayload = {
+      ID_PRODUCTOS: '5',
+      ID_CATEGORIA: '40',
+      Marca: 'KTM',
+      Nombre: 'Aceite Sintético',
+      precio_venta: 75000,
+      Estado: 'Disponible',
+    };
+    await actualizarProducto('5', mockPayload);
+    expect(base.actualizar).toHaveBeenCalledWith(
+      '5',
+      expect.objectContaining({
+        ID_CATEGORIA: 40,
+        precio_venta: 75000,
+      })
+    );
+  });
+
+  // 4. ELIMINAR PRODUCTO CON ID STRING
+  it('debería delegar en eliminar con ID string', async () => {
+    base.eliminar.mockResolvedValue({ data: { success: true } });
+    await eliminarProducto('PROD-001');
+    expect(base.eliminar).toHaveBeenCalledWith('PROD-001');
+  });
+
+  // 5. ELIMINAR PRODUCTO CON ID NUMÉRICO
+  it('debería aceptar ID numérico en eliminar', async () => {
+    base.eliminar.mockResolvedValue({ data: { success: true } });
+    await eliminarProducto(123);
+    expect(base.eliminar).toHaveBeenCalledWith(123);
+  });
+
+  // 6. HABILITAR PRODUCTO
+  it('debería hacer PUT a /productos/habilitar/:id', async () => {
+    apiClient.put.mockResolvedValue({ data: { success: true } });
+    await habilitarProducto('PROD-002');
+    expect(apiClient.put).toHaveBeenCalledWith('/productos/habilitar/PROD-002');
+  });
+
+  // 7. PROPAGACIÓN DE ERRORES
+  it('debería propagar errores desde BaseApiService', async () => {
+    base.obtenerTodos.mockRejectedValue(new Error('Error de red'));
+    await expect(obtenerProductos()).rejects.toThrow('Error de red');
+  });
+
+  // 8. ERROR EN HABILITAR
+  it('debería propagar errores desde apiClient.put', async () => {
+    apiClient.put.mockRejectedValue(new Error('Sin autorización'));
+    await expect(habilitarProducto('PROD-003')).rejects.toThrow('Sin autorización');
+  });
+});
