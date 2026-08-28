@@ -1,3 +1,4 @@
+import { Mock } from 'vitest';
 import {
   loginService,
   clearSession,
@@ -6,21 +7,21 @@ import {
 } from '../../src/services/auth.services';
 import apiClient from '../../src/config/axios';
 
-// 1. MOCK DEL CLIENTE AXIOS (get/post como jest.fn dentro de la fábrica)
-jest.mock('../../src/config/axios', () => ({
+// 1. MOCK DEL CLIENTE AXIOS (get/post como vi.fn dentro de la fábrica)
+Mock('../../src/config/axios', () => ({
   __esModule: true,
   default: {
-    get: jest.fn(),
-    post: jest.fn(),
+    get: vi.fn(),
+    post: vi.fn(),
   },
 }));
 
 // Referencias tipadas a los mocks
-const mockGet = apiClient.get as jest.Mock;
-const mockPost = apiClient.post as jest.Mock;
+const mockGet = apiClient.get as Mock;
+const mockPost = apiClient.post as Mock;
 
 // 2. MOCK DE window.location.replace
-const mockReplace = jest.fn();
+const mockReplace = vi.fn();
 Object.defineProperty(window, 'location', {
   writable: true,
   value: { ...window.location, replace: mockReplace },
@@ -35,7 +36,7 @@ const makeToken = (payload: object) => {
 
 describe('auth.services', () => {
   beforeEach(() => {
-    jest.clearAllMocks();
+    vi.clearAllMocks();
     localStorage.clear();
     mockGet.mockResolvedValue({ data: {} });
   });
@@ -191,3 +192,6 @@ describe('auth.services', () => {
     expect(mockPost).toHaveBeenCalledWith('/auth/reset-password', { token: 'token123', password: 'nuevaPass' });
   });
 });
+
+
+

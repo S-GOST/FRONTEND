@@ -1,3 +1,4 @@
+import { Mock } from 'vitest';
 import {
   obtenerCategorias,
   insertarCategoria,
@@ -9,37 +10,37 @@ import {
 import { BaseApiService } from '../../src/services/base.service';
 import apiClient from '../../src/config/axios';
 
-// 1. MOCK DE BaseApiService (los jest.fn DENTRO de la fábrica para evitar errores de hoisting)
-jest.mock('../../src/services/base.service', () => {
+// 1. MOCK DE BaseApiService (los vi.fn DENTRO de la fábrica para evitar errores de hoisting)
+Mock('../../src/services/base.service', () => {
   const instance = {
-    obtenerTodos: jest.fn(),
-    crear: jest.fn(),
-    actualizar: jest.fn(),
-    eliminar: jest.fn(),
+    obtenerTodos: vi.fn(),
+    crear: vi.fn(),
+    actualizar: vi.fn(),
+    eliminar: vi.fn(),
   };
   return {
     __esModule: true,
-    BaseApiService: jest.fn(() => instance),
+    BaseApiService: vi.fn(() => instance),
   };
 });
 
 // 2. MOCK DEL CLIENTE AXIOS
-jest.mock('../../src/config/axios', () => ({
+Mock('../../src/config/axios', () => ({
   __esModule: true,
   default: {
-    get: jest.fn(),
-    post: jest.fn(),
-    put: jest.fn(),
-    delete: jest.fn(),
+    get: vi.fn(),
+    post: vi.fn(),
+    put: vi.fn(),
+    delete: vi.fn(),
   },
 }));
 
 // Instancia creada por categoria.service al cargarse el módulo
-const base = (BaseApiService as unknown as jest.Mock).mock.results[0].value;
+const base = (BaseApiService as unknown as Mock).mock.results[0].value;
 
 describe('categoria.service', () => {
   beforeEach(() => {
-    jest.clearAllMocks();
+    vi.clearAllMocks();
   });
 
   // 1. OBTENER CATEGORÍAS
@@ -75,7 +76,7 @@ describe('categoria.service', () => {
 
   // 4. ELIMINAR SIN FORCE
   it('debería eliminar con la ruta básica sin force', async () => {
-    (apiClient.delete as jest.Mock).mockResolvedValue({ data: {} });
+    (apiClient.delete as Mock).mockResolvedValue({ data: {} });
 
     await eliminarCategoria(5);
 
@@ -84,7 +85,7 @@ describe('categoria.service', () => {
 
   // 5. ELIMINAR CON FORCE
   it('debería agregar ?force=true cuando force es verdadero', async () => {
-    (apiClient.delete as jest.Mock).mockResolvedValue({ data: {} });
+    (apiClient.delete as Mock).mockResolvedValue({ data: {} });
 
     await eliminarCategoria(5, true);
 
@@ -93,7 +94,7 @@ describe('categoria.service', () => {
 
   // 6. HABILITAR CATEGORÍA
   it('debería hacer PUT a /categorias/habilitar/:id', async () => {
-    (apiClient.put as jest.Mock).mockResolvedValue({ data: {} });
+    (apiClient.put as Mock).mockResolvedValue({ data: {} });
 
     await habilitarCategoria(7);
 
@@ -102,7 +103,7 @@ describe('categoria.service', () => {
 
   // 7. CATEGORÍAS POR TIPO PRODUCTO
   it('debería consultar las categorías de tipo PRODUCTO', async () => {
-    (apiClient.get as jest.Mock).mockResolvedValue({ data: [] });
+    (apiClient.get as Mock).mockResolvedValue({ data: [] });
 
     await obtenerCategoriasPorTipo('PRODUCTO');
 
@@ -111,10 +112,13 @@ describe('categoria.service', () => {
 
   // 8. CATEGORÍAS POR TIPO SERVICIO
   it('debería consultar las categorías de tipo SERVICIO', async () => {
-    (apiClient.get as jest.Mock).mockResolvedValue({ data: [] });
+    (apiClient.get as Mock).mockResolvedValue({ data: [] });
 
     await obtenerCategoriasPorTipo('SERVICIO');
 
     expect(apiClient.get).toHaveBeenCalledWith('/categorias/tipo/SERVICIO');
   });
 });
+
+
+

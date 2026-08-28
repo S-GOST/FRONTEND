@@ -1,22 +1,23 @@
+import { Mock } from 'vitest';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import '@testing-library/jest-dom';
 import Login from '../../src/pages/Login';
 import { loginService } from '../../src/services/auth.services';
 
 // 1. MOCKS DE MÓDULOS EXTERNOS
-jest.mock('react-router-dom', () => ({
-  ...jest.requireActual('react-router-dom'),
-  useNavigate: () => jest.fn(),
+Mock('react-router-dom', () => ({
+  ...vi.importActual('react-router-dom'),
+  useNavigate: () => vi.fn(),
 }));
 
-jest.mock('../../src/services/auth.services');
+Mock('../../src/services/auth.services');
 
 describe('Login Component', () => {
-  const mockNavigate = jest.fn();
+  const mockNavigate = vi.fn();
 
   beforeEach(() => {
-    jest.clearAllMocks();
-    (require('react-router-dom').useNavigate as jest.Mock).mockReturnValue(mockNavigate);
+    vi.clearAllMocks();
+    (require('react-router-dom').useNavigate as Mock).mockReturnValue(mockNavigate);
     localStorage.clear();
   });
 
@@ -45,7 +46,7 @@ describe('Login Component', () => {
 
   // 3. LOGIN EXITOSO COMO ADMIN
   it('debería navegar a /admin/dashboard si el rol es admin', async () => {
-    (loginService as jest.Mock).mockResolvedValue({ rol: 'admin' });
+    (loginService as Mock).mockResolvedValue({ rol: 'admin' });
     render(<Login />);
 
     fireEvent.change(screen.getByPlaceholderText('Ingresa tu usuario'), { target: { value: 'admin' } });
@@ -60,7 +61,7 @@ describe('Login Component', () => {
 
   // 4. LOGIN EXITOSO COMO TÉCNICO
   it('debería navegar a /tecnico/dashboard si el rol es tecnico', async () => {
-    (loginService as jest.Mock).mockResolvedValue({ rol: 'tecnico' });
+    (loginService as Mock).mockResolvedValue({ rol: 'tecnico' });
     render(<Login />);
 
     fireEvent.change(screen.getByPlaceholderText('Ingresa tu usuario'), { target: { value: 'tec' } });
@@ -74,7 +75,7 @@ describe('Login Component', () => {
 
   // 5. LOGIN EXITOSO COMO CLIENTE
   it('debería navegar a /cliente/dashboard si el rol es cliente', async () => {
-    (loginService as jest.Mock).mockResolvedValue({ rol: 'cliente' });
+    (loginService as Mock).mockResolvedValue({ rol: 'cliente' });
     render(<Login />);
 
     fireEvent.change(screen.getByPlaceholderText('Ingresa tu usuario'), { target: { value: 'cli' } });
@@ -89,7 +90,7 @@ describe('Login Component', () => {
   // 6. ERROR 401 - CREDENCIALES INCORRECTAS
   it('debería mostrar error específico para status 401', async () => {
     const error401 = { response: { status: 401 } };
-    (loginService as jest.Mock).mockRejectedValue(error401);
+    (loginService as Mock).mockRejectedValue(error401);
     render(<Login />);
 
     fireEvent.change(screen.getByPlaceholderText('Ingresa tu usuario'), { target: { value: 'admin' } });
@@ -104,7 +105,7 @@ describe('Login Component', () => {
   // 7. ERROR 403 - CUENTA SIN ACCESO CON MENSAJE PERSONALIZADO
   it('debería mostrar mensaje personalizado del servidor para status 403', async () => {
     const error403 = { response: { status: 403, data: { mensaje: 'Cuenta suspendida' } } };
-    (loginService as jest.Mock).mockRejectedValue(error403);
+    (loginService as Mock).mockRejectedValue(error403);
     render(<Login />);
 
     fireEvent.change(screen.getByPlaceholderText('Ingresa tu usuario'), { target: { value: 'suspended' } });
@@ -119,7 +120,7 @@ describe('Login Component', () => {
   // 8. ERROR 403 - MENSAJE GENÉRICO
   it('debería mostrar mensaje genérico si no hay mensaje del servidor para 403', async () => {
     const error403 = { response: { status: 403, data: {} } };
-    (loginService as jest.Mock).mockRejectedValue(error403);
+    (loginService as Mock).mockRejectedValue(error403);
     render(<Login />);
 
     fireEvent.change(screen.getByPlaceholderText('Ingresa tu usuario'), { target: { value: 'user' } });
@@ -134,7 +135,7 @@ describe('Login Component', () => {
   // 9. ERROR DE CONEXIÓN (OTROS STATUS)
   it('debería mostrar error de conexión para otros status codes', async () => {
     const error500 = { response: { status: 500 } };
-    (loginService as jest.Mock).mockRejectedValue(error500);
+    (loginService as Mock).mockRejectedValue(error500);
     render(<Login />);
 
     fireEvent.change(screen.getByPlaceholderText('Ingresa tu usuario'), { target: { value: 'admin' } });
@@ -148,7 +149,7 @@ describe('Login Component', () => {
 
   // 10. ESTADO DE CARGA
   it('debería deshabilitar el botón durante la carga', async () => {
-    (loginService as jest.Mock).mockImplementation(() => new Promise(() => {}));
+    (loginService as Mock).mockImplementation(() => new Promise(() => {}));
     render(<Login />);
 
     fireEvent.change(screen.getByPlaceholderText('Ingresa tu usuario'), { target: { value: 'admin' } });
@@ -210,3 +211,6 @@ describe('Login Component', () => {
     expect(document.documentElement.style.overflow).toBe(originalHtmlOverflow);
   });
 });
+
+
+

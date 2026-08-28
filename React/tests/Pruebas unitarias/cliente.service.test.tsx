@@ -1,3 +1,4 @@
+import { Mock } from 'vitest';
 import {
   obtenerClientes,
   insertarCliente,
@@ -9,26 +10,26 @@ import {
 } from '../../src/services/cliente.service';
 import { BaseApiService } from '../../src/services/base.service';
 
-// 1. MOCK DE BaseApiService (jest.fn DENTRO de la fábrica → sin errores de hoisting)
-jest.mock('../../src/services/base.service', () => {
+// 1. MOCK DE BaseApiService (vi.fn DENTRO de la fábrica → sin errores de hoisting)
+Mock('../../src/services/base.service', () => {
   const instance = {
-    obtenerTodos: jest.fn(),
-    crear: jest.fn(),
-    actualizar: jest.fn(),
-    eliminar: jest.fn(),
+    obtenerTodos: vi.fn(),
+    crear: vi.fn(),
+    actualizar: vi.fn(),
+    eliminar: vi.fn(),
     http: {
-      get: jest.fn(),
-      put: jest.fn(),
+      get: vi.fn(),
+      put: vi.fn(),
     },
   };
   return {
     __esModule: true,
-    BaseApiService: jest.fn(() => instance),
+    BaseApiService: vi.fn(() => instance),
   };
 });
 
 // Instancia creada por cliente.service al cargarse el módulo
-const base = (BaseApiService as unknown as jest.Mock).mock.results[0].value;
+const base = (BaseApiService as unknown as Mock).mock.results[0].value;
 
 // ==================== DATOS DE PRUEBA ====================
 const mockCliente = {
@@ -44,7 +45,7 @@ const mockCliente = {
 
 describe('cliente.service', () => {
   beforeEach(() => {
-    jest.clearAllMocks();
+    vi.clearAllMocks();
   });
 
   // ========== obtenerClientes ==========
@@ -189,3 +190,6 @@ describe('cliente.service', () => {
     });
   });
 });
+
+
+

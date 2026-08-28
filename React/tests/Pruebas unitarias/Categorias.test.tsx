@@ -1,3 +1,4 @@
+import { Mock } from 'vitest';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import '@testing-library/jest-dom';
 import Categorias from '../../src/componentes/TableCategorias/Categorias';
@@ -5,17 +6,17 @@ import * as categoriaService from '../../src/services/categoria.service';
 import Swal from 'sweetalert2';
 
 // 1. MOCKS DE MÓDULOS EXTERNOS
-jest.mock('sweetalert2', () => ({
-  fire: jest.fn().mockResolvedValue({ isConfirmed: true }),
+Mock('sweetalert2', () => ({
+  fire: vi.fn().mockResolvedValue({ isConfirmed: true }),
 }));
 
 // Mock del componente FormattedId para simplificar
-jest.mock('../../src/componentes/FormattedId', () => ({
+Mock('../../src/componentes/FormattedId', () => ({
   FormattedId: ({ value }: any) => <span data-testid="formatted-id">{value}</span>,
 }));
 
 // 2. MOCKS DE SERVICIOS (mismas rutas que los imports)
-jest.mock('../../src/services/categoria.service');
+Mock('../../src/services/categoria.service');
 
 // ==================== DATOS DE PRUEBA ====================
 const mockCategorias = [
@@ -25,7 +26,7 @@ const mockCategorias = [
 
 describe('Categorias Component', () => {
   beforeEach(() => {
-    jest.clearAllMocks();
+    vi.clearAllMocks();
     jest.mocked(Swal.fire).mockResolvedValue({ isConfirmed: true } as any);
     jest.mocked(categoriaService.obtenerCategorias).mockResolvedValue({ data: mockCategorias } as any);
   });
@@ -323,3 +324,6 @@ describe('Categorias Component', () => {
     });
   });
 });
+
+
+

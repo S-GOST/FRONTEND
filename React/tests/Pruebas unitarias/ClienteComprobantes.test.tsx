@@ -1,3 +1,4 @@
+import { Mock } from 'vitest';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import '@testing-library/jest-dom';
 import ClienteComprobantes from '../../src/componentes/TableCliente/ClienteComprobantes';
@@ -5,18 +6,18 @@ import * as comprobanteService from '../../src/services/comprobanteService';
 import Swal from 'sweetalert2';
 
 // 1. MOCKS DE MÓDULOS EXTERNOS
-jest.mock('sweetalert2', () => ({
-  fire: jest.fn().mockResolvedValue({ isConfirmed: true }),
-  showValidationMessage: jest.fn(),
+Mock('sweetalert2', () => ({
+  fire: vi.fn().mockResolvedValue({ isConfirmed: true }),
+  showValidationMessage: vi.fn(),
 }));
 
 // Mock del componente FormattedId para simplificar
-jest.mock('../../src/componentes/FormattedId', () => ({
+Mock('../../src/componentes/FormattedId', () => ({
   FormattedId: ({ value }: any) => <span data-testid="formatted-id">{value}</span>,
 }));
 
 // 2. MOCKS DE SERVICIOS (mismas rutas que los imports)
-jest.mock('../../src/services/comprobanteService');
+Mock('../../src/services/comprobanteService');
 
 // ==================== DATOS DE PRUEBA ====================
 const mockComprobantes = [
@@ -46,7 +47,7 @@ const mockComprobantes = [
 
 describe('ClienteComprobantes Component', () => {
   beforeEach(() => {
-    jest.clearAllMocks();
+    vi.clearAllMocks();
     jest.mocked(comprobanteService.obtenerMisComprobantes).mockResolvedValue({
       data: mockComprobantes,
     } as any);
@@ -213,3 +214,6 @@ describe('ClienteComprobantes Component', () => {
     });
   });
 });
+
+
+

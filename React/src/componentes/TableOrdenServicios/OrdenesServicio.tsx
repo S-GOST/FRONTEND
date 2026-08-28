@@ -14,34 +14,7 @@ import { obtenerMotos, type MotoRecord } from '../../services/moto.service';
 import { obtenerAdmins } from '../../services/admin.service';
 import { FormattedId } from '../../componentes/FormattedId';
 import { BackButton } from '../BackButton';
-import './OrdenesServicio.css';
-
-// Extractor de datos para órdenes
-const extractOrdenes = (payload: unknown): OrdenServicioRecord[] => {
-  if (Array.isArray(payload)) return payload;
-  if (payload && typeof payload === 'object') {
-    const nested = payload as Record<string, unknown>;
-    const fromData = extractOrdenes(nested.data);
-    if (fromData.length) return fromData;
-    const fromOrdenes = extractOrdenes(nested.ordenes);
-    if (fromOrdenes.length) return fromOrdenes;
-  }
-  return [];
-};
-
-// Extractor genérico para cualquier entidad
-const extractArray = <T,>(payload: unknown): T[] => {
-  if (Array.isArray(payload)) return payload;
-  if (payload && typeof payload === 'object') {
-    const nested = payload as Record<string, unknown>;
-    if (Array.isArray(nested.data)) return nested.data as T[];
-    if (Array.isArray(nested.items)) return nested.items as T[];
-    for (const key in nested) {
-      if (Array.isArray(nested[key])) return nested[key] as T[];
-    }
-  }
-  return [];
-};
+import { extractArray } from '../../utils/apiHelpers';import './OrdenesServicio.css';
 
 // Estado inicial del formulario
 const initialFormState: OrdenServicioPayload = {
@@ -102,7 +75,7 @@ const OrdenesServicio = () => {
         obtenerAdmins(),
       ]);
 
-      const ordenesData = extractOrdenes(ordenesRes.data);
+      const ordenesData = extractArray<OrdenServicioRecord>(ordenesRes.data);
       setOrdenes(ordenesData);
       setFilteredOrdenes(ordenesData);
 

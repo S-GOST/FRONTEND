@@ -1,3 +1,4 @@
+import { Mock } from 'vitest';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import '@testing-library/jest-dom';
 import ResetPassword from '../../src/pages/ResetPassword/ResetPassword';
@@ -5,24 +6,24 @@ import { resetPassword } from '../../src/services/auth.services';
 import Swal from 'sweetalert2';
 
 // 1. MOCKS DE MÓDULOS EXTERNOS
-jest.mock('sweetalert2', () => ({
-  fire: jest.fn().mockResolvedValue({}),
+Mock('sweetalert2', () => ({
+  fire: vi.fn().mockResolvedValue({}),
 }));
 
-jest.mock('react-router-dom', () => ({
-  ...jest.requireActual('react-router-dom'),
+Mock('react-router-dom', () => ({
+  ...vi.importActual('react-router-dom'),
   useParams: () => ({ token: 'abc123token' }),
-  useNavigate: () => jest.fn(),
+  useNavigate: () => vi.fn(),
 }));
 
-jest.mock('../../src/services/auth.services');
+Mock('../../src/services/auth.services');
 
 describe('ResetPassword Component', () => {
-  const mockNavigate = jest.fn();
+  const mockNavigate = vi.fn();
 
   beforeEach(() => {
-    jest.clearAllMocks();
-    (require('react-router-dom').useNavigate as jest.Mock).mockReturnValue(mockNavigate);
+    vi.clearAllMocks();
+    (require('react-router-dom').useNavigate as Mock).mockReturnValue(mockNavigate);
   });
 
   // 1. RENDERIZADO INICIAL
@@ -125,7 +126,7 @@ describe('ResetPassword Component', () => {
 
   // 8. ENVÍO EXITOSO
   it('debería enviar la nueva contraseña y navegar al login', async () => {
-    (resetPassword as jest.Mock).mockResolvedValue({ data: { success: true } });
+    (resetPassword as Mock).mockResolvedValue({ data: { success: true } });
     render(<ResetPassword />);
 
     fireEvent.change(screen.getByPlaceholderText('Nueva contraseña'), { target: { value: 'StrongPass123!' } });
@@ -146,7 +147,7 @@ describe('ResetPassword Component', () => {
 
   // 9. ERROR EN EL SERVICIO CON MENSAJE PERSONALIZADO
   it('debería mostrar mensaje de error personalizado del servidor', async () => {
-    (resetPassword as jest.Mock).mockRejectedValue({
+    (resetPassword as Mock).mockRejectedValue({
       response: { data: { mensaje: 'Token expirado' } },
     });
     render(<ResetPassword />);
@@ -168,7 +169,7 @@ describe('ResetPassword Component', () => {
 
   // 10. ERROR GENÉRICO SIN MENSAJE DEL SERVIDOR
   it('debería mostrar mensaje genérico si no hay mensaje del servidor', async () => {
-    (resetPassword as jest.Mock).mockRejectedValue(new Error('Error desconocido'));
+    (resetPassword as Mock).mockRejectedValue(new Error('Error desconocido'));
     render(<ResetPassword />);
 
     fireEvent.change(screen.getByPlaceholderText('Nueva contraseña'), { target: { value: 'StrongPass123!' } });
@@ -188,7 +189,7 @@ describe('ResetPassword Component', () => {
 
   // 11. ESTADO DE CARGA
   it('debería deshabilitar el botón durante la carga', async () => {
-    (resetPassword as jest.Mock).mockImplementation(() => new Promise(() => {}));
+    (resetPassword as Mock).mockImplementation(() => new Promise(() => {}));
     render(<ResetPassword />);
 
     fireEvent.change(screen.getByPlaceholderText('Nueva contraseña'), { target: { value: 'StrongPass123!' } });
@@ -224,3 +225,6 @@ describe('ResetPassword Component', () => {
     expect(link).toHaveAttribute('href', '/login');
   });
 });
+
+
+

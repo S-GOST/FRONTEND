@@ -1,3 +1,4 @@
+import { Mock } from 'vitest';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import '@testing-library/jest-dom';
 import AsignacionTecnicos from '../../src/componentes/TableOrdenServicios/AsignacionTecnicos';
@@ -7,19 +8,19 @@ import * as tecnicoService from '../../src/services/tecnico.service';
 import Swal from 'sweetalert2';
 
 // 1. MOCKS DE MÓDULOS EXTERNOS
-jest.mock('sweetalert2', () => ({
-  fire: jest.fn().mockResolvedValue({ isConfirmed: true, value: { fecha: '2026-08-20', garantiaProductos: '30', garantiaServicios: '' } }),
+Mock('sweetalert2', () => ({
+  fire: vi.fn().mockResolvedValue({ isConfirmed: true, value: { fecha: '2026-08-20', garantiaProductos: '30', garantiaServicios: '' } }),
 }));
 
 // Mock del componente FormattedId
-jest.mock('../../src/componentes/FormattedId', () => ({
+Mock('../../src/componentes/FormattedId', () => ({
   FormattedId: ({ value }: any) => <span data-testid="formatted-id">{value}</span>,
 }));
 
 // 2. MOCKS DE SERVICIOS (mismas rutas que los imports)
-jest.mock('../../src/services/ordenServicioService');
-jest.mock('../../src/services/cliente.service');
-jest.mock('../../src/services/tecnico.service');
+Mock('../../src/services/ordenServicioService');
+Mock('../../src/services/cliente.service');
+Mock('../../src/services/tecnico.service');
 
 // ==================== DATOS DE PRUEBA ====================
 const mockOrdenes = [
@@ -41,7 +42,7 @@ const mockTecnicos = [
 
 describe('AsignacionTecnicos Component', () => {
   beforeEach(() => {
-    jest.clearAllMocks();
+    vi.clearAllMocks();
     jest.mocked(ordenService.obtenerOrdenes).mockResolvedValue({ data: mockOrdenes } as any);
     jest.mocked(clienteService.obtenerClientes).mockResolvedValue({ data: mockClientes } as any);
     jest.mocked(tecnicoService.obtenerTecnicos).mockResolvedValue({ data: mockTecnicos } as any);
@@ -212,3 +213,6 @@ describe('AsignacionTecnicos Component', () => {
     });
   });
 });
+
+
+

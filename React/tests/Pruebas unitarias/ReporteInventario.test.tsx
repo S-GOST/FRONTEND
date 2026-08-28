@@ -1,3 +1,4 @@
+import { Mock } from 'vitest';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import '@testing-library/jest-dom';
 import ReporteInventario from '../../src/componentes/TableAdmin/ReporteInventario';
@@ -6,12 +7,12 @@ import { obtenerCategoriasPorTipo } from '../../src/services/categoria.service';
 import Swal from 'sweetalert2';
 
 // Mock de servicios (RUTAS DEBEN COINCIDIR CON LOS IMPORTS)
-jest.mock('../../src/services/informe.service');
-jest.mock('../../src/services/categoria.service');
+Mock('../../src/services/informe.service');
+Mock('../../src/services/categoria.service');
 
 // Mock de SweetAlert2
-jest.mock('sweetalert2', () => ({
-  fire: jest.fn(),
+Mock('sweetalert2', () => ({
+  fire: vi.fn(),
 }));
 
 // Helper para fechas
@@ -26,7 +27,7 @@ const getHoy = () => new Date().toISOString().split('T')[0];
 
 describe('ReporteInventario Component', () => {
   beforeEach(() => {
-    jest.clearAllMocks();
+    vi.clearAllMocks();
     
     // Mock de categorías por defecto
     jest.mocked(obtenerCategoriasPorTipo).mockResolvedValue({
@@ -68,7 +69,7 @@ describe('ReporteInventario Component', () => {
       { ID_CATEGORIA: 4, nombre: 'Reparación' }
     ];
 
-    const mockCategorias = obtenerCategoriasPorTipo as jest.Mock;
+    const mockCategorias = obtenerCategoriasPorTipo as Mock;
 
     mockCategorias
       .mockResolvedValueOnce({ data: { success: true, data: mockCategoriasProducto } })
@@ -414,7 +415,7 @@ describe('ReporteInventario Component', () => {
     const mockProducto = [{ ID_CATEGORIA: 1, nombre: 'Repuestos' }];
     const mockServicio = [{ ID_CATEGORIA: 2, nombre: 'Mantenimiento' }];
 
-    const mockCategorias = obtenerCategoriasPorTipo as jest.Mock;
+    const mockCategorias = obtenerCategoriasPorTipo as Mock;
 
     mockCategorias
       .mockResolvedValueOnce({ data: { success: true, data: mockProducto } })
@@ -433,3 +434,6 @@ describe('ReporteInventario Component', () => {
     });
   });
 });
+
+
+

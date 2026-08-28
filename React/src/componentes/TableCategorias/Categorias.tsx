@@ -11,6 +11,7 @@ import {
 import { FormattedId } from '../../componentes/FormattedId';
 import { BackButton } from '../BackButton';
 import './Categorias.css';
+import { extractArray } from '../../utils/apiHelpers';
 
 const TIPOS_CATEGORIA = ['PRODUCTO', 'SERVICIO'] as const;
 
@@ -24,15 +25,6 @@ const createInitialFormData = (): CategoriaPayload => ({
 // ✅ FUNCIONES AUXILIARES DE VALIDACIÓN
 const filterOnlyLetters = (value: string): string => value.replace(/[^a-zA-ZñÑ\s]/g, '');
 
-const extractCategorias = (payload: unknown): CategoriaPayload[] => {
-  if (Array.isArray(payload)) return payload as CategoriaPayload[];
-  if (payload && typeof payload === 'object') {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const data = (payload as any).data;
-    if (Array.isArray(data)) return data as CategoriaPayload[];
-  }
-  return [];
-};
 
 const isSuccessfulResponse = (payload: unknown) => {
   if (!payload || typeof payload !== 'object' || !('success' in payload)) return true;
@@ -70,7 +62,7 @@ function Categorias() {
     try {
       setLoading(true);
       const response = await obtenerCategorias();
-      const data = extractCategorias(response.data);
+      const data = extractArray<CategoriaPayload>(response.data);
       setCategorias(data);
       setFilteredCategorias(data);
     } catch (error) {

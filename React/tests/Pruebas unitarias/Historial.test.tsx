@@ -1,3 +1,4 @@
+import { Mock } from 'vitest';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import '@testing-library/jest-dom';
 import TableHistorial from '../../src/componentes/Tablehistorial/historial';
@@ -5,17 +6,17 @@ import * as historialService from '../../src/services/historial.service';
 import Swal from 'sweetalert2';
 
 // 1. MOCKS DE MÓDULOS EXTERNOS
-jest.mock('sweetalert2', () => ({
-  fire: jest.fn(),
+Mock('sweetalert2', () => ({
+  fire: vi.fn(),
 }));
 
 // Mock del componente FormattedId
-jest.mock('../../src/componentes/FormattedId', () => ({
+Mock('../../src/componentes/FormattedId', () => ({
   FormattedId: ({ value }: any) => <span data-testid="formatted-id">{value}</span>,
 }));
 
 // 2. MOCKS DE SERVICIOS (mismas rutas que los imports)
-jest.mock('../../src/services/historial.service');
+Mock('../../src/services/historial.service');
 
 // ==================== DATOS DE PRUEBA ====================
 const mockHistorial = [
@@ -56,7 +57,7 @@ const mockHistorial = [
 
 describe('TableHistorial Component', () => {
   beforeEach(() => {
-    jest.clearAllMocks();
+    vi.clearAllMocks();
     jest.mocked(historialService.obtenerHistorial).mockResolvedValue({ data: mockHistorial } as any);
   });
 
@@ -228,3 +229,6 @@ describe('TableHistorial Component', () => {
     });
   });
 });
+
+
+

@@ -161,3 +161,5 @@ describe('useInactivityTimer Hook', () => {
     expect(onTimeout).not.toHaveBeenCalled();
   });
 });
+
+

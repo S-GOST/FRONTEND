@@ -10,16 +10,8 @@ import {
 import { FormattedId } from '../../componentes/FormattedId';
 import { BackButton } from '../BackButton';
 import './Comprobante.css';
+import { extractArray } from '../../utils/apiHelpers';
 
-const extractComprobantes = (payload: unknown): ComprobanteRecord[] => {
-  if (Array.isArray(payload)) return payload;
-  if (payload && typeof payload === 'object') {
-    const obj = payload as Record<string, unknown>;
-    if (Array.isArray(obj.data)) return obj.data;
-    if (Array.isArray(obj.comprobantes)) return obj.comprobantes;
-  }
-  return [];
-};
 
 const formatMoneda = (valor: number): string => {
   return new Intl.NumberFormat('es-CO', {
@@ -63,10 +55,10 @@ function TableComprobantes() {
       // CA-001: Si es cliente, solo ve sus propios comprobantes
       if (userRole === 'cliente') {
         const res = await obtenerMisComprobantes();
-        data = extractComprobantes(res);
+        data = extractArray<ComprobanteRecord>(res);
       } else {
         const comprobantesRes = await obtenerComprobantes();
-        data = extractComprobantes(comprobantesRes.data);
+        data = extractArray<ComprobanteRecord>(comprobantesRes.data);
       }
 
       setComprobantes(data);

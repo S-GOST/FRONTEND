@@ -10,32 +10,10 @@ import { obtenerTecnicos, type TecnicoRecord } from '../../services/tecnico.serv
 import { FormattedId } from '../../componentes/FormattedId';
 import { BackButton } from '../BackButton';
 import './AsignacionTecnicos.css';
+import { extractArray } from '../../utils/apiHelpers';
 
 // ── Helpers ──
-const extractArray = <T,>(payload: unknown): T[] => {
-  if (Array.isArray(payload)) return payload;
-  if (payload && typeof payload === 'object') {
-    const nested = payload as Record<string, unknown>;
-    if (Array.isArray(nested.data)) return nested.data as T[];
-    if (Array.isArray(nested.items)) return nested.items as T[];
-    for (const key in nested) {
-      if (Array.isArray(nested[key])) return nested[key] as T[];
-    }
-  }
-  return [];
-};
 
-const extractOrdenes = (payload: unknown): OrdenServicioRecord[] => {
-  if (Array.isArray(payload)) return payload;
-  if (payload && typeof payload === 'object') {
-    const nested = payload as Record<string, unknown>;
-    const fromData = extractOrdenes(nested.data);
-    if (fromData.length) return fromData;
-    const fromOrdenes = extractOrdenes(nested.ordenes);
-    if (fromOrdenes.length) return fromOrdenes;
-  }
-  return [];
-};
 
 // Normalizar estado para CSS class
 const estadoClass = (estado: string) =>
@@ -65,7 +43,7 @@ const AsignacionTecnicos = () => {
         obtenerTecnicos(),
       ]);
 
-      setOrdenes(extractOrdenes(ordenesRes.data));
+      setOrdenes(extractArray<OrdenServicioRecord>(ordenesRes.data));
       setClientes(extractArray<ClienteRecord>(clientesRes.data));
       setTecnicos(extractArray<TecnicoRecord>(tecnicosRes.data));
     } catch (err) {

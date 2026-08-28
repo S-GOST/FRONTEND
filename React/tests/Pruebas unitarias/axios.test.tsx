@@ -1,20 +1,21 @@
+import { Mock } from 'vitest';
 import axios from 'axios';
 
 // Mock de axios
-jest.mock('axios', () => {
+Mock('axios', () => {
   const mockAxios = {
-    create: jest.fn(() => ({
+    create: vi.fn(() => ({
       interceptors: {
-        request: { use: jest.fn() },
-        response: { use: jest.fn() },
+        request: { use: vi.fn() },
+        response: { use: vi.fn() },
       },
       defaults: {
         headers: { common: {} },
       },
-      get: jest.fn(),
-      post: jest.fn(),
-      put: jest.fn(),
-      delete: jest.fn(),
+      get: vi.fn(),
+      post: vi.fn(),
+      put: vi.fn(),
+      delete: vi.fn(),
     })),
   };
   return mockAxios;
@@ -22,7 +23,7 @@ jest.mock('axios', () => {
 
 describe('axios config', () => {
   beforeEach(() => {
-    jest.clearAllMocks();
+    vi.clearAllMocks();
     localStorage.clear();
     document.cookie = '';
   });
@@ -47,7 +48,7 @@ describe('axios config', () => {
     };
 
     // Simular llamada al interceptor
-    const requestInterceptor = (axios.create as jest.Mock).mock.results[0].value.interceptors.request.use.mock.calls[0][0];
+    const requestInterceptor = (axios.create as Mock).mock.results[0].value.interceptors.request.use.mock.calls[0][0];
     const result = requestInterceptor(mockConfig);
 
     expect(result.headers.Authorization).toBeUndefined();
@@ -63,7 +64,7 @@ describe('axios config', () => {
       headers: {},
     };
 
-    const requestInterceptor = (axios.create as jest.Mock).mock.results[0].value.interceptors.request.use.mock.calls[0][0];
+    const requestInterceptor = (axios.create as Mock).mock.results[0].value.interceptors.request.use.mock.calls[0][0];
     const result = requestInterceptor(mockConfig);
 
     expect(result.headers.Authorization).toBe('Bearer fake-token-123');
@@ -80,7 +81,7 @@ describe('axios config', () => {
       data: { test: 'data' },
     };
 
-    const requestInterceptor = (axios.create as jest.Mock).mock.results[0].value.interceptors.request.use.mock.calls[0][0];
+    const requestInterceptor = (axios.create as Mock).mock.results[0].value.interceptors.request.use.mock.calls[0][0];
     const result = requestInterceptor(mockConfig);
 
     expect(result.headers['X-CSRF-Token']).toBe('csrf-token-123');
@@ -96,7 +97,7 @@ describe('axios config', () => {
       headers: {},
     };
 
-    const requestInterceptor = (axios.create as jest.Mock).mock.results[0].value.interceptors.request.use.mock.calls[0][0];
+    const requestInterceptor = (axios.create as Mock).mock.results[0].value.interceptors.request.use.mock.calls[0][0];
     const result = requestInterceptor(mockConfig);
 
     expect(result.headers['X-CSRF-Token']).toBeUndefined();
@@ -106,7 +107,7 @@ describe('axios config', () => {
   it('debería pasar la respuesta exitosa sin modificaciones', () => {
     const mockResponse = { data: { success: true }, status: 200 };
 
-    const responseInterceptor = (axios.create as jest.Mock).mock.results[0].value.interceptors.response.use.mock.calls[0][0];
+    const responseInterceptor = (axios.create as Mock).mock.results[0].value.interceptors.response.use.mock.calls[0][0];
     const result = responseInterceptor(mockResponse);
 
     expect(result).toEqual(mockResponse);
@@ -119,7 +120,7 @@ describe('axios config', () => {
       config: { url: '/protected', _retry: false },
     };
 
-    const responseInterceptor = (axios.create as jest.Mock).mock.results[0].value.interceptors.response.use.mock.calls[0][1];
+    const responseInterceptor = (axios.create as Mock).mock.results[0].value.interceptors.response.use.mock.calls[0][1];
     
     await expect(responseInterceptor(mockError)).rejects.toEqual(mockError);
   });
@@ -137,7 +138,7 @@ describe('axios config', () => {
       },
     };
 
-    const mockAxiosInstance = (axios.create as jest.Mock).mock.results[0].value;
+    const mockAxiosInstance = (axios.create as Mock).mock.results[0].value;
     mockAxiosInstance.post.mockResolvedValue({ data: { token: 'new-token' } });
 
     const responseInterceptor = mockAxiosInstance.interceptors.response.use.mock.calls[0][1];
@@ -157,10 +158,10 @@ describe('axios config', () => {
       config: { url: '/protected', _retry: false },
     };
 
-    const mockAxiosInstance = (axios.create as jest.Mock).mock.results[0].value;
+    const mockAxiosInstance = (axios.create as Mock).mock.results[0].value;
     mockAxiosInstance.post.mockRejectedValue(new Error('Refresh failed'));
 
-    const dispatchSpy = jest.spyOn(window, 'dispatchEvent');
+    const dispatchSpy = vi.spyOn(window, 'dispatchEvent');
 
     const responseInterceptor = mockAxiosInstance.interceptors.response.use.mock.calls[0][1];
     
@@ -172,14 +173,14 @@ describe('axios config', () => {
 
   // 10. INTERCEPTOR DE RESPONSE - ERROR 403
   it('debería loguear error de acceso denegado para status 403', async () => {
-    const consoleSpy = jest.spyOn(console, 'error').mockImplementation();
+    const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
     
     const mockError = {
       response: { status: 403 },
       config: { url: '/admin/panel' },
     };
 
-    const responseInterceptor = (axios.create as jest.Mock).mock.results[0].value.interceptors.response.use.mock.calls[0][1];
+    const responseInterceptor = (axios.create as Mock).mock.results[0].value.interceptors.response.use.mock.calls[0][1];
     
     await expect(responseInterceptor(mockError)).rejects.toEqual(mockError);
 
@@ -201,7 +202,7 @@ describe('axios config', () => {
       config: { url: '/protected2', _retry: false },
     };
 
-    const mockAxiosInstance = (axios.create as jest.Mock).mock.results[0].value;
+    const mockAxiosInstance = (axios.create as Mock).mock.results[0].value;
     mockAxiosInstance.post.mockResolvedValue({ data: { token: 'new-token' } });
 
     const responseInterceptor = mockAxiosInstance.interceptors.response.use.mock.calls[0][1];
@@ -235,7 +236,7 @@ describe('axios config', () => {
 
   // 13. LOGGING DEBUG PARA ENDPOINTS ESPECÍFICOS
   it('debería hacer debug log para endpoints de admins', () => {
-    const consoleSpy = jest.spyOn(console, 'debug').mockImplementation();
+    const consoleSpy = vi.spyOn(console, 'debug').mockImplementation(() => {});
     
     const mockConfig = {
       method: 'post',
@@ -244,10 +245,13 @@ describe('axios config', () => {
       data: { name: 'test' },
     };
 
-    const requestInterceptor = (axios.create as jest.Mock).mock.results[0].value.interceptors.request.use.mock.calls[0][0];
+    const requestInterceptor = (axios.create as Mock).mock.results[0].value.interceptors.request.use.mock.calls[0][0];
     requestInterceptor(mockConfig);
 
     expect(consoleSpy).toHaveBeenCalledWith('[apiClient] request', expect.any(Object));
     consoleSpy.mockRestore();
   });
 });
+
+
+

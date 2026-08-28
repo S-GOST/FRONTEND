@@ -20,40 +20,40 @@ export interface InformeRecord {
 
 export const obtenerInformes = async () => {
   const res = await apiClient.get('/informes/obtener');
-  return res.data;
+  return res;
 };
 
 
 export const crearInforme = async (data: InformePayload) => {
   const res = await apiClient.post('/informes/insertar', data);
-  return res.data;
+  return res;
 };
 
 export const actualizarInforme = async (id: number, data: Partial<InformePayload>) => {
   const res = await apiClient.put(`/informes/actualizar/${id}`, data);
-  return res.data;
+  return res;
 };
 
 export const eliminarInforme = async (id: number) => {
   const res = await apiClient.delete(`/informes/eliminar/${id}`);
-  return res.data;
+  return res;
 };
 
 // HU-004.1
 export const obtenerMisInformes = async () => {
   const res = await apiClient.get('/informes/mis-informes');
-  return res.data;
+  return res;
 };
 
 export const generarReporte = async (fecha_inicio: string, fecha_fin: string) => {
   const res = await apiClient.post('/informes/generar-reporte', { fecha_inicio, fecha_fin });
-  return res.data;
+  return res;
 };
 
 // RF-0036
 export const obtenerReporteProductividad = async (fecha_inicio: string, fecha_fin: string) => {
   const res = await apiClient.get(`/informes/productividad?fecha_inicio=${fecha_inicio}&fecha_fin=${fecha_fin}`);
-  return res.data;
+  return res;
 };
 
 // RF-0035
@@ -63,5 +63,6 @@ export const obtenerReporteInventario = async (fecha_inicio?: string, fecha_fin?
   if (fecha_fin) params.append('fecha_fin', fecha_fin);
   if (categoria) params.append('categoria', categoria);
   const res = await apiClient.get(`/informes/inventario?${params.toString()}`);
-  return res.data;
+  return res;
 };
+

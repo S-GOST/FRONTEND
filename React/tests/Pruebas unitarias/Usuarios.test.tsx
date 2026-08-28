@@ -1,3 +1,4 @@
+import { Mock } from 'vitest';
 import { render, screen, fireEvent, waitFor,} from '@testing-library/react';
 import '@testing-library/jest-dom';
 import Usuarios from '../../src/componentes/TableAdmin/Usuarios';
@@ -7,31 +8,31 @@ import * as clienteService from '../../src/services/cliente.service';
 import * as tipoDocService from '../../src/services/tipoDocumento.service';
 import Swal from 'sweetalert2';
 
-// 1. VARIABLES DE MOCK ANTES DE LOS jest.mock
-const mockNavigate = jest.fn();
+// 1. VARIABLES DE MOCK ANTES DE LOS Mock
+const mockNavigate = vi.fn();
 
 // 2. MOCKS DE MÓDULOS EXTERNOS
-jest.mock('sweetalert2', () => ({
-  fire: jest.fn().mockResolvedValue({ isConfirmed: true, value: 'Documento no válido' }),
-  showValidationMessage: jest.fn(),
+Mock('sweetalert2', () => ({
+  fire: vi.fn().mockResolvedValue({ isConfirmed: true, value: 'Documento no válido' }),
+  showValidationMessage: vi.fn(),
 }));
 
-jest.mock('react-router-dom', () => ({
-  ...jest.requireActual('react-router-dom'),
+Mock('react-router-dom', () => ({
+  ...vi.importActual('react-router-dom'),
   useNavigate: () => mockNavigate,
   useLocation: () => ({ pathname: '/admin/usuarios' }),
 }));
 
 // Mock del componente FormattedId para simplificar
-jest.mock('../../src/componentes/FormattedId', () => ({
+Mock('../../src/componentes/FormattedId', () => ({
   FormattedId: ({ value }: any) => <span data-testid="formatted-id">{value}</span>,
 }));
 
 // 3. MOCKS DE SERVICIOS (mismas rutas que los imports)
-jest.mock('../../src/services/admin.service');
-jest.mock('../../src/services/tecnico.service');
-jest.mock('../../src/services/cliente.service');
-jest.mock('../../src/services/tipoDocumento.service');
+Mock('../../src/services/admin.service');
+Mock('../../src/services/tecnico.service');
+Mock('../../src/services/cliente.service');
+Mock('../../src/services/tipoDocumento.service');
 
 // ==================== DATOS DE PRUEBA ====================
 const mockAdmins = [
@@ -54,7 +55,7 @@ const mockTipos = [
 
 describe('Usuarios Component', () => {
   beforeEach(() => {
-    jest.clearAllMocks();
+    vi.clearAllMocks();
     jest.mocked(adminService.obtenerAdmins).mockResolvedValue({ data: { admins: mockAdmins } } as any);
     jest.mocked(tecnicoService.obtenerTecnicos).mockResolvedValue({ data: { tecnicos: mockTecnicos } } as any);
     jest.mocked(clienteService.obtenerClientes).mockResolvedValue({ data: { clientes: mockClientes } } as any);
@@ -328,3 +329,6 @@ it('debería abrir el modal de creación con el formulario vacío', async () => 
     });
   });
 });
+
+
+

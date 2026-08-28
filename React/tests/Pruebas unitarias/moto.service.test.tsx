@@ -1,3 +1,4 @@
+import { Mock } from 'vitest';
 import {
   obtenerMotos,
   obtenerMotoPorId,
@@ -7,23 +8,23 @@ import {
 } from '../../src/services/moto.service';
 import { BaseApiService } from '../../src/services/base.service';
 
-// 1. MOCK DE BaseApiService (jest.fn DENTRO de la fábrica)
-jest.mock('../../src/services/base.service', () => {
+// 1. MOCK DE BaseApiService (vi.fn DENTRO de la fábrica)
+Mock('../../src/services/base.service', () => {
   const instance = {
-    obtenerTodos: jest.fn(),
-    obtenerPorId: jest.fn(),
-    crear: jest.fn(),
-    actualizar: jest.fn(),
-    eliminar: jest.fn(),
+    obtenerTodos: vi.fn(),
+    obtenerPorId: vi.fn(),
+    crear: vi.fn(),
+    actualizar: vi.fn(),
+    eliminar: vi.fn(),
   };
   return {
     __esModule: true,
-    BaseApiService: jest.fn(() => instance),
+    BaseApiService: vi.fn(() => instance),
   };
 });
 
 // Instancia creada por motoService al cargarse el módulo
-const base = (BaseApiService as unknown as jest.Mock).mock.results[0].value;
+const base = (BaseApiService as unknown as Mock).mock.results[0].value;
 
 // ==================== DATOS DE PRUEBA ====================
 const mockMotoPayload = {
@@ -38,7 +39,7 @@ const mockMotoPayload = {
 
 describe('moto.service', () => {
   beforeEach(() => {
-    jest.clearAllMocks();
+    vi.clearAllMocks();
   });
 
   // 1. OBTENER MOTOS
@@ -105,3 +106,6 @@ describe('moto.service', () => {
     await expect(obtenerMotos()).rejects.toThrow('Error de red');
   });
 });
+
+
+

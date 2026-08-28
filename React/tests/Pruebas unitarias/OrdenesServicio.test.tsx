@@ -1,3 +1,4 @@
+import { Mock } from 'vitest';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import '@testing-library/jest-dom';
 import { vi, describe, it, beforeEach, expect } from 'vitest'; // Importar vi
@@ -11,20 +12,20 @@ import Swal from 'sweetalert2';
 
 // ==================== MOCKS ====================
 
-vi.mock('sweetalert2', () => ({
+Mock('sweetalert2', () => ({
   fire: vi.fn().mockResolvedValue({ isConfirmed: true, value: '5' }),
   getInput: vi.fn(),
 }));
 
-vi.mock('../../src/componentes/FormattedId', () => ({
+Mock('../../src/componentes/FormattedId', () => ({
   FormattedId: ({ value }: any) => <span data-testid="formatted-id">{value}</span>,
 }));
 
-vi.mock('../../src/services/ordenServicioService');
-vi.mock('../../src/services/cliente.service');
-vi.mock('../../src/services/tecnico.service');
-vi.mock('../../src/services/moto.service');
-vi.mock('../../src/services/admin.service');
+Mock('../../src/services/ordenServicioService');
+Mock('../../src/services/cliente.service');
+Mock('../../src/services/tecnico.service');
+Mock('../../src/services/moto.service');
+Mock('../../src/services/admin.service');
 
 // ==================== DATA MOCK ====================
 
@@ -638,3 +639,6 @@ describe('OrdenesServicio Component', () => {
     });
   });
 });
+
+
+

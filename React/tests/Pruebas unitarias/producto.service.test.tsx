@@ -1,3 +1,4 @@
+import { Mock } from 'vitest';
 import {
   obtenerProductos,
   insertarProducto,
@@ -7,36 +8,36 @@ import {
 } from '../../src/services/producto.service';
 import { BaseApiService } from '../../src/services/base.service';
 
-jest.mock('../../src/services/base.service', () => {
+Mock('../../src/services/base.service', () => {
   const instance = {
-    obtenerTodos: jest.fn(),
-    crear: jest.fn(),
-    actualizar: jest.fn(),
-    eliminar: jest.fn(),
+    obtenerTodos: vi.fn(),
+    crear: vi.fn(),
+    actualizar: vi.fn(),
+    eliminar: vi.fn(),
   };
   return {
     __esModule: true,
-    BaseApiService: jest.fn(() => instance),
+    BaseApiService: vi.fn(() => instance),
   };
 });
 
-jest.mock('../../src/config/axios', () => ({
+Mock('../../src/config/axios', () => ({
   __esModule: true,
   default: {
-    get: jest.fn(),
-    post: jest.fn(),
-    put: jest.fn(),
-    delete: jest.fn(),
+    get: vi.fn(),
+    post: vi.fn(),
+    put: vi.fn(),
+    delete: vi.fn(),
   },
 }));
 
-const base = (BaseApiService as unknown as jest.Mock).mock.results[0].value;
+const base = (BaseApiService as unknown as Mock).mock.results[0].value;
 
 describe('producto.service', () => {
   let apiClient: any;
 
   beforeEach(async () => {
-    jest.clearAllMocks();
+    vi.clearAllMocks();
     const axiosModule = await import('../../src/config/axios');
     apiClient = axiosModule.default;
   });
@@ -121,3 +122,6 @@ describe('producto.service', () => {
     await expect(habilitarProducto('PROD-003')).rejects.toThrow('Sin autorización');
   });
 });
+
+
+

@@ -13,6 +13,7 @@ import { obtenerClientes, type ClienteRecord } from '../../services/cliente.serv
 import './Motos.css';
 import { FormattedId } from '../../componentes/FormattedId';
 import { BackButton } from '../BackButton';
+import { extractArray } from '../../utils/apiHelpers';
 
 const createInitialFormData = (): MotoPayload => ({
   ID_MOTOS: '',
@@ -53,31 +54,7 @@ const buildMotoPayload = (formData: MotoPayload): MotoPayload => {
   };
 };
 
-const readMotoArray = (value: unknown): MotoRecord[] | null => {
-  if (Array.isArray(value)) return value as MotoRecord[];
-  if (value && typeof value === 'object') {
-    const nested = value as Record<string, unknown>;
-    if ('data' in nested) {
-      const fromData = readMotoArray(nested.data);
-      if (fromData) return fromData;
-    }
-    if ('motos' in nested) {
-      const fromMotos = readMotoArray(nested.motos);
-      if (fromMotos) return fromMotos;
-    }
-  }
-  return null;
-};
 
-const extractMotos = (payload: unknown): MotoRecord[] => {
-  if (Array.isArray(payload)) return payload as MotoRecord[];
-  if (payload && typeof payload === 'object') {
-    const obj = payload as Record<string, unknown>;
-    if (Array.isArray(obj.data)) return obj.data as MotoRecord[];
-    if (Array.isArray(obj.motos)) return obj.motos as MotoRecord[];
-  }
-  return readMotoArray(payload) ?? [];
-};
 
 const isSuccessfulResponse = (payload: unknown): boolean => {
   if (!payload || typeof payload !== 'object') return true;
@@ -136,7 +113,7 @@ function TableMotos() {
     try {
       setLoading(true);
       const response = await obtenerMotos();
-      const data = extractMotos(response.data);
+      const data = extractArray<MotoRecord>(response.data);
       setMotos(data);
       setFilteredMotos(data);
     } catch (error) {

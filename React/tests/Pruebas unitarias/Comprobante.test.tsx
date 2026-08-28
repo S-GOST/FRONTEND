@@ -1,3 +1,4 @@
+import { Mock } from 'vitest';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import '@testing-library/jest-dom';
 import TableComprobantes from '../../src/componentes/TableComprobante/Comprobante';
@@ -7,40 +8,40 @@ import jsPDF from 'jspdf';
 import autoTable from 'jspdf-autotable';
 
 // 1. VARIABLES DE MOCK
-const mockSave = jest.fn();
+const mockSave = vi.fn();
 
 // 2. MOCKS DE MÓDULOS EXTERNOS
-jest.mock('sweetalert2', () => ({
-  fire: jest.fn(),
+Mock('sweetalert2', () => ({
+  fire: vi.fn(),
 }));
 
 // Mock de jsPDF para no generar PDFs reales en las pruebas
-jest.mock('jspdf', () => ({
+Mock('jspdf', () => ({
   __esModule: true,
-  default: jest.fn().mockImplementation(() => ({
-    setFillColor: jest.fn(),
-    rect: jest.fn(),
-    setTextColor: jest.fn(),
-    setFontSize: jest.fn(),
-    setFont: jest.fn(),
-    text: jest.fn(),
+  default: vi.fn().mockImplementation(() => ({
+    setFillColor: vi.fn(),
+    rect: vi.fn(),
+    setTextColor: vi.fn(),
+    setFontSize: vi.fn(),
+    setFont: vi.fn(),
+    text: vi.fn(),
     internal: { pageSize: { height: 297 } },
     save: mockSave,
   })),
 }));
 
-jest.mock('jspdf-autotable', () => ({
+Mock('jspdf-autotable', () => ({
   __esModule: true,
-  default: jest.fn(),
+  default: vi.fn(),
 }));
 
 // Mock del componente FormattedId
-jest.mock('../../src/componentes/FormattedId', () => ({
+Mock('../../src/componentes/FormattedId', () => ({
   FormattedId: ({ value }: any) => <span data-testid="formatted-id">{value}</span>,
 }));
 
 // 3. MOCKS DE SERVICIOS (mismas rutas que los imports)
-jest.mock('../../src/services/comprobanteService');
+Mock('../../src/services/comprobanteService');
 
 // ==================== DATOS DE PRUEBA ====================
 const mockComprobantes = [
@@ -70,12 +71,12 @@ const mockComprobantes = [
 const formatMoneda = (valor: number) =>
   new Intl.NumberFormat('es-CO', { style: 'currency', currency: 'COP', minimumFractionDigits: 0 }).format(valor);
 
-const MockJsPDF = jsPDF as unknown as jest.Mock;
-const mockAutoTable = autoTable as unknown as jest.Mock;
+const MockJsPDF = jsPDF as unknown as Mock;
+const mockAutoTable = autoTable as unknown as Mock;
 
 describe('TableComprobantes Component', () => {
   beforeEach(() => {
-    jest.clearAllMocks();
+    vi.clearAllMocks();
     localStorage.setItem('user_role', 'admin');
     jest.mocked(comprobanteService.obtenerComprobantes).mockResolvedValue({ data: mockComprobantes } as any);
     jest.mocked(comprobanteService.obtenerMisComprobantes).mockResolvedValue({ data: mockComprobantes } as any);
@@ -246,3 +247,6 @@ describe('TableComprobantes Component', () => {
     });
   });
 });
+
+
+

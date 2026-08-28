@@ -1,3 +1,4 @@
+import { Mock } from 'vitest';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import '@testing-library/jest-dom';
 import DetallesOrden from '../../src/componentes/TableOrdenServicios/DetallesOrden';
@@ -8,24 +9,24 @@ import * as ordenService from '../../src/services/ordenServicioService';
 import Swal from 'sweetalert2';
 
 // 1. MOCKS DE MÓDULOS EXTERNOS
-jest.mock('sweetalert2', () => ({
-  fire: jest.fn().mockResolvedValue({ isConfirmed: true }),
+Mock('sweetalert2', () => ({
+  fire: vi.fn().mockResolvedValue({ isConfirmed: true }),
 }));
 
-jest.mock('react-router-dom', () => ({
+Mock('react-router-dom', () => ({
   Link: ({ children, to }: { children: React.ReactNode; to: string }) => <a href={to}>{children}</a>,
 }));
 
 // Mock del componente FormattedId
-jest.mock('../../src/componentes/FormattedId', () => ({
+Mock('../../src/componentes/FormattedId', () => ({
   FormattedId: ({ value }: any) => <span data-testid="formatted-id">{value}</span>,
 }));
 
 // 2. MOCKS DE SERVICIOS (mismas rutas que los imports)
-jest.mock('../../src/services/detalleOrdenServicioService');
-jest.mock('../../src/services/servicio.service');
-jest.mock('../../src/services/producto.service');
-jest.mock('../../src/services/ordenServicioService');
+Mock('../../src/services/detalleOrdenServicioService');
+Mock('../../src/services/servicio.service');
+Mock('../../src/services/producto.service');
+Mock('../../src/services/ordenServicioService');
 
 // ==================== DATOS DE PRUEBA ====================
 const mockDetalles = [
@@ -38,7 +39,7 @@ const mockProductos = [{ ID_PRODUCTOS: 20, Nombre: 'Aceite' }];
 
 describe('DetallesOrden Component', () => {
   beforeEach(() => {
-    jest.clearAllMocks();
+    vi.clearAllMocks();
     jest.mocked(detalleService.obtenerDetallesOrdenes).mockResolvedValue({ data: mockDetalles } as any);
     jest.mocked(ordenService.obtenerOrdenes).mockResolvedValue({ data: mockOrdenes } as any);
     jest.mocked(servicioService.obtenerServicios).mockResolvedValue({ data: mockServicios } as any);
@@ -260,3 +261,6 @@ describe('DetallesOrden Component', () => {
     });
   });
 });
+
+
+

@@ -13,6 +13,7 @@ import { obtenerServicios, type ServicioRecord } from '../../services/servicio.s
 import { obtenerProductos, type ProductoPayload } from '../../services/producto.service';
 import { obtenerOrdenes, type OrdenServicioRecord } from '../../services/ordenServicioService';
 import { FormattedId } from '../../componentes/FormattedId';
+import { extractArray } from '../../utils/apiHelpers';
 import './OrdenesServicio.css';
 
 // ✅ TIPO LOCAL PARA EL FORMULARIO: Omitimos 'Estado' para no mostrarlo en la UI
@@ -20,20 +21,6 @@ type DetalleFormState = Omit<DetalleOrdenServicioPayload, 'Estado'> & {
   ID_DETALLES_ORDEN_SERVICIO?: number;
 };
 
-const extractArray = <T,>(payload: unknown, fallback: T[] = []): T[] => {
-  if (Array.isArray(payload)) return payload;
-  if (payload && typeof payload === 'object') {
-    const obj = payload as Record<string, unknown>;
-    if (Array.isArray(obj.data)) return obj.data as T[];
-    if (Array.isArray(obj.records)) return obj.records as T[];
-    if (Array.isArray(obj.items)) return obj.items as T[];
-    for (const key of Object.keys(obj)) {
-      const nested = extractArray(obj[key], fallback);
-      if (nested.length) return nested;
-    }
-  }
-  return fallback;
-};
 
 const initialFormState: DetalleFormState = {
   ID_DETALLES_ORDEN_SERVICIO: 0,
@@ -89,10 +76,10 @@ const DetallesOrden = () => {
         obtenerProductos(),
       ]);
 
-      const detallesData = extractArray<DetalleOrdenServicioRecord>(detallesRes.data, []);
-      const ordenesData = extractArray<OrdenServicioRecord>(ordenesRes.data, []);
-      const serviciosData = extractArray<ServicioRecord>(serviciosRes.data, []);
-      const productosData = extractArray<ProductoPayload>(productosRes.data, []);
+      const detallesData = extractArray<DetalleOrdenServicioRecord>(detallesRes.data);
+      const ordenesData = extractArray<OrdenServicioRecord>(ordenesRes.data);
+      const serviciosData = extractArray<ServicioRecord>(serviciosRes.data);
+      const productosData = extractArray<ProductoPayload>(productosRes.data);
 
       setDetalles(detallesData);
       setFilteredDetalles(detallesData);

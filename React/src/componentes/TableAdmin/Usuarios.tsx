@@ -35,22 +35,14 @@ import {
   type TipoDocumentoRecord,
 } from '../../services/tipoDocumento.service';
 import { FormattedId } from '../../componentes/FormattedId';
+import { extractArray } from '../../utils/apiHelpers';
+import { UserModalForm, type UserFormData } from './UserModalForm';
 import './Admin.css';
 
 const TAB_KEYS = ['admins', 'tecnicos', 'clientes', 'pendientes'] as const;
 
 type UserTab = (typeof TAB_KEYS)[number];
 
-type UserFormData = {
-  numero_documento: string;
-  id_tipo_documento: string;
-  nombre: string;
-  correo: string;
-  telefono: string;
-  usuario: string;
-  password: string;
-  ciudad?: string;
-};
 
 const createInitialFormData = (): UserFormData => ({
   numero_documento: '',
@@ -63,7 +55,7 @@ const createInitialFormData = (): UserFormData => ({
   ciudad: '',
 });
 
-const getTabLabel = (tab: UserTab) => {
+const getTabLabel = (tab: string) => {
   switch (tab) {
     case 'admins': return 'Administradores';
     case 'tecnicos': return 'Técnicos';
@@ -77,28 +69,6 @@ const formatTipoDocumento = (tipos: TipoDocumentoRecord[], id: string | number) 
   return tipos.find(t => String(t.id_tipo_documento) === String(id))?.nombre || String(id);
 };
 
-const extractArray = <T,>(payload: any, alias?: string): T[] => {
-  if (Array.isArray(payload)) return payload as T[];
-  if (!payload || typeof payload !== 'object') return [];
-
-  const objectPayload = payload as Record<string, unknown>;
-  if (alias && Array.isArray(objectPayload[alias])) return objectPayload[alias] as T[];
-  if (Array.isArray(objectPayload.data)) return objectPayload.data as T[];
-  if (Array.isArray(objectPayload.admins)) return objectPayload.admins as T[];
-  if (Array.isArray(objectPayload.tecnicos)) return objectPayload.tecnicos as T[];
-  if (Array.isArray(objectPayload.clientes)) return objectPayload.clientes as T[];
-
-  for (const key in objectPayload) {
-    const value = objectPayload[key];
-    if (Array.isArray(value)) return value as T[];
-    if (value && typeof value === 'object') {
-      const result = extractArray<T>(value, alias);
-      if (result.length) return result;
-    }
-  }
-
-  return [];
-};
 
 const filterUsers = <T extends { nombre?: string; correo?: string; usuario?: string; numero_documento?: string | number }>(
   items: T[],
@@ -123,7 +93,7 @@ const buildPayload = (tab: UserTab, formData: UserFormData): AdminPayload | Tecn
     id_tipo_documento: formData.id_tipo_documento,
     telefono: formData.telefono.trim(),
     usuario: formData.usuario.trim(),
-    ...(formData.password.trim() ? { password: formData.password.trim() } : {}),
+    ...(formData.password?.trim() ? { password: formData.password.trim() } : {}),
   };
 
   if (tab === 'clientes') {
@@ -153,7 +123,6 @@ const resolveTabFromPath = (pathname: string): UserTab => {
 function Usuarios() {
   const location = useLocation();
   const navigate = useNavigate();
-  const [showPassword, setShowPassword] = useState(false);
   const [activeTab, setActiveTab] = useState<UserTab>(() => resolveTabFromPath(location.pathname));
   const [admins, setAdmins] = useState<AdminRecord[]>([]);
   const [tecnicos, setTecnicos] = useState<TecnicoRecord[]>([]);
@@ -194,6 +163,7 @@ function Usuarios() {
     });
   };
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const handleApiError = (error: any, fallbackMessage: string) => {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const axiosError = error as { response?: { status?: number; data?: any } };
@@ -230,10 +200,10 @@ function Usuarios() {
         obtenerTiposDocumento(),
       ]);
 
-      const adminData = extractArray<AdminRecord>(adminsRes.data, 'admins');
-      const tecnicoData = extractArray<TecnicoRecord>(tecnicosRes.data, 'tecnicos');
-      const clienteData = extractArray<ClienteRecord>(clientesRes.data, 'clientes');
-      const pendientesData = extractArray<ClienteRecord>(pendientesRes.data, 'data');
+      const adminData = extractArray<AdminRecord>(adminsRes.data);
+      const tecnicoData = extractArray<TecnicoRecord>(tecnicosRes.data);
+      const clienteData = extractArray<ClienteRecord>(clientesRes.data);
+      const pendientesData = extractArray<ClienteRecord>(pendientesRes.data);
       const tipos = extractArray<TipoDocumentoRecord>(tiposRes.data);
 
       setAdmins(adminData);
@@ -642,7 +612,7 @@ function Usuarios() {
                           <button className="btn-edit-ktm" onClick={() => openEditModal(item)}>
                             <i className="bi bi-pencil-square"></i> Editar
                           </button>
-                          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                          {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
                           {((item as any).estado === 0 || (item as any).estado === '0' || String((item as any).estado ?? (item as any).Estado).toLowerCase() === 'inactivo' || String((item as any).estado ?? (item as any).Estado).toLowerCase() === 'rechazado') ? (
                             <button className="btn-edit-ktm" style={{ background: '#064e3b', borderColor: '#10b981' }} onClick={() => handleEnable(item)}>
                               <i className="bi bi-check-circle"></i> Habilitar
@@ -669,136 +639,19 @@ function Usuarios() {
         </div>
       </div>
 
-      {(showCreateModal || showEditModal) && (
-        <div className="modal-overlay" onClick={showCreateModal ? closeCreateModal : closeEditModal}>
-          <div className="modal-container" onClick={e => e.stopPropagation()}>
-            <div className="modal-header">
-              <h3>{showCreateModal ? `Crear ${getTabLabel(activeTab).slice(0, -1)}` : `Editar ${getTabLabel(activeTab).slice(0, -1)}`}</h3>
-              <button type="button" className="close-btn" onClick={showCreateModal ? closeCreateModal : closeEditModal}>
-                &times;
-              </button>
-            </div>
-            <form onSubmit={showCreateModal ? handleCreate : handleUpdate}>
-              <div className="form-group">
-                <label>Documento</label>
-                <input
-                  type="text"
-                  name="numero_documento"
-                  value={formData.numero_documento}
-                  onChange={handleInputChange}
-                  required
-                />
-              </div>
-              <div className="form-group">
-                <label>Nombre</label>
-                <input
-                  type="text"
-                  name="nombre"
-                  value={formData.nombre}
-                  onChange={handleInputChange}
-                  onKeyDown={(e) => { if (/\d/.test(e.key)) e.preventDefault(); }}
-                  pattern="^[A-Za-zÁÉÍÓÚáéíóúÑñÜü\s]+$"
-                  title="El nombre solo debe contener letras"
-                  required
-                />
-              </div>
-              <div className="form-group">
-                <label>Correo</label>
-                <input
-                  type="email"
-                  name="correo"
-                  value={formData.correo}
-                  onChange={handleInputChange}
-                  required
-                />
-              </div>
-              {activeTab === 'clientes' && (
-                <div className="form-group">
-                  <label>Ciudad</label>
-                  <input
-                    type="text"
-                    name="ciudad"
-                    value={formData.ciudad}
-                    onChange={handleInputChange}
-                    required
-                  />
-                </div>
-              )}
-              <div className="form-group">
-                <label>Tipo de documento</label>
-                <select
-                  name="id_tipo_documento"
-                  value={String(formData.id_tipo_documento || '')}
-                  onChange={handleInputChange}
-                  required
-                >
-                  <option value="">Seleccione</option>
-                  {tiposDocumento.map(t => (
-                    <option key={t.id_tipo_documento} value={String(t.id_tipo_documento)}>
-                      {t.nombre}
-                    </option>
-                  ))}
-                </select>
-              </div>
-              <div className="form-group">
-                <label>Teléfono</label>
-                <input
-                  type="text"
-                  name="telefono"
-                  value={formData.telefono}
-                  onChange={handleInputChange}
-                  required
-                />
-              </div>
-              <div className="form-group">
-                <label>Usuario</label>
-                <input
-                  type="text"
-                  name="usuario"
-                  value={formData.usuario}
-                  onChange={handleInputChange}
-                  required
-                />
-              </div>
-              <div className="form-group">
-                <label>{showCreateModal ? 'Contraseña' : 'Nueva contraseña'}</label>
-                <div style={{ position: 'relative', display: 'flex', alignItems: 'center' }}>
-                  <input
-                    type={showPassword ? 'text' : 'password'}
-                    name="password"
-                    value={formData.password}
-                    onChange={handleInputChange}
-                    placeholder={showCreateModal ? 'Ingresa la contraseña' : 'Dejar en blanco para mantener la actual'}
-                    {...(showCreateModal ? { required: true } : {})}
-                    style={{ flex: 1, paddingRight: '40px' }}
-                  />
-                  <button
-                    type="button"
-                    onClick={() => setShowPassword(!showPassword)}
-                    tabIndex={-1}
-                    style={{
-                      position: 'absolute',
-                      right: '10px',
-                      background: 'none',
-                      border: 'none',
-                      color: '#ff6b00',
-                      cursor: 'pointer'
-                    }}
-                  >
-                    <i className={`bi ${showPassword ? 'bi-eye-slash' : 'bi-eye'}`}></i>
-                  </button>
-                </div>
-              </div>
-              <div className="modal-footer">
-                <button type="button" onClick={showCreateModal ? closeCreateModal : closeEditModal}>
-                  Cancelar
-                </button>
-                <button type="submit">{showCreateModal ? 'Guardar' : 'Guardar cambios'}</button>
-              </div>
-            </form>
-          </div>
-        </div>
-      )}
+      <UserModalForm
+        showCreateModal={showCreateModal}
+        showEditModal={showEditModal}
+        activeTab={activeTab}
+        formData={formData}
+        tiposDocumento={tiposDocumento}
+        getTabLabel={getTabLabel}
+        handleInputChange={handleInputChange}
+        handleCreate={handleCreate}
+        handleUpdate={handleUpdate}
+        closeCreateModal={closeCreateModal}
+        closeEditModal={closeEditModal}
+      />
     </div>
   );
 }

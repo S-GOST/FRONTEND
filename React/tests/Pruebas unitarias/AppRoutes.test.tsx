@@ -1,3 +1,4 @@
+import { Mock } from 'vitest';
 import React from 'react';
 import { render, screen, waitFor } from '@testing-library/react';
 import { MemoryRouter } from 'react-router-dom';
@@ -6,41 +7,41 @@ import AppRoutes from '../../src/routes/AppRoutes';
 import type { Service } from '../../src/types';
 
 // Mocks de componentes lazy loaded
-vi.mock('../../src/componentes/TableAdmin/Dashboard', () => () => <div>Dashboard Admin</div>);
-vi.mock('../../src/componentes/TableAdmin/Panel', () => () => <div>Panel Admin</div>);
-vi.mock('../../src/componentes/TableAdmin/Usuarios', () => () => <div>Usuarios</div>);
-vi.mock('../../src/componentes/TableOrdenServicios/OrdenesServicio', () => () => <div>Ordenes Servicio</div>);
-vi.mock('../../src/componentes/TableOrdenServicios/DetallesOrden', () => () => <div>Detalles Orden</div>);
-vi.mock('../../src/componentes/TableOrdenServicios/AsignacionTecnicos', () => () => <div>Asignacion Tecnicos</div>);
-vi.mock('../../src/componentes/TableServicios/Servicios', () => () => <div>Servicios</div>);
-vi.mock('../../src/componentes/TableProductos/productos', () => () => <div>Productos</div>);
-vi.mock('../../src/componentes/TableCategorias/Categorias', () => () => <div>Categorias</div>);
-vi.mock('../../src/componentes/TableMotos/Motos', () => () => <div>Motos</div>);
-vi.mock('../../src/componentes/Tableinforme/informe', () => () => <div>Informe</div>);
-vi.mock('../../src/componentes/Tablehistorial/historial', () => () => <div>Historial</div>);
-vi.mock('../../src/componentes/TableComprobante/Comprobante', () => () => <div>Comprobante</div>);
-vi.mock('../../src/componentes/TableAdmin/Productividad', () => () => <div>Productividad</div>);
-vi.mock('../../src/componentes/TableAdmin/ReporteInventario', () => () => <div>Reporte Inventario</div>);
-vi.mock('../../src/componentes/TableTecnico/TecnicoDashboard', () => () => <div>Dashboard Tecnico</div>);
-vi.mock('../../src/componentes/TableCliente/ClienteDashboard', () => () => <div>Dashboard Cliente</div>);
-vi.mock('../../src/componentes/TableCliente/ClienteOrdenes', () => () => <div>Ordenes Cliente</div>);
-vi.mock('../../src/componentes/TableCliente/ClienteMotos', () => () => <div>Motos Cliente</div>);
-vi.mock('../../src/componentes/TableCliente/ClienteComprobantes', () => () => <div>Comprobantes Cliente</div>);
-vi.mock('../../src/componentes/TableCliente/ClienteHistorial', () => () => <div>Historial Cliente</div>);
+Mock('../../src/componentes/TableAdmin/Dashboard', () => () => <div>Dashboard Admin</div>);
+Mock('../../src/componentes/TableAdmin/Panel', () => () => <div>Panel Admin</div>);
+Mock('../../src/componentes/TableAdmin/Usuarios', () => () => <div>Usuarios</div>);
+Mock('../../src/componentes/TableOrdenServicios/OrdenesServicio', () => () => <div>Ordenes Servicio</div>);
+Mock('../../src/componentes/TableOrdenServicios/DetallesOrden', () => () => <div>Detalles Orden</div>);
+Mock('../../src/componentes/TableOrdenServicios/AsignacionTecnicos', () => () => <div>Asignacion Tecnicos</div>);
+Mock('../../src/componentes/TableServicios/Servicios', () => () => <div>Servicios</div>);
+Mock('../../src/componentes/TableProductos/productos', () => () => <div>Productos</div>);
+Mock('../../src/componentes/TableCategorias/Categorias', () => () => <div>Categorias</div>);
+Mock('../../src/componentes/TableMotos/Motos', () => () => <div>Motos</div>);
+Mock('../../src/componentes/Tableinforme/informe', () => () => <div>Informe</div>);
+Mock('../../src/componentes/Tablehistorial/historial', () => () => <div>Historial</div>);
+Mock('../../src/componentes/TableComprobante/Comprobante', () => () => <div>Comprobante</div>);
+Mock('../../src/componentes/TableAdmin/Productividad', () => () => <div>Productividad</div>);
+Mock('../../src/componentes/TableAdmin/ReporteInventario', () => () => <div>Reporte Inventario</div>);
+Mock('../../src/componentes/TableTecnico/TecnicoDashboard', () => () => <div>Dashboard Tecnico</div>);
+Mock('../../src/componentes/TableCliente/ClienteDashboard', () => () => <div>Dashboard Cliente</div>);
+Mock('../../src/componentes/TableCliente/ClienteOrdenes', () => () => <div>Ordenes Cliente</div>);
+Mock('../../src/componentes/TableCliente/ClienteMotos', () => () => <div>Motos Cliente</div>);
+Mock('../../src/componentes/TableCliente/ClienteComprobantes', () => () => <div>Comprobantes Cliente</div>);
+Mock('../../src/componentes/TableCliente/ClienteHistorial', () => () => <div>Historial Cliente</div>);
 
 // Mocks de componentes públicos
-vi.mock('../../src/pages/Login', () => () => <div>Login Page</div>);
-vi.mock('../../src/pages/Registro', () => () => <div>Registro Page</div>);
-vi.mock('../../src/pages/ForgotPassword/ForgotPassword', () => () => <div>Forgot Password</div>);
-vi.mock('../../src/pages/ResetPassword/ResetPassword', () => () => <div>Reset Password</div>);
-vi.mock('../../src/componentes/Cart', () => () => <div>Cart</div>);
-vi.mock('../../src/routes/ProtectedRoute', () => ({ children }: any) => <div>{children}</div>);
+Mock('../../src/pages/Login', () => () => <div>Login Page</div>);
+Mock('../../src/pages/Registro', () => () => <div>Registro Page</div>);
+Mock('../../src/pages/ForgotPassword/ForgotPassword', () => () => <div>Forgot Password</div>);
+Mock('../../src/pages/ResetPassword/ResetPassword', () => () => <div>Reset Password</div>);
+Mock('../../src/componentes/Cart', () => () => <div>Cart</div>);
+Mock('../../src/routes/ProtectedRoute', () => ({ children }: any) => <div>{children}</div>);
 
 // Mocks de componentes de la tienda
-vi.mock('../../src/componentes/Header', () => () => <div>Header</div>);
-vi.mock('../../src/componentes/ServiceSection', () => () => <div>Service Section</div>);
-vi.mock('../../src/componentes/InfoSection', () => () => <div>Info Section</div>);
-vi.mock('../../src/componentes/Footer', () => () => <div>Footer</div>);
+Mock('../../src/componentes/Header', () => () => <div>Header</div>);
+Mock('../../src/componentes/ServiceSection', () => () => <div>Service Section</div>);
+Mock('../../src/componentes/InfoSection', () => () => <div>Info Section</div>);
+Mock('../../src/componentes/Footer', () => () => <div>Footer</div>);
 
 describe('AppRoutes Component', () => {
   const mockAddToCart = vi.fn(); // ✅ Cambio: jest -> vi
@@ -451,3 +452,6 @@ describe('AppRoutes Component', () => {
     vi.useRealTimers(); // Cambio: jest -> vi
   });
 });
+
+
+

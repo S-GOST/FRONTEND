@@ -83,3 +83,5 @@ describe('InfoSection Component', () => {
     expect(shieldIcon).toBeInTheDocument();
   });
 });
+
+

@@ -5,6 +5,7 @@ import { obtenerServicios } from '../services/servicio.service';
 import { ProductoPayload } from '../services/producto.service';
 import { ServicioPayload } from '../services/servicio.service';
 import { obtenerMotos, insertarMoto, MotoRecord } from '../services/moto.service';
+import { extractArray } from '../utils/apiHelpers';
 
 import { apiClient } from '../config/axios';
 import './Cart.css';
@@ -93,16 +94,6 @@ const Cart: React.FC<CartProps> = () => {
           obtenerProductos(),
           obtenerServicios()
         ]);
-
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        const extractArray = (resData: any) => {
-          if (!resData) return [];
-          if (Array.isArray(resData)) return resData;
-          if (resData.data && Array.isArray(resData.data)) return resData.data;
-          if (resData.productos && Array.isArray(resData.productos)) return resData.productos;
-          if (resData.servicios && Array.isArray(resData.servicios)) return resData.servicios;
-          return [];
-        };
 
         const allProducts = [
           ...extractArray(productosData?.data),
@@ -808,7 +799,7 @@ const Cart: React.FC<CartProps> = () => {
                         {/* Moto Cards Grid */}
                         {(clientMotos.length > 0 || selectedMotoId !== 'new') && (
                           <div className="moto-cards-grid">
-                            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                            {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
                             {clientMotos.map((m: any) => {
                               const motoId = String(m.id_moto || m.ID_MOTOS);
                               const isSelected = selectedMotoId === motoId;
@@ -943,7 +934,7 @@ const Cart: React.FC<CartProps> = () => {
                     return (
                       <div className="moto-selected-info">
                         <i className="bi bi-check-circle-fill" style={{ color: 'var(--ktm-orange)' }}></i>
-                        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                        {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
                         <span>Moto seleccionada: <strong>{(sel as any).placa || (sel as any).Placa}</strong> — {(sel as any).marca || (sel as any).Marca} {(sel as any).modelo || (sel as any).Modelo}</span>
                       </div>
                     );

@@ -1,3 +1,4 @@
+import { Mock } from 'vitest';
 import {
   obtenerServicios,
   insertarServicio,
@@ -7,33 +8,33 @@ import {
 } from '../../src/services/servicio.service';
 import { BaseApiService } from '../../src/services/base.service';
 
-// 1. MOCK DE BaseApiService (jest.fn DENTRO de la fábrica)
-jest.mock('../../src/services/base.service', () => {
+// 1. MOCK DE BaseApiService (vi.fn DENTRO de la fábrica)
+Mock('../../src/services/base.service', () => {
   const instance = {
-    obtenerTodos: jest.fn(),
-    crear: jest.fn(),
-    actualizar: jest.fn(),
-    eliminar: jest.fn(),
+    obtenerTodos: vi.fn(),
+    crear: vi.fn(),
+    actualizar: vi.fn(),
+    eliminar: vi.fn(),
   };
   return {
     __esModule: true,
-    BaseApiService: jest.fn(() => instance),
+    BaseApiService: vi.fn(() => instance),
   };
 });
 
 // 2. MOCK DEL CLIENTE AXIOS
-jest.mock('../../src/config/axios', () => ({
+Mock('../../src/config/axios', () => ({
   __esModule: true,
   default: {
-    get: jest.fn(),
-    post: jest.fn(),
-    put: jest.fn(),
-    delete: jest.fn(),
+    get: vi.fn(),
+    post: vi.fn(),
+    put: vi.fn(),
+    delete: vi.fn(),
   },
 }));
 
 // Instancia creada por servicioService al cargarse el módulo
-const base = (BaseApiService as unknown as jest.Mock).mock.results[0].value;
+const base = (BaseApiService as unknown as Mock).mock.results[0].value;
 
 // ==================== DATOS DE PRUEBA ====================
 const mockPayload = {
@@ -48,7 +49,7 @@ describe('servicio.service', () => {
   let apiClient: any;
 
   beforeEach(async () => {
-    jest.clearAllMocks();
+    vi.clearAllMocks();
     const axiosModule = await import('../../src/config/axios');
     apiClient = axiosModule.default;
   });
@@ -140,3 +141,6 @@ describe('servicio.service', () => {
     await expect(habilitarServicio('SERV-004')).rejects.toThrow('Sin autorización');
   });
 });
+
+
+

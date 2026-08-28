@@ -123,3 +123,5 @@ describe('JSX Module Declarations', () => {
     expect(moduleExports.default).toBe(DefaultExportComponent);
   });
 });
+
+

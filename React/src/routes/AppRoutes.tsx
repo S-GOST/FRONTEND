@@ -187,33 +187,35 @@ const AppRoutes: React.FC<AppRoutesProps> = ({
         <Route path="/carrito" element={<Cart />} />
 
         {/* ========== Rutas de Administrador ========== */}
-        <Route
-          path="/admin/dashboard"
-          element={isAuthenticated ? <Dashboard /> : <Navigate to="/login" replace />}
-        />
-        <Route
-          path="/admin"
-          element={isAuthenticated ? <Panel /> : <Navigate to="/login" replace />}
-        >
-          <Route index element={<Navigate to="/admin/dashboard" replace />} />
-          <Route path="administradores" element={<Usuarios />} />
-          <Route path="usuarios" element={<Usuarios />} />
-          <Route path="ordenes_servicio" element={<OrdenesServicio />} />
-          <Route path="asignacion_tecnicos" element={<AsignacionTecnicos />} />
-          <Route path="detalles-orden" element={<DetallesOrden />} />
-          <Route path="tecnicos" element={<Usuarios />} />
-          <Route path="clientes" element={<Usuarios />} />
-          <Route path="pendientes" element={<Usuarios />} />
-          <Route path="servicios" element={<Servicios />} />
-          <Route path="productos" element={<TableProductos />} />
-          <Route path="categorias" element={<Categorias />} />
-          <Route path="motos" element={<Motos />} />
-          <Route path="informe" element={<Tableinforme />} />
-          <Route path="comprobante" element={<TableComprobante />} />
-          <Route path="historial" element={<Tablehistorial />} />
-          <Route path="productividad" element={<Productividad />} />
-          <Route path="inventario" element={<ReporteInventario />} />
-          <Route path="*" element={<Navigate to="/admin/dashboard" replace />} />
+        <Route element={<ProtectedRoute allowedRole="admin" />}>
+          <Route
+            path="/admin/dashboard"
+            element={<Dashboard />}
+          />
+          <Route
+            path="/admin"
+            element={<Panel />}
+          >
+            <Route index element={<Navigate to="/admin/dashboard" replace />} />
+            <Route path="administradores" element={<Usuarios />} />
+            <Route path="usuarios" element={<Usuarios />} />
+            <Route path="ordenes_servicio" element={<OrdenesServicio />} />
+            <Route path="asignacion_tecnicos" element={<AsignacionTecnicos />} />
+            <Route path="detalles-orden" element={<DetallesOrden />} />
+            <Route path="tecnicos" element={<Usuarios />} />
+            <Route path="clientes" element={<Usuarios />} />
+            <Route path="pendientes" element={<Usuarios />} />
+            <Route path="servicios" element={<Servicios />} />
+            <Route path="productos" element={<TableProductos />} />
+            <Route path="categorias" element={<Categorias />} />
+            <Route path="motos" element={<Motos />} />
+            <Route path="informe" element={<Tableinforme />} />
+            <Route path="comprobante" element={<TableComprobante />} />
+            <Route path="historial" element={<Tablehistorial />} />
+            <Route path="productividad" element={<Productividad />} />
+            <Route path="inventario" element={<ReporteInventario />} />
+            <Route path="*" element={<Navigate to="/admin/dashboard" replace />} />
+          </Route>
         </Route>
 
         {/* ========== Rutas de Técnico ========== */}

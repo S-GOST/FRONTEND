@@ -1,3 +1,4 @@
+import { Mock } from 'vitest';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import '@testing-library/jest-dom';
 import ClienteDashboard from '../../src/componentes/TableCliente/ClienteDashboard';
@@ -6,31 +7,31 @@ import * as ordenService from '../../src/services/ordenServicioService';
 import * as authService from '../../src/services/auth.services';
 import Swal from 'sweetalert2';
 
-// 1. VARIABLES DE MOCK ANTES DE LOS jest.mock
-const mockNavigate = jest.fn();
+// 1. VARIABLES DE MOCK ANTES DE LOS Mock
+const mockNavigate = vi.fn();
 let mockPathname = '/cliente/dashboard';
 
 // 2. MOCKS DE MÓDULOS EXTERNOS
-jest.mock('sweetalert2', () => ({
-  fire: jest.fn().mockResolvedValue({ isConfirmed: true }),
+Mock('sweetalert2', () => ({
+  fire: vi.fn().mockResolvedValue({ isConfirmed: true }),
 }));
 
-jest.mock('react-router-dom', () => ({
-  ...jest.requireActual('react-router-dom'),
+Mock('react-router-dom', () => ({
+  ...vi.importActual('react-router-dom'),
   useNavigate: () => mockNavigate,
   useLocation: () => ({ pathname: mockPathname }),
   Outlet: () => <div data-testid="outlet">Contenido anidado</div>,
 }));
 
 // Mock de formatId para simplificar
-jest.mock('../../src/utils/formatIds', () => ({
+Mock('../../src/utils/formatIds', () => ({
   formatId: (entity: string, id: any) => `${entity}-${id}`,
 }));
 
 // 3. MOCKS DE SERVICIOS (mismas rutas que los imports)
-jest.mock('../../src/services/moto.service');
-jest.mock('../../src/services/ordenServicioService');
-jest.mock('../../src/services/auth.services');
+Mock('../../src/services/moto.service');
+Mock('../../src/services/ordenServicioService');
+Mock('../../src/services/auth.services');
 
 // ==================== DATOS DE PRUEBA ====================
 const mockMotos = [
@@ -48,7 +49,7 @@ const mockOrdenes = [
 
 describe('ClienteDashboard Component', () => {
   beforeEach(() => {
-    jest.clearAllMocks();
+    vi.clearAllMocks();
     mockPathname = '/cliente/dashboard';
     localStorage.setItem('user_id', '100');
     localStorage.setItem('user_name', 'Juan Cliente');
@@ -208,3 +209,6 @@ describe('ClienteDashboard Component', () => {
     expect(screen.getByText('Mis Motos').closest('.stat-card')).toHaveTextContent('0');
   });
 });
+
+
+

@@ -15,6 +15,7 @@ import {
 import { FormattedId } from '../../componentes/FormattedId';
 import { BackButton } from '../BackButton';
 import './Servicios.css';
+import { extractArray } from '../../utils/apiHelpers';
 
 const ESTADOS = ['Disponible', 'No disponible'] as const;
 type EstadoType = (typeof ESTADOS)[number]; // 'Disponible' | 'No disponible'
@@ -62,8 +63,6 @@ const readServicioArray = (value: unknown): ServicioPayload[] | null => {
   return null;
 };
 
-const extractServicios = (payload: unknown): ServicioPayload[] =>
-  readServicioArray(payload) ?? [];
 
 const isSuccessfulResponse = (payload: unknown) => {
   if (!payload || typeof payload !== 'object' || !('success' in payload)) return true;
@@ -126,7 +125,7 @@ function Servicios() {
     try {
       setLoading(true);
       const response = await obtenerServicios();
-      const data = extractServicios(response.data);
+      const data = extractArray<ServicioPayload>(response.data);
       setServicios(data);
       setFilteredServicios(data);
     } catch (error) {

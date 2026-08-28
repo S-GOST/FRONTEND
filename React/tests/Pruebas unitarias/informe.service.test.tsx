@@ -1,3 +1,4 @@
+import { Mock } from 'vitest';
 import {
   obtenerInformes,
   crearInforme,
@@ -10,13 +11,13 @@ import {
 } from '../../src/services/informe.service';
 
 // 1. MOCK DEL CLIENTE AXIOS
-jest.mock('../../src/config/axios', () => ({
+Mock('../../src/config/axios', () => ({
   __esModule: true,
   default: {
-    get: jest.fn(),
-    post: jest.fn(),
-    put: jest.fn(),
-    delete: jest.fn(),
+    get: vi.fn(),
+    post: vi.fn(),
+    put: vi.fn(),
+    delete: vi.fn(),
   },
 }));
 
@@ -24,7 +25,7 @@ describe('informe.service', () => {
   let apiClient: any;
 
   beforeEach(async () => {
-    jest.clearAllMocks();
+    vi.clearAllMocks();
     const axiosModule = await import('../../src/config/axios');
     apiClient = axiosModule.default;
   });
@@ -181,3 +182,6 @@ describe('informe.service', () => {
     await expect(obtenerInformes()).rejects.toThrow('Error de red');
   });
 });
+
+
+

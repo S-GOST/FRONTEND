@@ -1,16 +1,17 @@
+import { Mock } from 'vitest';
 import { render, screen, waitFor, fireEvent } from '@testing-library/react';
 import '@testing-library/jest-dom'; // Asegura que los matchers como toBeInTheDocument funcionen
 
-// 1. DECLARAR VARIABLES DE MOCK ANTES DE LOS JEST.MOCK (Crucial para evitar errores de hoisting)
-const mockNavigate = jest.fn();
+// 1. DECLARAR VARIABLES DE MOCK ANTES DE LOS Mock (Crucial para evitar errores de hoisting)
+const mockNavigate = vi.fn();
 
 // 2. MOCKS DE MÓDULOS EXTERNOS
-jest.mock('sweetalert2', () => ({
-  fire: jest.fn().mockResolvedValue({ isConfirmed: true }),
+Mock('sweetalert2', () => ({
+  fire: vi.fn().mockResolvedValue({ isConfirmed: true }),
 }));
 
-jest.mock('react-router-dom', () => {
-  const originalModule = jest.requireActual('react-router-dom');
+Mock('react-router-dom', () => {
+  const originalModule = vi.importActual('react-router-dom');
   return {
     ...originalModule,
     useNavigate: () => mockNavigate,
@@ -19,11 +20,11 @@ jest.mock('react-router-dom', () => {
 });
 
 // 3. MOCKS DE SERVICIOS
-jest.mock('../../src/services/admin.service');
-jest.mock('../../src/services/tecnico.service');
-jest.mock('../../src/services/cliente.service');
-jest.mock('../../src/services/ordenServicioService');
-jest.mock('../../src/services/auth.services');
+Mock('../../src/services/admin.service');
+Mock('../../src/services/tecnico.service');
+Mock('../../src/services/cliente.service');
+Mock('../../src/services/ordenServicioService');
+Mock('../../src/services/auth.services');
 
 // 4. IMPORTAR EL COMPONENTE Y LOS SERVICIOS
 import Dashboard from '../../src/componentes/TableAdmin/Dashboard';
@@ -47,7 +48,7 @@ const setupMocks = (overrides: any = {}) => {
 
 describe('Dashboard Component', () => {
   beforeEach(() => {
-    jest.clearAllMocks();
+    vi.clearAllMocks();
     localStorage.setItem('user_name', 'Test Admin');
     setupMocks();
   });
@@ -166,3 +167,6 @@ describe('Dashboard Component', () => {
 });
 
 export default Dashboard;
+
+
+

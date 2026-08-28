@@ -1,3 +1,4 @@
+import { Mock } from 'vitest';
 import {
   obtenerAdmins,
   insertarAdmin,
@@ -15,8 +16,8 @@ const mockEliminar = vi.fn();     // Cambio: jest -> vi
 const mockPut = vi.fn();          // Cambio: jest -> vi
 
 // 2. MOCK DE LA CLASE BaseApiService (misma ruta que usa admin.service)
-vi.mock('../../src/services/base.service', () => ({ // Cambio: jest.mock -> vi.mock
-  BaseApiService: vi.fn().mockImplementation(() => ({ // Cambio: jest.fn -> vi.fn
+Mock('../../src/services/base.service', () => ({ // Cambio: Mock -> Mock
+  BaseApiService: vi.fn().mockImplementation(() => ({ // Cambio: vi.fn -> vi.fn
     obtenerTodos: mockObtenerTodos,
     crear: mockCrear,
     actualizar: mockActualizar,
@@ -138,3 +139,6 @@ describe('admin.service', () => {
     await expect(obtenerAdmins()).rejects.toThrow('Error de red');
   });
 });
+
+
+

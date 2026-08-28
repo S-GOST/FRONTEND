@@ -15,6 +15,7 @@ import {
 } from '../../services/categoria.service';
 import { FormattedId } from '../../componentes/FormattedId';
 import { BackButton } from '../BackButton';
+import { extractArray } from '../../utils/apiHelpers';
 import './Productos.css';
 
 const ESTADOS = ['Disponibles', 'Agotados', 'Próximamente'] as const;
@@ -90,8 +91,6 @@ const readProductoArray = (value: any): ProductoRecord[] | null => {
   return null;
 };
 
-const extractProductos = (payload: any): ProductoRecord[] =>
-  readProductoArray(payload) ?? [];
 
 const isSuccessfulResponse = (payload: any) => {
   if (!payload || typeof payload !== 'object' || !('success' in payload)) return true;
@@ -158,7 +157,7 @@ function TableProductos() {
     try {
       setLoading(true);
       const response = await obtenerProductos();
-      const data = extractProductos(response.data);
+      const data = extractArray<ProductoRecord>(response.data);
       setProductos(data);
       setFilteredProductos(data);
     } catch (error) {

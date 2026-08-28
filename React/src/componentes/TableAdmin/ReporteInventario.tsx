@@ -4,6 +4,7 @@ import { obtenerReporteInventario } from '../../services/informe.service';
 import { obtenerCategoriasPorTipo, CategoriaPayload } from '../../services/categoria.service';
 import { BackButton } from '../BackButton';
 import './ReporteInventario.css';
+import { extractArray } from '../../utils/apiHelpers';
 
 // ==================== TIPOS ====================
 interface AlertaStock {
@@ -69,16 +70,11 @@ const ReporteInventario: React.FC = () => {
   useEffect(() => {
     // Cargar categorias de PRODUCTO y SERVICIO
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const extract = (res: any) => {
-      if (res.data && res.data.success) return res.data.data;
-      if (Array.isArray(res.data)) return res.data;
-      return [];
-    };
-    obtenerCategoriasPorTipo('PRODUCTO')
-      .then(res => setCategoriasProducto(extract(res)))
+        obtenerCategoriasPorTipo('PRODUCTO')
+      .then(res => setCategoriasProducto(extractArray(res)))
       .catch(err => console.error("Error al cargar categorías producto", err));
     obtenerCategoriasPorTipo('SERVICIO')
-      .then(res => setCategoriasServicio(extract(res)))
+      .then(res => setCategoriasServicio(extractArray(res)))
       .catch(err => console.error("Error al cargar categorías servicio", err));
   }, []);
 

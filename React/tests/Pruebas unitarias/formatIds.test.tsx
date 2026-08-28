@@ -24,3 +24,6 @@ describe('Utilidad formatId', () => {
     expect(formatId('tecnico', 0)).toBe('TEC-0000');
   });
 });
+
+
+

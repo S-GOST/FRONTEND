@@ -1,3 +1,4 @@
+import { Mock } from 'vitest';
 import { render, screen, waitFor } from '@testing-library/react';
 import '@testing-library/jest-dom';
 import ClienteHistorial from '../../src/componentes/TableCliente/ClienteHistorial';
@@ -5,12 +6,12 @@ import * as historialService from '../../src/services/historial.service';
 import Swal from 'sweetalert2';
 
 // 1. MOCKS DE MÓDULOS EXTERNOS
-jest.mock('sweetalert2', () => ({
-  fire: jest.fn(),
+Mock('sweetalert2', () => ({
+  fire: vi.fn(),
 }));
 
 // 2. MOCKS DE SERVICIOS (mismas rutas que los imports)
-jest.mock('../../src/services/historial.service');
+Mock('../../src/services/historial.service');
 
 // ==================== DATOS DE PRUEBA ====================
 const mockHistorial = [
@@ -56,7 +57,7 @@ const formatFechaEsperada = (fecha: string) =>
 
 describe('ClienteHistorial Component', () => {
   beforeEach(() => {
-    jest.clearAllMocks();
+    vi.clearAllMocks();
     jest.mocked(historialService.obtenerMiHistorial).mockResolvedValue({
       data: mockHistorial,
     } as any);
@@ -166,3 +167,6 @@ describe('ClienteHistorial Component', () => {
     });
   });
 });
+
+
+

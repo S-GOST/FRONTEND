@@ -1,3 +1,4 @@
+import { Mock } from 'vitest';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import '@testing-library/jest-dom';
 import Registro from '../../src/pages/Registro';
@@ -7,29 +8,29 @@ import { obtenerTiposDocumento,} from '../../src/services/tipoDocumento.service'
 import { loginService } from '../../src/services/auth.services';
 
 // 1. MOCKS DE MÓDULOS EXTERNOS
-jest.mock('sweetalert2', () => ({
-  fire: jest.fn().mockResolvedValue({}),
+Mock('sweetalert2', () => ({
+  fire: vi.fn().mockResolvedValue({}),
 }));
 
-jest.mock('react-router-dom', () => ({
-  ...jest.requireActual('react-router-dom'),
-  useNavigate: () => jest.fn(),
+Mock('react-router-dom', () => ({
+  ...vi.importActual('react-router-dom'),
+  useNavigate: () => vi.fn(),
 }));
 
-jest.mock('../../src/services/cliente.service');
-jest.mock('../../src/services/moto.service');
-jest.mock('../../src/services/tipoDocumento.service');
-jest.mock('../../src/services/auth.services');
+Mock('../../src/services/cliente.service');
+Mock('../../src/services/moto.service');
+Mock('../../src/services/tipoDocumento.service');
+Mock('../../src/services/auth.services');
 
 describe('Registro Component', () => {
-  const mockNavigate = jest.fn();
+  const mockNavigate = vi.fn();
 
   beforeEach(() => {
-    jest.clearAllMocks();
-    (require('react-router-dom').useNavigate as jest.Mock).mockReturnValue(mockNavigate);
+    vi.clearAllMocks();
+    (require('react-router-dom').useNavigate as Mock).mockReturnValue(mockNavigate);
     
     // Mock por defecto para tipos de documento
-    (obtenerTiposDocumento as jest.Mock).mockResolvedValue({
+    (obtenerTiposDocumento as Mock).mockResolvedValue({
       data: [
         { id_tipo_documento: 1, nombre: 'Cédula' },
         { id_tipo_documento: 2, nombre: 'Pasaporte' },
@@ -77,9 +78,9 @@ describe('Registro Component', () => {
 
   // 4. REGISTRO EXITOSO
   it('debería registrar cliente y moto exitosamente', async () => {
-    (insertarCliente as jest.Mock).mockResolvedValue({ data: { data: { id_usuario: '123' } } });
-    (insertarMoto as jest.Mock).mockResolvedValue({ data: { success: true } });
-    (loginService as jest.Mock).mockResolvedValue({ token: 'fake-token' });
+    (insertarCliente as Mock).mockResolvedValue({ data: { data: { id_usuario: '123' } } });
+    (insertarMoto as Mock).mockResolvedValue({ data: { success: true } });
+    (loginService as Mock).mockResolvedValue({ token: 'fake-token' });
 
     render(<Registro />);
 
@@ -121,7 +122,7 @@ describe('Registro Component', () => {
 
   // 5. ERROR EN REGISTRO DE CLIENTE
   it('debería mostrar error si falla el registro del cliente', async () => {
-    (insertarCliente as jest.Mock).mockRejectedValue({
+    (insertarCliente as Mock).mockRejectedValue({
       response: { data: { message: 'El usuario ya existe' } }
     });
 
@@ -149,7 +150,7 @@ describe('Registro Component', () => {
 
   // 6. ERROR CON MÚLTIPLES ERRORES DE VALIDACIÓN
   it('debería mostrar múltiples errores de validación del servidor', async () => {
-    (insertarCliente as jest.Mock).mockRejectedValue({
+    (insertarCliente as Mock).mockRejectedValue({
       response: { 
         data: { 
           message: 'Errores de validación',
@@ -227,7 +228,7 @@ describe('Registro Component', () => {
 
   // 10. ESTADO DE CARGA
   it('debería deshabilitar el botón durante la carga', async () => {
-    (insertarCliente as jest.Mock).mockImplementation(() => new Promise(() => {}));
+    (insertarCliente as Mock).mockImplementation(() => new Promise(() => {}));
     render(<Registro />);
 
     fireEvent.change(screen.getByPlaceholderText('Número de Documento'), { target: { value: '1234567890' } });
@@ -260,7 +261,7 @@ describe('Registro Component', () => {
 
   // 12. FALLBACK CUANDO NO HAY TIPOS DE DOCUMENTO
   it('debería mostrar opciones por defecto si no hay tipos de documento', async () => {
-    (obtenerTiposDocumento as jest.Mock).mockResolvedValue({ data: [] });
+    (obtenerTiposDocumento as Mock).mockResolvedValue({ data: [] });
     render(<Registro />);
 
     await waitFor(() => {
@@ -271,3 +272,6 @@ describe('Registro Component', () => {
     });
   });
 });
+
+
+

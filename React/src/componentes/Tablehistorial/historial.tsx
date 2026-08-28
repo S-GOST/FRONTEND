@@ -8,15 +8,8 @@ import {
 import { FormattedId } from '../../componentes/FormattedId';
 import { BackButton } from '../BackButton';
 import './Historial.css';
+import { extractArray } from '../../utils/apiHelpers';
 
-const extractHistorial = (payload: unknown): HistorialRecord[] => {
-  if (Array.isArray(payload)) return payload as HistorialRecord[];
-  if (payload && typeof payload === 'object') {
-    const obj = payload as Record<string, unknown>;
-    if (Array.isArray(obj.data)) return obj.data as HistorialRecord[];
-  }
-  return [];
-};
 
 function TableHistorial() {
   const [historial, setHistorial] = useState<HistorialRecord[]>([]);
@@ -46,7 +39,7 @@ function TableHistorial() {
     try {
       setLoading(true);
       const historialRes = await obtenerHistorial();
-      const historialData = extractHistorial(historialRes.data);
+      const historialData = extractArray<HistorialRecord>(historialRes.data);
       setHistorial(historialData);
     } catch (error) {
       console.error(error);

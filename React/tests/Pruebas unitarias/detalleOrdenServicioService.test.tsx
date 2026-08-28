@@ -1,3 +1,4 @@
+import { Mock } from 'vitest';
 import {
   obtenerDetallesOrdenes,
   eliminarDetalleOrden,
@@ -14,26 +15,26 @@ const mockPayload = {
   Precio: 150000,
 };
 
-// 1. MOCK DE BaseApiService (jest.fn DENTRO de la fábrica)
-jest.mock('../../src/services/base.service', () => {
+// 1. MOCK DE BaseApiService (vi.fn DENTRO de la fábrica)
+Mock('../../src/services/base.service', () => {
   const instance = {
-    obtenerTodos: jest.fn(),
-    crear: jest.fn(),
-    actualizar: jest.fn(),
-    eliminar: jest.fn(),
+    obtenerTodos: vi.fn(),
+    crear: vi.fn(),
+    actualizar: vi.fn(),
+    eliminar: vi.fn(),
   };
   return {
     __esModule: true,
-    BaseApiService: jest.fn(() => instance),
+    BaseApiService: vi.fn(() => instance),
   };
 });
 
 // Instancia creada por detalleOrdenServicioService al cargarse el módulo
-const base = (BaseApiService as unknown as jest.Mock).mock.results[0].value;
+const base = (BaseApiService as unknown as Mock).mock.results[0].value;
 
 describe('detalleOrdenServicioService', () => {
   beforeEach(() => {
-    jest.clearAllMocks();
+    vi.clearAllMocks();
   });
 
   // 1. OBTENER DETALLES ORDENES
@@ -78,3 +79,6 @@ describe('detalleOrdenServicioService', () => {
     await expect(obtenerDetallesOrdenes()).rejects.toThrow('Error de red');
   });
 });
+
+
+

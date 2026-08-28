@@ -1,3 +1,4 @@
+import { Mock } from 'vitest';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import '@testing-library/jest-dom';
 import Productividad from '../../src/componentes/TableAdmin/Productividad';
@@ -5,11 +6,11 @@ import { obtenerReporteProductividad } from '../../src/services/informe.service'
 import Swal from 'sweetalert2';
 
 // Mock del servicio
-jest.mock('../../services/informe.service');
+Mock('../../services/informe.service');
 
 // Mock de SweetAlert2
-jest.mock('sweetalert2', () => ({
-  fire: jest.fn(),
+Mock('sweetalert2', () => ({
+  fire: vi.fn(),
 }));
 
 // Helper para obtener fecha de hace 30 días
@@ -24,7 +25,7 @@ const getHoy = () => new Date().toISOString().split('T')[0];
 
 describe('Productividad Component', () => {
   beforeEach(() => {
-    jest.clearAllMocks();
+    vi.clearAllMocks();
   });
 
   // 1. PRUEBA DE RENDERIZADO INICIAL
@@ -280,3 +281,6 @@ describe('Productividad Component', () => {
     });
   });
 });
+
+
+

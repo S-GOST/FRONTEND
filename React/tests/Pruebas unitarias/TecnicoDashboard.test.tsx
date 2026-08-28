@@ -1,3 +1,4 @@
+import { Mock } from 'vitest';
 import { render, screen, fireEvent, waitFor, within } from '@testing-library/react';
 import '@testing-library/jest-dom';
 import TecnicoDashboard from '../../src/componentes/TableTecnico/TecnicoDashboard';
@@ -9,28 +10,28 @@ import * as motoService from '../../src/services/moto.service';
 import Swal from 'sweetalert2';
 
 // 1. VARIABLES DE MOCK
-const mockNavigate = jest.fn();
+const mockNavigate = vi.fn();
 
 // 2. MOCKS DE MÓDULOS EXTERNOS
-jest.mock('sweetalert2', () => ({
-  fire: jest.fn().mockResolvedValue({ isConfirmed: true }),
+Mock('sweetalert2', () => ({
+  fire: vi.fn().mockResolvedValue({ isConfirmed: true }),
 }));
 
-jest.mock('react-router-dom', () => ({
-  ...jest.requireActual('react-router-dom'),
+Mock('react-router-dom', () => ({
+  ...vi.importActual('react-router-dom'),
   useNavigate: () => mockNavigate,
 }));
 
-jest.mock('../../src/utils/formatIds', () => ({
+Mock('../../src/utils/formatIds', () => ({
   formatId: (tipo: string, id: any) => `${tipo}-${id}`,
 }));
 
 // 3. MOCKS DE SERVICIOS (mismas rutas que los imports)
-jest.mock('../../src/services/ordenServicioService');
-jest.mock('../../src/services/cliente.service');
-jest.mock('../../src/services/auth.services');
-jest.mock('../../src/services/informe.service');
-jest.mock('../../src/services/moto.service');
+Mock('../../src/services/ordenServicioService');
+Mock('../../src/services/cliente.service');
+Mock('../../src/services/auth.services');
+Mock('../../src/services/informe.service');
+Mock('../../src/services/moto.service');
 
 // ==================== DATOS DE PRUEBA ====================
 const mockOrdenes = [
@@ -50,7 +51,7 @@ const mockInformes = [
 
 describe('TecnicoDashboard Component', () => {
   beforeEach(() => {
-    jest.clearAllMocks();
+    vi.clearAllMocks();
     localStorage.setItem('user_name', 'Carlos Técnico');
     localStorage.setItem('user_id', '5');
 
@@ -266,3 +267,6 @@ describe('TecnicoDashboard Component', () => {
     });
   });
 });
+
+
+

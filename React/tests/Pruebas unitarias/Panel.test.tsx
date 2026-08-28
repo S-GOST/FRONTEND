@@ -1,3 +1,4 @@
+import { Mock } from 'vitest';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import '@testing-library/jest-dom';
 import Panel from '../../src/componentes/TableAdmin/Panel';
@@ -5,13 +6,13 @@ import * as authService from '../../src/services/auth.services';
 import Swal from 'sweetalert2';
 
 // Mock de SweetAlert2
-jest.mock('sweetalert2', () => ({
-  fire: jest.fn().mockResolvedValue({ isConfirmed: false }),
+Mock('sweetalert2', () => ({
+  fire: vi.fn().mockResolvedValue({ isConfirmed: false }),
 }));
 
 // Mock de React Router DOM
-jest.mock('react-router-dom', () => {
-  const originalModule = jest.requireActual('react-router-dom');
+Mock('react-router-dom', () => {
+  const originalModule = vi.importActual('react-router-dom');
   return {
     ...originalModule,
     Outlet: () => <div data-testid="outlet">Outlet Content</div>,
@@ -22,16 +23,16 @@ jest.mock('react-router-dom', () => {
 });
 
 // Mock del servicio de autenticación
-jest.mock('../../services/auth.services');
+Mock('../../services/auth.services');
 
 describe('Panel Component', () => {
   beforeEach(() => {
-    jest.clearAllMocks();
+    vi.clearAllMocks();
     localStorage.clear();
   });
 
   afterEach(() => {
-    jest.clearAllMocks();
+    vi.clearAllMocks();
   });
 
   // 1. PRUEBA DE RENDERIZADO BÁSICO
@@ -143,3 +144,6 @@ describe('Panel Component', () => {
     expect(userIcon).toBeInTheDocument();
   });
 });
+
+
+

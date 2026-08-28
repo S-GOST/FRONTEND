@@ -1,19 +1,20 @@
+import { Mock } from 'vitest';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import '@testing-library/jest-dom';
 import ClienteOrdenes from '../../src/componentes/TableCliente/ClienteOrdenes';
 import * as ordenService from '../../src/services/ordenServicioService';
 
 // 1. VARIABLES DE MOCK
-const mockNavigate = jest.fn();
+const mockNavigate = vi.fn();
 
 // 2. MOCKS DE MÓDULOS EXTERNOS
-jest.mock('react-router-dom', () => ({
-  ...jest.requireActual('react-router-dom'),
+Mock('react-router-dom', () => ({
+  ...vi.importActual('react-router-dom'),
   useNavigate: () => mockNavigate,
 }));
 
 // 3. MOCKS DE SERVICIOS (mismas rutas que los imports)
-jest.mock('../../src/services/ordenServicioService');
+Mock('../../src/services/ordenServicioService');
 
 // ==================== DATOS DE PRUEBA ====================
 const mockOrdenes = [
@@ -56,7 +57,7 @@ const formatPrecio = (valor: number) =>
 
 describe('ClienteOrdenes Component', () => {
   beforeEach(() => {
-    jest.clearAllMocks();
+    vi.clearAllMocks();
     jest.mocked(ordenService.obtenerMisOrdenes).mockResolvedValue({ data: mockOrdenes } as any);
   });
 
@@ -228,3 +229,6 @@ describe('ClienteOrdenes Component', () => {
     });
   });
 });
+
+
+

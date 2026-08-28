@@ -1,3 +1,4 @@
+import { Mock } from 'vitest';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import '@testing-library/jest-dom';
 import TableInformes from '../../src/componentes/Tableinforme/informe';
@@ -6,18 +7,18 @@ import * as comprobanteService from '../../src/services/comprobanteService';
 import Swal from 'sweetalert2';
 
 // 1. MOCKS DE MÓDULOS EXTERNOS
-jest.mock('sweetalert2', () => ({
-  fire: jest.fn().mockResolvedValue({ isConfirmed: true, value: 'Nequi' }),
+Mock('sweetalert2', () => ({
+  fire: vi.fn().mockResolvedValue({ isConfirmed: true, value: 'Nequi' }),
 }));
 
 // Mock del componente FormattedId
-jest.mock('../../src/componentes/FormattedId', () => ({
+Mock('../../src/componentes/FormattedId', () => ({
   FormattedId: ({ value }: any) => <span data-testid="formatted-id">{value}</span>,
 }));
 
 // 2. MOCKS DE SERVICIOS (mismas rutas que los imports)
-jest.mock('../../src/services/informe.service');
-jest.mock('../../src/services/comprobanteService');
+Mock('../../src/services/informe.service');
+Mock('../../src/services/comprobanteService');
 
 // ==================== DATOS DE PRUEBA ====================
 const diagnosticoLargo = 'Diagnóstico muy largo que debe ser truncado por el componente '.repeat(2);
@@ -45,7 +46,7 @@ const mockInformes = [
 
 describe('TableInformes Component', () => {
   beforeEach(() => {
-    jest.clearAllMocks();
+    vi.clearAllMocks();
     localStorage.setItem('user_role', 'admin');
     jest.mocked(informeService.obtenerInformes).mockResolvedValue({ data: mockInformes } as any);
     jest.mocked(informeService.obtenerMisInformes).mockResolvedValue({ data: mockInformes } as any);
@@ -264,3 +265,6 @@ it('debería mostrar Eliminar y Comprobante solo al admin, y solo Editar al téc
     });
   });
 });
+
+
+

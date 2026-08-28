@@ -1,3 +1,4 @@
+import { Mock } from 'vitest';
 import {
   obtenerOrdenes,
   insertarOrden,
@@ -8,25 +9,25 @@ import {
 } from '../../src/services/ordenServicioService';
 import { BaseApiService } from '../../src/services/base.service';
 
-// 1. MOCK DE BaseApiService (jest.fn DENTRO de la fábrica)
-jest.mock('../../src/services/base.service', () => {
+// 1. MOCK DE BaseApiService (vi.fn DENTRO de la fábrica)
+Mock('../../src/services/base.service', () => {
   const instance = {
-    obtenerTodos: jest.fn(),
-    crear: jest.fn(),
-    actualizar: jest.fn(),
-    eliminar: jest.fn(),
+    obtenerTodos: vi.fn(),
+    crear: vi.fn(),
+    actualizar: vi.fn(),
+    eliminar: vi.fn(),
     http: {
-      get: jest.fn(),
+      get: vi.fn(),
     },
   };
   return {
     __esModule: true,
-    BaseApiService: jest.fn(() => instance),
+    BaseApiService: vi.fn(() => instance),
   };
 });
 
 // Instancia creada por ordenServicioService al cargarse el módulo
-const base = (BaseApiService as unknown as jest.Mock).mock.results[0].value;
+const base = (BaseApiService as unknown as Mock).mock.results[0].value;
 
 // ==================== DATOS DE PRUEBA ====================
 const mockPayload = {
@@ -44,7 +45,7 @@ const mockPayload = {
 
 describe('ordenServicioService', () => {
   beforeEach(() => {
-    jest.clearAllMocks();
+    vi.clearAllMocks();
   });
 
   // ========== CRUD BÁSICO ==========
@@ -151,3 +152,6 @@ describe('ordenServicioService', () => {
     await expect(obtenerMisOrdenes()).rejects.toThrow('Sin autorización');
   });
 });
+
+
+

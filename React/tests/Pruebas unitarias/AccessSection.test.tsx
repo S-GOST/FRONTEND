@@ -111,3 +111,5 @@ describe('AccessSection Component', () => {
     expect(screen.getByText('Gestión de reparaciones y diagnósticos')).toBeInTheDocument();
   });
 });
+
+

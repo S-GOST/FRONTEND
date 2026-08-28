@@ -432,3 +432,5 @@ describe('TypeScript Interfaces', () => {
     expect(sortedSuggestions[2].price).toBe('80000');
   });
 });
+
+

@@ -1,3 +1,4 @@
+import { Mock } from 'vitest';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import '@testing-library/jest-dom';
 import ClienteMotos from '../../src/componentes/TableCliente/ClienteMotos';
@@ -5,20 +6,20 @@ import * as motoService from '../../src/services/moto.service';
 import Swal from 'sweetalert2';
 
 // 1. VARIABLES DE MOCK
-const mockNavigate = jest.fn();
+const mockNavigate = vi.fn();
 
 // 2. MOCKS DE MÓDULOS EXTERNOS
-jest.mock('sweetalert2', () => ({
-  fire: jest.fn().mockResolvedValue({ isConfirmed: true }),
+Mock('sweetalert2', () => ({
+  fire: vi.fn().mockResolvedValue({ isConfirmed: true }),
 }));
 
-jest.mock('react-router-dom', () => ({
-  ...jest.requireActual('react-router-dom'),
+Mock('react-router-dom', () => ({
+  ...vi.importActual('react-router-dom'),
   useNavigate: () => mockNavigate,
 }));
 
 // 3. MOCKS DE SERVICIOS (mismas rutas que los imports)
-jest.mock('../../src/services/moto.service');
+Mock('../../src/services/moto.service');
 
 // ==================== DATOS DE PRUEBA ====================
 const mockMotos = [
@@ -29,7 +30,7 @@ const mockMotos = [
 
 describe('ClienteMotos Component', () => {
   beforeEach(() => {
-    jest.clearAllMocks();
+    vi.clearAllMocks();
     localStorage.setItem('user_id', '100');
     jest.mocked(motoService.obtenerMotos).mockResolvedValue({ data: mockMotos } as any);
   });
@@ -251,3 +252,6 @@ describe('ClienteMotos Component', () => {
     });
   });
 });
+
+
+

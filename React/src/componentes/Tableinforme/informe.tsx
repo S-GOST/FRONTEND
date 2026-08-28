@@ -14,6 +14,7 @@ import { generarComprobante, obtenerComprobantes } from '../../services/comproba
 
 import { FormattedId } from '../../componentes/FormattedId';
 import { BackButton } from '../BackButton';
+import { extractArray } from '../../utils/apiHelpers';
 import './Informe.css';
 
 const initialFormState: InformePayload = {
@@ -53,10 +54,11 @@ const TableInformes = () => {
         userRole === 'admin' ? obtenerComprobantes() : Promise.resolve({ data: [] }),
       ]);
 
-      setInformes(Array.isArray(informesRes.data) ? informesRes.data : informesRes.data?.data || []);
-      setFilteredInformes(Array.isArray(informesRes.data) ? informesRes.data : informesRes.data?.data || []);
+      const data = extractArray<InformeRecord>(informesRes.data);
+      setInformes(data);
+      setFilteredInformes(data);
       
-      const compData = Array.isArray(comprobantesRes.data) ? comprobantesRes.data : comprobantesRes.data?.data || [];
+      const compData = extractArray(comprobantesRes.data);
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       setComprobantesGenerados(compData.map((c: any) => c.id_orden));
     } catch (error) {

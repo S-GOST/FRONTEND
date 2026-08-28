@@ -1,3 +1,4 @@
+import { Mock } from 'vitest';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import '@testing-library/jest-dom';
 import ForgotPassword from '../../src/pages/ForgotPassword/ForgotPassword';
@@ -5,23 +6,23 @@ import { requestPasswordReset } from '../../src/services/auth.services';
 import Swal from 'sweetalert2';
 
 // 1. MOCKS DE MÓDULOS EXTERNOS
-jest.mock('sweetalert2', () => ({
-  fire: jest.fn(),
+Mock('sweetalert2', () => ({
+  fire: vi.fn(),
 }));
 
-jest.mock('react-router-dom', () => ({
-  ...jest.requireActual('react-router-dom'),
-  useNavigate: () => jest.fn(),
+Mock('react-router-dom', () => ({
+  ...vi.importActual('react-router-dom'),
+  useNavigate: () => vi.fn(),
 }));
 
-jest.mock('../../src/services/auth.services');
+Mock('../../src/services/auth.services');
 
 describe('ForgotPassword Component', () => {
-  const mockNavigate = jest.fn();
+  const mockNavigate = vi.fn();
 
   beforeEach(() => {
-    jest.clearAllMocks();
-    (require('react-router-dom').useNavigate as jest.Mock).mockReturnValue(mockNavigate);
+    vi.clearAllMocks();
+    (require('react-router-dom').useNavigate as Mock).mockReturnValue(mockNavigate);
   });
 
   // 1. RENDERIZADO INICIAL
@@ -73,7 +74,7 @@ describe('ForgotPassword Component', () => {
 
   // 4. ENVÍO EXITOSO
   it('debería enviar la solicitud y navegar al login', async () => {
-    (requestPasswordReset as jest.Mock).mockResolvedValue({ data: { success: true } });
+    (requestPasswordReset as Mock).mockResolvedValue({ data: { success: true } });
     render(<ForgotPassword />);
 
     fireEvent.change(screen.getByPlaceholderText('Correo electrónico'), { target: { value: 'user@test.com' } });
@@ -94,7 +95,7 @@ describe('ForgotPassword Component', () => {
 
   // 5. ERROR EN EL SERVICIO
   it('debería mostrar error si falla la solicitud', async () => {
-    (requestPasswordReset as jest.Mock).mockRejectedValue(new Error('Error de red'));
+    (requestPasswordReset as Mock).mockRejectedValue(new Error('Error de red'));
     render(<ForgotPassword />);
 
     fireEvent.change(screen.getByPlaceholderText('Correo electrónico'), { target: { value: 'user@test.com' } });
@@ -114,7 +115,7 @@ describe('ForgotPassword Component', () => {
 
   // 6. ESTADO DE CARGA
   it('debería deshabilitar el botón durante la carga', async () => {
-    (requestPasswordReset as jest.Mock).mockImplementation(() => new Promise(() => {}));
+    (requestPasswordReset as Mock).mockImplementation(() => new Promise(() => {}));
     render(<ForgotPassword />);
 
     fireEvent.change(screen.getByPlaceholderText('Correo electrónico'), { target: { value: 'user@test.com' } });
@@ -133,3 +134,6 @@ describe('ForgotPassword Component', () => {
     expect(link).toHaveAttribute('href', '/login');
   });
 });
+
+
+

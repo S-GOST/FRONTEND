@@ -4,7 +4,7 @@ import ProtectedRoute from '../../src/routes/ProtectedRoute';
 
 describe('ProtectedRoute Component', () => {
   beforeEach(() => {
-    jest.clearAllMocks();
+    vi.clearAllMocks();
     localStorage.clear();
   });
 
@@ -270,3 +270,5 @@ describe('ProtectedRoute Component', () => {
     expect(screen.getByText('Dashboard Admin Default')).toBeInTheDocument();
   });
 });
+
+
