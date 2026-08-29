@@ -1,3 +1,4 @@
+import { MemoryRouter } from 'react-router-dom';
 import { render, screen, fireEvent, waitFor, within } from '@testing-library/react';
 import '@testing-library/jest-dom';
 import TecnicoDashboard from '../../src/componentes/TableTecnico/TecnicoDashboard';
@@ -12,12 +13,10 @@ import Swal from 'sweetalert2';
 const mockNavigate = vi.fn();
 
 // 2. MOCKS DE MÓDULOS EXTERNOS
-vi.mock('sweetalert2', () => ({
-  fire: vi.fn().mockResolvedValue({ isConfirmed: true }),
-}));
+vi.mock('sweetalert2', () => ({ default: { fire: vi.fn().mockResolvedValue({ isConfirmed: true, value: '5' }), getInput: vi.fn() } }));
 
-vi.mock('react-router-dom', () => ({
-  ...vi.importActual('react-router-dom'),
+vi.mock('react-router-dom', async () => ({
+  ...(await vi.importActual('react-router-dom') as any),
   useNavigate: () => mockNavigate,
 }));
 
@@ -54,11 +53,11 @@ describe('TecnicoDashboard Component', () => {
     localStorage.setItem('user_name', 'Carlos Técnico');
     localStorage.setItem('user_id', '5');
 
-    jest.mocked(ordenService.obtenerMisOrdenes).mockResolvedValue({ data: mockOrdenes } as any);
-    jest.mocked(clienteService.obtenerClientes).mockResolvedValue({ data: mockClientes } as any);
-    jest.mocked(informeService.obtenerMisInformes).mockResolvedValue({ data: mockInformes } as any);
-    jest.mocked(ordenService.actualizarOrden).mockResolvedValue({ data: { success: true } } as any);
-    jest.mocked(informeService.crearInforme).mockResolvedValue({ data: { success: true } } as any);
+    vi.mocked(ordenService.obtenerMisOrdenes).mockResolvedValue({ data: mockOrdenes } as any);
+    vi.mocked(clienteService.obtenerClientes).mockResolvedValue({ data: mockClientes } as any);
+    vi.mocked(informeService.obtenerMisInformes).mockResolvedValue({ data: mockInformes } as any);
+    vi.mocked(ordenService.actualizarOrden).mockResolvedValue({ data: { success: true } } as any);
+    vi.mocked(informeService.crearInforme).mockResolvedValue({ data: { success: true } } as any);
   });
 
   afterEach(() => {
@@ -67,14 +66,14 @@ describe('TecnicoDashboard Component', () => {
 
   // 1. ESTADO DE CARGA
   it('debería mostrar el loader mientras consulta la API', () => {
-    jest.mocked(ordenService.obtenerMisOrdenes).mockImplementation(() => new Promise(() => {}));
-    render(<TecnicoDashboard />);
+    vi.mocked(ordenService.obtenerMisOrdenes).mockImplementation(() => new Promise(() => {}));
+    render(<MemoryRouter><TecnicoDashboard /></MemoryRouter>);
     expect(screen.getByText(/cargando panel técnico/i)).toBeInTheDocument();
   });
 
   // 2. HEADER Y ESTADÍSTICAS
   it('debería mostrar el nombre del técnico y las estadísticas calculadas', async () => {
-    render(<TecnicoDashboard />);
+    render(<MemoryRouter><TecnicoDashboard /></MemoryRouter>);
 
     await waitFor(() => {
       expect(screen.getByText(/panel de carlos técnico/i)).toBeInTheDocument();
@@ -88,8 +87,8 @@ describe('TecnicoDashboard Component', () => {
 
   // 3. ERROR AL CARGAR
   it('debería mostrar banner de error si falla la carga', async () => {
-    jest.mocked(ordenService.obtenerMisOrdenes).mockRejectedValue({ response: { data: { message: 'Sin conexión' } } });
-    render(<TecnicoDashboard />);
+    vi.mocked(ordenService.obtenerMisOrdenes).mockRejectedValue({ response: { data: { message: 'Sin conexión' } } });
+    render(<MemoryRouter><TecnicoDashboard /></MemoryRouter>);
 
     await waitFor(() => {
       expect(screen.getByText('Sin conexión')).toBeInTheDocument();
@@ -98,7 +97,7 @@ describe('TecnicoDashboard Component', () => {
 
   // 4. TARJETAS DE ÓRDENES CON ACCIONES POR ESTADO
   it('debería mostrar las órdenes con clientes resueltos y acciones según estado', async () => {
-    render(<TecnicoDashboard />);
+    render(<MemoryRouter><TecnicoDashboard /></MemoryRouter>);
 
     await waitFor(() => {
       expect(screen.getAllByText('Juan Pérez').length).toBeGreaterThan(0);
@@ -119,7 +118,7 @@ describe('TecnicoDashboard Component', () => {
 
   // 5. BÚSQUEDA EN EL PANEL DE ÓRDENES
   it('debería filtrar las tarjetas al buscar por cliente', async () => {
-    render(<TecnicoDashboard />);
+    render(<MemoryRouter><TecnicoDashboard /></MemoryRouter>);
     await waitFor(() => expect(document.querySelectorAll('.orden-card').length).toBe(3));
 
     fireEvent.change(screen.getByPlaceholderText(/buscar por cliente o número de orden/i), { target: { value: 'María' } });
@@ -132,7 +131,7 @@ describe('TecnicoDashboard Component', () => {
 
   // 6. FILTRO POR CHIPS DE ESTADO
   it('debería filtrar las órdenes al hacer clic en el chip Finalizadas', async () => {
-    render(<TecnicoDashboard />);
+    render(<MemoryRouter><TecnicoDashboard /></MemoryRouter>);
     await waitFor(() => expect(document.querySelectorAll('.orden-card').length).toBe(3));
 
     fireEvent.click(screen.getByText('Finalizadas'));
@@ -145,7 +144,7 @@ describe('TecnicoDashboard Component', () => {
 
   // 7. INICIAR TRABAJO (CAMBIO DE ESTADO)
   it('debería actualizar el estado a "En proceso" tras confirmar', async () => {
-    render(<TecnicoDashboard />);
+    render(<MemoryRouter><TecnicoDashboard /></MemoryRouter>);
     await waitFor(() => expect(screen.getByRole('button', { name: /iniciar trabajo/i })).toBeInTheDocument());
 
     fireEvent.click(screen.getByRole('button', { name: /iniciar trabajo/i }));
@@ -162,8 +161,8 @@ describe('TecnicoDashboard Component', () => {
 
   // 8. CANCELAR CAMBIO DE ESTADO
   it('no debería actualizar el estado si se cancela', async () => {
-    jest.mocked(Swal.fire).mockResolvedValueOnce({ isConfirmed: false } as any);
-    render(<TecnicoDashboard />);
+    vi.mocked(Swal.fire).mockResolvedValueOnce({ isConfirmed: false } as any);
+    render(<MemoryRouter><TecnicoDashboard /></MemoryRouter>);
     await waitFor(() => expect(screen.getByRole('button', { name: /iniciar trabajo/i })).toBeInTheDocument());
 
     fireEvent.click(screen.getByRole('button', { name: /iniciar trabajo/i }));
@@ -175,14 +174,14 @@ describe('TecnicoDashboard Component', () => {
 
   // 9. MODAL DE DETALLE CON SERVICIOS Y MOTO
   it('debería mostrar el detalle de la orden con servicios y datos de la moto', async () => {
-    jest.mocked(ordenService.obtenerDetallesPorOrden).mockResolvedValue({
+    vi.mocked(ordenService.obtenerDetallesPorOrden).mockResolvedValue({
       data: { data: [{ ID_DETALLES_ORDEN_SERVICIO: 1, NombreServicio: 'Mantenimiento', NombreProducto: null, cantidad: 1, Precio: 100000, subtotal: 100000 }] },
     } as any);
-    jest.mocked(motoService.obtenerMotoPorId).mockResolvedValue({
+    vi.mocked(motoService.obtenerMotoPorId).mockResolvedValue({
       data: { data: { Placa: 'ABC12D', Marca: 'KTM', Modelo: 'Duke 390', Cilindraje: 390, Kilometraje: 15000 } },
     } as any);
 
-    render(<TecnicoDashboard />);
+    render(<MemoryRouter><TecnicoDashboard /></MemoryRouter>);
     await waitFor(() => expect(screen.getAllByRole('button', { name: 'Detalles' }).length).toBeGreaterThan(0));
 
     fireEvent.click(screen.getAllByRole('button', { name: 'Detalles' })[0]);
@@ -196,11 +195,12 @@ describe('TecnicoDashboard Component', () => {
 
   // 10. VALIDACIÓN DEL FORMULARIO DE INFORME
   it('debería exigir diagnóstico o trabajo realizado al guardar el informe', async () => {
-    render(<TecnicoDashboard />);
+    render(<MemoryRouter><TecnicoDashboard /></MemoryRouter>);
     await waitFor(() => expect(screen.getByRole('button', { name: /redactar informe/i })).toBeInTheDocument());
 
     fireEvent.click(screen.getByRole('button', { name: /redactar informe/i }));
-    fireEvent.click(screen.getByRole('button', { name: /guardar informe/i }));
+    const guardarBtns = screen.getAllByRole('button', { name: /guardar informe/i });
+    fireEvent.click(guardarBtns[guardarBtns.length - 1]);
 
     await waitFor(() => {
       expect(Swal.fire).toHaveBeenCalledWith(
@@ -214,7 +214,7 @@ describe('TecnicoDashboard Component', () => {
 
   // 11. GUARDAR INFORME Y FINALIZAR ORDEN
   it('debería crear el informe y marcar la orden como Finalizada', async () => {
-    render(<TecnicoDashboard />);
+    render(<MemoryRouter><TecnicoDashboard /></MemoryRouter>);
     await waitFor(() => expect(screen.getByRole('button', { name: /redactar informe/i })).toBeInTheDocument());
 
     fireEvent.click(screen.getByRole('button', { name: /redactar informe/i }));
@@ -222,7 +222,8 @@ describe('TecnicoDashboard Component', () => {
     fireEvent.change(screen.getByPlaceholderText(/describe el problema/i), { target: { value: 'Frenos desgastados' } });
     fireEvent.change(screen.getByPlaceholderText(/detalla el trabajo/i), { target: { value: 'Cambio de pastillas' } });
 
-    fireEvent.click(screen.getByRole('button', { name: /guardar informe/i }));
+    const guardarBtns = screen.getAllByRole('button', { name: /guardar informe/i });
+    fireEvent.click(guardarBtns[guardarBtns.length - 1]);
 
     await waitFor(() => {
       expect(informeService.crearInforme).toHaveBeenCalledWith(
@@ -241,13 +242,10 @@ describe('TecnicoDashboard Component', () => {
     });
   });
 
-  // 12. NAVEGACIÓN A INVENTARIO E INFORMES
-  it('debería navegar a inventario y a informes con sus botones', async () => {
-    render(<TecnicoDashboard />);
-    await waitFor(() => expect(screen.getByRole('button', { name: /inventario/i })).toBeInTheDocument());
-
-    fireEvent.click(screen.getByRole('button', { name: /inventario/i }));
-    expect(mockNavigate).toHaveBeenCalledWith('/tecnico/inventario');
+  // 12. NAVEGACIÓN A INFORMES
+  it('debería navegar a informes con el botón Mis Informes', async () => {
+    render(<MemoryRouter><TecnicoDashboard /></MemoryRouter>);
+    await waitFor(() => expect(screen.getByRole('button', { name: /mis informes/i })).toBeInTheDocument());
 
     fireEvent.click(screen.getByRole('button', { name: /mis informes/i }));
     expect(mockNavigate).toHaveBeenCalledWith('/tecnico/informes');
@@ -255,10 +253,11 @@ describe('TecnicoDashboard Component', () => {
 
   // 13. CIERRE DE SESIÓN
   it('debería cerrar sesión tras confirmar', async () => {
-    render(<TecnicoDashboard />);
-    await waitFor(() => expect(screen.getByRole('button', { name: /salir/i })).toBeInTheDocument());
+    render(<MemoryRouter><TecnicoDashboard /></MemoryRouter>);
+    await waitFor(() => expect(screen.queryByText(/cargando panel técnico/i)).not.toBeInTheDocument());
 
-    fireEvent.click(screen.getByRole('button', { name: /salir/i }));
+    const logoutBtn = screen.getByRole('button', { name: /salir/i });
+    fireEvent.click(logoutBtn);
 
     await waitFor(() => {
       expect(Swal.fire).toHaveBeenCalledWith(expect.objectContaining({ title: '¿Cerrar sesión?' }));

@@ -1,3 +1,4 @@
+import { MemoryRouter } from 'react-router-dom';
 import { render, screen } from '@testing-library/react';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import Cart from '../../src/componentes/Cart';
@@ -28,11 +29,9 @@ describe('Componente Cart (Carrito de compras)', () => {
 
   it('debe renderizar el título y mostrar que el carrito está vacío inicialmente', async () => {
     // Envolvemos Cart en BrowserRouter porque usa <Link> y useNavigate internamente
-    render(
-      <BrowserRouter>
+    render(<BrowserRouter>
         <Cart />
-      </BrowserRouter>
-    );
+      </BrowserRouter>);
 
     // Verificamos que el título principal esté presente
     expect(screen.getByText(/TU CARRITO DE COMPRAS/i)).toBeInTheDocument();
@@ -58,11 +57,9 @@ describe('Componente Cart (Carrito de compras)', () => {
     localStorage.setItem('ktmCart', JSON.stringify(mockCart));
 
     // 2. EJECUCIÓN: Renderizamos el componente
-    render(
-      <BrowserRouter>
+    render(<BrowserRouter>
         <Cart />
-      </BrowserRouter>
-    );
+      </BrowserRouter>);
 
     // 3. VALIDACIÓN:
     // Debe mostrar el nombre del producto

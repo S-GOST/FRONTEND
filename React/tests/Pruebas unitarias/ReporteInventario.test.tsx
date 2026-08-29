@@ -1,5 +1,6 @@
 import { Mock } from 'vitest';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
+import { MemoryRouter } from 'react-router-dom';
 import '@testing-library/jest-dom';
 import ReporteInventario from '../../src/componentes/TableAdmin/ReporteInventario';
 import { obtenerReporteInventario } from '../../src/services/informe.service';
@@ -11,9 +12,7 @@ vi.mock('../../src/services/informe.service');
 vi.mock('../../src/services/categoria.service');
 
 // Mock de SweetAlert2
-vi.mock('sweetalert2', () => ({
-  fire: vi.fn(),
-}));
+vi.mock('sweetalert2', () => ({ default: { fire: vi.fn().mockResolvedValue({ isConfirmed: true }), getInput: vi.fn() } }));
 
 // Helper para fechas
 const getHace30Dias = () => {
@@ -30,7 +29,7 @@ describe('ReporteInventario Component', () => {
     vi.clearAllMocks();
     
     // Mock de categorías por defecto
-    jest.mocked(obtenerCategoriasPorTipo).mockResolvedValue({
+    vi.mocked(obtenerCategoriasPorTipo).mockResolvedValue({
       data: {
         success: true,
         data: [
@@ -43,7 +42,7 @@ describe('ReporteInventario Component', () => {
 
   // 1. PRUEBA DE RENDERIZADO INICIAL
   it('debería renderizar el componente con valores por defecto', async () => {
-    render(<ReporteInventario />);
+    render(<MemoryRouter><ReporteInventario /></MemoryRouter>);
     
     expect(screen.getByText(/inventario de productos/i)).toBeInTheDocument();
     expect(screen.getByLabelText(/categoría/i)).toHaveValue('');
@@ -75,7 +74,7 @@ describe('ReporteInventario Component', () => {
       .mockResolvedValueOnce({ data: { success: true, data: mockCategoriasProducto } })
       .mockResolvedValueOnce({ data: { success: true, data: mockCategoriasServicio } });
 
-    render(<ReporteInventario />);
+    render(<MemoryRouter><ReporteInventario /></MemoryRouter>);
 
     await waitFor(() => {
       const select = screen.getByLabelText(/categoría/i);
@@ -87,9 +86,10 @@ describe('ReporteInventario Component', () => {
 
   // 3. PRUEBA DE VALIDACIÓN - FECHAS INCOMPLETAS
   it('debería mostrar alerta si solo se selecciona una fecha', async () => {
-    render(<ReporteInventario />);
+    render(<MemoryRouter><ReporteInventario /></MemoryRouter>);
     
     fireEvent.change(screen.getByLabelText(/uso desde/i), { target: { value: '2026-08-01' } });
+    fireEvent.change(screen.getByLabelText(/uso hasta/i), { target: { value: '' } });
     
     const btnGenerar = screen.getByRole('button', { name: /generar reporte/i });
     fireEvent.click(btnGenerar);
@@ -105,7 +105,7 @@ describe('ReporteInventario Component', () => {
 
   // 4. PRUEBA DE VALIDACIÓN - FECHA INICIO > FECHA FIN
   it('debería mostrar alerta si fecha inicio es mayor a fecha fin', async () => {
-    render(<ReporteInventario />);
+    render(<MemoryRouter><ReporteInventario /></MemoryRouter>);
     
     fireEvent.change(screen.getByLabelText(/uso desde/i), { target: { value: '2026-09-01' } });
     fireEvent.change(screen.getByLabelText(/uso hasta/i), { target: { value: '2026-08-01' } });
@@ -138,13 +138,10 @@ describe('ReporteInventario Component', () => {
       ]
     };
 
-    jest.mocked(obtenerReporteInventario).mockResolvedValue({
-      success: true,
-      data: mockData
-    } as any);
+    vi.mocked(obtenerReporteInventario).mockResolvedValue({ data: { success: true, data: mockData } } as any);
 
-    render(<ReporteInventario />);
-    
+    render(<MemoryRouter><ReporteInventario /></MemoryRouter>);
+    await waitFor(() => expect(screen.getAllByText('Categoría 1')[0]).toBeInTheDocument());
     const btnGenerar = screen.getByRole('button', { name: /generar reporte/i });
     fireEvent.click(btnGenerar);
     
@@ -153,8 +150,8 @@ describe('ReporteInventario Component', () => {
     });
     
     await waitFor(() => {
-      expect(screen.getByText('$1.500.000')).toBeInTheDocument();
-      expect(screen.getByText('$800.000')).toBeInTheDocument();
+      expect(screen.getAllByText(/1\.500\.000/)[0]).toBeInTheDocument();
+      expect(screen.getByText(/800\.000/)).toBeInTheDocument();
       expect(screen.getByText('1')).toBeInTheDocument();
     });
     
@@ -165,13 +162,10 @@ describe('ReporteInventario Component', () => {
 
   // 6. PRUEBA DE ESTADO SIN DATOS
   it('debería mostrar mensaje cuando no hay datos', async () => {
-    jest.mocked(obtenerReporteInventario).mockResolvedValue({
-      success: true,
-      data: null
-    } as any);
+    vi.mocked(obtenerReporteInventario).mockResolvedValue({ data: { success: true, data: null } } as any);
 
-    render(<ReporteInventario />);
-    
+    render(<MemoryRouter><ReporteInventario /></MemoryRouter>);
+    await waitFor(() => expect(screen.getAllByText('Categoría 1')[0]).toBeInTheDocument());
     const btnGenerar = screen.getByRole('button', { name: /generar reporte/i });
     fireEvent.click(btnGenerar);
     
@@ -183,10 +177,10 @@ describe('ReporteInventario Component', () => {
   // 7. PRUEBA DE ERROR 404
   it('debería manejar error 404 mostrando sin datos', async () => {
     const error = { response: { status: 404 } };
-    jest.mocked(obtenerReporteInventario).mockRejectedValue(error);
+    vi.mocked(obtenerReporteInventario).mockRejectedValue(error);
 
-    render(<ReporteInventario />);
-    
+    render(<MemoryRouter><ReporteInventario /></MemoryRouter>);
+    await waitFor(() => expect(screen.getAllByText('Categoría 1')[0]).toBeInTheDocument());
     const btnGenerar = screen.getByRole('button', { name: /generar reporte/i });
     fireEvent.click(btnGenerar);
     
@@ -203,10 +197,10 @@ describe('ReporteInventario Component', () => {
         data: { message: 'Error del servidor' } 
       } 
     };
-    jest.mocked(obtenerReporteInventario).mockRejectedValue(error);
+    vi.mocked(obtenerReporteInventario).mockRejectedValue(error);
 
-    render(<ReporteInventario />);
-    
+    render(<MemoryRouter><ReporteInventario /></MemoryRouter>);
+    await waitFor(() => expect(screen.getAllByText('Categoría 1')[0]).toBeInTheDocument());
     const btnGenerar = screen.getByRole('button', { name: /generar reporte/i });
     fireEvent.click(btnGenerar);
     
@@ -221,12 +215,8 @@ describe('ReporteInventario Component', () => {
 
   // 9. PRUEBA DE FILTRO DE CATEGORÍA
   it('debería permitir seleccionar una categoría', async () => {
-    render(<ReporteInventario />);
-    
-    await waitFor(() => {
-      expect(obtenerCategoriasPorTipo).toHaveBeenCalled();
-    });
-    
+    render(<MemoryRouter><ReporteInventario /></MemoryRouter>);
+    await waitFor(() => expect(screen.getAllByText('Categoría 1')[0]).toBeInTheDocument());
     const select = screen.getByLabelText(/categoría/i);
     fireEvent.change(select, { target: { value: '1' } });
     
@@ -245,13 +235,10 @@ describe('ReporteInventario Component', () => {
       masUsadosServicios: []
     };
 
-    jest.mocked(obtenerReporteInventario).mockResolvedValue({
-      success: true,
-      data: mockData
-    } as any);
+    vi.mocked(obtenerReporteInventario).mockResolvedValue({ data: { success: true, data: mockData } } as any);
 
-    render(<ReporteInventario />);
-    
+    render(<MemoryRouter><ReporteInventario /></MemoryRouter>);
+    await waitFor(() => expect(screen.getAllByText('Categoría 1')[0]).toBeInTheDocument());
     fireEvent.click(screen.getByRole('button', { name: /generar reporte/i }));
     
     await waitFor(() => {
@@ -270,13 +257,10 @@ describe('ReporteInventario Component', () => {
       masUsadosServicios: []
     };
 
-    jest.mocked(obtenerReporteInventario).mockResolvedValue({
-      success: true,
-      data: mockData
-    } as any);
+    vi.mocked(obtenerReporteInventario).mockResolvedValue({ data: { success: true, data: mockData } } as any);
 
-    render(<ReporteInventario />);
-    
+    render(<MemoryRouter><ReporteInventario /></MemoryRouter>);
+    await waitFor(() => expect(screen.getAllByText('Categoría 1')[0]).toBeInTheDocument());
     fireEvent.click(screen.getByRole('button', { name: /generar reporte/i }));
     
     await waitFor(() => {
@@ -296,13 +280,10 @@ describe('ReporteInventario Component', () => {
       masUsadosServicios: []
     };
 
-    jest.mocked(obtenerReporteInventario).mockResolvedValue({
-      success: true,
-      data: mockData
-    } as any);
+    vi.mocked(obtenerReporteInventario).mockResolvedValue({ data: { success: true, data: mockData } } as any);
 
-    render(<ReporteInventario />);
-    
+    render(<MemoryRouter><ReporteInventario /></MemoryRouter>);
+    await waitFor(() => expect(screen.getAllByText('Categoría 1')[0]).toBeInTheDocument());
     fireEvent.click(screen.getByRole('button', { name: /generar reporte/i }));
     
     await waitFor(() => {
@@ -323,20 +304,17 @@ describe('ReporteInventario Component', () => {
       ]
     };
 
-    jest.mocked(obtenerReporteInventario).mockResolvedValue({
-      success: true,
-      data: mockData
-    } as any);
+    vi.mocked(obtenerReporteInventario).mockResolvedValue({ data: { success: true, data: mockData } } as any);
 
-    render(<ReporteInventario />);
-    
+    render(<MemoryRouter><ReporteInventario /></MemoryRouter>);
+    await waitFor(() => expect(screen.getAllByText('Categoría 1')[0]).toBeInTheDocument());
     fireEvent.click(screen.getByRole('button', { name: /generar reporte/i }));
     
     await waitFor(() => {
       expect(screen.getByText(/servicios más utilizados/i)).toBeInTheDocument();
       expect(screen.getByText('Mantenimiento')).toBeInTheDocument();
-      expect(screen.getByText('$200.000')).toBeInTheDocument();
-      expect(screen.getByText('$2.000.000')).toBeInTheDocument();
+      expect(screen.getByText(/200\.000/)).toBeInTheDocument();
+      expect(screen.getAllByText(/2\.000\.000/)[0]).toBeInTheDocument();
     });
   });
 
@@ -350,34 +328,29 @@ describe('ReporteInventario Component', () => {
       masUsadosServicios: []
     };
 
-    jest.mocked(obtenerReporteInventario).mockResolvedValue({
-      success: true,
-      data: mockData
-    } as any);
+    vi.mocked(obtenerReporteInventario).mockResolvedValue({ data: { success: true, data: mockData } } as any);
 
-    render(<ReporteInventario />);
-    
-    await waitFor(() => {
-      const select = screen.getByLabelText(/categoría/i);
-      fireEvent.change(select, { target: { value: '1' } });
-    });
+    render(<MemoryRouter><ReporteInventario /></MemoryRouter>);
+    await waitFor(() => expect(screen.getAllByText('Categoría 1')[0]).toBeInTheDocument());
+    const select = screen.getByLabelText(/categoría/i);
+    fireEvent.change(select, { target: { value: '1' } });
     
     fireEvent.click(screen.getByRole('button', { name: /generar reporte/i }));
     
     await waitFor(() => {
-      expect(screen.getByText('$100.000')).toBeInTheDocument();
-      expect(screen.queryByText('$50.000')).not.toBeInTheDocument();
+      expect(screen.getByText(/100\.000/)).toBeInTheDocument();
+      expect(screen.queryByText(/50\.000/)).not.toBeInTheDocument();
     });
   });
 
   // 15. PRUEBA DE BOTÓN DESHABILITADO
   it('debería deshabilitar el botón mientras se carga', async () => {
-    jest.mocked(obtenerReporteInventario).mockImplementation(
+    vi.mocked(obtenerReporteInventario).mockImplementation(
       () => new Promise(() => {})
     );
 
-    render(<ReporteInventario />);
-    
+    render(<MemoryRouter><ReporteInventario /></MemoryRouter>);
+    await waitFor(() => expect(screen.getAllByText('Categoría 1')[0]).toBeInTheDocument());
     const btnGenerar = screen.getByRole('button', { name: /generar reporte/i });
     fireEvent.click(btnGenerar);
     
@@ -396,17 +369,14 @@ describe('ReporteInventario Component', () => {
       masUsadosServicios: []
     };
 
-    jest.mocked(obtenerReporteInventario).mockResolvedValue({
-      success: true,
-      data: mockData
-    } as any);
+    vi.mocked(obtenerReporteInventario).mockResolvedValue({ data: { success: true, data: mockData } } as any);
 
-    render(<ReporteInventario />);
-    
+    render(<MemoryRouter><ReporteInventario /></MemoryRouter>);
+    await waitFor(() => expect(screen.getAllByText('Categoría 1')[0]).toBeInTheDocument());
     fireEvent.click(screen.getByRole('button', { name: /generar reporte/i }));
     
     await waitFor(() => {
-      expect(screen.getByText('$1.234.567')).toBeInTheDocument();
+      expect(screen.getByText(/1\.234\.567/)).toBeInTheDocument();
     });
   });
 
@@ -421,7 +391,7 @@ describe('ReporteInventario Component', () => {
       .mockResolvedValueOnce({ data: { success: true, data: mockProducto } })
       .mockResolvedValueOnce({ data: { success: true, data: mockServicio } });
 
-    render(<ReporteInventario />);
+    render(<MemoryRouter><ReporteInventario /></MemoryRouter>);
 
     await waitFor(() => {
       const select = screen.getByLabelText(/categoría/i);

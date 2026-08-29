@@ -190,7 +190,7 @@ function Servicios() {
   // ✅ MANEJADOR: SOLO NÚMEROS (ID Servicio)
   const handleNumberOnlyInput = (event: ChangeEvent<HTMLInputElement>) => {
     const { name, value } = event.target;
-    const sanitizedValue = filterOnlyNumbers(value);
+    const sanitizedValue = filterOnlyNumbers(value); console.log('NUM_ONLY', { name, value, sanitizedValue });
 
     if (value !== sanitizedValue) {
       Swal.fire({
@@ -254,9 +254,9 @@ function Servicios() {
     return null;
   };
 
-  const handleCreate = async (event: FormEvent<HTMLFormElement>) => {
+  const handleCreate = async (event: FormEvent<HTMLFormElement>) => { console.log('HANDLE_CREATE', formData);
     event.preventDefault();
-    const error = validateForm();
+    const error = validateForm(); console.log('VALIDATE_FORM_ERROR', error);
     if (error) {
       showAlert('Datos incompletos', error, 'warning');
       return;
@@ -495,7 +495,7 @@ function Servicios() {
       {/* Modal Crear */}
       {showCreateModal && (
         <div className="modal-overlay" onClick={closeCreateModal}>
-          <div className="modal-container" onClick={(e) => e.stopPropagation()}>
+          <div className="modal-container" onClick={(e) => e.stopPropagation()} role="button" tabIndex={0} onKeyDown={(e) => { if (e.key === 'Enter') e.currentTarget.click() }}>
             <div className="modal-header">
               <h3>Crear Servicio</h3>
               <button type="button" className="close-btn" onClick={closeCreateModal}>
@@ -596,7 +596,7 @@ function Servicios() {
       {/* Modal Editar */}
       {showEditModal && currentServicio && (
         <div className="modal-overlay" onClick={closeEditModal}>
-          <div className="modal-container" onClick={(e) => e.stopPropagation()}>
+          <div className="modal-container" onClick={(e) => e.stopPropagation()} role="button" tabIndex={0} onKeyDown={(e) => { if (e.key === 'Enter') e.currentTarget.click() }}>
             <div className="modal-header">
               <h3><i className="bi bi-pencil-square"></i> Editar Servicio</h3>
               <button type="button" className="close-btn" onClick={closeEditModal}>

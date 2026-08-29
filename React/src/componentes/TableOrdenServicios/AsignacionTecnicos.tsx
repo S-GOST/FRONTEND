@@ -119,16 +119,16 @@ const AsignacionTecnicos = () => {
           </div>
           <div style="margin-top: 15px; text-align: left; display: flex; gap: 10px;">
             <div style="flex: 1;">
-              <label for="fecha-estimada" style="display: block; color: #aaa; margin-bottom: 5px; font-size: 0.9rem;">Fecha Estimada</label>
-              <input type="date" id="fecha-estimada" class="swal2-input" style="width: 100%; max-width: 100%; background: #222; color: #fff; border: 1px solid #444; margin: 0; font-size: 0.9rem; padding: 0 10px;" />
+              <label for="fecha-estimada" style="display: block; color: #aaa; margin-bottom: 5px; font-size: 0.9rem;" htmlFor="auto-id-492788">Fecha Estimada</label>
+<input id="auto-id-492788" type="date" id="fecha-estimada" class="swal2-input" style="width: 100%; max-width: 100%; background: #222; color: #fff; border: 1px solid #444; margin: 0; font-size: 0.9rem; padding: 0 10px;" />
             </div>
             <div style="flex: 1;">
-              <label for="garantia-productos" style="display: block; color: #aaa; margin-bottom: 5px; font-size: 0.9rem;">Garantía Productos (Días)</label>
-              <input type="number" id="garantia-productos" class="swal2-input" placeholder="Ej. 30" min="0" style="width: 100%; max-width: 100%; background: #222; color: #fff; border: 1px solid #444; margin: 0; font-size: 0.9rem; padding: 0 10px;" />
+              <label for="garantia-productos" style="display: block; color: #aaa; margin-bottom: 5px; font-size: 0.9rem;" htmlFor="auto-id-492789">Garantía Productos (Días)</label>
+<input id="auto-id-492789" type="number" id="garantia-productos" class="swal2-input" placeholder="Ej. 30" min="0" style="width: 100%; max-width: 100%; background: #222; color: #fff; border: 1px solid #444; margin: 0; font-size: 0.9rem; padding: 0 10px;" />
             </div>
             <div style="flex: 1;">
-              <label for="garantia-servicios" style="display: block; color: #aaa; margin-bottom: 5px; font-size: 0.9rem;">Garantía Servicios (Días)</label>
-              <input type="number" id="garantia-servicios" class="swal2-input" placeholder="Ej. 15" min="0" style="width: 100%; max-width: 100%; background: #222; color: #fff; border: 1px solid #444; margin: 0; font-size: 0.9rem; padding: 0 10px;" />
+              <label for="garantia-servicios" style="display: block; color: #aaa; margin-bottom: 5px; font-size: 0.9rem;" htmlFor="auto-id-492790">Garantía Servicios (Días)</label>
+<input id="auto-id-492790" type="number" id="garantia-servicios" class="swal2-input" placeholder="Ej. 15" min="0" style="width: 100%; max-width: 100%; background: #222; color: #fff; border: 1px solid #444; margin: 0; font-size: 0.9rem; padding: 0 10px;" />
             </div>
           </div>
         </div>

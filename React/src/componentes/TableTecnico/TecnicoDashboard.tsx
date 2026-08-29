@@ -8,8 +8,7 @@ import {
   type OrdenServicioRecord
 } from '../../services/ordenServicioService';
 import {
-  obtenerClientes,
-  type ClienteRecord
+  obtenerClientes
 } from '../../services/cliente.service';
 import { clearSession } from '../../services/auth.services';
 import { formatId } from '../../utils/formatIds';
@@ -25,7 +24,7 @@ const TecnicoDashboard = () => {
   const tecnicoNombre = localStorage.getItem('user_name') || 'Técnico';
 
   const tecnicoIdRaw = localStorage.getItem('user_id');
-  const tecnicoId = tecnicoIdRaw ? parseInt(tecnicoIdRaw, 10) : null;
+  const tecnicoId = tecnicoIdRaw ? Number.parseInt(tecnicoIdRaw, 10) : null;
 
   const [activeTab, setActiveTab] = useState<'activas' | 'historial' | 'informes'>('activas');
 
@@ -66,7 +65,7 @@ const TecnicoDashboard = () => {
   const formatDate = (dateStr: string | null | undefined) => {
     if (!dateStr) return '—';
     const d = new Date(dateStr);
-    if (isNaN(d.getTime())) return '—';
+    if (Number.isNaN(d.getTime())) return '—';
     return d.toLocaleDateString('es-CO', { day: '2-digit', month: '2-digit', year: 'numeric' });
   };
 
@@ -235,7 +234,7 @@ const TecnicoDashboard = () => {
       const d = new Date(o.Fecha_fin);
       const now = new Date();
       // Considerarla de hoy si se finalizó en las últimas 24 horas
-      return !isNaN(d.getTime()) && (now.getTime() - d.getTime()) < 86400000;
+      return !Number.isNaN(d.getTime()) && (now.getTime() - d.getTime()) < 86400000;
     }).length,
   };
 
@@ -425,7 +424,7 @@ const TecnicoDashboard = () => {
       {/* ===== MODAL: DETALLE ORDEN ===== */}
       {modalAbierto && ordenActual && (
         <div className="modal-overlay" onClick={() => setModalAbierto(false)}>
-          <div className="modal-content modal-tecnico" onClick={e => e.stopPropagation()}>
+          <div className="modal-content modal-tecnico" onClick={e => e.stopPropagation()} role="button" tabIndex={0} onKeyDown={(e) => { if (e.key === 'Enter') e.currentTarget.click() }}>
             <div className="modal-header">
               <h3><i className="bi bi-tools"></i> Detalle — {formatId('orden', ordenActual.ID_ORDEN_SERVICIO)}</h3>
               <button className="modal-close" onClick={() => setModalAbierto(false)}>×</button>
@@ -533,7 +532,7 @@ const TecnicoDashboard = () => {
       {/* ===== MODAL: CREAR INFORME ===== */}
       {modalInformeAbierto && ordenActual && (
         <div className="modal-overlay" onClick={() => setModalInformeAbierto(false)}>
-          <div className="modal-content modal-tecnico" onClick={e => e.stopPropagation()} style={{ maxWidth: '650px' }}>
+          <div className="modal-content modal-tecnico" onClick={e => e.stopPropagation()} role="button" tabIndex={0} onKeyDown={(e) => { if (e.key === 'Enter') e.currentTarget.click() }} style={{ maxWidth: '650px' }}>
             <div className="modal-header">
               <h3><i className="bi bi-file-earmark-plus"></i> Informe — {formatId('orden', ordenActual.ID_ORDEN_SERVICIO)}</h3>
               <button className="modal-close" onClick={() => setModalInformeAbierto(false)}>×</button>
@@ -553,10 +552,10 @@ const TecnicoDashboard = () => {
                   { key: 'recomendaciones', label: 'Recomendaciones', icon: 'bi-chat-square-text', placeholder: 'Indica próximo mantenimiento, cuidados, etc...' },
                 ].map(({ key, label, icon, placeholder }) => (
                   <div className="form-group" key={key} style={{ marginBottom: '1rem' }}>
-                    <label style={{ display: 'block', color: '#aaa', fontWeight: 600, fontSize: '0.85rem', marginBottom: '0.4rem', textTransform: 'uppercase' }}>
+                    <label style={{ display: 'block', color: '#aaa', fontWeight: 600, fontSize: '0.85rem', marginBottom: '0.4rem', textTransform: 'uppercase' }} htmlFor="auto-id-639259">
                       <i className={`bi ${icon}`}></i> {label}
                     </label>
-                    <textarea
+<textarea id="auto-id-639259"
                       rows={3}
                       placeholder={placeholder}
                       // eslint-disable-next-line @typescript-eslint/no-explicit-any

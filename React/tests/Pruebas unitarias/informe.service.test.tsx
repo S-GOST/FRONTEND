@@ -44,7 +44,7 @@ describe('informe.service', () => {
 
     expect(apiClient.get).toHaveBeenCalledWith('/informes/obtener');
     expect(result).toHaveLength(2);
-    expect(result[0].diagnostico).toBe('Motor fallando');
+    expect((result as any).data[0].diagnostico).toBe('Motor fallando');
   });
 
   // 2. CREAR INFORME
@@ -61,7 +61,7 @@ describe('informe.service', () => {
     const result = await crearInforme(payload);
 
     expect(apiClient.post).toHaveBeenCalledWith('/informes/insertar', payload);
-    expect(result.id_informe).toBe(3);
+    expect((result as any).data.id_informe).toBe(3);
   });
 
   // 3. ACTUALIZAR INFORME
@@ -106,7 +106,7 @@ describe('informe.service', () => {
 
     expect(apiClient.get).toHaveBeenCalledWith('/informes/mis-informes');
     expect(result).toHaveLength(2);
-    expect(result[0].fecha).toBe('2026-08-20T10:00:00');
+    expect((result as any).data[0].fecha).toBe('2026-08-20T10:00:00');
   });
 
   // ========== REPORTES ==========
@@ -144,7 +144,7 @@ describe('informe.service', () => {
     expect(apiClient.get).toHaveBeenCalledWith(
       '/informes/productividad?fecha_inicio=2026-08-01&fecha_fin=2026-08-31'
     );
-    expect(result.total_ordenes).toBe(50);
+    expect((result as any).data.total_ordenes).toBe(50);
   });
 
   // 8. REPORTE DE INVENTARIO CON FILTROS (RF-0035)
@@ -162,7 +162,7 @@ describe('informe.service', () => {
       '/informes/inventario?fecha_inicio=2026-08-01&fecha_fin=2026-08-31&categoria=Repuestos'
     );
     expect(result).toHaveLength(2);
-    expect(result[0].categoria).toBe('Repuestos');
+    expect((result as any).data[0].categoria).toBe('Repuestos');
   });
 
   // 9. REPORTE DE INVENTARIO SIN FILTROS OPCIONALES

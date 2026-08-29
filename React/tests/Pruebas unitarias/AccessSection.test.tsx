@@ -1,5 +1,14 @@
+import { MemoryRouter } from 'react-router-dom';
 import { render, screen } from '@testing-library/react';
 import '@testing-library/jest-dom';
+vi.mock('react-router-dom', async (importOriginal) => {
+  const actual = await importOriginal() as any;
+  return {
+    ...actual,
+    useNavigate: vi.fn(),
+  };
+});
+
 import { BrowserRouter } from 'react-router-dom';
 import AccessSection from '../../src/componentes/AccessSection';
 

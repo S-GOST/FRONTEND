@@ -1,4 +1,5 @@
-import { Mock } from 'vitest';
+import { MemoryRouter } from 'react-router-dom';
+
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import '@testing-library/jest-dom';
 import ClienteDashboard from '../../src/componentes/TableCliente/ClienteDashboard';
@@ -12,12 +13,10 @@ const mockNavigate = vi.fn();
 let mockPathname = '/cliente/dashboard';
 
 // 2. MOCKS DE MÓDULOS EXTERNOS
-vi.mock('sweetalert2', () => ({
-  fire: vi.fn().mockResolvedValue({ isConfirmed: true }),
-}));
+vi.mock('sweetalert2', () => ({ default: { fire: vi.fn().mockResolvedValue({ isConfirmed: true, value: '5' }), getInput: vi.fn() } }));
 
-vi.mock('react-router-dom', () => ({
-  ...vi.importActual('react-router-dom'),
+vi.mock('react-router-dom', async () => ({
+  ...(await vi.importActual('react-router-dom') as any),
   useNavigate: () => mockNavigate,
   useLocation: () => ({ pathname: mockPathname }),
   Outlet: () => <div data-testid="outlet">Contenido anidado</div>,
@@ -54,8 +53,8 @@ describe('ClienteDashboard Component', () => {
     localStorage.setItem('user_id', '100');
     localStorage.setItem('user_name', 'Juan Cliente');
 
-    jest.mocked(motoService.obtenerMotos).mockResolvedValue({ data: mockMotos } as any);
-    jest.mocked(ordenService.obtenerMisOrdenes).mockResolvedValue({ data: mockOrdenes } as any);
+    vi.mocked(motoService.obtenerMotos).mockResolvedValue({ data: mockMotos } as any);
+    vi.mocked(ordenService.obtenerMisOrdenes).mockResolvedValue({ data: mockOrdenes } as any);
   });
 
   afterEach(() => {
@@ -64,7 +63,7 @@ describe('ClienteDashboard Component', () => {
 
   // 1. RENDERIZADO DEL HEADER
   it('debería mostrar el saludo con el nombre del cliente y los botones de acción', () => {
-    render(<ClienteDashboard />);
+    render(<MemoryRouter><ClienteDashboard /></MemoryRouter>);
 
     expect(screen.getByText(/bienvenido, juan cliente/i)).toBeInTheDocument();
     expect(screen.getByText('Panel de Control del Cliente')).toBeInTheDocument();
@@ -74,15 +73,15 @@ describe('ClienteDashboard Component', () => {
 
   // 2. ESTADO DE CARGA
   it('debería mostrar "Cargando tu información..." mientras consulta la API', () => {
-    jest.mocked(motoService.obtenerMotos).mockImplementation(() => new Promise(() => {}));
-    render(<ClienteDashboard />);
+    vi.mocked(motoService.obtenerMotos).mockImplementation(() => new Promise(() => {}));
+    render(<MemoryRouter><ClienteDashboard /></MemoryRouter>);
 
     expect(screen.getByText(/cargando tu información/i)).toBeInTheDocument();
   });
 
   // 3. CÁLCULO DE ESTADÍSTICAS
   it('debería calcular las estadísticas filtrando por el cliente', async () => {
-    render(<ClienteDashboard />);
+    render(<MemoryRouter><ClienteDashboard /></MemoryRouter>);
 
     await waitFor(() => {
       // Total órdenes = 4
@@ -92,13 +91,13 @@ describe('ClienteDashboard Component', () => {
       // Pendientes = 2 (Pendiente + En proceso)
       expect(screen.getByText('Pendientes').closest('.stat-card')).toHaveTextContent('2');
       // Motos del cliente 100 = 2 (la moto del cliente 200 se excluye)
-      expect(screen.getByText('Mis Motos').closest('.stat-card')).toHaveTextContent('2');
+      expect(screen.getAllByText('Mis Motos')[0].closest('.stat-card')).toHaveTextContent('2');
     });
   });
 
   // 4. NAVEGACIÓN DESDE ACCIONES RÁPIDAS
   it('debería navegar a las rutas correctas desde las acciones rápidas', async () => {
-    render(<ClienteDashboard />);
+    render(<MemoryRouter><ClienteDashboard /></MemoryRouter>);
     await waitFor(() => expect(screen.getByText('Acciones Rápidas')).toBeInTheDocument());
 
     fireEvent.click(screen.getByRole('button', { name: /ver órdenes/i }));
@@ -116,7 +115,7 @@ describe('ClienteDashboard Component', () => {
 
   // 5. BOTÓN IR AL CARRITO
   it('debería navegar al carrito con el botón correspondiente', async () => {
-    render(<ClienteDashboard />);
+    render(<MemoryRouter><ClienteDashboard /></MemoryRouter>);
 
     fireEvent.click(screen.getByRole('button', { name: /ir al carrito/i }));
     expect(mockNavigate).toHaveBeenCalledWith('/carrito');
@@ -124,7 +123,7 @@ describe('ClienteDashboard Component', () => {
 
   // 6. CIERRE DE SESIÓN
   it('debería confirmar y cerrar sesión', async () => {
-    render(<ClienteDashboard />);
+    render(<MemoryRouter><ClienteDashboard /></MemoryRouter>);
 
     fireEvent.click(screen.getByRole('button', { name: /cerrar sesión/i }));
 
@@ -138,8 +137,8 @@ describe('ClienteDashboard Component', () => {
 
   // 7. CIERRE DE SESIÓN CANCELADO
   it('no debería cerrar sesión si se cancela', async () => {
-    jest.mocked(Swal.fire).mockResolvedValueOnce({ isConfirmed: false } as any);
-    render(<ClienteDashboard />);
+    vi.mocked(Swal.fire).mockResolvedValueOnce({ isConfirmed: false } as any);
+    render(<MemoryRouter><ClienteDashboard /></MemoryRouter>);
 
     fireEvent.click(screen.getByRole('button', { name: /cerrar sesión/i }));
 
@@ -150,7 +149,7 @@ describe('ClienteDashboard Component', () => {
 
   // 8. ÓRDENES RECIENTES (máximo 3, ordenadas por fecha)
   it('debería mostrar solo las 3 órdenes más recientes con su estado', async () => {
-    render(<ClienteDashboard />);
+    render(<MemoryRouter><ClienteDashboard /></MemoryRouter>);
 
     await waitFor(() => {
       expect(screen.getByText('Seguimiento de Órdenes Recientes')).toBeInTheDocument();
@@ -174,10 +173,10 @@ describe('ClienteDashboard Component', () => {
 
   // 9. ESTADO VACÍO DE ÓRDENES
   it('debería mostrar mensaje cuando no hay órdenes recientes', async () => {
-    jest.mocked(ordenService.obtenerMisOrdenes).mockResolvedValue({ data: [] } as any);
-    jest.mocked(motoService.obtenerMotos).mockResolvedValue({ data: [] } as any);
+    vi.mocked(ordenService.obtenerMisOrdenes).mockResolvedValue({ data: [] } as any);
+    vi.mocked(motoService.obtenerMotos).mockResolvedValue({ data: [] } as any);
 
-    render(<ClienteDashboard />);
+    render(<MemoryRouter><ClienteDashboard /></MemoryRouter>);
 
     await waitFor(() => {
       expect(screen.getByText(/no tienes órdenes de servicio recientes/i)).toBeInTheDocument();
@@ -187,7 +186,7 @@ describe('ClienteDashboard Component', () => {
   // 10. RUTA NO ÍNDICE → OUTLET
   it('debería renderizar el Outlet cuando la ruta no es la principal', async () => {
     mockPathname = '/cliente/ordenes';
-    render(<ClienteDashboard />);
+    render(<MemoryRouter><ClienteDashboard /></MemoryRouter>);
 
     expect(screen.getByTestId('outlet')).toBeInTheDocument();
     // No debe mostrar las estadísticas
@@ -196,17 +195,17 @@ describe('ClienteDashboard Component', () => {
 
   // 11. RESILIENCIA ANTE ERRORES DE API
   it('debería renderizar con ceros si los servicios fallan', async () => {
-    jest.mocked(motoService.obtenerMotos).mockRejectedValue(new Error('Fallo'));
-    jest.mocked(ordenService.obtenerMisOrdenes).mockRejectedValue(new Error('Fallo'));
+    vi.mocked(motoService.obtenerMotos).mockRejectedValue(new Error('Fallo'));
+    vi.mocked(ordenService.obtenerMisOrdenes).mockRejectedValue(new Error('Fallo'));
 
-    render(<ClienteDashboard />);
+    render(<MemoryRouter><ClienteDashboard /></MemoryRouter>);
 
     await waitFor(() => {
       expect(screen.queryByText(/cargando tu información/i)).not.toBeInTheDocument();
     });
 
     expect(screen.getByText('Total Órdenes').closest('.stat-card')).toHaveTextContent('0');
-    expect(screen.getByText('Mis Motos').closest('.stat-card')).toHaveTextContent('0');
+    expect(screen.getAllByText('Mis Motos')[0].closest('.stat-card')).toHaveTextContent('0');
   });
 });
 

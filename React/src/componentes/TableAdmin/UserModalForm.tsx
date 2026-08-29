@@ -57,7 +57,7 @@ export const UserModalForm: React.FC<UserModalFormProps> = ({
     >
       <div className="modal-container" role="document" onClick={e => e.stopPropagation()} onKeyDown={e => e.stopPropagation()}>
         <div className="modal-header">
-          <h3>{showCreateModal ? `Crear ${getTabLabel(activeTab).slice(0, -1)}` : `Editar ${getTabLabel(activeTab).slice(0, -1)}`}</h3>
+          <h3>{showCreateModal ? `Crear ${getTabLabel(activeTab) === 'Administradores' ? 'Administrador' : getTabLabel(activeTab) === 'Pendientes' ? 'Cliente Pendiente' : getTabLabel(activeTab).slice(0, -1)}` : `Editar ${getTabLabel(activeTab) === 'Administradores' ? 'Administrador' : getTabLabel(activeTab) === 'Pendientes' ? 'Cliente Pendiente' : getTabLabel(activeTab).slice(0, -1)}`}</h3>
           <button type="button" className="close-btn" onClick={closeModal}>
             &times;
           </button>

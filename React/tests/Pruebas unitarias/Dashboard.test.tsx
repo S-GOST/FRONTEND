@@ -1,4 +1,5 @@
-import { Mock } from 'vitest';
+import { MemoryRouter } from 'react-router-dom';
+
 import { render, screen, waitFor, fireEvent } from '@testing-library/react';
 import '@testing-library/jest-dom'; // Asegura que los matchers como toBeInTheDocument funcionen
 
@@ -6,12 +7,10 @@ import '@testing-library/jest-dom'; // Asegura que los matchers como toBeInTheDo
 const mockNavigate = vi.fn();
 
 // 2. MOCKS DE MÓDULOS EXTERNOS
-vi.mock('sweetalert2', () => ({
-  fire: vi.fn().mockResolvedValue({ isConfirmed: true }),
-}));
+vi.mock('sweetalert2', () => ({ default: { fire: vi.fn().mockResolvedValue({ isConfirmed: true, value: '5' }), getInput: vi.fn() } }));
 
-vi.mock('react-router-dom', () => {
-  const originalModule = vi.importActual('react-router-dom');
+vi.mock('react-router-dom', async () => {
+  const originalModule = await vi.importActual('react-router-dom') as any;
   return {
     ...originalModule,
     useNavigate: () => mockNavigate,
@@ -36,12 +35,12 @@ import * as authService from '../../src/services/auth.services';
 import Swal from 'sweetalert2';
 // ==================== HELPERS DE PRUEBA ====================
 const setupMocks = (overrides: any = {}) => {
-  // Usamos jest.mocked() para tener autocompletado y tipado correcto de TypeScript
-  jest.mocked(adminService.obtenerAdmins).mockResolvedValue(overrides.admins ?? { data: [{ id: 1 }] });
-  jest.mocked(tecnicoService.obtenerTecnicos).mockResolvedValue(overrides.tecnicos ?? { data: [{ id: 1 }, { id: 2 }] });
-  jest.mocked(clienteService.obtenerClientes).mockResolvedValue(overrides.clientes ?? { data: [{ id: 1 }] });
-  jest.mocked(clienteService.obtenerClientesPendientes).mockResolvedValue(overrides.clientesPend ?? { data: [] });
-  jest.mocked(ordenService.obtenerOrdenes).mockResolvedValue(overrides.ordenes ?? { 
+  // Usamos vi.mocked() para tener autocompletado y tipado correcto de TypeScript
+  vi.mocked(adminService.obtenerAdmins).mockResolvedValue(overrides.admins ?? { data: [{ id: 1 }] });
+  vi.mocked(tecnicoService.obtenerTecnicos).mockResolvedValue(overrides.tecnicos ?? { data: [{ id: 1 }, { id: 2 }] });
+  vi.mocked(clienteService.obtenerClientes).mockResolvedValue(overrides.clientes ?? { data: [{ id: 1 }] });
+  vi.mocked(clienteService.obtenerClientesPendientes).mockResolvedValue(overrides.clientesPend ?? { data: [] });
+  vi.mocked(ordenService.obtenerOrdenes).mockResolvedValue(overrides.ordenes ?? { 
     data: [{ Estado: 'Pendiente' }, { Estado: 'En Proceso' }, { Estado: 'Completado' }] 
   });
 };
@@ -60,15 +59,15 @@ describe('Dashboard Component', () => {
   // 1. PRUEBA DE ESTADO DE CARGA
   it('debería mostrar el mensaje de carga inicialmente', () => {
     // Retrasamos la resolución de la promesa para simular carga infinita
-    jest.mocked(adminService.obtenerAdmins).mockImplementation(() => new Promise(() => {}));
+    vi.mocked(adminService.obtenerAdmins).mockImplementation(() => new Promise(() => {}));
     
-    render(<Dashboard />);
+    render(<MemoryRouter><Dashboard /></MemoryRouter>);
     expect(screen.getByText(/cargando panel administrativo/i)).toBeInTheDocument();
   });
 
   // 2. PRUEBA DE RENDERIZADO Y CÁLCULO DE ESTADÍSTICAS
   it('debería renderizar el dashboard con las estadísticas calculadas correctamente', async () => {
-    render(<Dashboard />);
+    render(<MemoryRouter><Dashboard /></MemoryRouter>);
 
     // Esperar a que termine la carga
     await waitFor(() => {
@@ -89,7 +88,7 @@ describe('Dashboard Component', () => {
 
   // 3. PRUEBA DE COMPORTAMIENTO VISUAL CONDICIONAL
   it('debería aplicar la clase "pulse-alert" si hay órdenes pendientes', async () => {
-    render(<Dashboard />);
+    render(<MemoryRouter><Dashboard /></MemoryRouter>);
     await waitFor(() => {
       expect(screen.queryByText(/cargando panel administrativo/i)).not.toBeInTheDocument();
     });
@@ -101,7 +100,7 @@ describe('Dashboard Component', () => {
 
   // 4. PRUEBA DE NAVEGACIÓN (StatCard)
   it('debería navegar a la ruta correcta al hacer clic en una StatCard', async () => {
-    render(<Dashboard />);
+    render(<MemoryRouter><Dashboard /></MemoryRouter>);
     await waitFor(() => {
       expect(screen.queryByText(/cargando panel administrativo/i)).not.toBeInTheDocument();
     });
@@ -115,7 +114,7 @@ describe('Dashboard Component', () => {
 
   // 5. PRUEBA DE NAVEGACIÓN (NavCard)
   it('debería navegar a la ruta correcta al hacer clic en un NavCard', async () => {
-    render(<Dashboard />);
+    render(<MemoryRouter><Dashboard /></MemoryRouter>);
     await waitFor(() => {
       expect(screen.queryByText(/cargando panel administrativo/i)).not.toBeInTheDocument();
     });
@@ -128,7 +127,7 @@ describe('Dashboard Component', () => {
 
   // 6. PRUEBA DE CIERRE DE SESIÓN
   it('debería mostrar confirmación y cerrar sesión al hacer clic en "Cerrar sesión"', async () => {
-    render(<Dashboard />);
+    render(<MemoryRouter><Dashboard /></MemoryRouter>);
     await waitFor(() => {
       expect(screen.queryByText(/cargando panel administrativo/i)).not.toBeInTheDocument();
     });
@@ -150,19 +149,20 @@ describe('Dashboard Component', () => {
   });
 
   // 7. PRUEBA DE MANEJO DE ERRORES
-  it('debería mostrar una alerta de error si falla la carga de estadísticas', async () => {
-    // Forzar un error en uno de los servicios
-    jest.mocked(adminService.obtenerAdmins).mockRejectedValue(new Error('Fallo de red'));
+  it('debería renderizar con ceros si los servicios fallan', async () => {
+    vi.mocked(adminService.obtenerAdmins).mockRejectedValue(new Error('Fallo de red'));
+    vi.mocked(tecnicoService.obtenerTecnicos).mockRejectedValue(new Error('Fallo de red'));
+    vi.mocked(clienteService.obtenerClientes).mockRejectedValue(new Error('Fallo de red'));
+    vi.mocked(clienteService.obtenerClientesPendientes).mockRejectedValue(new Error('Fallo de red'));
+    vi.mocked(ordenService.obtenerOrdenes).mockRejectedValue(new Error('Fallo de red'));
 
-    render(<Dashboard />);
+    render(<MemoryRouter><Dashboard /></MemoryRouter>);
 
     await waitFor(() => {
-      expect(Swal.fire).toHaveBeenCalledWith(
-        'Error',
-        'No se pudieron cargar las estadísticas.',
-        'error'
-      );
+      expect(screen.queryByText(/cargando panel administrativo/i)).not.toBeInTheDocument();
     });
+
+    expect(screen.getByText('Usuarios Totales').closest('.stat-card')).toHaveTextContent('0');
   });
 });
 

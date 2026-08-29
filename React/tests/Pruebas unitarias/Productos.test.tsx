@@ -1,15 +1,22 @@
-import { Mock } from 'vitest';
+import { MemoryRouter } from 'react-router-dom';
+
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import '@testing-library/jest-dom';
+vi.mock('react-router-dom', async (importOriginal) => {
+  const actual = await importOriginal() as any;
+  return {
+    ...actual,
+    useNavigate: vi.fn(),
+  };
+});
+
 import TableProductos from '../../src/componentes/TableProductos/productos';
 import * as productoService from '../../src/services/producto.service';
 import * as categoriaService from '../../src/services/categoria.service';
 import Swal from 'sweetalert2';
 
 // 1. MOCKS DE MÓDULOS EXTERNOS
-vi.mock('sweetalert2', () => ({
-  fire: vi.fn().mockResolvedValue({ isConfirmed: true }),
-}));
+vi.mock('sweetalert2', () => ({ default: { fire: vi.fn().mockResolvedValue({ isConfirmed: true, value: '5' }), getInput: vi.fn() } }));
 
 // Mock del componente FormattedId
 vi.mock('../../src/componentes/FormattedId', () => ({
@@ -34,13 +41,13 @@ const mockCategorias = [
 describe('TableProductos Component', () => {
   beforeEach(() => {
     vi.clearAllMocks();
-    jest.mocked(productoService.obtenerProductos).mockResolvedValue({ data: mockProductos } as any);
-    jest.mocked(categoriaService.obtenerCategoriasPorTipo).mockResolvedValue({ data: mockCategorias } as any);
+    vi.mocked(productoService.obtenerProductos).mockResolvedValue({ data: mockProductos } as any);
+    vi.mocked(categoriaService.obtenerCategoriasPorTipo).mockResolvedValue({ data: mockCategorias } as any);
   });
 
   // 1. RENDERIZADO INICIAL
   it('debería renderizar el título, buscador y botones de acción', async () => {
-    render(<TableProductos />);
+    render(<MemoryRouter><TableProductos /></MemoryRouter>);
 
     expect(screen.getByText('Gestión de Productos')).toBeInTheDocument();
     expect(screen.getByPlaceholderText(/buscar por nombre, marca/i)).toBeInTheDocument();
@@ -50,15 +57,15 @@ describe('TableProductos Component', () => {
 
   // 2. ESTADO DE CARGA
   it('debería mostrar "Cargando productos..." mientras consulta la API', () => {
-    jest.mocked(productoService.obtenerProductos).mockImplementation(() => new Promise(() => {}));
-    render(<TableProductos />);
+    vi.mocked(productoService.obtenerProductos).mockImplementation(() => new Promise(() => {}));
+    render(<MemoryRouter><TableProductos /></MemoryRouter>);
     expect(screen.getByText(/cargando productos/i)).toBeInTheDocument();
   });
 
   // 3. ESTADO VACÍO
   it('debería mostrar mensaje cuando no hay productos', async () => {
-    jest.mocked(productoService.obtenerProductos).mockResolvedValue({ data: [] } as any);
-    render(<TableProductos />);
+    vi.mocked(productoService.obtenerProductos).mockResolvedValue({ data: [] } as any);
+    render(<MemoryRouter><TableProductos /></MemoryRouter>);
 
     await waitFor(() => {
       expect(screen.getByText(/no hay productos registrados/i)).toBeInTheDocument();
@@ -67,8 +74,8 @@ describe('TableProductos Component', () => {
 
   // 4. ERROR AL CARGAR
   it('debería mostrar alerta de error si falla la carga', async () => {
-    jest.mocked(productoService.obtenerProductos).mockRejectedValue(new Error('Fallo'));
-    render(<TableProductos />);
+    vi.mocked(productoService.obtenerProductos).mockRejectedValue(new Error('Fallo'));
+    render(<MemoryRouter><TableProductos /></MemoryRouter>);
 
     await waitFor(() => {
       expect(Swal.fire).toHaveBeenCalledWith(
@@ -79,7 +86,7 @@ describe('TableProductos Component', () => {
 
   // 5. TABLA CON DATOS, CATEGORÍAS Y PRECIOS
   it('debería mostrar productos con categoría resuelta y precio formateado', async () => {
-    render(<TableProductos />);
+    render(<MemoryRouter><TableProductos /></MemoryRouter>);
 
     await waitFor(() => {
       expect(screen.getByText('Aceite Motor')).toBeInTheDocument();
@@ -97,7 +104,7 @@ describe('TableProductos Component', () => {
 
   // 6. BADGES DE ESTADO
   it('debería asignar la clase de badge correcta según el estado', async () => {
-    render(<TableProductos />);
+    render(<MemoryRouter><TableProductos /></MemoryRouter>);
 
     await waitFor(() => {
       expect(screen.getByText('Disponibles')).toHaveClass('estado-badge bg-success');
@@ -107,7 +114,7 @@ describe('TableProductos Component', () => {
 
   // 7. BÚSQUEDA POR MARCA
   it('debería filtrar productos al buscar por marca', async () => {
-    render(<TableProductos />);
+    render(<MemoryRouter><TableProductos /></MemoryRouter>);
     await waitFor(() => expect(screen.getByText('Aceite Motor')).toBeInTheDocument());
 
     fireEvent.change(screen.getByPlaceholderText(/buscar por nombre, marca/i), { target: { value: 'Bosch' } });
@@ -121,7 +128,7 @@ describe('TableProductos Component', () => {
 
   // 8. BOTÓN RESET
   it('debería limpiar la búsqueda con Reset', async () => {
-    render(<TableProductos />);
+    render(<MemoryRouter><TableProductos /></MemoryRouter>);
     await waitFor(() => expect(screen.getByText('Aceite Motor')).toBeInTheDocument());
 
     fireEvent.change(screen.getByPlaceholderText(/buscar por nombre, marca/i), { target: { value: 'Bosch' } });
@@ -135,7 +142,7 @@ describe('TableProductos Component', () => {
 
   // 9. MODAL DE CREACIÓN CON CATEGORÍAS
   it('debería abrir el modal con las categorías de producto en el select', async () => {
-    render(<TableProductos />);
+    render(<MemoryRouter><TableProductos /></MemoryRouter>);
     fireEvent.click(screen.getByRole('button', { name: /nuevo producto/i }));
 
     expect(screen.getByText('Crear Producto')).toBeInTheDocument();
@@ -147,7 +154,7 @@ describe('TableProductos Component', () => {
 
   // 10. VALIDACIÓN SOLO LETRAS
   it('debería filtrar números en Nombre y Marca con toast de advertencia', async () => {
-    render(<TableProductos />);
+    render(<MemoryRouter><TableProductos /></MemoryRouter>);
     fireEvent.click(screen.getByRole('button', { name: /nuevo producto/i }));
 
     const modal = screen.getByText('Crear Producto').closest('.modal-container') as HTMLElement;
@@ -163,7 +170,7 @@ describe('TableProductos Component', () => {
 
   // 11. VALIDACIÓN SOLO NÚMEROS EN ID
   it('debería filtrar letras en el ID del producto', async () => {
-    render(<TableProductos />);
+    render(<MemoryRouter><TableProductos /></MemoryRouter>);
     fireEvent.click(screen.getByRole('button', { name: /nuevo producto/i }));
 
     const modal = screen.getByText('Crear Producto').closest('.modal-container') as HTMLElement;
@@ -179,7 +186,7 @@ describe('TableProductos Component', () => {
 
   // 12. VALIDACIÓN DE CAMPOS OBLIGATORIOS
   it('debería mostrar alerta si falta el ID', async () => {
-    render(<TableProductos />);
+    render(<MemoryRouter><TableProductos /></MemoryRouter>);
     fireEvent.click(screen.getByRole('button', { name: /nuevo producto/i }));
 
     const modal = screen.getByText('Crear Producto').closest('.modal-container') as HTMLElement;
@@ -195,7 +202,7 @@ describe('TableProductos Component', () => {
 
   // 13. VALIDACIÓN DE PRECIO MAYOR A 0
   it('debería rechazar precios menores o iguales a 0', async () => {
-    render(<TableProductos />);
+    render(<MemoryRouter><TableProductos /></MemoryRouter>);
     fireEvent.click(screen.getByRole('button', { name: /nuevo producto/i }));
 
     const modal = screen.getByText('Crear Producto').closest('.modal-container') as HTMLElement;
@@ -216,8 +223,8 @@ describe('TableProductos Component', () => {
 
   // 14. CREAR PRODUCTO EXITOSAMENTE
   it('debería crear el producto con categoría y precio como números', async () => {
-    jest.mocked(productoService.insertarProducto).mockResolvedValue({ data: { success: true } } as any);
-    render(<TableProductos />);
+    vi.mocked(productoService.insertarProducto).mockResolvedValue({ data: { success: true } } as any);
+    render(<MemoryRouter><TableProductos /></MemoryRouter>);
     fireEvent.click(screen.getByRole('button', { name: /nuevo producto/i }));
 
     const modal = screen.getByText('Crear Producto').closest('.modal-container') as HTMLElement;
@@ -249,8 +256,8 @@ describe('TableProductos Component', () => {
 
   // 15. EDITAR PRODUCTO
   it('debería abrir la edición con datos y actualizar correctamente', async () => {
-    jest.mocked(productoService.actualizarProducto).mockResolvedValue({ data: { success: true } } as any);
-    render(<TableProductos />);
+    vi.mocked(productoService.actualizarProducto).mockResolvedValue({ data: { success: true } } as any);
+    render(<MemoryRouter><TableProductos /></MemoryRouter>);
     await waitFor(() => expect(screen.getByText('Aceite Motor')).toBeInTheDocument());
 
     fireEvent.click(screen.getAllByTitle('Editar')[0]);
@@ -275,8 +282,8 @@ describe('TableProductos Component', () => {
 
   // 16. INHABILITAR PRODUCTO
   it('debería inhabilitar el producto y actualizar el estado localmente', async () => {
-    jest.mocked(productoService.eliminarProducto).mockResolvedValue({ data: { success: true } } as any);
-    render(<TableProductos />);
+    vi.mocked(productoService.eliminarProducto).mockResolvedValue({ data: { success: true } } as any);
+    render(<MemoryRouter><TableProductos /></MemoryRouter>);
     await waitFor(() => expect(screen.getByText('Aceite Motor')).toBeInTheDocument());
 
     fireEvent.click(screen.getAllByTitle('Inhabilitar')[0]);
@@ -297,8 +304,8 @@ describe('TableProductos Component', () => {
 
   // 17. INHABILITAR CANCELADO
   it('no debería inhabilitar si se cancela la confirmación', async () => {
-    jest.mocked(Swal.fire).mockResolvedValueOnce({ isConfirmed: false } as any);
-    render(<TableProductos />);
+    vi.mocked(Swal.fire).mockResolvedValueOnce({ isConfirmed: false } as any);
+    render(<MemoryRouter><TableProductos /></MemoryRouter>);
     await waitFor(() => expect(screen.getByText('Aceite Motor')).toBeInTheDocument());
 
     fireEvent.click(screen.getAllByTitle('Inhabilitar')[0]);
@@ -310,8 +317,8 @@ describe('TableProductos Component', () => {
 
   // 18. HABILITAR PRODUCTO INACTIVO
   it('debería habilitar el producto y actualizar el estado localmente', async () => {
-    jest.mocked(productoService.habilitarProducto).mockResolvedValue({ data: { success: true } } as any);
-    render(<TableProductos />);
+    vi.mocked(productoService.habilitarProducto).mockResolvedValue({ data: { success: true } } as any);
+    render(<MemoryRouter><TableProductos /></MemoryRouter>);
     await waitFor(() => expect(screen.getByText('Bujía')).toBeInTheDocument());
 
     fireEvent.click(screen.getAllByTitle('Habilitar')[0]);

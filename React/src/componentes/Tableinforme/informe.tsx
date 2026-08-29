@@ -349,7 +349,7 @@ const TableInformes = () => {
 
       {showModal && (
         <div className="modal-overlay" onClick={closeModal}>
-          <div className="modal-container" onClick={e => e.stopPropagation()}>
+          <div className="modal-container" onClick={e => e.stopPropagation()} role="button" tabIndex={0} onKeyDown={(e) => { if (e.key === 'Enter') e.currentTarget.click() }}>
             <div className="modal-header">
               <h3>{editMode ? 'Editar Informe' : 'Nuevo Informe Técnico'}</h3>
               <button className="close-btn" onClick={closeModal}>&times;</button>
@@ -358,8 +358,8 @@ const TableInformes = () => {
               <div className="modal-body">
                 {/* ✅ VALIDACIÓN NUMÉRICA PARA ID */}
                 <div className="form-group">
-                  <label>ID Orden *</label>
-                  <input
+                  <label htmlFor="auto-id-36311">ID Orden *</label>
+<input id="auto-id-36311"
                     type="number"
                     name="id_orden"
                     value={formData.id_orden || ''}
@@ -369,8 +369,8 @@ const TableInformes = () => {
                 </div>
 
                 <div className="form-group">
-                  <label>Técnico *</label>
-                  <input
+                  <label htmlFor="auto-id-36312">Técnico *</label>
+<input id="auto-id-36312"
                     type="number"
                     name="id_tecnico"
                     value={formData.id_tecnico || ''}
@@ -380,18 +380,18 @@ const TableInformes = () => {
                 </div>
 
                 <div className="form-group">
-                  <label>Diagnóstico *</label>
-                  <textarea name="diagnostico" value={formData.diagnostico || ''} onChange={handleInputChange} required rows={3} />
+                  <label htmlFor="auto-id-36313">Diagnóstico *</label>
+<textarea id="auto-id-36313" name="diagnostico" value={formData.diagnostico || ''} onChange={handleInputChange} required rows={3} />
                 </div>
 
                 <div className="form-group">
-                  <label>Trabajo Realizado</label>
-                  <textarea name="trabajo_realizado" value={formData.trabajo_realizado || ''} onChange={handleInputChange} rows={3} />
+                  <label htmlFor="auto-id-36314">Trabajo Realizado</label>
+<textarea id="auto-id-36314" name="trabajo_realizado" value={formData.trabajo_realizado || ''} onChange={handleInputChange} rows={3} />
                 </div>
 
                 <div className="form-group">
-                  <label>Recomendaciones</label>
-                  <textarea name="recomendaciones" value={formData.recomendaciones || ''} onChange={handleInputChange} rows={3} />
+                  <label htmlFor="auto-id-36315">Recomendaciones</label>
+<textarea id="auto-id-36315" name="recomendaciones" value={formData.recomendaciones || ''} onChange={handleInputChange} rows={3} />
                 </div>
               </div>
               <div className="modal-footer">
@@ -405,7 +405,7 @@ const TableInformes = () => {
 
       {showReportModal && (
         <div className="modal-overlay" onClick={() => setShowReportModal(false)}>
-          <div className="modal-container" onClick={e => e.stopPropagation()}>
+          <div className="modal-container" onClick={e => e.stopPropagation()} role="button" tabIndex={0} onKeyDown={(e) => { if (e.key === 'Enter') e.currentTarget.click() }}>
             <div className="modal-header">
               <h3>Generar Reporte por Fechas</h3>
               <button className="close-btn" onClick={() => setShowReportModal(false)}>&times;</button>
@@ -413,8 +413,8 @@ const TableInformes = () => {
             <form onSubmit={handleSubmitReport}>
               <div className="modal-body">
                 <div className="form-group">
-                  <label>Fecha Inicio *</label>
-                  <input
+                  <label htmlFor="auto-id-36316">Fecha Inicio *</label>
+<input id="auto-id-36316"
                     type="date"
                     value={reportFechas.fecha_inicio}
                     onChange={(e) => setReportFechas(prev => ({...prev, fecha_inicio: e.target.value}))}
@@ -422,8 +422,8 @@ const TableInformes = () => {
                   />
                 </div>
                 <div className="form-group">
-                  <label>Fecha Fin *</label>
-                  <input
+                  <label htmlFor="auto-id-36317">Fecha Fin *</label>
+<input id="auto-id-36317"
                     type="date"
                     value={reportFechas.fecha_fin}
                     onChange={(e) => setReportFechas(prev => ({...prev, fecha_fin: e.target.value}))}

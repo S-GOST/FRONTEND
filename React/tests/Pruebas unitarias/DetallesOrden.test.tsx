@@ -1,4 +1,5 @@
-import { Mock } from 'vitest';
+import { MemoryRouter } from 'react-router-dom';
+
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import '@testing-library/jest-dom';
 import DetallesOrden from '../../src/componentes/TableOrdenServicios/DetallesOrden';
@@ -9,13 +10,17 @@ import * as ordenService from '../../src/services/ordenServicioService';
 import Swal from 'sweetalert2';
 
 // 1. MOCKS DE MÓDULOS EXTERNOS
-vi.mock('sweetalert2', () => ({
-  fire: vi.fn().mockResolvedValue({ isConfirmed: true }),
-}));
+vi.mock('sweetalert2', () => ({ default: { fire: vi.fn().mockResolvedValue({ isConfirmed: true, value: '5' }), getInput: vi.fn() } }));
 
-vi.mock('react-router-dom', () => ({
-  Link: ({ children, to }: { children: React.ReactNode; to: string }) => <a href={to}>{children}</a>,
-}));
+vi.mock('react-router-dom', async () => {
+  const mod = await vi.importActual('react-router-dom');
+  const React = await import('react');
+  return {
+    ...mod,
+    Link: ({ children, to }) => React.createElement('a', { href: to }, children),
+    useNavigate: vi.fn(),
+  };
+});
 
 // Mock del componente FormattedId
 vi.mock('../../src/componentes/FormattedId', () => ({
@@ -40,23 +45,23 @@ const mockProductos = [{ ID_PRODUCTOS: 20, Nombre: 'Aceite' }];
 describe('DetallesOrden Component', () => {
   beforeEach(() => {
     vi.clearAllMocks();
-    jest.mocked(detalleService.obtenerDetallesOrdenes).mockResolvedValue({ data: mockDetalles } as any);
-    jest.mocked(ordenService.obtenerOrdenes).mockResolvedValue({ data: mockOrdenes } as any);
-    jest.mocked(servicioService.obtenerServicios).mockResolvedValue({ data: mockServicios } as any);
-    jest.mocked(productoService.obtenerProductos).mockResolvedValue({ data: mockProductos } as any);
+    vi.mocked(detalleService.obtenerDetallesOrdenes).mockResolvedValue({ data: mockDetalles } as any);
+    vi.mocked(ordenService.obtenerOrdenes).mockResolvedValue({ data: mockOrdenes } as any);
+    vi.mocked(servicioService.obtenerServicios).mockResolvedValue({ data: mockServicios } as any);
+    vi.mocked(productoService.obtenerProductos).mockResolvedValue({ data: mockProductos } as any);
   });
 
   // 1. ESTADO DE CARGA
   it('debería mostrar el loader mientras consulta la API', () => {
-    jest.mocked(detalleService.obtenerDetallesOrdenes).mockImplementation(() => new Promise(() => {}));
-    render(<DetallesOrden />);
+    vi.mocked(detalleService.obtenerDetallesOrdenes).mockImplementation(() => new Promise(() => {}));
+    render(<MemoryRouter><DetallesOrden /></MemoryRouter>);
     expect(screen.getByText(/cargando detalles de orden/i)).toBeInTheDocument();
   });
 
   // 2. ERROR AL CARGAR
   it('debería mostrar banner y alerta de error si falla la carga', async () => {
-    jest.mocked(detalleService.obtenerDetallesOrdenes).mockRejectedValue(new Error('Fallo'));
-    render(<DetallesOrden />);
+    vi.mocked(detalleService.obtenerDetallesOrdenes).mockRejectedValue(new Error('Fallo'));
+    render(<MemoryRouter><DetallesOrden /></MemoryRouter>);
 
     await waitFor(() => {
       expect(screen.getByText('No se pudieron cargar los datos necesarios.')).toBeInTheDocument();
@@ -68,7 +73,7 @@ describe('DetallesOrden Component', () => {
 
   // 3. TABLA CON DATOS Y FALLBACKS
   it('debería mostrar los detalles con precios formateados y fallbacks "-"', async () => {
-    render(<DetallesOrden />);
+    render(<MemoryRouter><DetallesOrden /></MemoryRouter>);
 
     await waitFor(() => {
       expect(screen.getByText((150000).toLocaleString('es-CO'))).toBeInTheDocument();
@@ -83,7 +88,7 @@ describe('DetallesOrden Component', () => {
 
   // 4. ENLACE VOLVER
   it('debería tener el enlace para volver a órdenes de servicio', async () => {
-    render(<DetallesOrden />);
+    render(<MemoryRouter><DetallesOrden /></MemoryRouter>);
     await waitFor(() => expect(screen.getByText('Detalles de Orden de Servicio')).toBeInTheDocument());
 
     expect(screen.getByRole('link', { name: /volver a órdenes de servicio/i }))
@@ -92,7 +97,7 @@ describe('DetallesOrden Component', () => {
 
   // 5. BÚSQUEDA POR ID
   it('debería filtrar detalles al buscar por ID', async () => {
-    render(<DetallesOrden />);
+    render(<MemoryRouter><DetallesOrden /></MemoryRouter>);
     await waitFor(() => expect(screen.getAllByTestId('formatted-id').length).toBeGreaterThan(0));
 
     fireEvent.change(screen.getByPlaceholderText(/buscar por id, orden/i), { target: { value: '2' } });
@@ -107,7 +112,7 @@ describe('DetallesOrden Component', () => {
 
   // 6. MODAL DE CREACIÓN CON SELECTS POBLADOS
   it('debería abrir el modal con las órdenes, servicios y productos disponibles', async () => {
-    render(<DetallesOrden />);
+    render(<MemoryRouter><DetallesOrden /></MemoryRouter>);
     await waitFor(() => expect(screen.getByRole('button', { name: /nuevo detalle/i })).toBeInTheDocument());
 
     fireEvent.click(screen.getByRole('button', { name: /nuevo detalle/i }));
@@ -122,13 +127,15 @@ describe('DetallesOrden Component', () => {
 
   // 7. VALIDACIÓN: ID DUPLICADO
   it('debería rechazar un ID de detalle que ya existe', async () => {
-    render(<DetallesOrden />);
+    render(<MemoryRouter><DetallesOrden /></MemoryRouter>);
     await waitFor(() => expect(screen.getByRole('button', { name: /nuevo detalle/i })).toBeInTheDocument());
 
     fireEvent.click(screen.getByRole('button', { name: /nuevo detalle/i }));
     const modal = screen.getByText('Nuevo Detalle de Orden').closest('.modal-container') as HTMLElement;
 
     fireEvent.change(modal.querySelector('input[name="ID_DETALLES_ORDEN_SERVICIO"]')!, { target: { value: '1' } });
+    fireEvent.change(modal.querySelector('select[name="ID_ORDEN_SERVICIO"]')!, { target: { value: '10' } });
+    fireEvent.change(modal.querySelector('input[name="Precio"]')!, { target: { value: '1000' } });
     fireEvent.submit(modal.querySelector('form')!);
 
     await waitFor(() => {
@@ -141,7 +148,7 @@ describe('DetallesOrden Component', () => {
 
   // 8. VALIDACIÓN: SERVICIO O PRODUCTO OBLIGATORIO
   it('debería exigir al menos un servicio o producto', async () => {
-    render(<DetallesOrden />);
+    render(<MemoryRouter><DetallesOrden /></MemoryRouter>);
     await waitFor(() => expect(screen.getByRole('button', { name: /nuevo detalle/i })).toBeInTheDocument());
 
     fireEvent.click(screen.getByRole('button', { name: /nuevo detalle/i }));
@@ -160,8 +167,8 @@ describe('DetallesOrden Component', () => {
 
   // 9. CREAR DETALLE EXITOSAMENTE
   it('debería crear el detalle con el payload correcto', async () => {
-    jest.mocked(detalleService.insertarDetalleOrden).mockResolvedValue({ data: { success: true } } as any);
-    render(<DetallesOrden />);
+    vi.mocked(detalleService.insertarDetalleOrden).mockResolvedValue({ data: { success: true } } as any);
+    render(<MemoryRouter><DetallesOrden /></MemoryRouter>);
     await waitFor(() => expect(screen.getByRole('button', { name: /nuevo detalle/i })).toBeInTheDocument());
 
     fireEvent.click(screen.getByRole('button', { name: /nuevo detalle/i }));
@@ -192,7 +199,7 @@ describe('DetallesOrden Component', () => {
 
   // 10. MODAL DE EDICIÓN CON ID BLOQUEADO
   it('debería abrir la edición con el ID deshabilitado y los datos cargados', async () => {
-    render(<DetallesOrden />);
+    render(<MemoryRouter><DetallesOrden /></MemoryRouter>);
     await waitFor(() => expect(screen.getAllByRole('button', { name: /editar/i }).length).toBe(2));
 
     fireEvent.click(screen.getAllByRole('button', { name: /editar/i })[0]);
@@ -208,8 +215,8 @@ describe('DetallesOrden Component', () => {
 
   // 11. ACTUALIZAR DETALLE
   it('debería actualizar el detalle y mostrar alerta de éxito', async () => {
-    jest.mocked(detalleService.actualizarDetalleOrden).mockResolvedValue({ data: { success: true } } as any);
-    render(<DetallesOrden />);
+    vi.mocked(detalleService.actualizarDetalleOrden).mockResolvedValue({ data: { success: true } } as any);
+    render(<MemoryRouter><DetallesOrden /></MemoryRouter>);
     await waitFor(() => expect(screen.getAllByRole('button', { name: /editar/i }).length).toBe(2));
 
     fireEvent.click(screen.getAllByRole('button', { name: /editar/i })[0]);
@@ -231,8 +238,8 @@ describe('DetallesOrden Component', () => {
 
   // 12. ELIMINAR DETALLE
   it('debería eliminar el detalle tras confirmar', async () => {
-    jest.mocked(detalleService.eliminarDetalleOrden).mockResolvedValue({ data: { success: true } } as any);
-    render(<DetallesOrden />);
+    vi.mocked(detalleService.eliminarDetalleOrden).mockResolvedValue({ data: { success: true } } as any);
+    render(<MemoryRouter><DetallesOrden /></MemoryRouter>);
     await waitFor(() => expect(screen.getAllByRole('button', { name: /eliminar/i }).length).toBe(2));
 
     fireEvent.click(screen.getAllByRole('button', { name: /eliminar/i })[0]);
@@ -250,8 +257,8 @@ describe('DetallesOrden Component', () => {
 
   // 13. ELIMINAR CANCELADO
   it('no debería eliminar si se cancela la confirmación', async () => {
-    jest.mocked(Swal.fire).mockResolvedValueOnce({ isConfirmed: false } as any);
-    render(<DetallesOrden />);
+    vi.mocked(Swal.fire).mockResolvedValueOnce({ isConfirmed: false } as any);
+    render(<MemoryRouter><DetallesOrden /></MemoryRouter>);
     await waitFor(() => expect(screen.getAllByRole('button', { name: /eliminar/i }).length).toBe(2));
 
     fireEvent.click(screen.getAllByRole('button', { name: /eliminar/i })[0]);

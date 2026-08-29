@@ -1,5 +1,14 @@
+import { MemoryRouter } from 'react-router-dom';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import '@testing-library/jest-dom';
+vi.mock('react-router-dom', async (importOriginal) => {
+  const actual = await importOriginal() as any;
+  return {
+    ...actual,
+    useNavigate: vi.fn(),
+  };
+});
+
 import { vi, describe, it, beforeEach, expect } from 'vitest'; // Importar vi
 import OrdenesServicio from '../../src/componentes/TableOrdenServicios/OrdenesServicio';
 import * as ordenService from '../../src/services/ordenServicioService';
@@ -11,10 +20,7 @@ import Swal from 'sweetalert2';
 
 // ==================== MOCKS ====================
 
-vi.mock('sweetalert2', () => ({
-  fire: vi.fn().mockResolvedValue({ isConfirmed: true, value: '5' }),
-  getInput: vi.fn(),
-}));
+vi.mock('sweetalert2', () => ({ default: { fire: vi.fn().mockResolvedValue({ isConfirmed: true, value: '5' }), getInput: vi.fn() } }));
 
 vi.mock('../../src/componentes/FormattedId', () => ({
   FormattedId: ({ value }: any) => <span data-testid="formatted-id">{value}</span>,
@@ -113,14 +119,14 @@ describe('OrdenesServicio Component', () => {
   it('debería mostrar el estado de carga mientras consulta los datos', () => {
     vi.mocked(ordenService.obtenerOrdenes).mockImplementation(() => new Promise(() => {}));
 
-    render(<OrdenesServicio />);
+    render(<MemoryRouter><OrdenesServicio /></MemoryRouter>);
 
     expect(screen.getByText(/cargando órdenes de servicio/i)).toBeInTheDocument();
   });
 
   // 2. RENDER INICIAL
   it('debería renderizar el título, subtítulo y acciones principales', async () => {
-    render(<OrdenesServicio />);
+    render(<MemoryRouter><OrdenesServicio /></MemoryRouter>);
 
     await waitFor(() => {
       expect(screen.getByText('Órdenes de Servicio')).toBeInTheDocument();
@@ -134,7 +140,7 @@ describe('OrdenesServicio Component', () => {
 
   // 3. CARGA DE SERVICIOS
   it('debería cargar órdenes, clientes, técnicos, motos y admins', async () => {
-    render(<OrdenesServicio />);
+    render(<MemoryRouter><OrdenesServicio /></MemoryRouter>);
 
     await waitFor(() => {
       expect(ordenService.obtenerOrdenes).toHaveBeenCalled();
@@ -147,7 +153,7 @@ describe('OrdenesServicio Component', () => {
 
   // 4. TABLA CON DATOS
   it('debería mostrar las órdenes con cliente, técnico, moto y fechas', async () => {
-    render(<OrdenesServicio />);
+    render(<MemoryRouter><OrdenesServicio /></MemoryRouter>);
 
     await waitFor(() => {
       expect(screen.getByText('Juan Pérez')).toBeInTheDocument();
@@ -167,7 +173,7 @@ describe('OrdenesServicio Component', () => {
   it('debería mostrar banner y alerta si falla la carga inicial', async () => {
     vi.mocked(ordenService.obtenerOrdenes).mockRejectedValue(new Error('Fallo'));
 
-    render(<OrdenesServicio />);
+    render(<MemoryRouter><OrdenesServicio /></MemoryRouter>);
 
     await waitFor(() => {
       expect(screen.getByText('No se pudieron cargar los datos necesarios.')).toBeInTheDocument();
@@ -185,7 +191,7 @@ describe('OrdenesServicio Component', () => {
   it('debería mostrar mensaje cuando no hay órdenes', async () => {
     vi.mocked(ordenService.obtenerOrdenes).mockResolvedValue({ data: [] } as any);
 
-    render(<OrdenesServicio />);
+    render(<MemoryRouter><OrdenesServicio /></MemoryRouter>);
 
     await waitFor(() => {
       expect(screen.getByText(/no hay órdenes que coincidan/i)).toBeInTheDocument();
@@ -194,7 +200,7 @@ describe('OrdenesServicio Component', () => {
 
   // 7. BÚSQUEDA POR ID
   it('debería filtrar órdenes por ID', async () => {
-    render(<OrdenesServicio />);
+    render(<MemoryRouter><OrdenesServicio /></MemoryRouter>);
 
     await waitFor(() => expect(screen.getByText('Juan Pérez')).toBeInTheDocument());
 
@@ -212,7 +218,7 @@ describe('OrdenesServicio Component', () => {
 
   // 8. RESET DE BÚSQUEDA
   it('debería limpiar la búsqueda con Reset', async () => {
-    render(<OrdenesServicio />);
+    render(<MemoryRouter><OrdenesServicio /></MemoryRouter>);
 
     await waitFor(() => expect(screen.getByText('Juan Pérez')).toBeInTheDocument());
 
@@ -236,7 +242,7 @@ describe('OrdenesServicio Component', () => {
 
   // 9. MODAL NUEVA ORDEN
   it('debería abrir el modal para crear una nueva orden con selects cargados', async () => {
-    render(<OrdenesServicio />);
+    render(<MemoryRouter><OrdenesServicio /></MemoryRouter>);
 
     await waitFor(() => expect(screen.getByRole('button', { name: /nueva orden/i })).toBeInTheDocument());
 
@@ -253,7 +259,7 @@ describe('OrdenesServicio Component', () => {
 
   // 10. VALIDACIÓN CLIENTE REQUERIDO
   it('debería mostrar alerta si se intenta crear sin cliente', async () => {
-    render(<OrdenesServicio />);
+    render(<MemoryRouter><OrdenesServicio /></MemoryRouter>);
 
     await waitFor(() => expect(screen.getByRole('button', { name: /nueva orden/i })).toBeInTheDocument());
 
@@ -277,7 +283,7 @@ describe('OrdenesServicio Component', () => {
 
   // 11. VALIDACIÓN FECHAS REQUERIDAS
   it('debería mostrar alerta si faltan fechas al crear la orden', async () => {
-    render(<OrdenesServicio />);
+    render(<MemoryRouter><OrdenesServicio /></MemoryRouter>);
 
     await waitFor(() => expect(screen.getByRole('button', { name: /nueva orden/i })).toBeInTheDocument());
 
@@ -309,7 +315,7 @@ describe('OrdenesServicio Component', () => {
       data: { success: true },
     } as any);
 
-    render(<OrdenesServicio />);
+    render(<MemoryRouter><OrdenesServicio /></MemoryRouter>);
 
     await waitFor(() => expect(screen.getByRole('button', { name: /nueva orden/i })).toBeInTheDocument());
 
@@ -373,7 +379,7 @@ describe('OrdenesServicio Component', () => {
   it('debería mostrar alerta de error si falla la creación', async () => {
     vi.mocked(ordenService.insertarOrden).mockRejectedValue(new Error('Error al crear'));
 
-    render(<OrdenesServicio />);
+    render(<MemoryRouter><OrdenesServicio /></MemoryRouter>);
 
     await waitFor(() => expect(screen.getByRole('button', { name: /nueva orden/i })).toBeInTheDocument());
 
@@ -408,7 +414,7 @@ describe('OrdenesServicio Component', () => {
 
   // 14. VER DETALLES
   it('debería abrir el modal de detalles de una orden', async () => {
-    render(<OrdenesServicio />);
+    render(<MemoryRouter><OrdenesServicio /></MemoryRouter>);
 
     await waitFor(() => expect(screen.getAllByRole('button', { name: /ver/i }).length).toBe(2));
 
@@ -422,7 +428,7 @@ describe('OrdenesServicio Component', () => {
 
   // 15. CERRAR MODAL DE DETALLES
   it('debería cerrar el modal de detalles', async () => {
-    render(<OrdenesServicio />);
+    render(<MemoryRouter><OrdenesServicio /></MemoryRouter>);
 
     await waitFor(() => expect(screen.getAllByRole('button', { name: /ver/i }).length).toBe(2));
 
@@ -448,7 +454,7 @@ describe('OrdenesServicio Component', () => {
       data: { success: true },
     } as any);
 
-    render(<OrdenesServicio />);
+    render(<MemoryRouter><OrdenesServicio /></MemoryRouter>);
 
     await waitFor(() => expect(screen.getAllByTitle('Asignar Técnico').length).toBe(2));
 
@@ -495,7 +501,7 @@ describe('OrdenesServicio Component', () => {
       data: { success: true },
     } as any);
 
-    render(<OrdenesServicio />);
+    render(<MemoryRouter><OrdenesServicio /></MemoryRouter>);
 
     await waitFor(() => expect(screen.getAllByTitle('Asignar Técnico').length).toBe(2));
 
@@ -526,7 +532,7 @@ describe('OrdenesServicio Component', () => {
       value: undefined,
     } as any);
 
-    render(<OrdenesServicio />);
+    render(<MemoryRouter><OrdenesServicio /></MemoryRouter>);
 
     await waitFor(() => expect(screen.getAllByTitle('Asignar Técnico').length).toBe(2));
 
@@ -541,7 +547,7 @@ describe('OrdenesServicio Component', () => {
   it('debería mostrar advertencia si no hay técnicos registrados', async () => {
     vi.mocked(tecnicoService.obtenerTecnicos).mockResolvedValue({ data: [] } as any);
 
-    render(<OrdenesServicio />);
+    render(<MemoryRouter><OrdenesServicio /></MemoryRouter>);
 
     await waitFor(() => expect(screen.getAllByTitle('Asignar Técnico').length).toBe(2));
 
@@ -570,7 +576,7 @@ describe('OrdenesServicio Component', () => {
       data: { success: true },
     } as any);
 
-    render(<OrdenesServicio />);
+    render(<MemoryRouter><OrdenesServicio /></MemoryRouter>);
 
     await waitFor(() => expect(screen.getAllByRole('button', { name: /eliminar/i }).length).toBe(2));
 
@@ -602,7 +608,7 @@ describe('OrdenesServicio Component', () => {
       isConfirmed: false,
     } as any);
 
-    render(<OrdenesServicio />);
+    render(<MemoryRouter><OrdenesServicio /></MemoryRouter>);
 
     await waitFor(() => expect(screen.getAllByRole('button', { name: /eliminar/i }).length).toBe(2));
 
@@ -621,7 +627,7 @@ describe('OrdenesServicio Component', () => {
 
     vi.mocked(ordenService.eliminarOrden).mockRejectedValue(new Error('Fallo eliminando'));
 
-    render(<OrdenesServicio />);
+    render(<MemoryRouter><OrdenesServicio /></MemoryRouter>);
 
     await waitFor(() => expect(screen.getAllByRole('button', { name: /eliminar/i }).length).toBe(2));
 

@@ -71,10 +71,10 @@ const ReporteInventario: React.FC = () => {
     // Cargar categorias de PRODUCTO y SERVICIO
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
         obtenerCategoriasPorTipo('PRODUCTO')
-      .then(res => setCategoriasProducto(extractArray(res)))
+      .then(res => setCategoriasProducto(extractArray(res.data)))
       .catch(err => console.error("Error al cargar categorías producto", err));
     obtenerCategoriasPorTipo('SERVICIO')
-      .then(res => setCategoriasServicio(extractArray(res)))
+      .then(res => setCategoriasServicio(extractArray(res.data)))
       .catch(err => console.error("Error al cargar categorías servicio", err));
   }, []);
 
@@ -93,8 +93,8 @@ const ReporteInventario: React.FC = () => {
     setConsultado(true);
     try {
       const res = await obtenerReporteInventario(fechaInicio, fechaFin, categoria);
-      if (res.success) {
-        setData(res.data);
+      if (res.data?.success) {
+        setData(res.data.data);
       } else {
         setData(null);
       }

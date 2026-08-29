@@ -1,6 +1,15 @@
-import { Mock } from 'vitest';
+import { MemoryRouter } from 'react-router-dom';
+
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import '@testing-library/jest-dom';
+vi.mock('react-router-dom', async (importOriginal) => {
+  const actual = await importOriginal() as any;
+  return {
+    ...actual,
+    useNavigate: vi.fn(),
+  };
+});
+
 import AsignacionTecnicos from '../../src/componentes/TableOrdenServicios/AsignacionTecnicos';
 import * as ordenService from '../../src/services/ordenServicioService';
 import * as clienteService from '../../src/services/cliente.service';
@@ -8,9 +17,7 @@ import * as tecnicoService from '../../src/services/tecnico.service';
 import Swal from 'sweetalert2';
 
 // 1. MOCKS DE MÓDULOS EXTERNOS
-vi.mock('sweetalert2', () => ({
-  fire: vi.fn().mockResolvedValue({ isConfirmed: true, value: { fecha: '2026-08-20', garantiaProductos: '30', garantiaServicios: '' } }),
-}));
+vi.mock('sweetalert2', () => ({ default: { fire: vi.fn().mockResolvedValue({ isConfirmed: true, value: '5' }), getInput: vi.fn() } }));
 
 // Mock del componente FormattedId
 vi.mock('../../src/componentes/FormattedId', () => ({
@@ -43,22 +50,22 @@ const mockTecnicos = [
 describe('AsignacionTecnicos Component', () => {
   beforeEach(() => {
     vi.clearAllMocks();
-    jest.mocked(ordenService.obtenerOrdenes).mockResolvedValue({ data: mockOrdenes } as any);
-    jest.mocked(clienteService.obtenerClientes).mockResolvedValue({ data: mockClientes } as any);
-    jest.mocked(tecnicoService.obtenerTecnicos).mockResolvedValue({ data: mockTecnicos } as any);
+    vi.mocked(ordenService.obtenerOrdenes).mockResolvedValue({ data: mockOrdenes } as any);
+    vi.mocked(clienteService.obtenerClientes).mockResolvedValue({ data: mockClientes } as any);
+    vi.mocked(tecnicoService.obtenerTecnicos).mockResolvedValue({ data: mockTecnicos } as any);
   });
 
   // 1. ESTADO DE CARGA
   it('debería mostrar el loader mientras consulta la API', () => {
-    jest.mocked(ordenService.obtenerOrdenes).mockImplementation(() => new Promise(() => {}));
-    render(<AsignacionTecnicos />);
+    vi.mocked(ordenService.obtenerOrdenes).mockImplementation(() => new Promise(() => {}));
+    render(<MemoryRouter><AsignacionTecnicos /></MemoryRouter>);
     expect(screen.getByText(/cargando órdenes de servicio/i)).toBeInTheDocument();
   });
 
   // 2. ERROR AL CARGAR
   it('debería mostrar alerta de error si falla la carga', async () => {
-    jest.mocked(ordenService.obtenerOrdenes).mockRejectedValue(new Error('Fallo'));
-    render(<AsignacionTecnicos />);
+    vi.mocked(ordenService.obtenerOrdenes).mockRejectedValue(new Error('Fallo'));
+    render(<MemoryRouter><AsignacionTecnicos /></MemoryRouter>);
 
     await waitFor(() => {
       expect(Swal.fire).toHaveBeenCalledWith(
@@ -69,7 +76,7 @@ describe('AsignacionTecnicos Component', () => {
 
   // 3. HEADER Y ESTADÍSTICAS
   it('debería mostrar el título y las estadísticas calculadas', async () => {
-    render(<AsignacionTecnicos />);
+    render(<MemoryRouter><AsignacionTecnicos /></MemoryRouter>);
 
     await waitFor(() => {
       expect(screen.getByText('Asignación de Técnicos')).toBeInTheDocument();
@@ -84,7 +91,7 @@ describe('AsignacionTecnicos Component', () => {
 
   // 4. TABLERO KANBAN CON LAS 3 COLUMNAS
   it('debería clasificar las órdenes en las columnas correctas', async () => {
-    render(<AsignacionTecnicos />);
+    render(<MemoryRouter><AsignacionTecnicos /></MemoryRouter>);
 
     await waitFor(() => {
       // Columna Pendientes: orden sin técnico
@@ -102,7 +109,7 @@ describe('AsignacionTecnicos Component', () => {
 
   // 5. BOTÓN ASIGNAR DESHABILITADO SIN TÉCNICO
   it('debería deshabilitar el botón Asignar hasta seleccionar técnico', async () => {
-    render(<AsignacionTecnicos />);
+    render(<MemoryRouter><AsignacionTecnicos /></MemoryRouter>);
     await waitFor(() => expect(screen.getByText('Sin técnico asignado')).toBeInTheDocument());
 
     const btnAsignar = screen.getByRole('button', { name: /asignar$/i });
@@ -111,8 +118,8 @@ describe('AsignacionTecnicos Component', () => {
 
   // 6. ASIGNAR TÉCNICO A ORDEN PENDIENTE
   it('debería asignar el técnico seleccionado y actualizar la orden', async () => {
-    jest.mocked(ordenService.actualizarOrden).mockResolvedValue({ data: { success: true } } as any);
-    const { container } = render(<AsignacionTecnicos />);
+    vi.mocked(ordenService.actualizarOrden).mockResolvedValue({ data: { success: true } } as any);
+    const { container } = render(<MemoryRouter><AsignacionTecnicos /></MemoryRouter>);
     await waitFor(() => expect(screen.getByText('Sin técnico asignado')).toBeInTheDocument());
 
     // Seleccionar técnico en el select de la orden pendiente
@@ -147,7 +154,7 @@ describe('AsignacionTecnicos Component', () => {
 
   // 7. BÚSQUEDA POR TÉCNICO
   it('debería filtrar las órdenes al buscar por nombre de técnico', async () => {
-    render(<AsignacionTecnicos />);
+    render(<MemoryRouter><AsignacionTecnicos /></MemoryRouter>);
     await waitFor(() => expect(screen.getByText('Sin técnico asignado')).toBeInTheDocument());
 
     fireEvent.change(screen.getByPlaceholderText(/buscar por id, cliente o técnico/i), { target: { value: 'Carlos' } });
@@ -163,7 +170,7 @@ describe('AsignacionTecnicos Component', () => {
 
   // 8. FILTROS DE COLUMNAS
   it('debería mostrar solo la columna seleccionada con los filtros', async () => {
-    render(<AsignacionTecnicos />);
+    render(<MemoryRouter><AsignacionTecnicos /></MemoryRouter>);
     await waitFor(() => expect(document.querySelectorAll('.kanban-column').length).toBe(3));
 
     // Filtro Pendientes → solo 1 columna
@@ -180,10 +187,10 @@ describe('AsignacionTecnicos Component', () => {
 
   // 9. AGREGAR OBSERVACIONES A ORDEN FINALIZADA
   it('debería guardar observaciones en una orden finalizada sin ellas', async () => {
-    jest.mocked(ordenService.actualizarOrden).mockResolvedValue({ data: { success: true } } as any);
-    jest.mocked(Swal.fire).mockResolvedValue({ isConfirmed: true, value: 'Revisar frenos' } as any);
+    vi.mocked(ordenService.actualizarOrden).mockResolvedValue({ data: { success: true } } as any);
+    vi.mocked(Swal.fire).mockResolvedValue({ isConfirmed: true, value: 'Revisar frenos' } as any);
 
-    render(<AsignacionTecnicos />);
+    render(<MemoryRouter><AsignacionTecnicos /></MemoryRouter>);
     await waitFor(() => expect(screen.getByText('Agregar Observaciones')).toBeInTheDocument());
 
     fireEvent.click(screen.getByText('Agregar Observaciones'));
@@ -201,9 +208,9 @@ describe('AsignacionTecnicos Component', () => {
 
   // 10. NO GUARDAR OBSERVACIONES SI SE CANCELA
   it('no debería guardar observaciones si el usuario cancela', async () => {
-    jest.mocked(Swal.fire).mockResolvedValue({ isConfirmed: false, value: undefined } as any);
+    vi.mocked(Swal.fire).mockResolvedValue({ isConfirmed: false, value: undefined } as any);
 
-    render(<AsignacionTecnicos />);
+    render(<MemoryRouter><AsignacionTecnicos /></MemoryRouter>);
     await waitFor(() => expect(screen.getByText('Agregar Observaciones')).toBeInTheDocument());
 
     fireEvent.click(screen.getByText('Agregar Observaciones'));

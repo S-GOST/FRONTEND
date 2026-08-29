@@ -1,15 +1,21 @@
-import { Mock } from 'vitest';
+import { MemoryRouter } from 'react-router-dom';
+
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import '@testing-library/jest-dom';
+vi.mock('react-router-dom', async (importOriginal) => {
+  const actual = await importOriginal() as any;
+  return {
+    ...actual,
+    useNavigate: vi.fn(),
+  };
+});
+
 import ClienteComprobantes from '../../src/componentes/TableCliente/ClienteComprobantes';
 import * as comprobanteService from '../../src/services/comprobanteService';
 import Swal from 'sweetalert2';
 
 // 1. MOCKS DE MÓDULOS EXTERNOS
-vi.mock('sweetalert2', () => ({
-  fire: vi.fn().mockResolvedValue({ isConfirmed: true }),
-  showValidationMessage: vi.fn(),
-}));
+vi.mock('sweetalert2', () => ({ default: { fire: vi.fn().mockResolvedValue({ isConfirmed: true, value: '5' }), getInput: vi.fn() } }));
 
 // Mock del componente FormattedId para simplificar
 vi.mock('../../src/componentes/FormattedId', () => ({
@@ -48,28 +54,28 @@ const mockComprobantes = [
 describe('ClienteComprobantes Component', () => {
   beforeEach(() => {
     vi.clearAllMocks();
-    jest.mocked(comprobanteService.obtenerMisComprobantes).mockResolvedValue({
+    vi.mocked(comprobanteService.obtenerMisComprobantes).mockResolvedValue({
       data: mockComprobantes,
     } as any);
   });
 
   // 1. RENDERIZADO INICIAL
   it('debería renderizar el título de la página', () => {
-    render(<ClienteComprobantes />);
+    render(<MemoryRouter><ClienteComprobantes /></MemoryRouter>);
     expect(screen.getByText('Mis Comprobantes')).toBeInTheDocument();
   });
 
   // 2. ESTADO DE CARGA
   it('debería mostrar "Cargando comprobantes..." mientras consulta la API', () => {
-    jest.mocked(comprobanteService.obtenerMisComprobantes).mockImplementation(() => new Promise(() => {}));
-    render(<ClienteComprobantes />);
+    vi.mocked(comprobanteService.obtenerMisComprobantes).mockImplementation(() => new Promise(() => {}));
+    render(<MemoryRouter><ClienteComprobantes /></MemoryRouter>);
     expect(screen.getByText(/cargando comprobantes/i)).toBeInTheDocument();
   });
 
   // 3. ESTADO VACÍO
   it('debería mostrar mensaje cuando no hay comprobantes', async () => {
-    jest.mocked(comprobanteService.obtenerMisComprobantes).mockResolvedValue({ data: [] } as any);
-    render(<ClienteComprobantes />);
+    vi.mocked(comprobanteService.obtenerMisComprobantes).mockResolvedValue({ data: [] } as any);
+    render(<MemoryRouter><ClienteComprobantes /></MemoryRouter>);
 
     await waitFor(() => {
       expect(screen.getByText(/no tienes comprobantes registrados/i)).toBeInTheDocument();
@@ -78,8 +84,8 @@ describe('ClienteComprobantes Component', () => {
 
   // 4. ERROR AL CARGAR
   it('debería mostrar alerta de error si falla la carga', async () => {
-    jest.mocked(comprobanteService.obtenerMisComprobantes).mockRejectedValue(new Error('Fallo'));
-    render(<ClienteComprobantes />);
+    vi.mocked(comprobanteService.obtenerMisComprobantes).mockRejectedValue(new Error('Fallo'));
+    render(<MemoryRouter><ClienteComprobantes /></MemoryRouter>);
 
     await waitFor(() => {
       expect(Swal.fire).toHaveBeenCalledWith(
@@ -94,7 +100,7 @@ describe('ClienteComprobantes Component', () => {
 
   // 5. TARJETAS DE COMPROBANTES CON DATOS
   it('debería mostrar los comprobantes con su información completa', async () => {
-    render(<ClienteComprobantes />);
+    render(<MemoryRouter><ClienteComprobantes /></MemoryRouter>);
 
     await waitFor(() => {
       expect(screen.getByText('COMP-001')).toBeInTheDocument();
@@ -119,7 +125,7 @@ describe('ClienteComprobantes Component', () => {
 
   // 6. BOTÓN PAGAR SOLO EN PENDIENTES
   it('debería mostrar el botón Pagar solo en comprobantes pendientes', async () => {
-    render(<ClienteComprobantes />);
+    render(<MemoryRouter><ClienteComprobantes /></MemoryRouter>);
     await waitFor(() => expect(screen.getByText('COMP-001')).toBeInTheDocument());
 
     // Solo 1 botón "Pagar" (el comprobante pagado no lo tiene)
@@ -130,9 +136,9 @@ describe('ClienteComprobantes Component', () => {
   // 7. FLUJO DE PAGO EXITOSO
   it('debería procesar el pago con el método seleccionado y recargar la lista', async () => {
     // El Swal del método de pago devuelve el valor seleccionado
-    jest.mocked(Swal.fire).mockResolvedValue({ value: 'Nequi' } as any);
+    vi.mocked(Swal.fire).mockResolvedValue({ value: 'Nequi' } as any);
 
-    render(<ClienteComprobantes />);
+    render(<MemoryRouter><ClienteComprobantes /></MemoryRouter>);
     await waitFor(() => expect(screen.getByText('COMP-001')).toBeInTheDocument());
 
     fireEvent.click(screen.getByRole('button', { name: 'Pagar' }));
@@ -157,9 +163,9 @@ describe('ClienteComprobantes Component', () => {
   // 8. PAGO CANCELADO
   it('no debería pagar si el usuario cancela la selección de método', async () => {
     // Sin valor seleccionado (canceló)
-    jest.mocked(Swal.fire).mockResolvedValue({ value: undefined } as any);
+    vi.mocked(Swal.fire).mockResolvedValue({ value: undefined } as any);
 
-    render(<ClienteComprobantes />);
+    render(<MemoryRouter><ClienteComprobantes /></MemoryRouter>);
     await waitFor(() => expect(screen.getByText('COMP-001')).toBeInTheDocument());
 
     fireEvent.click(screen.getByRole('button', { name: 'Pagar' }));
@@ -171,10 +177,10 @@ describe('ClienteComprobantes Component', () => {
 
   // 9. ERROR AL PROCESAR PAGO
   it('debería mostrar alerta de error si falla el pago', async () => {
-    jest.mocked(Swal.fire).mockResolvedValue({ value: 'Efectivo' } as any);
-    jest.mocked(comprobanteService.pagarComprobante).mockRejectedValue(new Error('Fallo de pago'));
+    vi.mocked(Swal.fire).mockResolvedValue({ value: 'Efectivo' } as any);
+    vi.mocked(comprobanteService.pagarComprobante).mockRejectedValue(new Error('Fallo de pago'));
 
-    render(<ClienteComprobantes />);
+    render(<MemoryRouter><ClienteComprobantes /></MemoryRouter>);
     await waitFor(() => expect(screen.getByText('COMP-001')).toBeInTheDocument());
 
     fireEvent.click(screen.getByRole('button', { name: 'Pagar' }));
@@ -192,11 +198,11 @@ describe('ClienteComprobantes Component', () => {
 
   // 10. COMPROBANTE SIN NÚMERO USA FormattedId
   it('debería usar FormattedId cuando el comprobante no tiene número', async () => {
-    jest.mocked(comprobanteService.obtenerMisComprobantes).mockResolvedValue({
+    vi.mocked(comprobanteService.obtenerMisComprobantes).mockResolvedValue({
       data: [{ ...mockComprobantes[0], numero_comprobante: null }],
     } as any);
 
-    render(<ClienteComprobantes />);
+    render(<MemoryRouter><ClienteComprobantes /></MemoryRouter>);
 
     await waitFor(() => {
       const ids = screen.getAllByTestId('formatted-id');
@@ -206,7 +212,7 @@ describe('ClienteComprobantes Component', () => {
 
   // 11. FECHA DE INGRESO VACÍA
   it('debería mostrar "—" cuando no hay fecha de ingreso', async () => {
-    render(<ClienteComprobantes />);
+    render(<MemoryRouter><ClienteComprobantes /></MemoryRouter>);
 
     await waitFor(() => {
       // El comprobante COMP-002 tiene fecha_ingreso: null

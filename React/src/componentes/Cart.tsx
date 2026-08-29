@@ -810,8 +810,7 @@ const Cart: React.FC<CartProps> = () => {
                               const kilometraje = m.kilometraje || m.Kilometraje || m.Recorrido || '---';
 
                               return (
-                                <div
-                                  key={motoId}
+                                <div key={motoId}
                                   className={`moto-card ${isSelected ? 'moto-card--selected' : ''}`}
                                   onClick={() => setSelectedMotoId(motoId)} role="button" tabIndex={0} onKeyDown={(e) => { if(e.key === 'Enter') { /* call onClick */ } }}
                                 >
@@ -832,8 +831,7 @@ const Cart: React.FC<CartProps> = () => {
                             })}
 
                             {/* Card para agregar nueva moto */}
-                            <div
-                              className={`moto-card moto-card--new ${selectedMotoId === 'new' ? 'moto-card--selected' : ''}`}
+                            <div className={`moto-card moto-card--new ${selectedMotoId === 'new' ? 'moto-card--selected' : ''}`}
                               onClick={() => setSelectedMotoId('new')} role="button" tabIndex={0} onKeyDown={(e) => { if(e.key === 'Enter') { /* call onClick */ } }}
                             >
                               <div className="moto-card__check">
@@ -858,10 +856,10 @@ const Cart: React.FC<CartProps> = () => {
                               </div>
                             )}
                             <div className="moto-form-group">
-                              <label className="moto-form-label">
+                              <label className="moto-form-label" htmlFor="auto-id-204109">
                                 <i className="bi bi-card-text"></i> Placa
                               </label>
-                              <input
+<input id="auto-id-204109"
                                 type="text"
                                 className="moto-form-input"
                                 placeholder="Ej: ABC123"
@@ -871,10 +869,10 @@ const Cart: React.FC<CartProps> = () => {
                               />
                             </div>
                             <div className="moto-form-group">
-                              <label className="moto-form-label">
+                              <label className="moto-form-label" htmlFor="auto-id-204110">
                                 <i className="bi bi-building"></i> Marca
                               </label>
-                              <input
+<input id="auto-id-204110"
                                 type="text"
                                 className="moto-form-input"
                                 placeholder="Ej: KTM"
@@ -883,10 +881,10 @@ const Cart: React.FC<CartProps> = () => {
                               />
                             </div>
                             <div className="moto-form-group">
-                              <label className="moto-form-label">
+                              <label className="moto-form-label" htmlFor="auto-id-204111">
                                 <i className="bi bi-tag"></i> Modelo
                               </label>
-                              <input
+<input id="auto-id-204111"
                                 type="text"
                                 className="moto-form-input"
                                 placeholder="Ej: 2020"
@@ -896,10 +894,10 @@ const Cart: React.FC<CartProps> = () => {
                             </div>
                             <div className="moto-form-row">
                               <div className="moto-form-group">
-                                <label className="moto-form-label">
+                                <label className="moto-form-label" htmlFor="auto-id-204112">
                                   <i className="bi bi-speedometer2"></i> Cilindraje
                                 </label>
-                                <input
+<input id="auto-id-204112"
                                   type="text"
                                   className="moto-form-input"
                                   placeholder="Ej: 390cc"
@@ -908,10 +906,10 @@ const Cart: React.FC<CartProps> = () => {
                                 />
                               </div>
                               <div className="moto-form-group">
-                                <label className="moto-form-label">
+                                <label className="moto-form-label" htmlFor="auto-id-204113">
                                   <i className="bi bi-signpost"></i> Kilometraje
                                 </label>
-                                <input
+<input id="auto-id-204113"
                                   type="text"
                                   className="moto-form-input"
                                   placeholder="Ej: 15000"

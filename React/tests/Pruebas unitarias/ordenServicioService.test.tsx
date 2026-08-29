@@ -22,7 +22,7 @@ vi.mock('../../src/services/base.service', () => {
   };
   return {
     __esModule: true,
-    BaseApiService: vi.fn(() => instance),
+    BaseApiService: vi.fn().mockImplementation(function() { return instance; }),
   };
 });
 

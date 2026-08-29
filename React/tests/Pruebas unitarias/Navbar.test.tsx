@@ -1,8 +1,17 @@
+import { MemoryRouter } from 'react-router-dom';
 /// <reference types="vitest" />
 import React from 'react';
 import { describe, test, expect, beforeEach, vi } from 'vitest';
 import { render, fireEvent, cleanup } from '@testing-library/react';
 import '@testing-library/jest-dom';
+vi.mock('react-router-dom', async (importOriginal) => {
+  const actual = await importOriginal() as any;
+  return {
+    ...actual,
+    useNavigate: vi.fn(),
+  };
+});
+
 import { BrowserRouter } from 'react-router-dom';
 import Navbar from '../../src/componentes/Navbar';
 

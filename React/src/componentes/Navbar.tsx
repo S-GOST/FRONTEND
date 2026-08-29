@@ -117,8 +117,7 @@ const Navbar: React.FC<NavbarProps> = ({ cartCount: initialCartCount, onSearch, 
               {showSuggestions && suggestions.length > 0 && (
                 <div className="search-suggestions show">
                   {suggestions.map((suggestion) => (
-                    <div
-                      key={suggestion.id}
+                    <div key={suggestion.id}
                       className="search-suggestion-item"
                       onClick={() => handleSuggestionSelect(suggestion)} role="button" tabIndex={0} onKeyDown={(e) => { if(e.key === 'Enter') { /* click */ } }}
                     >

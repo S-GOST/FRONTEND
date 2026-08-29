@@ -2,6 +2,8 @@ import { Mock } from 'vitest';
 import {
   obtenerDetallesOrdenes,
   eliminarDetalleOrden,
+  insertarDetalleOrden,
+  actualizarDetalleOrden,
 } from '../../src/services/detalleOrdenServicioService';
 import { BaseApiService } from '../../src/services/base.service';
 
@@ -25,7 +27,7 @@ vi.mock('../../src/services/base.service', () => {
   };
   return {
     __esModule: true,
-    BaseApiService: vi.fn(() => instance),
+    BaseApiService: vi.fn().mockImplementation(function() { return instance; }),
   };
 });
 
@@ -49,14 +51,14 @@ describe('detalleOrdenServicioService', () => {
   // 2. INSERTAR DETALLE ORDEN
   it('debería delegar en crear con el payload completo', async () => {
     base.crear.mockResolvedValue({ data: { success: true } });
-
+    await insertarDetalleOrden(mockPayload);
     expect(base.crear).toHaveBeenCalledWith(mockPayload);
   });
 
   // 3. ACTUALIZAR DETALLE ORDEN
   it('debería delegar en actualizar con el ID numérico y el payload', async () => {
     base.actualizar.mockResolvedValue({ data: { success: true } });
-
+    await actualizarDetalleOrden(1, { ...mockPayload, Garantia: 60 });
     expect(base.actualizar).toHaveBeenCalledWith(
       1,
       expect.objectContaining({ Garantia: 60 })

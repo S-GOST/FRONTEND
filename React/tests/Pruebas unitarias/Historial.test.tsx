@@ -1,14 +1,21 @@
-import { Mock } from 'vitest';
+import { MemoryRouter } from 'react-router-dom';
+
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import '@testing-library/jest-dom';
+vi.mock('react-router-dom', async (importOriginal) => {
+  const actual = await importOriginal() as any;
+  return {
+    ...actual,
+    useNavigate: vi.fn(),
+  };
+});
+
 import TableHistorial from '../../src/componentes/Tablehistorial/historial';
 import * as historialService from '../../src/services/historial.service';
 import Swal from 'sweetalert2';
 
 // 1. MOCKS DE MÓDULOS EXTERNOS
-vi.mock('sweetalert2', () => ({
-  fire: vi.fn(),
-}));
+vi.mock('sweetalert2', () => ({ default: { fire: vi.fn().mockResolvedValue({ isConfirmed: true, value: '5' }), getInput: vi.fn() } }));
 
 // Mock del componente FormattedId
 vi.mock('../../src/componentes/FormattedId', () => ({
@@ -58,12 +65,12 @@ const mockHistorial = [
 describe('TableHistorial Component', () => {
   beforeEach(() => {
     vi.clearAllMocks();
-    jest.mocked(historialService.obtenerHistorial).mockResolvedValue({ data: mockHistorial } as any);
+    vi.mocked(historialService.obtenerHistorial).mockResolvedValue({ data: mockHistorial } as any);
   });
 
   // 1. RENDERIZADO INICIAL
   it('debería renderizar el título y la nota de inmutabilidad', () => {
-    render(<TableHistorial />);
+    render(<MemoryRouter><TableHistorial /></MemoryRouter>);
 
     expect(screen.getByText('Registro de Auditoría (Historial)')).toBeInTheDocument();
     expect(screen.getByText(/este registro es inmutable/i)).toBeInTheDocument();
@@ -71,15 +78,15 @@ describe('TableHistorial Component', () => {
 
   // 2. ESTADO DE CARGA
   it('debería mostrar "Cargando historial..." mientras consulta la API', () => {
-    jest.mocked(historialService.obtenerHistorial).mockImplementation(() => new Promise(() => {}));
-    render(<TableHistorial />);
+    vi.mocked(historialService.obtenerHistorial).mockImplementation(() => new Promise(() => {}));
+    render(<MemoryRouter><TableHistorial /></MemoryRouter>);
     expect(screen.getByText(/cargando historial/i)).toBeInTheDocument();
   });
 
   // 3. ESTADO VACÍO
   it('debería mostrar mensaje cuando no hay registros', async () => {
-    jest.mocked(historialService.obtenerHistorial).mockResolvedValue({ data: [] } as any);
-    render(<TableHistorial />);
+    vi.mocked(historialService.obtenerHistorial).mockResolvedValue({ data: [] } as any);
+    render(<MemoryRouter><TableHistorial /></MemoryRouter>);
 
     await waitFor(() => {
       expect(screen.getByText(/no hay registros en el historial/i)).toBeInTheDocument();
@@ -88,8 +95,8 @@ describe('TableHistorial Component', () => {
 
   // 4. ERROR AL CARGAR
   it('debería mostrar alerta de error si falla la carga', async () => {
-    jest.mocked(historialService.obtenerHistorial).mockRejectedValue(new Error('Fallo'));
-    render(<TableHistorial />);
+    vi.mocked(historialService.obtenerHistorial).mockRejectedValue(new Error('Fallo'));
+    render(<MemoryRouter><TableHistorial /></MemoryRouter>);
 
     await waitFor(() => {
       expect(Swal.fire).toHaveBeenCalledWith(
@@ -104,7 +111,7 @@ describe('TableHistorial Component', () => {
 
   // 5. TABLA CON DATOS Y FALLBACKS
   it('debería mostrar los registros con badges de acción y fallbacks', async () => {
-    render(<TableHistorial />);
+    render(<MemoryRouter><TableHistorial /></MemoryRouter>);
 
     await waitFor(() => {
       expect(screen.getByText('clientes')).toBeInTheDocument();
@@ -126,7 +133,7 @@ describe('TableHistorial Component', () => {
 
   // 6. BÚSQUEDA POR TABLA
   it('debería filtrar registros al buscar por tabla afectada', async () => {
-    render(<TableHistorial />);
+    render(<MemoryRouter><TableHistorial /></MemoryRouter>);
     await waitFor(() => expect(screen.getByText('clientes')).toBeInTheDocument());
 
     fireEvent.change(screen.getByPlaceholderText(/buscar por id, tabla, usuario/i), { target: { value: 'motos' } });
@@ -141,7 +148,7 @@ describe('TableHistorial Component', () => {
 
   // 7. FILTRO POR ACCIÓN
   it('debería filtrar registros con el selector de acción', async () => {
-    render(<TableHistorial />);
+    render(<MemoryRouter><TableHistorial /></MemoryRouter>);
     await waitFor(() => expect(screen.getByText('INSERT')).toBeInTheDocument());
 
     fireEvent.change(screen.getByRole('combobox'), { target: { value: 'UPDATE' } });
@@ -156,7 +163,7 @@ describe('TableHistorial Component', () => {
 
   // 8. BOTÓN RESET
   it('debería limpiar búsqueda y filtro con Reset', async () => {
-    render(<TableHistorial />);
+    render(<MemoryRouter><TableHistorial /></MemoryRouter>);
     await waitFor(() => expect(screen.getByText('INSERT')).toBeInTheDocument());
 
     fireEvent.change(screen.getByPlaceholderText(/buscar por id, tabla, usuario/i), { target: { value: 'motos' } });
@@ -170,7 +177,7 @@ describe('TableHistorial Component', () => {
 
   // 9. MODAL JSON CON SOLO DATOS DESPUÉS
   it('debería mostrar solo "Datos DESPUÉS" cuando no hay datos antes', async () => {
-    render(<TableHistorial />);
+    render(<MemoryRouter><TableHistorial /></MemoryRouter>);
     await waitFor(() => expect(screen.getByText('INSERT')).toBeInTheDocument());
 
     fireEvent.click(screen.getAllByTitle('Ver datos antes/después')[0]);
@@ -188,7 +195,7 @@ describe('TableHistorial Component', () => {
 
   // 10. MODAL JSON CON AMBOS DATOS
   it('debería mostrar "Datos ANTES" y "Datos DESPUÉS" cuando existen ambos', async () => {
-    render(<TableHistorial />);
+    render(<MemoryRouter><TableHistorial /></MemoryRouter>);
     await waitFor(() => expect(screen.getByText('UPDATE')).toBeInTheDocument());
 
     fireEvent.click(screen.getAllByTitle('Ver datos antes/después')[1]);
@@ -204,7 +211,7 @@ describe('TableHistorial Component', () => {
 
   // 11. MODAL JSON SIN DATOS
   it('debería mostrar mensaje cuando no hay datos JSON', async () => {
-    render(<TableHistorial />);
+    render(<MemoryRouter><TableHistorial /></MemoryRouter>);
     await waitFor(() => expect(screen.getByText('DELETE')).toBeInTheDocument());
 
     fireEvent.click(screen.getAllByTitle('Ver datos antes/después')[2]);
@@ -216,7 +223,7 @@ describe('TableHistorial Component', () => {
 
   // 12. CERRAR MODAL JSON
   it('debería cerrar el modal con el botón ×', async () => {
-    render(<TableHistorial />);
+    render(<MemoryRouter><TableHistorial /></MemoryRouter>);
     await waitFor(() => expect(screen.getByText('INSERT')).toBeInTheDocument());
 
     fireEvent.click(screen.getAllByTitle('Ver datos antes/después')[0]);

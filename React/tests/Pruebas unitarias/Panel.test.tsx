@@ -1,4 +1,5 @@
-import { Mock } from 'vitest';
+import { MemoryRouter } from 'react-router-dom';
+
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import '@testing-library/jest-dom';
 import Panel from '../../src/componentes/TableAdmin/Panel';
@@ -6,13 +7,11 @@ import * as authService from '../../src/services/auth.services';
 import Swal from 'sweetalert2';
 
 // Mock de SweetAlert2
-vi.mock('sweetalert2', () => ({
-  fire: vi.fn().mockResolvedValue({ isConfirmed: false }),
-}));
+vi.mock('sweetalert2', () => ({ default: { fire: vi.fn().mockResolvedValue({ isConfirmed: true, value: '5' }), getInput: vi.fn() } }));
 
 // Mock de React Router DOM
-vi.mock('react-router-dom', () => {
-  const originalModule = vi.importActual('react-router-dom');
+vi.mock('react-router-dom', async () => {
+  const originalModule = await vi.importActual('react-router-dom') as any;
   return {
     ...originalModule,
     Outlet: () => <div data-testid="outlet">Outlet Content</div>,
@@ -37,7 +36,7 @@ describe('Panel Component', () => {
 
   // 1. PRUEBA DE RENDERIZADO BÁSICO
   it('debería renderizar el panel correctamente', () => {
-    render(<Panel />);
+    render(<MemoryRouter><Panel /></MemoryRouter>);
     
     expect(screen.getByText(/ADMIN KTM/i)).toBeInTheDocument();
     expect(screen.getByAltText('Logo')).toBeInTheDocument();
@@ -47,7 +46,7 @@ describe('Panel Component', () => {
   // 2. PRUEBA DE VISUALIZACIÓN DE NOMBRE DE USUARIO
   it('debería mostrar el nombre del usuario desde localStorage', () => {
     localStorage.setItem('user_name', 'Juan Pérez');
-    render(<Panel />);
+    render(<MemoryRouter><Panel /></MemoryRouter>);
     
     expect(screen.getByText('Juan Pérez')).toBeInTheDocument();
   });
@@ -55,14 +54,14 @@ describe('Panel Component', () => {
   // 3. PRUEBA DE VALOR POR DEFECTO CUANDO NO HAY USUARIO
   it('debería mostrar "ADMIN KTM" cuando no hay usuario en localStorage', () => {
     localStorage.removeItem('user_name');
-    render(<Panel />);
+    render(<MemoryRouter><Panel /></MemoryRouter>);
     
     expect(screen.getByText('ADMIN KTM')).toBeInTheDocument();
   });
 
   // 4. PRUEBA DE LOGO CON ENLACE
   it('debería tener el logo con enlace a la ruta principal', () => {
-    render(<Panel />);
+    render(<MemoryRouter><Panel /></MemoryRouter>);
     
     const logo = screen.getByAltText('Logo');
     const link = logo.closest('a');
@@ -73,14 +72,14 @@ describe('Panel Component', () => {
 
   // 5. PRUEBA DE OUTLET
   it('debería renderizar el Outlet para contenido dinámico', () => {
-    render(<Panel />);
+    render(<MemoryRouter><Panel /></MemoryRouter>);
     
     expect(screen.getByTestId('outlet')).toBeInTheDocument();
   });
 
   // 6. PRUEBA DE BOTÓN DE LOGOUT
   it('debería mostrar el botón de cerrar sesión', () => {
-    render(<Panel />);
+    render(<MemoryRouter><Panel /></MemoryRouter>);
     
     const logoutButton = screen.getByRole('button', { name: /cerrar sesión/i });
     expect(logoutButton).toBeInTheDocument();
@@ -89,7 +88,7 @@ describe('Panel Component', () => {
 
   // 7. PRUEBA DE CONFIRMACIÓN DE LOGOUT
   it('debería mostrar confirmación de SweetAlert al hacer clic en logout', async () => {
-    render(<Panel />);
+    render(<MemoryRouter><Panel /></MemoryRouter>);
     
     const logoutButton = screen.getByRole('button', { name: /cerrar sesión/i });
     fireEvent.click(logoutButton);
@@ -109,9 +108,9 @@ describe('Panel Component', () => {
   // 8. PRUEBA DE CIERRE DE SESIÓN CONFIRMADO
   it('debería llamar a clearSession cuando se confirma el logout', async () => {
     // Configurar Swal para que retorne confirmación
-    jest.mocked(Swal.fire).mockResolvedValue({ isConfirmed: true } as any);
+    vi.mocked(Swal.fire).mockResolvedValue({ isConfirmed: true } as any);
     
-    render(<Panel />);
+    render(<MemoryRouter><Panel /></MemoryRouter>);
     
     const logoutButton = screen.getByRole('button', { name: /cerrar sesión/i });
     fireEvent.click(logoutButton);
@@ -124,9 +123,9 @@ describe('Panel Component', () => {
   // 9. PRUEBA DE NO CIERRE DE SESIÓN CUANDO SE CANCELA
   it('no debería llamar a clearSession cuando se cancela el logout', async () => {
     // Configurar Swal para que retorne cancelación
-    jest.mocked(Swal.fire).mockResolvedValue({ isConfirmed: false } as any);
+    vi.mocked(Swal.fire).mockResolvedValue({ isConfirmed: false } as any);
     
-    render(<Panel />);
+    render(<MemoryRouter><Panel /></MemoryRouter>);
     
     const logoutButton = screen.getByRole('button', { name: /cerrar sesión/i });
     fireEvent.click(logoutButton);
@@ -138,7 +137,7 @@ describe('Panel Component', () => {
 
   // 10. PRUEBA DE ICONO DE USUARIO
   it('debería mostrar el icono de usuario', () => {
-    render(<Panel />);
+    render(<MemoryRouter><Panel /></MemoryRouter>);
     
     const userIcon = screen.getByTestId('user-icon');
     expect(userIcon).toBeInTheDocument();

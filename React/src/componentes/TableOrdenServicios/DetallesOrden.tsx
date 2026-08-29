@@ -156,7 +156,7 @@ const DetallesOrden = () => {
       return false;
     }
     if (!editMode && detalleId) {
-      const yaExiste = detalles.some(d => d.ID_DETALLES_ORDEN_SERVICIO === detalleId);
+      const yaExiste = detalles.some(d => Number(d.ID_DETALLES_ORDEN_SERVICIO) === Number(detalleId));
       if (yaExiste) {
         showAlert('Error', `El ID "${detalleId}" ya existe. Use uno diferente.`, 'error');
         return false;

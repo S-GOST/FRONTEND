@@ -1,3 +1,4 @@
+import { MemoryRouter } from 'react-router-dom';
 import { Mock } from 'vitest';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import '@testing-library/jest-dom';
@@ -6,29 +7,28 @@ import { resetPassword } from '../../src/services/auth.services';
 import Swal from 'sweetalert2';
 
 // 1. MOCKS DE MÓDULOS EXTERNOS
-vi.mock('sweetalert2', () => ({
-  fire: vi.fn().mockResolvedValue({}),
-}));
+const mockNavigate = vi.fn();
 
-vi.mock('react-router-dom', () => ({
-  ...vi.importActual('react-router-dom'),
+vi.mock('sweetalert2', () => ({ default: { fire: vi.fn().mockResolvedValue({ isConfirmed: true, value: '5' }), getInput: vi.fn() } }));
+
+vi.mock('react-router-dom', async () => ({
+  ...(await vi.importActual('react-router-dom') as any),
   useParams: () => ({ token: 'abc123token' }),
-  useNavigate: () => vi.fn(),
+  useNavigate: () => mockNavigate,
 }));
 
 vi.mock('../../src/services/auth.services');
 
 describe('ResetPassword Component', () => {
-  const mockNavigate = vi.fn();
+  
 
   beforeEach(() => {
     vi.clearAllMocks();
-    (require('react-router-dom').useNavigate as Mock).mockReturnValue(mockNavigate);
   });
 
   // 1. RENDERIZADO INICIAL
   it('debería renderizar el formulario correctamente', () => {
-    render(<ResetPassword />);
+    render(<MemoryRouter><ResetPassword /></MemoryRouter>);
 
     expect(screen.getByText('Restablecer Contraseña')).toBeInTheDocument();
     expect(screen.getByPlaceholderText('Nueva contraseña')).toBeInTheDocument();
@@ -38,7 +38,7 @@ describe('ResetPassword Component', () => {
 
   // 2. VALIDACIÓN: CAMPOS VACÍOS
   it('debería mostrar error si los campos están vacíos', async () => {
-    render(<ResetPassword />);
+    render(<MemoryRouter><ResetPassword /></MemoryRouter>);
 
     fireEvent.click(screen.getByRole('button', { name: /guardar nueva contraseña/i }));
 
@@ -56,7 +56,7 @@ describe('ResetPassword Component', () => {
 
   // 3. VALIDACIÓN: CONTRASEÑA DÉBIL
   it('debería mostrar error si la contraseña no cumple requisitos', async () => {
-    render(<ResetPassword />);
+    render(<MemoryRouter><ResetPassword /></MemoryRouter>);
 
     fireEvent.change(screen.getByPlaceholderText('Nueva contraseña'), { target: { value: 'weak' } });
     fireEvent.change(screen.getByPlaceholderText('Confirmar contraseña'), { target: { value: 'weak' } });
@@ -76,7 +76,7 @@ describe('ResetPassword Component', () => {
 
   // 4. VALIDACIÓN: CONTRASEÑAS NO COINCIDEN
   it('debería mostrar error si las contraseñas no coinciden', async () => {
-    render(<ResetPassword />);
+    render(<MemoryRouter><ResetPassword /></MemoryRouter>);
 
     fireEvent.change(screen.getByPlaceholderText('Nueva contraseña'), { target: { value: 'StrongPass123!' } });
     fireEvent.change(screen.getByPlaceholderText('Confirmar contraseña'), { target: { value: 'DifferentPass123!' } });
@@ -96,7 +96,7 @@ describe('ResetPassword Component', () => {
 
   // 5. INDICADOR DE FORTALEZA - MUY DÉBIL
   it('debería mostrar "Muy débil" para contraseña corta sin requisitos', () => {
-    render(<ResetPassword />);
+    render(<MemoryRouter><ResetPassword /></MemoryRouter>);
 
     fireEvent.change(screen.getByPlaceholderText('Nueva contraseña'), { target: { value: 'a' } });
 
@@ -106,7 +106,7 @@ describe('ResetPassword Component', () => {
 
   // 6. INDICADOR DE FORTALEZA - FUERTE
   it('debería mostrar "Fuerte" para contraseña que cumple todos los requisitos', () => {
-    render(<ResetPassword />);
+    render(<MemoryRouter><ResetPassword /></MemoryRouter>);
 
     fireEvent.change(screen.getByPlaceholderText('Nueva contraseña'), { target: { value: 'StrongPass123!' } });
 
@@ -116,7 +116,7 @@ describe('ResetPassword Component', () => {
 
   // 7. ADVERTENCIA DE NO COINCIDENCIA EN TIEMPO REAL
   it('debería mostrar advertencia cuando las contraseñas no coinciden', () => {
-    render(<ResetPassword />);
+    render(<MemoryRouter><ResetPassword /></MemoryRouter>);
 
     fireEvent.change(screen.getByPlaceholderText('Nueva contraseña'), { target: { value: 'Pass123!' } });
     fireEvent.change(screen.getByPlaceholderText('Confirmar contraseña'), { target: { value: 'Different123!' } });
@@ -127,7 +127,7 @@ describe('ResetPassword Component', () => {
   // 8. ENVÍO EXITOSO
   it('debería enviar la nueva contraseña y navegar al login', async () => {
     (resetPassword as Mock).mockResolvedValue({ data: { success: true } });
-    render(<ResetPassword />);
+    render(<MemoryRouter><ResetPassword /></MemoryRouter>);
 
     fireEvent.change(screen.getByPlaceholderText('Nueva contraseña'), { target: { value: 'StrongPass123!' } });
     fireEvent.change(screen.getByPlaceholderText('Confirmar contraseña'), { target: { value: 'StrongPass123!' } });
@@ -150,7 +150,7 @@ describe('ResetPassword Component', () => {
     (resetPassword as Mock).mockRejectedValue({
       response: { data: { mensaje: 'Token expirado' } },
     });
-    render(<ResetPassword />);
+    render(<MemoryRouter><ResetPassword /></MemoryRouter>);
 
     fireEvent.change(screen.getByPlaceholderText('Nueva contraseña'), { target: { value: 'StrongPass123!' } });
     fireEvent.change(screen.getByPlaceholderText('Confirmar contraseña'), { target: { value: 'StrongPass123!' } });
@@ -170,7 +170,7 @@ describe('ResetPassword Component', () => {
   // 10. ERROR GENÉRICO SIN MENSAJE DEL SERVIDOR
   it('debería mostrar mensaje genérico si no hay mensaje del servidor', async () => {
     (resetPassword as Mock).mockRejectedValue(new Error('Error desconocido'));
-    render(<ResetPassword />);
+    render(<MemoryRouter><ResetPassword /></MemoryRouter>);
 
     fireEvent.change(screen.getByPlaceholderText('Nueva contraseña'), { target: { value: 'StrongPass123!' } });
     fireEvent.change(screen.getByPlaceholderText('Confirmar contraseña'), { target: { value: 'StrongPass123!' } });
@@ -190,7 +190,7 @@ describe('ResetPassword Component', () => {
   // 11. ESTADO DE CARGA
   it('debería deshabilitar el botón durante la carga', async () => {
     (resetPassword as Mock).mockImplementation(() => new Promise(() => {}));
-    render(<ResetPassword />);
+    render(<MemoryRouter><ResetPassword /></MemoryRouter>);
 
     fireEvent.change(screen.getByPlaceholderText('Nueva contraseña'), { target: { value: 'StrongPass123!' } });
     fireEvent.change(screen.getByPlaceholderText('Confirmar contraseña'), { target: { value: 'StrongPass123!' } });
@@ -203,7 +203,7 @@ describe('ResetPassword Component', () => {
 
   // 12. TOGGLE MOSTRAR/OCULTAR CONTRASEÑA
   it('debería alternar entre mostrar y ocultar la contraseña', () => {
-    render(<ResetPassword />);
+    render(<MemoryRouter><ResetPassword /></MemoryRouter>);
 
     const toggleBtn = screen.getAllByRole('button', { name: /bi-eye/i })[0];
     const passwordInput = screen.getByPlaceholderText('Nueva contraseña');
@@ -219,7 +219,7 @@ describe('ResetPassword Component', () => {
 
   // 13. ENLACE A LOGIN
   it('debería tener un enlace funcional para volver al login', () => {
-    render(<ResetPassword />);
+    render(<MemoryRouter><ResetPassword /></MemoryRouter>);
 
     const link = screen.getByRole('link', { name: /volver a inicio de sesión/i });
     expect(link).toHaveAttribute('href', '/login');

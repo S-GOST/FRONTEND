@@ -412,7 +412,7 @@ const OrdenesServicio = () => {
       {/* Modal de detalles */}
       {modalOpen && selectedOrder && (
         <div className="modal-overlay" onClick={() => setModalOpen(false)}>
-          <div className="modal-container" onClick={(e) => e.stopPropagation()}>
+          <div className="modal-container" onClick={(e) => e.stopPropagation()} role="button" tabIndex={0} onKeyDown={(e) => { if (e.key === 'Enter') e.currentTarget.click() }}>
             <div className="modal-header">
               <h3>Detalles de la orden {selectedOrder.ID_ORDEN_SERVICIO}</h3>
               <button type="button" className="close-btn" onClick={() => setModalOpen(false)}>&times;</button>
@@ -460,7 +460,7 @@ const OrdenesServicio = () => {
       {/* Modal de formulario (Restaurado a selects originales) */}
       {modalFormOpen && (
         <div className="modal-overlay" onClick={() => setModalFormOpen(false)}>
-          <div className="modal-container" onClick={(e) => e.stopPropagation()}>
+          <div className="modal-container" onClick={(e) => e.stopPropagation()} role="button" tabIndex={0} onKeyDown={(e) => { if (e.key === 'Enter') e.currentTarget.click() }}>
             <div className="modal-header">
               <h3>{editMode ? 'Editar Orden' : 'Nueva Orden de Servicio'}</h3>
               <button type="button" className="close-btn" onClick={() => setModalFormOpen(false)}>&times;</button>
@@ -468,8 +468,8 @@ const OrdenesServicio = () => {
             <form onSubmit={handleSubmit}>
               <div className="modal-body">
                 <div className="form-group">
-                  <label>Cliente *</label>
-                  <select
+                  <label htmlFor="auto-id-144997">Cliente *</label>
+<select id="auto-id-144997"
                     name="ID_CLIENTES"
                     value={formData.ID_CLIENTES}
                     onChange={handleFormChange}
@@ -486,8 +486,8 @@ const OrdenesServicio = () => {
 
 
                 <div className="form-group">
-                  <label>Técnico</label>
-                  <select
+                  <label htmlFor="auto-id-144998">Técnico</label>
+<select id="auto-id-144998"
                     name="ID_TECNICOS"
                     value={formData.ID_TECNICOS}
                     onChange={handleFormChange}
@@ -502,8 +502,8 @@ const OrdenesServicio = () => {
                 </div>
 
                 <div className="form-group">
-                  <label>Moto</label>
-                  <select
+                  <label htmlFor="auto-id-144999">Moto</label>
+<select id="auto-id-144999"
                     name="ID_MOTOS"
                     value={formData.ID_MOTOS}
                     onChange={handleFormChange}
@@ -518,21 +518,21 @@ const OrdenesServicio = () => {
                 </div>
 
                 <div className="form-group">
-                  <label>Fecha inicio *</label>
-                  <input type="date" name="Fecha_inicio" value={formData.Fecha_inicio || ''} onChange={handleFormChange} required />
+                  <label htmlFor="auto-id-145000">Fecha inicio *</label>
+<input id="auto-id-145000" type="date" name="Fecha_inicio" value={formData.Fecha_inicio || ''} onChange={handleFormChange} required />
                 </div>
                 <div className="form-group">
-                  <label>Fecha estimada *</label>
-                  <input type="date" name="Fecha_estimada" value={formData.Fecha_estimada || ''} onChange={handleFormChange} required />
+                  <label htmlFor="auto-id-145001">Fecha estimada *</label>
+<input id="auto-id-145001" type="date" name="Fecha_estimada" value={formData.Fecha_estimada || ''} onChange={handleFormChange} required />
                 </div>
                 <div className="form-group">
-                  <label>Fecha fin</label>
-                  <input type="date" name="Fecha_fin" value={formData.Fecha_fin ?? ''} onChange={handleFormChange} />
+                  <label htmlFor="auto-id-145002">Fecha fin</label>
+<input id="auto-id-145002" type="date" name="Fecha_fin" value={formData.Fecha_fin ?? ''} onChange={handleFormChange} />
                 </div>
 
                 <div className="form-group">
-                  <label>Estado *</label>
-                  <select name="Estado" value={formData.Estado} onChange={handleFormChange} required>
+                  <label htmlFor="auto-id-145003">Estado *</label>
+<select id="auto-id-145003" name="Estado" value={formData.Estado} onChange={handleFormChange} required>
                     <option value="Pendiente">Pendiente</option>
                     <option value="En Proceso">En Proceso</option>
                     <option value="Completado">Completado</option>

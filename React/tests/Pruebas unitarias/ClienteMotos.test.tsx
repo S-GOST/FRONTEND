@@ -1,3 +1,4 @@
+import { MemoryRouter } from 'react-router-dom';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import '@testing-library/jest-dom';
 import ClienteMotos from '../../src/componentes/TableCliente/ClienteMotos';
@@ -8,12 +9,10 @@ import Swal from 'sweetalert2';
 const mockNavigate = vi.fn();
 
 // 2. MOCKS DE MÓDULOS EXTERNOS
-vi.mock('sweetalert2', () => ({
-  fire: vi.fn().mockResolvedValue({ isConfirmed: true }),
-}));
+vi.mock('sweetalert2', () => ({ default: { fire: vi.fn().mockResolvedValue({ isConfirmed: true, value: '5' }), getInput: vi.fn() } }));
 
-vi.mock('react-router-dom', () => ({
-  ...vi.importActual('react-router-dom'),
+vi.mock('react-router-dom', async () => ({
+  ...(await vi.importActual('react-router-dom') as any),
   useNavigate: () => mockNavigate,
 }));
 
@@ -31,7 +30,7 @@ describe('ClienteMotos Component', () => {
   beforeEach(() => {
     vi.clearAllMocks();
     localStorage.setItem('user_id', '100');
-    jest.mocked(motoService.obtenerMotos).mockResolvedValue({ data: mockMotos } as any);
+    vi.mocked(motoService.obtenerMotos).mockResolvedValue({ data: mockMotos } as any);
   });
 
   afterEach(() => {
@@ -40,7 +39,7 @@ describe('ClienteMotos Component', () => {
 
   // 1. RENDERIZADO INICIAL
   it('debería renderizar el encabezado con título y botón agregar', () => {
-    render(<ClienteMotos />);
+    render(<MemoryRouter><ClienteMotos /></MemoryRouter>);
 
     expect(screen.getByText('Mis Motocicletas')).toBeInTheDocument();
     expect(screen.getByText('Administra las motos asociadas a tu cuenta')).toBeInTheDocument();
@@ -49,15 +48,15 @@ describe('ClienteMotos Component', () => {
 
   // 2. ESTADO DE CARGA
   it('debería mostrar "Cargando tus motocicletas..." mientras consulta la API', () => {
-    jest.mocked(motoService.obtenerMotos).mockImplementation(() => new Promise(() => {}));
-    render(<ClienteMotos />);
+    vi.mocked(motoService.obtenerMotos).mockImplementation(() => new Promise(() => {}));
+    render(<MemoryRouter><ClienteMotos /></MemoryRouter>);
 
     expect(screen.getByText(/cargando tus motocicletas/i)).toBeInTheDocument();
   });
 
   // 3. FILTRADO DE MOTOS POR CLIENTE
   it('debería mostrar solo las motos del cliente actual', async () => {
-    render(<ClienteMotos />);
+    render(<MemoryRouter><ClienteMotos /></MemoryRouter>);
 
     await waitFor(() => {
       expect(screen.getByText('ABC12D')).toBeInTheDocument();
@@ -70,7 +69,7 @@ describe('ClienteMotos Component', () => {
 
   // 4. CONTENIDO DE TARJETAS DE MOTO
   it('debería mostrar placa, marca, modelo y especificaciones en las tarjetas', async () => {
-    render(<ClienteMotos />);
+    render(<MemoryRouter><ClienteMotos /></MemoryRouter>);
 
     await waitFor(() => {
       expect(screen.getByText('ABC12D')).toBeInTheDocument();
@@ -87,8 +86,8 @@ describe('ClienteMotos Component', () => {
 
   // 5. ESTADO VACÍO
   it('debería mostrar mensaje y botón de primera moto cuando no hay motos', async () => {
-    jest.mocked(motoService.obtenerMotos).mockResolvedValue({ data: [] } as any);
-    render(<ClienteMotos />);
+    vi.mocked(motoService.obtenerMotos).mockResolvedValue({ data: [] } as any);
+    render(<MemoryRouter><ClienteMotos /></MemoryRouter>);
 
     await waitFor(() => {
       expect(screen.getByText('No tienes motos registradas')).toBeInTheDocument();
@@ -101,7 +100,7 @@ describe('ClienteMotos Component', () => {
 
   // 6. MOSTRAR Y OCULTAR FORMULARIO
   it('debería alternar el formulario con el botón Agregar/Cancelar', async () => {
-    render(<ClienteMotos />);
+    render(<MemoryRouter><ClienteMotos /></MemoryRouter>);
     await waitFor(() => expect(screen.queryByText(/cargando tus motocicletas/i)).not.toBeInTheDocument());
 
     // Abrir
@@ -116,7 +115,7 @@ describe('ClienteMotos Component', () => {
 
   // 7. BOTÓN VOLVER
   it('debería navegar a /cliente con el botón de volver', async () => {
-    render(<ClienteMotos />);
+    render(<MemoryRouter><ClienteMotos /></MemoryRouter>);
 
     fireEvent.click(document.querySelector('.cm-back-btn') as HTMLElement);
     expect(mockNavigate).toHaveBeenCalledWith('/cliente');
@@ -124,7 +123,7 @@ describe('ClienteMotos Component', () => {
 
   // 8. PLACA EN MAYÚSCULAS AUTOMÁTICAS
   it('debería convertir la placa a mayúsculas al escribir', async () => {
-    render(<ClienteMotos />);
+    render(<MemoryRouter><ClienteMotos /></MemoryRouter>);
     await waitFor(() => expect(screen.queryByText(/cargando/i)).not.toBeInTheDocument());
 
     fireEvent.click(screen.getByRole('button', { name: /agregar moto/i }));
@@ -137,7 +136,7 @@ describe('ClienteMotos Component', () => {
 
   // 9. VALIDACIÓN DE CAMPOS OBLIGATORIOS
   it('debería mostrar alerta si faltan placa, marca o modelo', async () => {
-    render(<ClienteMotos />);
+    render(<MemoryRouter><ClienteMotos /></MemoryRouter>);
     await waitFor(() => expect(screen.queryByText(/cargando/i)).not.toBeInTheDocument());
 
     fireEvent.click(screen.getByRole('button', { name: /agregar moto/i }));
@@ -156,14 +155,14 @@ describe('ClienteMotos Component', () => {
   // 10. ERROR DE SESIÓN SIN USER_ID
   it('debería mostrar alerta de sesión si no hay usuario identificado', async () => {
     localStorage.removeItem('user_id');
-    render(<ClienteMotos />);
+    render(<MemoryRouter><ClienteMotos /></MemoryRouter>);
     await waitFor(() => expect(screen.queryByText(/cargando/i)).not.toBeInTheDocument());
 
     fireEvent.click(screen.getByRole('button', { name: /agregar moto/i }));
 
     fireEvent.change(screen.getByPlaceholderText('Ej: ABC123'), { target: { value: 'ABC123' } });
     fireEvent.change(screen.getByPlaceholderText('Ej: KTM'), { target: { value: 'KTM' } });
-    fireEvent.change(screen.getByPlaceholderText('Ej: Duke 390'), { target: { value: 'Duke 390' } });
+    fireEvent.change(screen.getByPlaceholderText('Ej: 2020'), { target: { value: '2023' } });
     fireEvent.click(screen.getByRole('button', { name: /registrar motocicleta/i }));
 
     await waitFor(() => {
@@ -177,15 +176,15 @@ describe('ClienteMotos Component', () => {
 
   // 11. REGISTRO EXITOSO DE MOTO
   it('debería registrar la moto con el payload correcto y cerrar el formulario', async () => {
-    jest.mocked(motoService.insertarMoto).mockResolvedValue({ data: { success: true } } as any);
-    render(<ClienteMotos />);
+    vi.mocked(motoService.insertarMoto).mockResolvedValue({ data: { success: true } } as any);
+    render(<MemoryRouter><ClienteMotos /></MemoryRouter>);
     await waitFor(() => expect(screen.queryByText(/cargando/i)).not.toBeInTheDocument());
 
     fireEvent.click(screen.getByRole('button', { name: /agregar moto/i }));
 
     fireEvent.change(screen.getByPlaceholderText('Ej: ABC123'), { target: { value: 'nueva99' } });
     fireEvent.change(screen.getByPlaceholderText('Ej: KTM'), { target: { value: 'KTM' } });
-    fireEvent.change(screen.getByPlaceholderText('Ej: Duke 390'), { target: { value: 'Duke 200' } });
+    fireEvent.change(screen.getByPlaceholderText('Ej: 2020'), { target: { value: '2023' } });
     fireEvent.change(screen.getByPlaceholderText('Ej: 390'), { target: { value: '200' } });
     fireEvent.change(screen.getByPlaceholderText('Ej: 15000'), { target: { value: '5000' } });
 
@@ -197,7 +196,7 @@ describe('ClienteMotos Component', () => {
           ID_CLIENTES: '100',
           Placa: 'NUEVA99', // Mayúsculas
           marca: 'KTM',
-          modelo: 'Duke 200',
+          modelo: '2023',
           cilindraje: 200, // Number
           kilometraje: 5000,
           Recorrido: 5000,
@@ -216,16 +215,16 @@ describe('ClienteMotos Component', () => {
 
   // 12. ERROR AL REGISTRAR
   it('debería mostrar alerta de error si falla el registro', async () => {
-    jest.mocked(motoService.insertarMoto).mockRejectedValue({
+    vi.mocked(motoService.insertarMoto).mockRejectedValue({
       response: { data: { message: 'La placa ya existe' } },
     });
-    render(<ClienteMotos />);
+    render(<MemoryRouter><ClienteMotos /></MemoryRouter>);
     await waitFor(() => expect(screen.queryByText(/cargando/i)).not.toBeInTheDocument());
 
     fireEvent.click(screen.getByRole('button', { name: /agregar moto/i }));
     fireEvent.change(screen.getByPlaceholderText('Ej: ABC123'), { target: { value: 'ABC123' } });
     fireEvent.change(screen.getByPlaceholderText('Ej: KTM'), { target: { value: 'KTM' } });
-    fireEvent.change(screen.getByPlaceholderText('Ej: Duke 390'), { target: { value: 'Duke' } });
+    fireEvent.change(screen.getByPlaceholderText('Ej: 2020'), { target: { value: '2023' } });
     fireEvent.click(screen.getByRole('button', { name: /registrar motocicleta/i }));
 
     await waitFor(() => {
@@ -235,14 +234,14 @@ describe('ClienteMotos Component', () => {
 
   // 13. BOTÓN DESHABILITADO MIENTRAS GUARDA
   it('debería deshabilitar el botón y mostrar "Registrando..." durante el guardado', async () => {
-    jest.mocked(motoService.insertarMoto).mockImplementation(() => new Promise(() => {}));
-    render(<ClienteMotos />);
+    vi.mocked(motoService.insertarMoto).mockImplementation(() => new Promise(() => {}));
+    render(<MemoryRouter><ClienteMotos /></MemoryRouter>);
     await waitFor(() => expect(screen.queryByText(/cargando/i)).not.toBeInTheDocument());
 
     fireEvent.click(screen.getByRole('button', { name: /agregar moto/i }));
     fireEvent.change(screen.getByPlaceholderText('Ej: ABC123'), { target: { value: 'ABC123' } });
     fireEvent.change(screen.getByPlaceholderText('Ej: KTM'), { target: { value: 'KTM' } });
-    fireEvent.change(screen.getByPlaceholderText('Ej: Duke 390'), { target: { value: 'Duke' } });
+    fireEvent.change(screen.getByPlaceholderText('Ej: 2020'), { target: { value: '2023' } });
     fireEvent.click(screen.getByRole('button', { name: /registrar motocicleta/i }));
 
     await waitFor(() => {

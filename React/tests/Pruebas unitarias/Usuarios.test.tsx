@@ -1,4 +1,5 @@
-import { Mock } from 'vitest';
+import { MemoryRouter, Routes, Route } from 'react-router-dom';
+
 import { render, screen, fireEvent, waitFor,} from '@testing-library/react';
 import '@testing-library/jest-dom';
 import Usuarios from '../../src/componentes/TableAdmin/Usuarios';
@@ -12,16 +13,23 @@ import Swal from 'sweetalert2';
 const mockNavigate = vi.fn();
 
 // 2. MOCKS DE MÓDULOS EXTERNOS
-vi.mock('sweetalert2', () => ({
-  fire: vi.fn().mockResolvedValue({ isConfirmed: true, value: 'Documento no válido' }),
-  showValidationMessage: vi.fn(),
-}));
+vi.mock('sweetalert2', () => ({ default: { fire: vi.fn().mockResolvedValue({ isConfirmed: true, value: '5' }), getInput: vi.fn() } }));
 
-vi.mock('react-router-dom', () => ({
-  ...vi.importActual('react-router-dom'),
-  useNavigate: () => mockNavigate,
-  useLocation: () => ({ pathname: '/admin/usuarios' }),
-}));
+vi.mock('react-router-dom', async () => {
+  const actual = await vi.importActual('react-router-dom') as any;
+  return {
+    ...actual,
+    useNavigate: () => {
+      const actualNavigate = actual.useNavigate();
+      return (...args: any[]) => {
+        mockNavigate(...args);
+        actualNavigate(...args);
+      };
+    },
+  };
+});
+
+
 
 // Mock del componente FormattedId para simplificar
 vi.mock('../../src/componentes/FormattedId', () => ({
@@ -56,16 +64,16 @@ const mockTipos = [
 describe('Usuarios Component', () => {
   beforeEach(() => {
     vi.clearAllMocks();
-    jest.mocked(adminService.obtenerAdmins).mockResolvedValue({ data: { admins: mockAdmins } } as any);
-    jest.mocked(tecnicoService.obtenerTecnicos).mockResolvedValue({ data: { tecnicos: mockTecnicos } } as any);
-    jest.mocked(clienteService.obtenerClientes).mockResolvedValue({ data: { clientes: mockClientes } } as any);
-    jest.mocked(clienteService.obtenerClientesPendientes).mockResolvedValue({ data: { data: mockPendientes } } as any);
-    jest.mocked(tipoDocService.obtenerTiposDocumento).mockResolvedValue({ data: mockTipos } as any);
+    vi.mocked(adminService.obtenerAdmins).mockResolvedValue({ data: { admins: mockAdmins } } as any);
+    vi.mocked(tecnicoService.obtenerTecnicos).mockResolvedValue({ data: { tecnicos: mockTecnicos } } as any);
+    vi.mocked(clienteService.obtenerClientes).mockResolvedValue({ data: { clientes: mockClientes } } as any);
+    vi.mocked(clienteService.obtenerClientesPendientes).mockResolvedValue({ data: { data: mockPendientes } } as any);
+    vi.mocked(tipoDocService.obtenerTiposDocumento).mockResolvedValue({ data: mockTipos } as any);
   });
 
   // 1. RENDERIZADO INICIAL Y TARJETAS RESUMEN
   it('debería renderizar el título y las tarjetas resumen con los conteos', async () => {
-    const { container } = render(<Usuarios />);
+    const { container } = render(<MemoryRouter initialEntries={['/admin/usuarios']}><Usuarios /></MemoryRouter>);
 
     expect(screen.getByText('Usuarios')).toBeInTheDocument();
 
@@ -81,14 +89,14 @@ describe('Usuarios Component', () => {
 
   // 2. ESTADO DE CARGA
   it('debería mostrar "Cargando usuarios..." mientras consulta la API', () => {
-    jest.mocked(adminService.obtenerAdmins).mockImplementation(() => new Promise(() => {}));
-    render(<Usuarios />);
+    vi.mocked(adminService.obtenerAdmins).mockImplementation(() => new Promise(() => {}));
+    render(<MemoryRouter initialEntries={['/admin/usuarios']}><Usuarios /></MemoryRouter>);
     expect(screen.getByText(/cargando usuarios/i)).toBeInTheDocument();
   });
 
   // 3. TABLA CON DATOS Y TIPO DE DOCUMENTO FORMATEADO
   it('debería mostrar los usuarios en la tabla con el tipo de documento formateado', async () => {
-    render(<Usuarios />);
+    render(<MemoryRouter initialEntries={['/admin/usuarios']}><Usuarios /></MemoryRouter>);
 
     await waitFor(() => {
       expect(screen.getByText('Admin Uno')).toBeInTheDocument();
@@ -104,7 +112,7 @@ describe('Usuarios Component', () => {
 
   // 4. CAMBIO DE PESTAÑA Y NAVEGACIÓN
   it('debería navegar a la ruta correcta al cambiar de pestaña', async () => {
-    render(<Usuarios />);
+    render(<MemoryRouter initialEntries={['/admin/usuarios']}><Usuarios /></MemoryRouter>);
 
     fireEvent.click(screen.getByRole('button', { name: 'Técnicos' }));
     expect(mockNavigate).toHaveBeenCalledWith('/admin/tecnicos');
@@ -118,7 +126,7 @@ describe('Usuarios Component', () => {
 
   // 5. BÚSQUEDA DE USUARIOS
   it('debería filtrar usuarios al buscar', async () => {
-    render(<Usuarios />);
+    render(<MemoryRouter initialEntries={['/admin/usuarios']}><Usuarios /></MemoryRouter>);
 
     await waitFor(() => expect(screen.getByText('Admin Uno')).toBeInTheDocument());
 
@@ -134,7 +142,7 @@ describe('Usuarios Component', () => {
 
   // 6. BÚSQUEDA SIN RESULTADOS
   it('debería mostrar mensaje cuando la búsqueda no tiene resultados', async () => {
-    render(<Usuarios />);
+    render(<MemoryRouter initialEntries={['/admin/usuarios']}><Usuarios /></MemoryRouter>);
 
     await waitFor(() => expect(screen.getByText('Admin Uno')).toBeInTheDocument());
 
@@ -148,14 +156,14 @@ describe('Usuarios Component', () => {
 
   // 7. BOTÓN VOLVER AL DASHBOARD
   it('debería navegar al dashboard con el botón de volver', async () => {
-    render(<Usuarios />);
+    render(<MemoryRouter initialEntries={['/admin/usuarios']}><Usuarios /></MemoryRouter>);
     fireEvent.click(screen.getByTitle('Volver al Dashboard'));
     expect(mockNavigate).toHaveBeenCalledWith('/admin/dashboard');
   });
 
   // 8. ABRIR MODAL DE CREACIÓN
 it('debería abrir el modal de creación con el formulario vacío', async () => {
-  render(<Usuarios />);
+  render(<MemoryRouter initialEntries={['/admin/usuarios']}><Usuarios /></MemoryRouter>);
 
   fireEvent.click(screen.getByRole('button', { name: /nuevo administrador/i }));
 
@@ -172,7 +180,7 @@ it('debería abrir el modal de creación con el formulario vacío', async () => 
 
   // 9. CREAR USUARIO EXITOSAMENTE
   it('debería crear un administrador y llamar al servicio', async () => {
-    render(<Usuarios />);
+    render(<MemoryRouter initialEntries={['/admin/usuarios']}><Usuarios /></MemoryRouter>);
 
     fireEvent.click(screen.getByRole('button', { name: /nuevo administrador/i }));
     const modal = screen.getByText('Crear Administrador').closest('.modal-container') as HTMLElement;
@@ -200,7 +208,7 @@ it('debería abrir el modal de creación con el formulario vacío', async () => 
 
   // 10. VALIDACIÓN: CONTRASEÑA OBLIGATORIA AL CREAR
   it('debería mostrar alerta si se intenta crear sin contraseña', async () => {
-    render(<Usuarios />);
+    render(<MemoryRouter initialEntries={['/admin/usuarios']}><Usuarios /></MemoryRouter>);
 
     fireEvent.click(screen.getByRole('button', { name: /nuevo administrador/i }));
     const modal = screen.getByText('Crear Administrador').closest('.modal-container') as HTMLElement;
@@ -221,7 +229,7 @@ it('debería abrir el modal de creación con el formulario vacío', async () => 
 
   // 11. EDITAR USUARIO
   it('debería abrir el modal de edición con los datos y actualizar', async () => {
-    render(<Usuarios />);
+    render(<MemoryRouter initialEntries={['/admin/usuarios']}><Usuarios /></MemoryRouter>);
 
     await waitFor(() => expect(screen.getByText('Admin Uno')).toBeInTheDocument());
 
@@ -244,7 +252,7 @@ it('debería abrir el modal de creación con el formulario vacío', async () => 
 
   // 12. INHABILITAR USUARIO
   it('debería inhabilitar un usuario activo tras confirmar', async () => {
-    render(<Usuarios />);
+    render(<MemoryRouter initialEntries={['/admin/usuarios']}><Usuarios /></MemoryRouter>);
 
     await waitFor(() => expect(screen.getByText('Admin Uno')).toBeInTheDocument());
 
@@ -257,8 +265,8 @@ it('debería abrir el modal de creación con el formulario vacío', async () => 
 
   // 13. NO INHABILITAR SI SE CANCELA
   it('no debería inhabilitar si se cancela la confirmación', async () => {
-    jest.mocked(Swal.fire).mockResolvedValueOnce({ isConfirmed: false } as any);
-    render(<Usuarios />);
+    vi.mocked(Swal.fire).mockResolvedValueOnce({ isConfirmed: false } as any);
+    render(<MemoryRouter initialEntries={['/admin/usuarios']}><Usuarios /></MemoryRouter>);
 
     await waitFor(() => expect(screen.getByText('Admin Uno')).toBeInTheDocument());
 
@@ -271,7 +279,7 @@ it('debería abrir el modal de creación con el formulario vacío', async () => 
 
   // 14. HABILITAR USUARIO INACTIVO
   it('debería habilitar un usuario inactivo tras confirmar', async () => {
-    render(<Usuarios />);
+    render(<MemoryRouter initialEntries={['/admin/usuarios']}><Usuarios /></MemoryRouter>);
 
     await waitFor(() => expect(screen.getByText('Admin Inactivo')).toBeInTheDocument());
 
@@ -284,7 +292,7 @@ it('debería abrir el modal de creación con el formulario vacío', async () => 
 
   // 15. APROBAR CLIENTE PENDIENTE
   it('debería aprobar un cliente pendiente', async () => {
-    render(<Usuarios />);
+    render(<MemoryRouter initialEntries={['/admin/usuarios']}><Usuarios /></MemoryRouter>);
 
     fireEvent.click(screen.getByRole('button', { name: 'Pendientes' }));
 
@@ -299,7 +307,10 @@ it('debería abrir el modal de creación con el formulario vacío', async () => 
 
   // 16. RECHAZAR CLIENTE PENDIENTE
   it('debería rechazar un cliente pendiente con justificación', async () => {
-    render(<Usuarios />);
+    (Swal.fire as any).mockResolvedValueOnce({ isConfirmed: true, value: 'Documento no válido' });
+    render(<MemoryRouter initialEntries={['/admin/usuarios']}><Usuarios /></MemoryRouter>);
+
+    await waitFor(() => expect(screen.getByText('Admin Uno')).toBeInTheDocument());
 
     fireEvent.click(screen.getByRole('button', { name: 'Pendientes' }));
 
@@ -318,9 +329,9 @@ it('debería abrir el modal de creación con el formulario vacío', async () => 
 
   // 17. MANEJO DE ERROR AL CARGAR
   it('debería mostrar alerta de error si falla la carga de datos', async () => {
-    jest.mocked(adminService.obtenerAdmins).mockRejectedValue({ response: { status: 500, data: { message: 'Error servidor' } } });
+    vi.mocked(adminService.obtenerAdmins).mockRejectedValue({ response: { status: 500, data: { message: 'Error servidor' } } });
 
-    render(<Usuarios />);
+    render(<MemoryRouter initialEntries={['/admin/usuarios']}><Usuarios /></MemoryRouter>);
 
     await waitFor(() => {
       expect(Swal.fire).toHaveBeenCalledWith(

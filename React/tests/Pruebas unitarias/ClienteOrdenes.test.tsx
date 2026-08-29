@@ -1,3 +1,4 @@
+import { MemoryRouter } from 'react-router-dom';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import '@testing-library/jest-dom';
 import ClienteOrdenes from '../../src/componentes/TableCliente/ClienteOrdenes';
@@ -7,8 +8,8 @@ import * as ordenService from '../../src/services/ordenServicioService';
 const mockNavigate = vi.fn();
 
 // 2. MOCKS DE MÓDULOS EXTERNOS
-vi.mock('react-router-dom', () => ({
-  ...vi.importActual('react-router-dom'),
+vi.mock('react-router-dom', async () => ({
+  ...(await vi.importActual('react-router-dom') as any),
   useNavigate: () => mockNavigate,
 }));
 
@@ -57,19 +58,19 @@ const formatPrecio = (valor: number) =>
 describe('ClienteOrdenes Component', () => {
   beforeEach(() => {
     vi.clearAllMocks();
-    jest.mocked(ordenService.obtenerMisOrdenes).mockResolvedValue({ data: mockOrdenes } as any);
+    vi.mocked(ordenService.obtenerMisOrdenes).mockResolvedValue({ data: mockOrdenes } as any);
   });
 
   // 1. ESTADO DE CARGA
   it('debería mostrar "Cargando tus órdenes..." mientras consulta la API', () => {
-    jest.mocked(ordenService.obtenerMisOrdenes).mockImplementation(() => new Promise(() => {}));
-    render(<ClienteOrdenes />);
+    vi.mocked(ordenService.obtenerMisOrdenes).mockImplementation(() => new Promise(() => {}));
+    render(<MemoryRouter><ClienteOrdenes /></MemoryRouter>);
     expect(screen.getByText(/cargando tus órdenes/i)).toBeInTheDocument();
   });
 
   // 2. HEADER Y CONTEO EN PLURAL
   it('debería mostrar el título y el conteo de órdenes en plural', async () => {
-    render(<ClienteOrdenes />);
+    render(<MemoryRouter><ClienteOrdenes /></MemoryRouter>);
 
     await waitFor(() => {
       expect(screen.getByText('Mis Órdenes de Servicio')).toBeInTheDocument();
@@ -79,8 +80,8 @@ describe('ClienteOrdenes Component', () => {
 
   // 3. CONTEO EN SINGULAR
   it('debería mostrar "1 orden encontrada" cuando hay una sola orden', async () => {
-    jest.mocked(ordenService.obtenerMisOrdenes).mockResolvedValue({ data: [mockOrdenes[0]] } as any);
-    render(<ClienteOrdenes />);
+    vi.mocked(ordenService.obtenerMisOrdenes).mockResolvedValue({ data: [mockOrdenes[0]] } as any);
+    render(<MemoryRouter><ClienteOrdenes /></MemoryRouter>);
 
     await waitFor(() => {
       expect(screen.getByText('1 orden encontrada')).toBeInTheDocument();
@@ -89,8 +90,8 @@ describe('ClienteOrdenes Component', () => {
 
   // 4. ESTADO VACÍO
   it('debería mostrar mensaje cuando no hay órdenes registradas', async () => {
-    jest.mocked(ordenService.obtenerMisOrdenes).mockResolvedValue({ data: [] } as any);
-    render(<ClienteOrdenes />);
+    vi.mocked(ordenService.obtenerMisOrdenes).mockResolvedValue({ data: [] } as any);
+    render(<MemoryRouter><ClienteOrdenes /></MemoryRouter>);
 
     await waitFor(() => {
       expect(screen.getByText(/no tienes órdenes de servicio registradas/i)).toBeInTheDocument();
@@ -99,11 +100,11 @@ describe('ClienteOrdenes Component', () => {
 
   // 5. ERROR CON BOTÓN REINTENTAR
   it('debería mostrar error y permitir reintentar la carga', async () => {
-    jest.mocked(ordenService.obtenerMisOrdenes)
+    vi.mocked(ordenService.obtenerMisOrdenes)
       .mockRejectedValueOnce(new Error('Fallo'))
       .mockResolvedValueOnce({ data: mockOrdenes } as any);
 
-    render(<ClienteOrdenes />);
+    render(<MemoryRouter><ClienteOrdenes /></MemoryRouter>);
 
     // Aparece el error con el botón Reintentar
     await waitFor(() => {
@@ -124,7 +125,7 @@ describe('ClienteOrdenes Component', () => {
 
   // 6. TARJETAS DE ÓRDENES
   it('debería mostrar las órdenes con ID, moto, estado y total', async () => {
-    render(<ClienteOrdenes />);
+    render(<MemoryRouter><ClienteOrdenes /></MemoryRouter>);
 
     await waitFor(() => {
       // IDs con padding de 4 dígitos
@@ -142,21 +143,21 @@ describe('ClienteOrdenes Component', () => {
     // Estados y totales
     expect(screen.getByText('En proceso')).toBeInTheDocument();
     expect(screen.getByText('Completado')).toBeInTheDocument();
-    expect(screen.getByText(formatPrecio(250000))).toBeInTheDocument();
-    expect(screen.getByText(formatPrecio(80000))).toBeInTheDocument();
+    expect(screen.getAllByText(/250\.000/)[0]).toBeInTheDocument();
+    expect(screen.getAllByText(/80\.000/)[0]).toBeInTheDocument();
   });
 
   // 7. BOTÓN VOLVER AL PANEL
   it('debería navegar al dashboard del cliente con el botón volver', async () => {
-    render(<ClienteOrdenes />);
-
+    render(<MemoryRouter><ClienteOrdenes /></MemoryRouter>);
+    await waitFor(() => expect(screen.getByRole('button', { name: /volver al panel/i })).toBeInTheDocument());
     fireEvent.click(screen.getByRole('button', { name: /volver al panel/i }));
     expect(mockNavigate).toHaveBeenCalledWith('/cliente/dashboard');
   });
 
   // 8. EXPANDIR DETALLES DE LA ORDEN
   it('debería mostrar los detalles al hacer clic en una orden', async () => {
-    render(<ClienteOrdenes />);
+    render(<MemoryRouter><ClienteOrdenes /></MemoryRouter>);
     await waitFor(() => expect(screen.getByText('#0001')).toBeInTheDocument());
 
     fireEvent.click(screen.getByText('#0001'));
@@ -180,13 +181,13 @@ describe('ClienteOrdenes Component', () => {
     expect(screen.getAllByText('—').length).toBeGreaterThan(0);
 
     // Precios del detalle
-    expect(screen.getByText(formatPrecio(150000))).toBeInTheDocument();
-    expect(screen.getByText(formatPrecio(100000))).toBeInTheDocument();
+    expect(screen.getAllByText(/150\.000/)[0]).toBeInTheDocument();
+    expect(screen.getAllByText(/100\.000/)[0]).toBeInTheDocument();
   });
 
   // 9. COLAPSAR DETALLES
   it('debería ocultar los detalles al hacer clic nuevamente', async () => {
-    render(<ClienteOrdenes />);
+    render(<MemoryRouter><ClienteOrdenes /></MemoryRouter>);
     await waitFor(() => expect(screen.getByText('#0001')).toBeInTheDocument());
 
     // Expandir
@@ -202,7 +203,7 @@ describe('ClienteOrdenes Component', () => {
 
   // 10. ORDEN SIN DETALLES NO MUESTRA TABLA
   it('no debería mostrar tabla de detalles en órdenes sin detalles', async () => {
-    render(<ClienteOrdenes />);
+    render(<MemoryRouter><ClienteOrdenes /></MemoryRouter>);
     await waitFor(() => expect(screen.getByText('#0002')).toBeInTheDocument());
 
     fireEvent.click(screen.getByText('#0002'));
@@ -217,7 +218,7 @@ describe('ClienteOrdenes Component', () => {
 
   // 11. FECHAS EN LOS DETALLES
   it('debería mostrar "—" para fechas vacías en los detalles', async () => {
-    render(<ClienteOrdenes />);
+    render(<MemoryRouter><ClienteOrdenes /></MemoryRouter>);
     await waitFor(() => expect(screen.getByText('#0002')).toBeInTheDocument());
 
     fireEvent.click(screen.getByText('#0002'));

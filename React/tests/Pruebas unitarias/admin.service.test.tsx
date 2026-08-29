@@ -1,4 +1,4 @@
-import { Mock } from 'vitest';
+
 import {
   obtenerAdmins,
   insertarAdmin,
@@ -8,22 +8,24 @@ import {
 } from '../../src/services/admin.service';
 import { vi, describe, it, beforeEach, expect } from 'vitest'; // Importar vi
 
-// 1. MOCKS DE LOS MÉTODOS INTERNOS DE BaseApiService
-const mockObtenerTodos = vi.fn(); // Cambio: jest -> vi
-const mockCrear = vi.fn();        // Cambio: jest -> vi
-const mockActualizar = vi.fn();   // Cambio: jest -> vi
-const mockEliminar = vi.fn();     // Cambio: jest -> vi
-const mockPut = vi.fn();          // Cambio: jest -> vi
+// 1. MOCKS DE LOS MÉTODOS INTERNOS DE BaseApiService (hoisted para que vi.mock los vea)
+const { mockObtenerTodos, mockCrear, mockActualizar, mockEliminar, mockPut } = vi.hoisted(() => ({
+  mockObtenerTodos: vi.fn(),
+  mockCrear: vi.fn(),
+  mockActualizar: vi.fn(),
+  mockEliminar: vi.fn(),
+  mockPut: vi.fn(),
+}));
 
 // 2. MOCK DE LA CLASE BaseApiService (misma ruta que usa admin.service)
-vi.mock('../../src/services/base.service', () => ({ // Cambio: Mock -> Mock
-  BaseApiService: vi.fn().mockImplementation(() => ({ // Cambio: vi.fn -> vi.fn
-    obtenerTodos: mockObtenerTodos,
-    crear: mockCrear,
-    actualizar: mockActualizar,
-    eliminar: mockEliminar,
-    http: { put: mockPut },
-  })),
+vi.mock('../../src/services/base.service', () => ({
+  BaseApiService: vi.fn(function(this: any) {
+    this.obtenerTodos = mockObtenerTodos;
+    this.crear = mockCrear;
+    this.actualizar = mockActualizar;
+    this.eliminar = mockEliminar;
+    this.http = { put: mockPut };
+  }),
 }));
 
 // ==================== DATOS DE PRUEBA ====================

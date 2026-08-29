@@ -1,3 +1,4 @@
+import { MemoryRouter } from 'react-router-dom';
 import { Mock } from 'vitest';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import '@testing-library/jest-dom';
@@ -6,28 +7,27 @@ import { requestPasswordReset } from '../../src/services/auth.services';
 import Swal from 'sweetalert2';
 
 // 1. MOCKS DE MÓDULOS EXTERNOS
-vi.mock('sweetalert2', () => ({
-  fire: vi.fn(),
-}));
+const mockNavigate = vi.fn();
 
-vi.mock('react-router-dom', () => ({
-  ...vi.importActual('react-router-dom'),
-  useNavigate: () => vi.fn(),
+vi.mock('sweetalert2', () => ({ default: { fire: vi.fn().mockResolvedValue({ isConfirmed: true, value: '5' }), getInput: vi.fn() } }));
+
+vi.mock('react-router-dom', async () => ({
+  ...(await vi.importActual('react-router-dom') as any),
+  useNavigate: () => mockNavigate,
 }));
 
 vi.mock('../../src/services/auth.services');
 
 describe('ForgotPassword Component', () => {
-  const mockNavigate = vi.fn();
+  
 
   beforeEach(() => {
     vi.clearAllMocks();
-    (require('react-router-dom').useNavigate as Mock).mockReturnValue(mockNavigate);
   });
 
   // 1. RENDERIZADO INICIAL
   it('debería renderizar el formulario de recuperación correctamente', () => {
-    render(<ForgotPassword />);
+    render(<MemoryRouter><ForgotPassword /></MemoryRouter>);
 
     expect(screen.getByText('Recuperación de Contraseña')).toBeInTheDocument();
     expect(screen.getByPlaceholderText('Correo electrónico')).toBeInTheDocument();
@@ -37,7 +37,7 @@ describe('ForgotPassword Component', () => {
 
   // 2. VALIDACIÓN: EMAIL VACÍO
   it('debería mostrar error si el correo está vacío', async () => {
-    render(<ForgotPassword />);
+    render(<MemoryRouter><ForgotPassword /></MemoryRouter>);
 
     fireEvent.click(screen.getByRole('button', { name: /enviar enlace de recuperación/i }));
 
@@ -55,7 +55,7 @@ describe('ForgotPassword Component', () => {
 
   // 3. VALIDACIÓN: FORMATO INVÁLIDO
   it('debería mostrar error si el formato del email es inválido', async () => {
-    render(<ForgotPassword />);
+    render(<MemoryRouter><ForgotPassword /></MemoryRouter>);
 
     fireEvent.change(screen.getByPlaceholderText('Correo electrónico'), { target: { value: 'invalido' } });
     fireEvent.click(screen.getByRole('button', { name: /enviar enlace de recuperación/i }));
@@ -75,7 +75,7 @@ describe('ForgotPassword Component', () => {
   // 4. ENVÍO EXITOSO
   it('debería enviar la solicitud y navegar al login', async () => {
     (requestPasswordReset as Mock).mockResolvedValue({ data: { success: true } });
-    render(<ForgotPassword />);
+    render(<MemoryRouter><ForgotPassword /></MemoryRouter>);
 
     fireEvent.change(screen.getByPlaceholderText('Correo electrónico'), { target: { value: 'user@test.com' } });
     fireEvent.click(screen.getByRole('button', { name: /enviar enlace de recuperación/i }));
@@ -96,7 +96,7 @@ describe('ForgotPassword Component', () => {
   // 5. ERROR EN EL SERVICIO
   it('debería mostrar error si falla la solicitud', async () => {
     (requestPasswordReset as Mock).mockRejectedValue(new Error('Error de red'));
-    render(<ForgotPassword />);
+    render(<MemoryRouter><ForgotPassword /></MemoryRouter>);
 
     fireEvent.change(screen.getByPlaceholderText('Correo electrónico'), { target: { value: 'user@test.com' } });
     fireEvent.click(screen.getByRole('button', { name: /enviar enlace de recuperación/i }));
@@ -116,7 +116,7 @@ describe('ForgotPassword Component', () => {
   // 6. ESTADO DE CARGA
   it('debería deshabilitar el botón durante la carga', async () => {
     (requestPasswordReset as Mock).mockImplementation(() => new Promise(() => {}));
-    render(<ForgotPassword />);
+    render(<MemoryRouter><ForgotPassword /></MemoryRouter>);
 
     fireEvent.change(screen.getByPlaceholderText('Correo electrónico'), { target: { value: 'user@test.com' } });
     fireEvent.click(screen.getByRole('button', { name: /enviar enlace de recuperación/i }));
@@ -128,7 +128,7 @@ describe('ForgotPassword Component', () => {
 
   // 7. ENLACE A LOGIN
   it('debería tener un enlace funcional para volver al login', () => {
-    render(<ForgotPassword />);
+    render(<MemoryRouter><ForgotPassword /></MemoryRouter>);
 
     const link = screen.getByRole('link', { name: /volver a inicio de sesión/i });
     expect(link).toHaveAttribute('href', '/login');

@@ -547,7 +547,7 @@ function Usuarios() {
           {(activeTab !== 'clientes' && activeTab !== 'pendientes') && (
             <div className="right-actions">
               <button className="btn-create" onClick={openCreateModal}>
-                <i className="bi bi-plus-circle"></i> Nuevo {getTabLabel(activeTab).slice(0, -1)}
+                <i className="bi bi-plus-circle"></i> Nuevo {getTabLabel(activeTab) === 'Administradores' ? 'Administrador' : getTabLabel(activeTab) === 'Pendientes' ? 'Cliente Pendiente' : getTabLabel(activeTab).slice(0, -1)}
               </button>
             </div>
           )}

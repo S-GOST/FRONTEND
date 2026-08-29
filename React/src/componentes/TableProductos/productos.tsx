@@ -577,7 +577,7 @@ function TableProductos() {
       {/* Modal Crear */}
       {showCreateModal && (
         <div className="modal-overlay" onClick={closeCreateModal}>
-          <div className="modal-container" onClick={(event) => event.stopPropagation()}>
+          <div className="modal-container" onClick={(event) => event.stopPropagation()} role="button" tabIndex={0} onKeyDown={(e) => { if (e.key === 'Enter') e.currentTarget.click() }}>
             <div className="modal-header">
               <h3>Crear Producto</h3>
               <button type="button" className="close-btn" onClick={closeCreateModal}>
@@ -598,8 +598,8 @@ function TableProductos() {
                 />
               </div>
               <div className="form-group">
-                <label>Categoría</label>
-                <select
+                <label htmlFor="auto-id-498252">Categoría</label>
+<select id="auto-id-498252"
                   name="ID_CATEGORIA"
                   value={formData.ID_CATEGORIA}
                   onChange={handleInputChange}
@@ -677,8 +677,8 @@ function TableProductos() {
                 />
               </div>
               <div className="form-group form-group-half">
-                <label>Stock Mínimo</label>
-                <input
+                <label htmlFor="auto-id-498253">Stock Mínimo</label>
+<input id="auto-id-498253"
                   type="number"
                   name="stock_minimo"
                   value={formData.stock_minimo}
@@ -717,7 +717,7 @@ function TableProductos() {
       {/* Modal Editar */}
       {showEditModal && currentProducto && (
         <div className="modal-overlay" onClick={closeEditModal}>
-          <div className="modal-container" onClick={(event) => event.stopPropagation()}>
+          <div className="modal-container" onClick={(event) => event.stopPropagation()} role="button" tabIndex={0} onKeyDown={(e) => { if (e.key === 'Enter') e.currentTarget.click() }}>
             <div className="modal-header">
               <h3>Editar Producto</h3>
               <button type="button" className="close-btn" onClick={closeEditModal}>
@@ -738,8 +738,8 @@ function TableProductos() {
                 />
               </div>
               <div className="form-group">
-                <label>Categoría</label>
-                <select
+                <label htmlFor="auto-id-498254">Categoría</label>
+<select id="auto-id-498254"
                   name="ID_CATEGORIA"
                   value={formData.ID_CATEGORIA}
                   onChange={handleInputChange}
@@ -817,8 +817,8 @@ function TableProductos() {
                 />
               </div>
               <div className="form-group form-group-half">
-                <label>Stock Mínimo</label>
-                <input
+                <label htmlFor="auto-id-498255">Stock Mínimo</label>
+<input id="auto-id-498255"
                   type="number"
                   name="stock_minimo"
                   value={formData.stock_minimo}

@@ -1,3 +1,4 @@
+import { MemoryRouter } from 'react-router-dom';
 import { renderHook, act } from '@testing-library/react';
 import { useInactivityTimer } from '../../src/hooks/useInactivityTimer';
 import { vi, describe, it, beforeEach, afterEach, expect } from 'vitest';

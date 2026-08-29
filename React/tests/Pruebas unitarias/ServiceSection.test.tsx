@@ -1,7 +1,16 @@
+import { MemoryRouter } from 'react-router-dom';
 /// <reference types="vitest" />
 import { describe, test, expect, beforeEach, vi } from 'vitest';
 import { render, cleanup } from '@testing-library/react';
 import '@testing-library/jest-dom';
+vi.mock('react-router-dom', async (importOriginal) => {
+  const actual = await importOriginal() as any;
+  return {
+    ...actual,
+    useNavigate: vi.fn(),
+  };
+});
+
 import ServiceSection from '../../src/componentes/ServiceSection';
 
 // Con "any" TypeScript no se queja de los campos faltantes
@@ -24,45 +33,45 @@ describe('ServiceSection Component', () => {
   });
 
   test('debe renderizar la sección correctamente', () => {
-    render(<ServiceSection {...mockProps} />);
+    render(<MemoryRouter><ServiceSection {...mockProps} /></MemoryRouter>);
     expect(document.querySelector('section')).toBeInTheDocument();
   });
 
   test('debe mostrar el título', () => {
-    render(<ServiceSection {...mockProps} />);
+    render(<MemoryRouter><ServiceSection {...mockProps} /></MemoryRouter>);
     expect(document.querySelector('h2')).toBeInTheDocument();
   });
 
   test('debe mostrar el subtítulo', () => {
-    render(<ServiceSection {...mockProps} />);
+    render(<MemoryRouter><ServiceSection {...mockProps} /></MemoryRouter>);
     expect(document.querySelector('h3')).toBeInTheDocument();
   });
 
   test('debe mostrar las tarjetas de servicio', () => {
-    render(<ServiceSection {...mockProps} />);
+    render(<MemoryRouter><ServiceSection {...mockProps} /></MemoryRouter>);
     const cards = document.querySelectorAll('.service-card');
     expect(cards.length).toBeGreaterThan(0);
   });
 
   test('debe mostrar los nombres de los servicios', () => {
-    render(<ServiceSection {...mockProps} />);
+    render(<MemoryRouter><ServiceSection {...mockProps} /></MemoryRouter>);
     expect(document.body.textContent).toContain('Servicio 1');
   });
 
   test('debe mostrar descripciones', () => {
-    render(<ServiceSection {...mockProps} />);
+    render(<MemoryRouter><ServiceSection {...mockProps} /></MemoryRouter>);
     const paragraphs = document.querySelectorAll('p');
     expect(paragraphs.length).toBeGreaterThan(0);
   });
 
   test('debe mostrar iconos', () => {
-    render(<ServiceSection {...mockProps} />);
+    render(<MemoryRouter><ServiceSection {...mockProps} /></MemoryRouter>);
     const icons = document.querySelectorAll('[class*="bi-"]');
     expect(icons.length).toBeGreaterThan(0);
   });
 
   test('debe tener estructura de grid', () => {
-    render(<ServiceSection {...mockProps} />);
+    render(<MemoryRouter><ServiceSection {...mockProps} /></MemoryRouter>);
     expect(document.querySelector('.services-grid')).toBeInTheDocument();
   });
 });

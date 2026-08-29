@@ -1,3 +1,4 @@
+import { MemoryRouter } from 'react-router-dom';
 import { Mock } from 'vitest';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import '@testing-library/jest-dom';
@@ -5,25 +6,26 @@ import Login from '../../src/pages/Login';
 import { loginService } from '../../src/services/auth.services';
 
 // 1. MOCKS DE MÓDULOS EXTERNOS
-vi.mock('react-router-dom', () => ({
-  ...vi.importActual('react-router-dom'),
-  useNavigate: () => vi.fn(),
+const mockNavigate = vi.fn();
+
+vi.mock('react-router-dom', async () => ({
+  ...(await vi.importActual('react-router-dom') as any),
+  useNavigate: () => mockNavigate,
 }));
 
 vi.mock('../../src/services/auth.services');
 
 describe('Login Component', () => {
-  const mockNavigate = vi.fn();
+  
 
   beforeEach(() => {
     vi.clearAllMocks();
-    (require('react-router-dom').useNavigate as Mock).mockReturnValue(mockNavigate);
     localStorage.clear();
   });
 
   // 1. RENDERIZADO INICIAL
   it('debería renderizar el formulario de login correctamente', () => {
-    render(<Login />);
+    render(<MemoryRouter><Login /></MemoryRouter>);
 
     expect(screen.getByPlaceholderText('Ingresa tu usuario')).toBeInTheDocument();
     expect(screen.getByPlaceholderText('Ingresa tu contraseña')).toBeInTheDocument();
@@ -34,7 +36,7 @@ describe('Login Component', () => {
 
   // 2. VALIDACIÓN: CAMPOS VACÍOS
   it('debería mostrar error si los campos están vacíos', async () => {
-    render(<Login />);
+    render(<MemoryRouter><Login /></MemoryRouter>);
 
     fireEvent.click(screen.getByRole('button', { name: /ingresar al panel/i }));
 
@@ -47,7 +49,7 @@ describe('Login Component', () => {
   // 3. LOGIN EXITOSO COMO ADMIN
   it('debería navegar a /admin/dashboard si el rol es admin', async () => {
     (loginService as Mock).mockResolvedValue({ rol: 'admin' });
-    render(<Login />);
+    render(<MemoryRouter><Login /></MemoryRouter>);
 
     fireEvent.change(screen.getByPlaceholderText('Ingresa tu usuario'), { target: { value: 'admin' } });
     fireEvent.change(screen.getByPlaceholderText('Ingresa tu contraseña'), { target: { value: 'pass123' } });
@@ -62,7 +64,7 @@ describe('Login Component', () => {
   // 4. LOGIN EXITOSO COMO TÉCNICO
   it('debería navegar a /tecnico/dashboard si el rol es tecnico', async () => {
     (loginService as Mock).mockResolvedValue({ rol: 'tecnico' });
-    render(<Login />);
+    render(<MemoryRouter><Login /></MemoryRouter>);
 
     fireEvent.change(screen.getByPlaceholderText('Ingresa tu usuario'), { target: { value: 'tec' } });
     fireEvent.change(screen.getByPlaceholderText('Ingresa tu contraseña'), { target: { value: 'pass123' } });
@@ -76,7 +78,7 @@ describe('Login Component', () => {
   // 5. LOGIN EXITOSO COMO CLIENTE
   it('debería navegar a /cliente/dashboard si el rol es cliente', async () => {
     (loginService as Mock).mockResolvedValue({ rol: 'cliente' });
-    render(<Login />);
+    render(<MemoryRouter><Login /></MemoryRouter>);
 
     fireEvent.change(screen.getByPlaceholderText('Ingresa tu usuario'), { target: { value: 'cli' } });
     fireEvent.change(screen.getByPlaceholderText('Ingresa tu contraseña'), { target: { value: 'pass123' } });
@@ -91,7 +93,7 @@ describe('Login Component', () => {
   it('debería mostrar error específico para status 401', async () => {
     const error401 = { response: { status: 401 } };
     (loginService as Mock).mockRejectedValue(error401);
-    render(<Login />);
+    render(<MemoryRouter><Login /></MemoryRouter>);
 
     fireEvent.change(screen.getByPlaceholderText('Ingresa tu usuario'), { target: { value: 'admin' } });
     fireEvent.change(screen.getByPlaceholderText('Ingresa tu contraseña'), { target: { value: 'wrong' } });
@@ -106,7 +108,7 @@ describe('Login Component', () => {
   it('debería mostrar mensaje personalizado del servidor para status 403', async () => {
     const error403 = { response: { status: 403, data: { mensaje: 'Cuenta suspendida' } } };
     (loginService as Mock).mockRejectedValue(error403);
-    render(<Login />);
+    render(<MemoryRouter><Login /></MemoryRouter>);
 
     fireEvent.change(screen.getByPlaceholderText('Ingresa tu usuario'), { target: { value: 'suspended' } });
     fireEvent.change(screen.getByPlaceholderText('Ingresa tu contraseña'), { target: { value: 'pass' } });
@@ -121,7 +123,7 @@ describe('Login Component', () => {
   it('debería mostrar mensaje genérico si no hay mensaje del servidor para 403', async () => {
     const error403 = { response: { status: 403, data: {} } };
     (loginService as Mock).mockRejectedValue(error403);
-    render(<Login />);
+    render(<MemoryRouter><Login /></MemoryRouter>);
 
     fireEvent.change(screen.getByPlaceholderText('Ingresa tu usuario'), { target: { value: 'user' } });
     fireEvent.change(screen.getByPlaceholderText('Ingresa tu contraseña'), { target: { value: 'pass' } });
@@ -136,7 +138,7 @@ describe('Login Component', () => {
   it('debería mostrar error de conexión para otros status codes', async () => {
     const error500 = { response: { status: 500 } };
     (loginService as Mock).mockRejectedValue(error500);
-    render(<Login />);
+    render(<MemoryRouter><Login /></MemoryRouter>);
 
     fireEvent.change(screen.getByPlaceholderText('Ingresa tu usuario'), { target: { value: 'admin' } });
     fireEvent.change(screen.getByPlaceholderText('Ingresa tu contraseña'), { target: { value: 'pass' } });
@@ -150,7 +152,7 @@ describe('Login Component', () => {
   // 10. ESTADO DE CARGA
   it('debería deshabilitar el botón durante la carga', async () => {
     (loginService as Mock).mockImplementation(() => new Promise(() => {}));
-    render(<Login />);
+    render(<MemoryRouter><Login /></MemoryRouter>);
 
     fireEvent.change(screen.getByPlaceholderText('Ingresa tu usuario'), { target: { value: 'admin' } });
     fireEvent.change(screen.getByPlaceholderText('Ingresa tu contraseña'), { target: { value: 'pass' } });
@@ -163,7 +165,7 @@ describe('Login Component', () => {
 
   // 11. TOGGLE MOSTRAR/OCULTAR CONTRASEÑA
   it('debería alternar entre mostrar y ocultar la contraseña', () => {
-    render(<Login />);
+    render(<MemoryRouter><Login /></MemoryRouter>);
 
     const toggleBtn = screen.getByRole('button', { name: /mostrar contraseña/i });
     const passwordInput = screen.getByPlaceholderText('Ingresa tu contraseña');
@@ -181,7 +183,7 @@ describe('Login Component', () => {
 
   // 12. ENLACE A FORGOT PASSWORD
   it('debería tener enlace funcional a recuperación de contraseña', () => {
-    render(<Login />);
+    render(<MemoryRouter><Login /></MemoryRouter>);
 
     const link = screen.getByRole('link', { name: /¿olvidó su contraseña\?/i });
     expect(link).toHaveAttribute('href', '/forgot-password');
@@ -189,7 +191,7 @@ describe('Login Component', () => {
 
   // 13. ENLACE AL PORTAL PRINCIPAL
   it('debería tener enlace funcional al portal principal', () => {
-    render(<Login />);
+    render(<MemoryRouter><Login /></MemoryRouter>);
 
     const link = screen.getByRole('link', { name: /regresar al portal principal/i });
     expect(link).toHaveAttribute('href', '/');
@@ -200,7 +202,7 @@ describe('Login Component', () => {
     const originalBodyOverflow = document.body.style.overflow;
     const originalHtmlOverflow = document.documentElement.style.overflow;
 
-    const { unmount } = render(<Login />);
+    const { unmount } = render(<MemoryRouter><Login /></MemoryRouter>);
 
     expect(document.body.style.overflow).toBe('hidden');
     expect(document.documentElement.style.overflow).toBe('hidden');

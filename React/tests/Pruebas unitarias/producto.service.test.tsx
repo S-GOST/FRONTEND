@@ -17,7 +17,7 @@ vi.mock('../../src/services/base.service', () => {
   };
   return {
     __esModule: true,
-    BaseApiService: vi.fn(() => instance),
+    BaseApiService: vi.fn(function() { Object.assign(this, instance); return this; }),
   };
 });
 
@@ -57,8 +57,7 @@ describe('producto.service', () => {
       ID_CATEGORIA: '30',
       Marca: 'KTM',
       Nombre: 'Aceite Sintético',
-      precio_venta: 50000,
-      Estado: 'Disponible',
+      precio_venta: 50000, precio_costo: 40000, stock: 10, stock_minimo: 2, Estado: 'Disponible',
     };
     await insertarProducto(mockPayload);
     expect(base.crear).toHaveBeenCalledWith({
@@ -76,8 +75,7 @@ describe('producto.service', () => {
       ID_CATEGORIA: '40',
       Marca: 'KTM',
       Nombre: 'Aceite Sintético',
-      precio_venta: 75000,
-      Estado: 'Disponible',
+      precio_venta: 75000, precio_costo: 60000, stock: 15, stock_minimo: 3, Estado: 'Disponible',
     };
     await actualizarProducto('5', mockPayload);
     expect(base.actualizar).toHaveBeenCalledWith(

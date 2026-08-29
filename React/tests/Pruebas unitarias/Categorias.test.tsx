@@ -1,14 +1,21 @@
-import { Mock } from 'vitest';
+import { MemoryRouter } from 'react-router-dom';
+
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import '@testing-library/jest-dom';
+vi.mock('react-router-dom', async (importOriginal) => {
+  const actual = await importOriginal() as any;
+  return {
+    ...actual,
+    useNavigate: vi.fn(),
+  };
+});
+
 import Categorias from '../../src/componentes/TableCategorias/Categorias';
 import * as categoriaService from '../../src/services/categoria.service';
 import Swal from 'sweetalert2';
 
 // 1. MOCKS DE MÓDULOS EXTERNOS
-vi.mock('sweetalert2', () => ({
-  fire: vi.fn().mockResolvedValue({ isConfirmed: true }),
-}));
+vi.mock('sweetalert2', () => ({ default: { fire: vi.fn().mockResolvedValue({ isConfirmed: true, value: '5' }), getInput: vi.fn() } }));
 
 // Mock del componente FormattedId para simplificar
 vi.mock('../../src/componentes/FormattedId', () => ({
@@ -27,13 +34,13 @@ const mockCategorias = [
 describe('Categorias Component', () => {
   beforeEach(() => {
     vi.clearAllMocks();
-    jest.mocked(Swal.fire).mockResolvedValue({ isConfirmed: true } as any);
-    jest.mocked(categoriaService.obtenerCategorias).mockResolvedValue({ data: mockCategorias } as any);
+    vi.mocked(Swal.fire).mockResolvedValue({ isConfirmed: true } as any);
+    vi.mocked(categoriaService.obtenerCategorias).mockResolvedValue({ data: mockCategorias } as any);
   });
 
   // 1. RENDERIZADO INICIAL
   it('debería renderizar el título, buscador y botones de acción', async () => {
-    render(<Categorias />);
+    render(<MemoryRouter><Categorias /></MemoryRouter>);
 
     expect(screen.getByText('Gestión de Categorías')).toBeInTheDocument();
     expect(screen.getByPlaceholderText(/buscar por nombre, tipo o descripción/i)).toBeInTheDocument();
@@ -43,14 +50,14 @@ describe('Categorias Component', () => {
 
   // 2. ESTADO DE CARGA
   it('debería mostrar "Cargando categorías..." mientras consulta la API', () => {
-    jest.mocked(categoriaService.obtenerCategorias).mockImplementation(() => new Promise(() => {}));
-    render(<Categorias />);
+    vi.mocked(categoriaService.obtenerCategorias).mockImplementation(() => new Promise(() => {}));
+    render(<MemoryRouter><Categorias /></MemoryRouter>);
     expect(screen.getByText(/cargando categorías/i)).toBeInTheDocument();
   });
 
   // 3. TABLA CON DATOS
   it('debería mostrar las categorías con tipo y estado en badges', async () => {
-    render(<Categorias />);
+    render(<MemoryRouter><Categorias /></MemoryRouter>);
 
     await waitFor(() => {
       expect(screen.getByText('Repuestos')).toBeInTheDocument();
@@ -65,8 +72,8 @@ describe('Categorias Component', () => {
 
   // 4. ESTADO VACÍO
   it('debería mostrar mensaje cuando no hay categorías', async () => {
-    jest.mocked(categoriaService.obtenerCategorias).mockResolvedValue({ data: [] } as any);
-    render(<Categorias />);
+    vi.mocked(categoriaService.obtenerCategorias).mockResolvedValue({ data: [] } as any);
+    render(<MemoryRouter><Categorias /></MemoryRouter>);
 
     await waitFor(() => {
       expect(screen.getByText(/no hay categorías registradas/i)).toBeInTheDocument();
@@ -75,8 +82,8 @@ describe('Categorias Component', () => {
 
   // 5. ERROR AL CARGAR
   it('debería mostrar alerta de error si falla la carga', async () => {
-    jest.mocked(categoriaService.obtenerCategorias).mockRejectedValue(new Error('Fallo'));
-    render(<Categorias />);
+    vi.mocked(categoriaService.obtenerCategorias).mockRejectedValue(new Error('Fallo'));
+    render(<MemoryRouter><Categorias /></MemoryRouter>);
 
     await waitFor(() => {
       expect(Swal.fire).toHaveBeenCalledWith(
@@ -87,7 +94,7 @@ describe('Categorias Component', () => {
 
   // 6. BÚSQUEDA POR NOMBRE
   it('debería filtrar categorías al buscar por nombre', async () => {
-    render(<Categorias />);
+    render(<MemoryRouter><Categorias /></MemoryRouter>);
     await waitFor(() => expect(screen.getByText('Repuestos')).toBeInTheDocument());
 
     const searchInput = screen.getByPlaceholderText(/buscar por nombre/i);
@@ -102,7 +109,7 @@ describe('Categorias Component', () => {
 
   // 7. BÚSQUEDA CON TECLA ENTER
   it('debería buscar al presionar Enter en el campo de búsqueda', async () => {
-    render(<Categorias />);
+    render(<MemoryRouter><Categorias /></MemoryRouter>);
     await waitFor(() => expect(screen.getByText('Repuestos')).toBeInTheDocument());
 
     const searchInput = screen.getByPlaceholderText(/buscar por nombre/i);
@@ -117,7 +124,7 @@ describe('Categorias Component', () => {
 
   // 8. BOTÓN RESET
   it('debería limpiar la búsqueda y mostrar todo con Reset', async () => {
-    render(<Categorias />);
+    render(<MemoryRouter><Categorias /></MemoryRouter>);
     await waitFor(() => expect(screen.getByText('Repuestos')).toBeInTheDocument());
 
     fireEvent.change(screen.getByPlaceholderText(/buscar por nombre/i), { target: { value: 'Repuestos' } });
@@ -134,7 +141,7 @@ describe('Categorias Component', () => {
 
   // 9. ABRIR MODAL DE CREACIÓN
   it('debería abrir el modal de creación con el formulario vacío', async () => {
-    render(<Categorias />);
+    render(<MemoryRouter><Categorias /></MemoryRouter>);
 
     fireEvent.click(screen.getByRole('button', { name: /nueva categoría/i }));
 
@@ -146,7 +153,7 @@ describe('Categorias Component', () => {
 
   // 10. VALIDACIÓN: NOMBRE OBLIGATORIO
   it('debería mostrar alerta si se guarda sin nombre', async () => {
-    render(<Categorias />);
+    render(<MemoryRouter><Categorias /></MemoryRouter>);
     fireEvent.click(screen.getByRole('button', { name: /nueva categoría/i }));
 
     const modal = screen.getByText('Crear Categoría').closest('.modal-container') as HTMLElement;
@@ -162,7 +169,7 @@ describe('Categorias Component', () => {
 
   // 11. VALIDACIÓN: SOLO LETRAS EN NOMBRE
   it('debería filtrar números y símbolos en el campo nombre', async () => {
-    render(<Categorias />);
+    render(<MemoryRouter><Categorias /></MemoryRouter>);
     fireEvent.click(screen.getByRole('button', { name: /nueva categoría/i }));
 
     const modal = screen.getByText('Crear Categoría').closest('.modal-container') as HTMLElement;
@@ -180,8 +187,8 @@ describe('Categorias Component', () => {
 
   // 12. CREAR CATEGORÍA EXITOSAMENTE
   it('debería crear la categoría y recargar la lista', async () => {
-    jest.mocked(categoriaService.insertarCategoria).mockResolvedValue({ data: { success: true } } as any);
-    render(<Categorias />);
+    vi.mocked(categoriaService.insertarCategoria).mockResolvedValue({ data: { success: true } } as any);
+    render(<MemoryRouter><Categorias /></MemoryRouter>);
     fireEvent.click(screen.getByRole('button', { name: /nueva categoría/i }));
 
     const modal = screen.getByText('Crear Categoría').closest('.modal-container') as HTMLElement;
@@ -203,8 +210,8 @@ describe('Categorias Component', () => {
 
   // 13. CREAR CATEGORÍA CON RESPUESTA FALLIDA
   it('debería mostrar error si el backend responde sin éxito', async () => {
-    jest.mocked(categoriaService.insertarCategoria).mockResolvedValue({ data: { success: false } } as any);
-    render(<Categorias />);
+    vi.mocked(categoriaService.insertarCategoria).mockResolvedValue({ data: { success: false } } as any);
+    render(<MemoryRouter><Categorias /></MemoryRouter>);
     fireEvent.click(screen.getByRole('button', { name: /nueva categoría/i }));
 
     const modal = screen.getByText('Crear Categoría').closest('.modal-container') as HTMLElement;
@@ -220,7 +227,7 @@ describe('Categorias Component', () => {
 
   // 14. ABRIR MODAL DE EDICIÓN CON DATOS
   it('debería abrir el modal de edición con los datos y el ID deshabilitado', async () => {
-    render(<Categorias />);
+    render(<MemoryRouter><Categorias /></MemoryRouter>);
     await waitFor(() => expect(screen.getByText('Repuestos')).toBeInTheDocument());
 
     fireEvent.click(screen.getAllByTitle('Editar')[0]);
@@ -236,8 +243,8 @@ describe('Categorias Component', () => {
 
   // 15. ACTUALIZAR CATEGORÍA
   it('debería actualizar la categoría con el ID correcto', async () => {
-    jest.mocked(categoriaService.actualizarCategoria).mockResolvedValue({ data: { success: true } } as any);
-    render(<Categorias />);
+    vi.mocked(categoriaService.actualizarCategoria).mockResolvedValue({ data: { success: true } } as any);
+    render(<MemoryRouter><Categorias /></MemoryRouter>);
     await waitFor(() => expect(screen.getByText('Repuestos')).toBeInTheDocument());
 
     fireEvent.click(screen.getAllByTitle('Editar')[0]);
@@ -259,8 +266,8 @@ describe('Categorias Component', () => {
 
   // 16. INHABILITAR CATEGORÍA
   it('debería inhabilitar la categoría tras confirmar y actualizar el estado local', async () => {
-    jest.mocked(categoriaService.eliminarCategoria).mockResolvedValue({ data: { success: true } } as any);
-    render(<Categorias />);
+    vi.mocked(categoriaService.eliminarCategoria).mockResolvedValue({ data: { success: true } } as any);
+    render(<MemoryRouter><Categorias /></MemoryRouter>);
     await waitFor(() => expect(screen.getByText('Repuestos')).toBeInTheDocument());
 
     fireEvent.click(screen.getAllByTitle('Inhabilitar')[0]);
@@ -278,8 +285,8 @@ describe('Categorias Component', () => {
 
   // 17. INHABILITAR CANCELADO
   it('no debería inhabilitar si se cancela la confirmación', async () => {
-    jest.mocked(Swal.fire).mockResolvedValueOnce({ isConfirmed: false } as any);
-    render(<Categorias />);
+    vi.mocked(Swal.fire).mockResolvedValueOnce({ isConfirmed: false } as any);
+    render(<MemoryRouter><Categorias /></MemoryRouter>);
     await waitFor(() => expect(screen.getByText('Repuestos')).toBeInTheDocument());
 
     fireEvent.click(screen.getAllByTitle('Inhabilitar')[0]);
@@ -291,11 +298,11 @@ describe('Categorias Component', () => {
 
   // 18. CONFLICTO 409 AL INHABILITAR (dependencias asociadas)
   it('debería pedir segunda confirmación y forzar inhabilitar en error 409', async () => {
-    jest.mocked(categoriaService.eliminarCategoria)
+    vi.mocked(categoriaService.eliminarCategoria)
       .mockRejectedValueOnce({ response: { status: 409, data: { message: 'Tiene productos asociados' } } })
       .mockResolvedValueOnce({ data: { success: true } } as any);
 
-    render(<Categorias />);
+    render(<MemoryRouter><Categorias /></MemoryRouter>);
     await waitFor(() => expect(screen.getByText('Repuestos')).toBeInTheDocument());
 
     fireEvent.click(screen.getAllByTitle('Inhabilitar')[0]);
@@ -308,8 +315,8 @@ describe('Categorias Component', () => {
 
   // 19. HABILITAR CATEGORÍA INACTIVA
   it('debería habilitar una categoría inactiva tras confirmar', async () => {
-    jest.mocked(categoriaService.habilitarCategoria).mockResolvedValue({ data: { success: true } } as any);
-    render(<Categorias />);
+    vi.mocked(categoriaService.habilitarCategoria).mockResolvedValue({ data: { success: true } } as any);
+    render(<MemoryRouter><Categorias /></MemoryRouter>);
     await waitFor(() => expect(screen.getByText('Mantenimiento')).toBeInTheDocument());
 
     fireEvent.click(screen.getByTitle('Habilitar'));

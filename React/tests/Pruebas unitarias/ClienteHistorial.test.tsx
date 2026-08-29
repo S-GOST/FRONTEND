@@ -1,13 +1,20 @@
+import { MemoryRouter } from 'react-router-dom';
 import { render, screen, waitFor } from '@testing-library/react';
 import '@testing-library/jest-dom';
+vi.mock('react-router-dom', async (importOriginal) => {
+  const actual = await importOriginal() as any;
+  return {
+    ...actual,
+    useNavigate: vi.fn(),
+  };
+});
+
 import ClienteHistorial from '../../src/componentes/TableCliente/ClienteHistorial';
 import * as historialService from '../../src/services/historial.service';
 import Swal from 'sweetalert2';
 
 // 1. MOCKS DE MÓDULOS EXTERNOS
-vi.mock('sweetalert2', () => ({
-  fire: vi.fn(),
-}));
+vi.mock('sweetalert2', () => ({ default: { fire: vi.fn().mockResolvedValue({ isConfirmed: true, value: '5' }), getInput: vi.fn() } }));
 
 // 2. MOCKS DE SERVICIOS (mismas rutas que los imports)
 vi.mock('../../src/services/historial.service');
@@ -57,28 +64,28 @@ const formatFechaEsperada = (fecha: string) =>
 describe('ClienteHistorial Component', () => {
   beforeEach(() => {
     vi.clearAllMocks();
-    jest.mocked(historialService.obtenerMiHistorial).mockResolvedValue({
+    vi.mocked(historialService.obtenerMiHistorial).mockResolvedValue({
       data: mockHistorial,
     } as any);
   });
 
   // 1. RENDERIZADO INICIAL
   it('debería renderizar el título de la página', () => {
-    render(<ClienteHistorial />);
+    render(<MemoryRouter><ClienteHistorial /></MemoryRouter>);
     expect(screen.getByText('Mi Historial')).toBeInTheDocument();
   });
 
   // 2. ESTADO DE CARGA
   it('debería mostrar "Cargando historial..." mientras consulta la API', () => {
-    jest.mocked(historialService.obtenerMiHistorial).mockImplementation(() => new Promise(() => {}));
-    render(<ClienteHistorial />);
+    vi.mocked(historialService.obtenerMiHistorial).mockImplementation(() => new Promise(() => {}));
+    render(<MemoryRouter><ClienteHistorial /></MemoryRouter>);
     expect(screen.getByText(/cargando historial/i)).toBeInTheDocument();
   });
 
   // 3. ESTADO VACÍO
   it('debería mostrar mensaje cuando no hay actividad registrada', async () => {
-    jest.mocked(historialService.obtenerMiHistorial).mockResolvedValue({ data: [] } as any);
-    render(<ClienteHistorial />);
+    vi.mocked(historialService.obtenerMiHistorial).mockResolvedValue({ data: [] } as any);
+    render(<MemoryRouter><ClienteHistorial /></MemoryRouter>);
 
     await waitFor(() => {
       expect(screen.getByText(/aún no tienes actividad registrada/i)).toBeInTheDocument();
@@ -87,8 +94,8 @@ describe('ClienteHistorial Component', () => {
 
   // 4. ERROR AL CARGAR
   it('debería mostrar alerta de error si falla la carga', async () => {
-    jest.mocked(historialService.obtenerMiHistorial).mockRejectedValue(new Error('Fallo'));
-    render(<ClienteHistorial />);
+    vi.mocked(historialService.obtenerMiHistorial).mockRejectedValue(new Error('Fallo'));
+    render(<MemoryRouter><ClienteHistorial /></MemoryRouter>);
 
     await waitFor(() => {
       expect(Swal.fire).toHaveBeenCalledWith(
@@ -103,7 +110,7 @@ describe('ClienteHistorial Component', () => {
 
   // 5. TABLA CON DATOS Y ENCABEZADOS
   it('debería mostrar la tabla con encabezados y los registros', async () => {
-    render(<ClienteHistorial />);
+    render(<MemoryRouter><ClienteHistorial /></MemoryRouter>);
 
     await waitFor(() => {
       expect(screen.getByText('Fecha')).toBeInTheDocument();
@@ -122,7 +129,7 @@ describe('ClienteHistorial Component', () => {
 
   // 6. CLASES DE BADGES SEGÚN LA ACCIÓN
   it('debería asignar la clase de badge correcta según el tipo de acción', async () => {
-    render(<ClienteHistorial />);
+    render(<MemoryRouter><ClienteHistorial /></MemoryRouter>);
 
     await waitFor(() => {
       expect(screen.getByText('Pago realizado')).toHaveClass('historial-badge pago');
@@ -134,7 +141,7 @@ describe('ClienteHistorial Component', () => {
 
   // 7. FORMATO DE FECHA
   it('debería formatear las fechas en locale es-CO', async () => {
-    render(<ClienteHistorial />);
+    render(<MemoryRouter><ClienteHistorial /></MemoryRouter>);
 
     await waitFor(() => {
       expect(
@@ -148,7 +155,7 @@ describe('ClienteHistorial Component', () => {
 
   // 8. VALORES VACÍOS → GUION
   it('debería mostrar "—" cuando faltan fecha, tabla o descripción', async () => {
-    render(<ClienteHistorial />);
+    render(<MemoryRouter><ClienteHistorial /></MemoryRouter>);
 
     await waitFor(() => {
       // El registro 4 tiene fecha, tabla y descripción vacías
@@ -158,7 +165,7 @@ describe('ClienteHistorial Component', () => {
 
   // 9. DESCRIPCIÓN COMO TOOLTIP
   it('debería incluir la descripción completa como atributo title', async () => {
-    render(<ClienteHistorial />);
+    render(<MemoryRouter><ClienteHistorial /></MemoryRouter>);
 
     await waitFor(() => {
       const descripcion = screen.getByText('Pagó el comprobante COMP-001');

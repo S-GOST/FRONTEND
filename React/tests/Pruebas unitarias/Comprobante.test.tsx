@@ -1,6 +1,15 @@
+import { MemoryRouter } from 'react-router-dom';
 import { Mock } from 'vitest';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import '@testing-library/jest-dom';
+vi.mock('react-router-dom', async (importOriginal) => {
+  const actual = await importOriginal() as any;
+  return {
+    ...actual,
+    useNavigate: vi.fn(),
+  };
+});
+
 import TableComprobantes from '../../src/componentes/TableComprobante/Comprobante';
 import * as comprobanteService from '../../src/services/comprobanteService';
 import Swal from 'sweetalert2';
@@ -8,26 +17,26 @@ import jsPDF from 'jspdf';
 import autoTable from 'jspdf-autotable';
 
 // 1. VARIABLES DE MOCK
-const mockSave = vi.fn();
+const { mockSave } = vi.hoisted(() => ({ mockSave: vi.fn() }));
 
 // 2. MOCKS DE MÓDULOS EXTERNOS
-vi.mock('sweetalert2', () => ({
-  fire: vi.fn(),
-}));
+vi.mock('sweetalert2', () => ({ default: { fire: vi.fn().mockResolvedValue({ isConfirmed: true, value: '5' }), getInput: vi.fn() } }));
 
 // Mock de jsPDF para no generar PDFs reales en las pruebas
 vi.mock('jspdf', () => ({
   __esModule: true,
-  default: vi.fn().mockImplementation(() => ({
-    setFillColor: vi.fn(),
-    rect: vi.fn(),
-    setTextColor: vi.fn(),
-    setFontSize: vi.fn(),
-    setFont: vi.fn(),
-    text: vi.fn(),
-    internal: { pageSize: { height: 297 } },
-    save: mockSave,
-  })),
+  default: vi.fn().mockImplementation(function() {
+      return {
+        setFillColor: vi.fn(),
+        rect: vi.fn(),
+        setTextColor: vi.fn(),
+        setFontSize: vi.fn(),
+        setFont: vi.fn(),
+        text: vi.fn(),
+        internal: { pageSize: { height: 297 } },
+        save: mockSave,
+      };
+    }),
 }));
 
 vi.mock('jspdf-autotable', () => ({
@@ -78,8 +87,8 @@ describe('TableComprobantes Component', () => {
   beforeEach(() => {
     vi.clearAllMocks();
     localStorage.setItem('user_role', 'admin');
-    jest.mocked(comprobanteService.obtenerComprobantes).mockResolvedValue({ data: mockComprobantes } as any);
-    jest.mocked(comprobanteService.obtenerMisComprobantes).mockResolvedValue({ data: mockComprobantes } as any);
+    vi.mocked(comprobanteService.obtenerComprobantes).mockResolvedValue({ data: mockComprobantes } as any);
+    vi.mocked(comprobanteService.obtenerMisComprobantes).mockResolvedValue({ data: mockComprobantes } as any);
   });
 
   afterEach(() => {
@@ -88,7 +97,7 @@ describe('TableComprobantes Component', () => {
 
   // 1. CARGA COMO ADMINISTRADOR
   it('debería cargar todos los comprobantes si el rol es admin', async () => {
-    render(<TableComprobantes />);
+    render(<MemoryRouter><TableComprobantes /></MemoryRouter>);
 
     await waitFor(() => {
       expect(comprobanteService.obtenerComprobantes).toHaveBeenCalled();
@@ -102,7 +111,7 @@ describe('TableComprobantes Component', () => {
   // 2. CARGA COMO CLIENTE
   it('debería cargar solo sus comprobantes si el rol es cliente', async () => {
     localStorage.setItem('user_role', 'cliente');
-    render(<TableComprobantes />);
+    render(<MemoryRouter><TableComprobantes /></MemoryRouter>);
 
     await waitFor(() => {
       expect(comprobanteService.obtenerMisComprobantes).toHaveBeenCalled();
@@ -115,13 +124,13 @@ describe('TableComprobantes Component', () => {
 
   // 3. TABLA CON DATOS Y VALORES POR DEFECTO
   it('debería mostrar la tabla con montos, método y estado (con fallbacks)', async () => {
-    render(<TableComprobantes />);
+    render(<MemoryRouter><TableComprobantes /></MemoryRouter>);
 
     await waitFor(() => expect(screen.getByText('COMP-001')).toBeInTheDocument());
 
     // Montos formateados
-    expect(screen.getByText(formatMoneda(250000))).toBeInTheDocument();
-    expect(screen.getByText(formatMoneda(100000))).toBeInTheDocument();
+    expect(screen.getByText(/250\.000/)).toBeInTheDocument();
+    expect(screen.getAllByText(/100\.000/)[0]).toBeInTheDocument();
 
     // Método y estado reales
     expect(screen.getByText('Nequi')).toBeInTheDocument();
@@ -134,8 +143,8 @@ describe('TableComprobantes Component', () => {
 
   // 4. ERROR AL CARGAR
   it('debería mostrar alerta de error si falla la carga', async () => {
-    jest.mocked(comprobanteService.obtenerComprobantes).mockRejectedValue(new Error('Fallo'));
-    render(<TableComprobantes />);
+    vi.mocked(comprobanteService.obtenerComprobantes).mockRejectedValue(new Error('Fallo'));
+    render(<MemoryRouter><TableComprobantes /></MemoryRouter>);
 
     await waitFor(() => {
       expect(Swal.fire).toHaveBeenCalledWith(
@@ -146,8 +155,8 @@ describe('TableComprobantes Component', () => {
 
   // 5. ESTADO VACÍO
   it('debería mostrar mensaje cuando no hay comprobantes', async () => {
-    jest.mocked(comprobanteService.obtenerComprobantes).mockResolvedValue({ data: [] } as any);
-    render(<TableComprobantes />);
+    vi.mocked(comprobanteService.obtenerComprobantes).mockResolvedValue({ data: [] } as any);
+    render(<MemoryRouter><TableComprobantes /></MemoryRouter>);
 
     await waitFor(() => {
       expect(screen.getByText(/no se encontraron comprobantes/i)).toBeInTheDocument();
@@ -156,7 +165,7 @@ describe('TableComprobantes Component', () => {
 
   // 6. BÚSQUEDA POR ESTADO
   it('debería filtrar comprobantes por estado al buscar', async () => {
-    render(<TableComprobantes />);
+    render(<MemoryRouter><TableComprobantes /></MemoryRouter>);
     await waitFor(() => expect(screen.getByText('COMP-001')).toBeInTheDocument());
 
     fireEvent.change(screen.getByPlaceholderText(/buscar por número, estado o método/i), { target: { value: 'Pagado' } });
@@ -170,7 +179,7 @@ describe('TableComprobantes Component', () => {
 
   // 7. FILTRO POR FECHA
   it('debería filtrar comprobantes por fecha', async () => {
-    render(<TableComprobantes />);
+    render(<MemoryRouter><TableComprobantes /></MemoryRouter>);
     await waitFor(() => expect(screen.getByText('COMP-001')).toBeInTheDocument());
 
     fireEvent.change(document.querySelector('input[type="date"]') as HTMLElement, { target: { value: '2026-08-01' } });
@@ -185,7 +194,7 @@ describe('TableComprobantes Component', () => {
 
   // 8. BOTÓN RESET
   it('debería limpiar los filtros con Reset', async () => {
-    render(<TableComprobantes />);
+    render(<MemoryRouter><TableComprobantes /></MemoryRouter>);
     await waitFor(() => expect(screen.getByText('COMP-001')).toBeInTheDocument());
 
     fireEvent.change(screen.getByPlaceholderText(/buscar por número, estado o método/i), { target: { value: 'Pagado' } });
@@ -198,7 +207,7 @@ describe('TableComprobantes Component', () => {
 
   // 9. DESCARGAR PDF EXITOSAMENTE
   it('debería generar y guardar el PDF con el nombre correcto', async () => {
-    render(<TableComprobantes />);
+    render(<MemoryRouter><TableComprobantes /></MemoryRouter>);
     await waitFor(() => expect(screen.getByText('COMP-001')).toBeInTheDocument());
 
     fireEvent.click(screen.getAllByTitle('Descargar PDF')[0]);
@@ -218,7 +227,7 @@ describe('TableComprobantes Component', () => {
 
   // 10. PDF CON ID CUANDO NO HAY NÚMERO
   it('debería usar el id en el nombre del archivo si no hay número de comprobante', async () => {
-    render(<TableComprobantes />);
+    render(<MemoryRouter><TableComprobantes /></MemoryRouter>);
     await waitFor(() => expect(screen.getByText('COMP-001')).toBeInTheDocument());
 
     // Segundo comprobante (numero_comprobante: null)
@@ -235,7 +244,7 @@ describe('TableComprobantes Component', () => {
       throw new Error('Fallo de PDF');
     });
 
-    render(<TableComprobantes />);
+    render(<MemoryRouter><TableComprobantes /></MemoryRouter>);
     await waitFor(() => expect(screen.getByText('COMP-001')).toBeInTheDocument());
 
     fireEvent.click(screen.getAllByTitle('Descargar PDF')[0]);

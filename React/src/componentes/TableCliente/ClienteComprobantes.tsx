@@ -36,10 +36,10 @@ const ClienteComprobantes = () => {
       title: 'Seleccione método de pago',
       html: `
         <div style="text-align:left; margin-top:1rem; width: 100%; box-sizing: border-box;">
-          <label style="display:block; color:#aaa; font-size:0.85rem; font-weight:600; margin-bottom:0.5rem; text-transform:uppercase;">
+          <label style="display:block; color:#aaa; font-size:0.85rem; font-weight:600; margin-bottom:0.5rem; text-transform:uppercase;" htmlFor="auto-id-538379">
             Método de pago
           </label>
-          <select id="swal-metodo-pago" style="
+<select id="auto-id-538379" id="swal-metodo-pago" style="
             width:100%; 
             padding:1rem; 
             background:#1a1a1a; 

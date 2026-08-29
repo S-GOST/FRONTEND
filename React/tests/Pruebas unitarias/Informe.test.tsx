@@ -1,15 +1,22 @@
-import { Mock } from 'vitest';
+import { MemoryRouter } from 'react-router-dom';
+
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import '@testing-library/jest-dom';
+vi.mock('react-router-dom', async (importOriginal) => {
+  const actual = await importOriginal() as any;
+  return {
+    ...actual,
+    useNavigate: vi.fn(),
+  };
+});
+
 import TableInformes from '../../src/componentes/Tableinforme/informe';
 import * as informeService from '../../src/services/informe.service';
 import * as comprobanteService from '../../src/services/comprobanteService';
 import Swal from 'sweetalert2';
 
 // 1. MOCKS DE MÓDULOS EXTERNOS
-vi.mock('sweetalert2', () => ({
-  fire: vi.fn().mockResolvedValue({ isConfirmed: true, value: 'Nequi' }),
-}));
+vi.mock('sweetalert2', () => ({ default: { fire: vi.fn().mockResolvedValue({ isConfirmed: true, value: '5' }), getInput: vi.fn() } }));
 
 // Mock del componente FormattedId
 vi.mock('../../src/componentes/FormattedId', () => ({
@@ -48,10 +55,10 @@ describe('TableInformes Component', () => {
   beforeEach(() => {
     vi.clearAllMocks();
     localStorage.setItem('user_role', 'admin');
-    jest.mocked(informeService.obtenerInformes).mockResolvedValue({ data: mockInformes } as any);
-    jest.mocked(informeService.obtenerMisInformes).mockResolvedValue({ data: mockInformes } as any);
+    vi.mocked(informeService.obtenerInformes).mockResolvedValue({ data: mockInformes } as any);
+    vi.mocked(informeService.obtenerMisInformes).mockResolvedValue({ data: mockInformes } as any);
     // La orden 20 ya tiene comprobante generado
-    jest.mocked(comprobanteService.obtenerComprobantes).mockResolvedValue({ data: [{ id_orden: 20 }] } as any);
+    vi.mocked(comprobanteService.obtenerComprobantes).mockResolvedValue({ data: [{ id_orden: 20 }] } as any);
   });
 
   afterEach(() => {
@@ -60,7 +67,7 @@ describe('TableInformes Component', () => {
 
   // 1. CARGA COMO ADMIN
   it('debería cargar informes y comprobantes si el rol es admin', async () => {
-    render(<TableInformes />);
+    render(<MemoryRouter><TableInformes /></MemoryRouter>);
 
     await waitFor(() => {
       expect(informeService.obtenerInformes).toHaveBeenCalled();
@@ -74,7 +81,7 @@ describe('TableInformes Component', () => {
   // 2. CARGA COMO TÉCNICO
   it('debería cargar solo sus informes si el rol es técnico', async () => {
     localStorage.setItem('user_role', 'tecnico');
-    render(<TableInformes />);
+    render(<MemoryRouter><TableInformes /></MemoryRouter>);
 
     await waitFor(() => {
       expect(informeService.obtenerMisInformes).toHaveBeenCalled();
@@ -85,7 +92,7 @@ describe('TableInformes Component', () => {
 
   // 3. ACCIONES SEGÚN ROL
 it('debería mostrar Eliminar y Comprobante solo al admin, y solo Editar al técnico', async () => {
-  render(<TableInformes />);  // ← sin "const { rerender } ="
+  render(<MemoryRouter><TableInformes /></MemoryRouter>);  // ← sin "const { rerender } ="
   
   await waitFor(() => expect(screen.getAllByTitle('Editar').length).toBe(2));
 
@@ -95,8 +102,8 @@ it('debería mostrar Eliminar y Comprobante solo al admin, y solo Editar al téc
 });
   // 4. ESTADO VACÍO
   it('debería mostrar mensaje cuando no hay informes', async () => {
-    jest.mocked(informeService.obtenerInformes).mockResolvedValue({ data: [] } as any);
-    render(<TableInformes />);
+    vi.mocked(informeService.obtenerInformes).mockResolvedValue({ data: [] } as any);
+    render(<MemoryRouter><TableInformes /></MemoryRouter>);
 
     await waitFor(() => {
       expect(screen.getByText(/no hay informes registrados/i)).toBeInTheDocument();
@@ -105,8 +112,8 @@ it('debería mostrar Eliminar y Comprobante solo al admin, y solo Editar al téc
 
   // 5. ERROR AL CARGAR
   it('debería mostrar alerta de error si falla la carga', async () => {
-    jest.mocked(informeService.obtenerInformes).mockRejectedValue(new Error('Fallo'));
-    render(<TableInformes />);
+    vi.mocked(informeService.obtenerInformes).mockRejectedValue(new Error('Fallo'));
+    render(<MemoryRouter><TableInformes /></MemoryRouter>);
 
     await waitFor(() => {
       expect(Swal.fire).toHaveBeenCalledWith(
@@ -117,7 +124,7 @@ it('debería mostrar Eliminar y Comprobante solo al admin, y solo Editar al téc
 
   // 6. TRUNCADO DE TEXTOS Y FALLBACKS
   it('debería truncar textos largos y mostrar "-" cuando faltan datos', async () => {
-    render(<TableInformes />);
+    render(<MemoryRouter><TableInformes /></MemoryRouter>);
 
     await waitFor(() => {
       // Texto truncado a 40 caracteres + "..."
@@ -130,7 +137,7 @@ it('debería mostrar Eliminar y Comprobante solo al admin, y solo Editar al téc
 
   // 7. BÚSQUEDA
   it('debería filtrar informes al buscar por diagnóstico', async () => {
-    render(<TableInformes />);
+    render(<MemoryRouter><TableInformes /></MemoryRouter>);
     await waitFor(() => expect(screen.getByText('Falla en el motor...')).toBeInTheDocument());
 
     fireEvent.change(screen.getByPlaceholderText(/buscar por id, orden/i), { target: { value: 'motor' } });
@@ -144,7 +151,7 @@ it('debería mostrar Eliminar y Comprobante solo al admin, y solo Editar al téc
 
   // 8. MODAL DE EDICIÓN CON DATOS
   it('debería abrir el modal de edición con los datos del informe', async () => {
-    render(<TableInformes />);
+    render(<MemoryRouter><TableInformes /></MemoryRouter>);
     await waitFor(() => expect(screen.getAllByTitle('Editar').length).toBe(2));
 
     fireEvent.click(screen.getAllByTitle('Editar')[0]);
@@ -157,7 +164,7 @@ it('debería mostrar Eliminar y Comprobante solo al admin, y solo Editar al téc
 
   // 9. VALIDACIÓN DE CAMPOS OBLIGATORIOS
   it('debería mostrar alerta si faltan campos obligatorios al guardar', async () => {
-    render(<TableInformes />);
+    render(<MemoryRouter><TableInformes /></MemoryRouter>);
     await waitFor(() => expect(screen.getAllByTitle('Editar').length).toBe(2));
 
     fireEvent.click(screen.getAllByTitle('Editar')[0]);
@@ -177,7 +184,7 @@ it('debería mostrar Eliminar y Comprobante solo al admin, y solo Editar al téc
 
   // 10. VALIDACIÓN NUMÉRICA DE IDs
   it('debería filtrar caracteres no numéricos en los campos de ID', async () => {
-    render(<TableInformes />);
+    render(<MemoryRouter><TableInformes /></MemoryRouter>);
     await waitFor(() => expect(screen.getAllByTitle('Editar').length).toBe(2));
 
     fireEvent.click(screen.getAllByTitle('Editar')[0]);
@@ -194,8 +201,8 @@ it('debería mostrar Eliminar y Comprobante solo al admin, y solo Editar al téc
 
   // 11. ACTUALIZAR INFORME
   it('debería actualizar el informe y mostrar alerta de éxito', async () => {
-    jest.mocked(informeService.actualizarInforme).mockResolvedValue({ data: { success: true } } as any);
-    render(<TableInformes />);
+    vi.mocked(informeService.actualizarInforme).mockResolvedValue({ data: { success: true } } as any);
+    render(<MemoryRouter><TableInformes /></MemoryRouter>);
     await waitFor(() => expect(screen.getAllByTitle('Editar').length).toBe(2));
 
     fireEvent.click(screen.getAllByTitle('Editar')[0]);
@@ -217,8 +224,8 @@ it('debería mostrar Eliminar y Comprobante solo al admin, y solo Editar al téc
 
   // 12. ELIMINAR INFORME
   it('debería eliminar el informe tras confirmar', async () => {
-    jest.mocked(informeService.eliminarInforme).mockResolvedValue({ data: { success: true } } as any);
-    render(<TableInformes />);
+    vi.mocked(informeService.eliminarInforme).mockResolvedValue({ data: { success: true } } as any);
+    render(<MemoryRouter><TableInformes /></MemoryRouter>);
     await waitFor(() => expect(screen.getAllByTitle('Eliminar').length).toBe(2));
 
     fireEvent.click(screen.getAllByTitle('Eliminar')[0]);
@@ -233,8 +240,8 @@ it('debería mostrar Eliminar y Comprobante solo al admin, y solo Editar al téc
 
   // 13. ELIMINAR CANCELADO
   it('no debería eliminar si se cancela la confirmación', async () => {
-    jest.mocked(Swal.fire).mockResolvedValueOnce({ isConfirmed: false } as any);
-    render(<TableInformes />);
+    vi.mocked(Swal.fire).mockResolvedValueOnce({ isConfirmed: false } as any);
+    render(<MemoryRouter><TableInformes /></MemoryRouter>);
     await waitFor(() => expect(screen.getAllByTitle('Eliminar').length).toBe(2));
 
     fireEvent.click(screen.getAllByTitle('Eliminar')[0]);
@@ -246,8 +253,8 @@ it('debería mostrar Eliminar y Comprobante solo al admin, y solo Editar al téc
 
   // 14. GENERAR COMPROBANTE
   it('debería generar comprobante con el método de pago seleccionado', async () => {
-    jest.mocked(comprobanteService.generarComprobante).mockResolvedValue({ data: { success: true } } as any);
-    render(<TableInformes />);
+    vi.mocked(comprobanteService.generarComprobante).mockResolvedValue({ data: { success: true } } as any);
+    render(<MemoryRouter><TableInformes /></MemoryRouter>);
     await waitFor(() => expect(screen.getAllByTitle('Generar Comprobante').length).toBe(1));
 
     fireEvent.click(screen.getAllByTitle('Generar Comprobante')[0]);

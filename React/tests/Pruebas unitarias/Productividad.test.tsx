@@ -1,6 +1,15 @@
-import { Mock } from 'vitest';
+import { MemoryRouter } from 'react-router-dom';
+
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import '@testing-library/jest-dom';
+vi.mock('react-router-dom', async (importOriginal) => {
+  const actual = await importOriginal() as any;
+  return {
+    ...actual,
+    useNavigate: vi.fn(),
+  };
+});
+
 import Productividad from '../../src/componentes/TableAdmin/Productividad';
 import { obtenerReporteProductividad } from '../../src/services/informe.service';
 import Swal from 'sweetalert2';
@@ -9,9 +18,7 @@ import Swal from 'sweetalert2';
 vi.mock('../../services/informe.service');
 
 // Mock de SweetAlert2
-vi.mock('sweetalert2', () => ({
-  fire: vi.fn(),
-}));
+vi.mock('sweetalert2', () => ({ default: { fire: vi.fn().mockResolvedValue({ isConfirmed: true, value: '5' }), getInput: vi.fn() } }));
 
 // Helper para obtener fecha de hace 30 días
 const getHace30Dias = () => {
@@ -30,7 +37,7 @@ describe('Productividad Component', () => {
 
   // 1. PRUEBA DE RENDERIZADO INICIAL
   it('debería renderizar el componente con valores por defecto', () => {
-    render(<Productividad />);
+    render(<MemoryRouter><Productividad /></MemoryRouter>);
     
     expect(screen.getByText(/productividad de técnicos/i)).toBeInTheDocument();
     expect(screen.getByLabelText(/desde/i)).toHaveValue(getHace30Dias());
@@ -40,7 +47,7 @@ describe('Productividad Component', () => {
 
   // 2. PRUEBA DE VALIDACIÓN - FECHAS VACÍAS
   it('debería mostrar alerta si no se seleccionan ambas fechas', async () => {
-    render(<Productividad />);
+    render(<MemoryRouter><Productividad /></MemoryRouter>);
     
     // Limpiar fechas
     fireEvent.change(screen.getByLabelText(/desde/i), { target: { value: '' } });
@@ -59,7 +66,7 @@ describe('Productividad Component', () => {
 
   // 3. PRUEBA DE VALIDACIÓN - FECHA INICIO > FECHA FIN
   it('debería mostrar alerta si fecha inicio es mayor a fecha fin', async () => {
-    render(<Productividad />);
+    render(<MemoryRouter><Productividad /></MemoryRouter>);
     
     fireEvent.change(screen.getByLabelText(/desde/i), { target: { value: '2026-09-01' } });
     fireEvent.change(screen.getByLabelText(/hasta/i), { target: { value: '2026-08-01' } });
@@ -89,14 +96,14 @@ describe('Productividad Component', () => {
       ]
     };
 
-    jest.mocked(obtenerReporteProductividad).mockResolvedValue({
+    vi.mocked(obtenerReporteProductividad).mockResolvedValue({
       data: {
         success: true,
         data: mockData
       }
     } as any);
 
-    render(<Productividad />);
+    render(<MemoryRouter><Productividad /></MemoryRouter>);
     
     const btnGenerar = screen.getByRole('button', { name: /generar reporte/i });
     fireEvent.click(btnGenerar);
@@ -125,7 +132,7 @@ describe('Productividad Component', () => {
 
   // 5. PRUEBA DE ESTADO SIN DATOS
   it('debería mostrar mensaje de sin datos cuando no hay resultados', async () => {
-    jest.mocked(obtenerReporteProductividad).mockResolvedValue({
+    vi.mocked(obtenerReporteProductividad).mockResolvedValue({
       data: {
         success: true,
         data: {
@@ -135,7 +142,7 @@ describe('Productividad Component', () => {
       }
     } as any);
 
-    render(<Productividad />);
+    render(<MemoryRouter><Productividad /></MemoryRouter>);
     
     const btnGenerar = screen.getByRole('button', { name: /generar reporte/i });
     fireEvent.click(btnGenerar);
@@ -148,9 +155,9 @@ describe('Productividad Component', () => {
   // 6. PRUEBA DE ERROR 404
   it('debería manejar error 404 mostrando sin datos', async () => {
     const error = { response: { status: 404 } };
-    jest.mocked(obtenerReporteProductividad).mockRejectedValue(error);
+    vi.mocked(obtenerReporteProductividad).mockRejectedValue(error);
 
-    render(<Productividad />);
+    render(<MemoryRouter><Productividad /></MemoryRouter>);
     
     const btnGenerar = screen.getByRole('button', { name: /generar reporte/i });
     fireEvent.click(btnGenerar);
@@ -168,9 +175,9 @@ describe('Productividad Component', () => {
         data: { message: 'Error del servidor' } 
       } 
     };
-    jest.mocked(obtenerReporteProductividad).mockRejectedValue(error);
+    vi.mocked(obtenerReporteProductividad).mockRejectedValue(error);
 
-    render(<Productividad />);
+    render(<MemoryRouter><Productividad /></MemoryRouter>);
     
     const btnGenerar = screen.getByRole('button', { name: /generar reporte/i });
     fireEvent.click(btnGenerar);
@@ -186,7 +193,7 @@ describe('Productividad Component', () => {
 
   // 8. PRUEBA DE CAMBIO DE FECHAS
   it('debería actualizar las fechas cuando el usuario las cambia', () => {
-    render(<Productividad />);
+    render(<MemoryRouter><Productividad /></MemoryRouter>);
     
     fireEvent.change(screen.getByLabelText(/desde/i), { target: { value: '2026-01-01' } });
     fireEvent.change(screen.getByLabelText(/hasta/i), { target: { value: '2026-01-31' } });
@@ -197,11 +204,11 @@ describe('Productividad Component', () => {
 
   // 9. PRUEBA DE BOTÓN DESHABILITADO DURANTE CARGA
   it('debería deshabilitar el botón mientras se carga', async () => {
-    jest.mocked(obtenerReporteProductividad).mockImplementation(
+    vi.mocked(obtenerReporteProductividad).mockImplementation(
       () => new Promise(() => {}) // Promesa que nunca se resuelve
     );
 
-    render(<Productividad />);
+    render(<MemoryRouter><Productividad /></MemoryRouter>);
     
     const btnGenerar = screen.getByRole('button', { name: /generar reporte/i });
     fireEvent.click(btnGenerar);
@@ -224,14 +231,14 @@ describe('Productividad Component', () => {
       ]
     };
 
-    jest.mocked(obtenerReporteProductividad).mockResolvedValue({
+    vi.mocked(obtenerReporteProductividad).mockResolvedValue({
       data: {
         success: true,
         data: mockData
       }
     } as any);
 
-    render(<Productividad />);
+    render(<MemoryRouter><Productividad /></MemoryRouter>);
     
     fireEvent.click(screen.getByRole('button', { name: /generar reporte/i }));
     
@@ -244,7 +251,7 @@ describe('Productividad Component', () => {
 
   // 11. PRUEBA DE KPIs CON DATOS VACÍOS
   it('debería mostrar ceros en KPIs cuando no hay datos', async () => {
-    jest.mocked(obtenerReporteProductividad).mockResolvedValue({
+    vi.mocked(obtenerReporteProductividad).mockResolvedValue({
       data: {
         success: true,
         data: {
@@ -254,7 +261,7 @@ describe('Productividad Component', () => {
       }
     } as any);
 
-    render(<Productividad />);
+    render(<MemoryRouter><Productividad /></MemoryRouter>);
     
     fireEvent.click(screen.getByRole('button', { name: /generar reporte/i }));
     
@@ -274,14 +281,14 @@ describe('Productividad Component', () => {
       ]
     };
 
-    jest.mocked(obtenerReporteProductividad).mockResolvedValue({
+    vi.mocked(obtenerReporteProductividad).mockResolvedValue({
       data: {
         success: true,
         data: mockData
       }
     } as any);
 
-    render(<Productividad />);
+    render(<MemoryRouter><Productividad /></MemoryRouter>);
     
     fireEvent.click(screen.getByRole('button', { name: /generar reporte/i }));
     
