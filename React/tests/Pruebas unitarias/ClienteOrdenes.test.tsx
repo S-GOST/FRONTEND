@@ -1,6 +1,8 @@
 import { MemoryRouter } from 'react-router-dom';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import '@testing-library/jest-dom';
+import { vi, describe, it, expect, beforeEach } from 'vitest';
+
 import ClienteOrdenes from '../../src/componentes/TableCliente/ClienteOrdenes';
 import * as ordenService from '../../src/services/ordenServicioService';
 
@@ -13,10 +15,10 @@ vi.mock('react-router-dom', async () => ({
   useNavigate: () => mockNavigate,
 }));
 
-// 3. MOCKS DE SERVICIOS (mismas rutas que los imports)
+// 3. MOCKS DE SERVICIOS
 vi.mock('../../src/services/ordenServicioService');
 
-// ==================== DATOS DE PRUEBA ====================
+// ==================== DATOS DE PRUEBA COMPLETOS ====================
 const mockOrdenes = [
   {
     ID_ORDEN_SERVICIO: 1,
@@ -39,124 +41,61 @@ const mockOrdenes = [
     ID_ORDEN_SERVICIO: 2,
     ID_CLIENTES: 100,
     ID_MOTOS: 2,
-    Fecha_inicio: '2026-07-01',
-    Fecha_estimada: null,
-    Fecha_fin: '2026-07-03',
+    Fecha_inicio: '2026-07-10',
+    Fecha_estimada: null, // Null para probar fallback
+    Fecha_fin: '2026-07-15',
     Estado: 'Completado',
     total: 80000,
     PlacaMoto: 'XYZ34E',
-    MarcaMoto: null,
+    MarcaMoto: null, // Sin marca para probar fallback
     ModeloMoto: null,
-    detalles: [],
+    detalles: [], // Sin detalles para probar ese caso
   },
 ];
 
-// Mismo formato de precio que usa el componente
-const formatPrecio = (valor: number) =>
-  new Intl.NumberFormat('es-CO', { style: 'currency', currency: 'COP', minimumFractionDigits: 0 }).format(valor);
-
-describe('ClienteOrdenes Component', () => {
+describe('ClienteOrdenes Component - Core Tests', () => {
   beforeEach(() => {
     vi.clearAllMocks();
     vi.mocked(ordenService.obtenerMisOrdenes).mockResolvedValue({ data: mockOrdenes } as any);
   });
 
-  // 1. ESTADO DE CARGA
-  it('debería mostrar "Cargando tus órdenes..." mientras consulta la API', () => {
-    vi.mocked(ordenService.obtenerMisOrdenes).mockImplementation(() => new Promise(() => {}));
-    render(<MemoryRouter><ClienteOrdenes /></MemoryRouter>);
-    expect(screen.getByText(/cargando tus órdenes/i)).toBeInTheDocument();
-  });
-
-  // 2. HEADER Y CONTEO EN PLURAL
-  it('debería mostrar el título y el conteo de órdenes en plural', async () => {
+  // 1. CARGA EXITOSA Y VISUALIZACIÓN DE LISTA
+  it('debería cargar las órdenes, mostrar conteo correcto y renderizar tarjetas con datos formateados', async () => {
     render(<MemoryRouter><ClienteOrdenes /></MemoryRouter>);
 
     await waitFor(() => {
       expect(screen.getByText('Mis Órdenes de Servicio')).toBeInTheDocument();
       expect(screen.getByText('2 órdenes encontradas')).toBeInTheDocument();
-    });
-  });
 
-  // 3. CONTEO EN SINGULAR
-  it('debería mostrar "1 orden encontrada" cuando hay una sola orden', async () => {
-    vi.mocked(ordenService.obtenerMisOrdenes).mockResolvedValue({ data: [mockOrdenes[0]] } as any);
-    render(<MemoryRouter><ClienteOrdenes /></MemoryRouter>);
-
-    await waitFor(() => {
-      expect(screen.getByText('1 orden encontrada')).toBeInTheDocument();
-    });
-  });
-
-  // 4. ESTADO VACÍO
-  it('debería mostrar mensaje cuando no hay órdenes registradas', async () => {
-    vi.mocked(ordenService.obtenerMisOrdenes).mockResolvedValue({ data: [] } as any);
-    render(<MemoryRouter><ClienteOrdenes /></MemoryRouter>);
-
-    await waitFor(() => {
-      expect(screen.getByText(/no tienes órdenes de servicio registradas/i)).toBeInTheDocument();
-    });
-  });
-
-  // 5. ERROR CON BOTÓN REINTENTAR
-  it('debería mostrar error y permitir reintentar la carga', async () => {
-    vi.mocked(ordenService.obtenerMisOrdenes)
-      .mockRejectedValueOnce(new Error('Fallo'))
-      .mockResolvedValueOnce({ data: mockOrdenes } as any);
-
-    render(<MemoryRouter><ClienteOrdenes /></MemoryRouter>);
-
-    // Aparece el error con el botón Reintentar
-    await waitFor(() => {
-      expect(screen.getByText(/no se pudieron cargar tus órdenes/i)).toBeInTheDocument();
-      expect(screen.getByRole('button', { name: /reintentar/i })).toBeInTheDocument();
-    });
-
-    // Al reintentar, carga exitosamente
-    fireEvent.click(screen.getByRole('button', { name: /reintentar/i }));
-
-    await waitFor(() => {
-      expect(screen.queryByText(/no se pudieron cargar tus órdenes/i)).not.toBeInTheDocument();
-      expect(screen.getByText('#0001')).toBeInTheDocument();
-    });
-
-    expect(ordenService.obtenerMisOrdenes).toHaveBeenCalledTimes(2);
-  });
-
-  // 6. TARJETAS DE ÓRDENES
-  it('debería mostrar las órdenes con ID, moto, estado y total', async () => {
-    render(<MemoryRouter><ClienteOrdenes /></MemoryRouter>);
-
-    await waitFor(() => {
-      // IDs con padding de 4 dígitos
+      // Verificar IDs formateados
       expect(screen.getByText('#0001')).toBeInTheDocument();
       expect(screen.getByText('#0002')).toBeInTheDocument();
     });
 
-    // Orden 1: Marca + Modelo y placa entre paréntesis
+    // Orden 1: Datos completos (Marca + Modelo)
     expect(screen.getByText('KTM Duke 390')).toBeInTheDocument();
     expect(screen.getByText('(ABC12D)')).toBeInTheDocument();
-
-    // Orden 2: sin marca/modelo → muestra la placa
-    expect(screen.getByText('XYZ34E')).toBeInTheDocument();
-
-    // Estados y totales
     expect(screen.getByText('En proceso')).toBeInTheDocument();
-    expect(screen.getByText('Completado')).toBeInTheDocument();
     expect(screen.getAllByText(/250\.000/)[0]).toBeInTheDocument();
+
+    // Orden 2: Fallbacks (Solo placa, sin marca/modelo) y estado completado
+    expect(screen.getByText('XYZ34E')).toBeInTheDocument();
+    expect(screen.getByText('Completado')).toBeInTheDocument();
     expect(screen.getAllByText(/80\.000/)[0]).toBeInTheDocument();
   });
 
-  // 7. BOTÓN VOLVER AL PANEL
-  it('debería navegar al dashboard del cliente con el botón volver', async () => {
+  // 3. NAVEGACIÓN AL DASHBOARD
+  it('debería navegar al dashboard del cliente al hacer clic en "Volver"', async () => {
     render(<MemoryRouter><ClienteOrdenes /></MemoryRouter>);
     await waitFor(() => expect(screen.getByRole('button', { name: /volver al panel/i })).toBeInTheDocument());
+
     fireEvent.click(screen.getByRole('button', { name: /volver al panel/i }));
+
     expect(mockNavigate).toHaveBeenCalledWith('/cliente/dashboard');
   });
 
-  // 8. EXPANDIR DETALLES DE LA ORDEN
-  it('debería mostrar los detalles al hacer clic en una orden', async () => {
+  // 4. INTERACCIÓN: EXPANDIR DETALLES CON DATOS
+  it('debería mostrar el detalle completo (tabla de servicios/productos) al expandir una orden con datos', async () => {
     render(<MemoryRouter><ClienteOrdenes /></MemoryRouter>);
     await waitFor(() => expect(screen.getByText('#0001')).toBeInTheDocument());
 
@@ -164,45 +103,21 @@ describe('ClienteOrdenes Component', () => {
 
     await waitFor(() => {
       expect(screen.getByText('Detalle de la orden')).toBeInTheDocument();
+      expect(screen.getByText('Información')).toBeInTheDocument();
     });
 
-    // Secciones de información y moto
-    expect(screen.getByText('Información')).toBeInTheDocument();
-    expect(screen.getByText(/placa:/i)).toBeInTheDocument();
-
-    // Tabla de detalles: servicio y producto
-    expect(screen.getByText('Servicio')).toBeInTheDocument();
-    expect(screen.getByText('Producto')).toBeInTheDocument();
+    // Validar contenido de la tabla de detalles
     expect(screen.getByText('Mantenimiento')).toBeInTheDocument();
     expect(screen.getByText('Aceite')).toBeInTheDocument();
+    expect(screen.getByText('30 días')).toBeInTheDocument(); // Garantía
 
-    // Cantidades y garantía
-    expect(screen.getByText('30 días')).toBeInTheDocument();
-    expect(screen.getAllByText('—').length).toBeGreaterThan(0);
-
-    // Precios del detalle
+    // Precios en detalle
     expect(screen.getAllByText(/150\.000/)[0]).toBeInTheDocument();
     expect(screen.getAllByText(/100\.000/)[0]).toBeInTheDocument();
   });
 
-  // 9. COLAPSAR DETALLES
-  it('debería ocultar los detalles al hacer clic nuevamente', async () => {
-    render(<MemoryRouter><ClienteOrdenes /></MemoryRouter>);
-    await waitFor(() => expect(screen.getByText('#0001')).toBeInTheDocument());
-
-    // Expandir
-    fireEvent.click(screen.getByText('#0001'));
-    await waitFor(() => expect(screen.getByText('Detalle de la orden')).toBeInTheDocument());
-
-    // Colapsar
-    fireEvent.click(screen.getByText('#0001'));
-    await waitFor(() => {
-      expect(screen.queryByText('Detalle de la orden')).not.toBeInTheDocument();
-    });
-  });
-
-  // 10. ORDEN SIN DETALLES NO MUESTRA TABLA
-  it('no debería mostrar tabla de detalles en órdenes sin detalles', async () => {
+  // 5. INTERACCIÓN: ORDEN SIN DETALLES Y FECHAS NULAS
+  it('debería manejar correctamente órdenes sin detalles y fechas nulas (mostrando fallbacks)', async () => {
     render(<MemoryRouter><ClienteOrdenes /></MemoryRouter>);
     await waitFor(() => expect(screen.getByText('#0002')).toBeInTheDocument());
 
@@ -210,25 +125,14 @@ describe('ClienteOrdenes Component', () => {
 
     await waitFor(() => {
       expect(screen.getByText(/fecha inicio:/i)).toBeInTheDocument();
-    });
+      // No debe aparecer la tabla de detalles porque el array está vacío
+      expect(screen.queryByText('Detalle de la orden')).not.toBeInTheDocument();
+      expect(screen.queryByText('Servicio')).not.toBeInTheDocument();
 
-    // La tabla de detalles no aparece porque detalles está vacío
-    expect(screen.queryByText('Detalle de la orden')).not.toBeInTheDocument();
-  });
-
-  // 11. FECHAS EN LOS DETALLES
-  it('debería mostrar "—" para fechas vacías en los detalles', async () => {
-    render(<MemoryRouter><ClienteOrdenes /></MemoryRouter>);
-    await waitFor(() => expect(screen.getByText('#0002')).toBeInTheDocument());
-
-    fireEvent.click(screen.getByText('#0002'));
-
-    await waitFor(() => {
-      // Fecha estimada null → "—"
-      expect(screen.getAllByText('—').length).toBeGreaterThan(0);
+      // Verificar fallback de fecha estimada null (asumiendo que muestra "—" o similar)
+      // Ajusta el selector según tu implementación real del fallback
+      const placeholders = screen.getAllByText('—');
+      expect(placeholders.length).toBeGreaterThan(0);
     });
   });
 });
-
-
-

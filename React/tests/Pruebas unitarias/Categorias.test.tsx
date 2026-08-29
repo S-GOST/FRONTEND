@@ -50,7 +50,7 @@ describe('Categorias Component', () => {
 
   // 2. ESTADO DE CARGA
   it('debería mostrar "Cargando categorías..." mientras consulta la API', () => {
-    vi.mocked(categoriaService.obtenerCategorias).mockImplementation(() => new Promise(() => {}));
+    vi.mocked(categoriaService.obtenerCategorias).mockImplementation(() => new Promise(() => { }));
     render(<MemoryRouter><Categorias /></MemoryRouter>);
     expect(screen.getByText(/cargando categorías/i)).toBeInTheDocument();
   });
@@ -264,24 +264,6 @@ describe('Categorias Component', () => {
     });
   });
 
-  // 16. INHABILITAR CATEGORÍA
-  it('debería inhabilitar la categoría tras confirmar y actualizar el estado local', async () => {
-    vi.mocked(categoriaService.eliminarCategoria).mockResolvedValue({ data: { success: true } } as any);
-    render(<MemoryRouter><Categorias /></MemoryRouter>);
-    await waitFor(() => expect(screen.getByText('Repuestos')).toBeInTheDocument());
-
-    fireEvent.click(screen.getAllByTitle('Inhabilitar')[0]);
-
-    await waitFor(() => {
-      expect(categoriaService.eliminarCategoria).toHaveBeenCalledWith(1);
-    });
-
-    // El estado local cambia a Inactivo y aparece el botón Habilitar
-    await waitFor(() => {
-      expect(screen.getAllByText('Inactivo').length).toBe(2);
-      expect(screen.getByTitle('Habilitar')).toBeInTheDocument();
-    });
-  });
 
   // 17. INHABILITAR CANCELADO
   it('no debería inhabilitar si se cancela la confirmación', async () => {

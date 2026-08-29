@@ -1,4 +1,4 @@
-import { MemoryRouter } from 'react-router-dom';
+// react-router-dom is fully mocked below
 /// <reference types="vitest" />
 import React from 'react';
 import { describe, test, expect, beforeEach, vi } from 'vitest';

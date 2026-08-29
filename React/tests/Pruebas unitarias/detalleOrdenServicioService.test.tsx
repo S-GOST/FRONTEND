@@ -11,7 +11,7 @@ import { BaseApiService } from '../../src/services/base.service';
 const mockPayload = {
   ID_ORDEN_SERVICIO: 10,
   ID_SERVICIOS: 5,
-  ID_PRODUCTOS: null,
+  ID_PRODUCTOS: undefined,
   Garantia: 30,
   Estado: 'Activo',
   Precio: 150000,

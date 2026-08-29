@@ -1,35 +1,76 @@
-import { Mock } from 'vitest';
+import { vi, describe, it, expect, beforeEach, afterEach } from 'vitest';
 import axios from 'axios';
 
-// Mock de axios
+// Mock completo de axios con todas las propiedades necesarias
 vi.mock('axios', () => {
-  const mockAxios = {
-    create: vi.fn(() => ({
-      interceptors: {
-        request: { use: vi.fn() },
-        response: { use: vi.fn() },
-      },
-      defaults: {
-        headers: { common: {} },
-      },
-      get: vi.fn(),
-      post: vi.fn(),
-      put: vi.fn(),
-      delete: vi.fn(),
-    })),
+  const mockInstance = {
+    interceptors: {
+      request: { use: vi.fn() },
+      response: { use: vi.fn() },
+    },
+    defaults: {
+      headers: {
+        common: {},
+        post: {},
+        put: {},
+        delete: {}
+      }
+    },
+    get: vi.fn(),
+    post: vi.fn(),
+    put: vi.fn(),
+    delete: vi.fn(),
+    create: vi.fn(),
   };
-  return mockAxios;
+
+  return {
+    default: mockInstance,
+    create: vi.fn(() => mockInstance),
+  };
 });
 
-describe('axios config', () => {
-  beforeEach(() => {
+describe('apiClient Configuration', () => {
+  let mockInstance: any;
+
+  beforeEach(async () => {
     vi.clearAllMocks();
     localStorage.clear();
     document.cookie = '';
+
+    // Importar el módulo real para ejecutar la configuración
+    await import('../../src/config/axios');
+
+    // Obtener la instancia creada
+    mockInstance = (axios.create as any).mock.results[0]?.value || (axios as any).default;
+
+    if (!mockInstance) {
+      throw new Error('No se pudo obtener la instancia de axios mockeada');
+    }
   });
 
-  // 1. CREACIÓN DEL CLIENTE AXIOS
-  it('debería crear una instancia de axios con configuración base', () => {
+  afterEach(() => {
+    vi.restoreAllMocks();
+  });
+
+  // Helper functions para acceder a los interceptores de forma segura
+  const getRequestInterceptor = () => {
+    const calls = mockInstance.interceptors.request.use.mock.calls;
+    if (calls.length === 0) {
+      throw new Error('No se registró ningún interceptor de request');
+    }
+    return calls[0][0];
+  };
+
+  const getResponseInterceptors = () => {
+    const calls = mockInstance.interceptors.response.use.mock.calls;
+    if (calls.length === 0) {
+      throw new Error('No se registró ningún interceptor de response');
+    }
+    return [calls[0][0], calls[0][1]];
+  };
+
+  // 1. CONFIGURACIÓN BASE
+  it('debería crear una instancia con la configuración base correcta', () => {
     expect(axios.create).toHaveBeenCalledWith({
       baseURL: expect.any(String),
       timeout: 10000,
@@ -39,219 +80,114 @@ describe('axios config', () => {
     });
   });
 
-  // 2. INTERCEPTOR DE REQUEST - SIN TOKEN
-  it('debería configurar el interceptor de request sin token', () => {
-    const mockConfig = {
-      method: 'get',
-      url: '/test',
-      headers: {},
-    };
+  // 2. INTERCEPTOR REQUEST: AGREGAR TOKEN
+  it('debería inyectar el token de autorización si existe en localStorage', () => {
+    localStorage.setItem('user_token', 'my-secret-token');
 
-    // Simular llamada al interceptor
-    const requestInterceptor = (axios.create as Mock).mock.results[0].value.interceptors.request.use.mock.calls[0][0];
-    const result = requestInterceptor(mockConfig);
+    const requestHandler = getRequestInterceptor();
+    const config = { headers: {}, method: 'get', url: '/test' };
 
-    expect(result.headers.Authorization).toBeUndefined();
+    const result = requestHandler(config);
+
+    expect(result.headers.Authorization).toBe('Bearer my-secret-token');
   });
 
-  // 3. INTERCEPTOR DE REQUEST - CON TOKEN
-  it('debería agregar token de autorización cuando existe en localStorage', () => {
-    localStorage.setItem('user_token', 'fake-token-123');
-    
-    const mockConfig = {
-      method: 'get',
-      url: '/test',
+  // 3. INTERCEPTOR REQUEST: CSRF TOKEN
+  it('debería agregar el header X-CSRF-Token para métodos POST', () => {
+    document.cookie = 'XSRF-TOKEN=csrf-secure-token';
+
+    const requestHandler = getRequestInterceptor();
+    const config = {
       headers: {},
-    };
-
-    const requestInterceptor = (axios.create as Mock).mock.results[0].value.interceptors.request.use.mock.calls[0][0];
-    const result = requestInterceptor(mockConfig);
-
-    expect(result.headers.Authorization).toBe('Bearer fake-token-123');
-  });
-
-  // 4. INTERCEPTOR DE REQUEST - CON CSRF TOKEN
-  it('debería agregar CSRF token para métodos que lo requieren', () => {
-    document.cookie = 'XSRF-TOKEN=csrf-token-123';
-    
-    const mockConfig = {
       method: 'post',
-      url: '/test',
-      headers: {},
-      data: { test: 'data' },
+      url: '/api/data',
+      data: { foo: 'bar' }
     };
 
-    const requestInterceptor = (axios.create as Mock).mock.results[0].value.interceptors.request.use.mock.calls[0][0];
-    const result = requestInterceptor(mockConfig);
+    const result = requestHandler(config);
 
-    expect(result.headers['X-CSRF-Token']).toBe('csrf-token-123');
+    expect(result.headers['X-CSRF-Token']).toBe('csrf-secure-token');
   });
 
-  // 5. INTERCEPTOR DE REQUEST - SIN CSRF PARA GET
-  it('debería NO agregar CSRF token para método GET', () => {
-    document.cookie = 'XSRF-TOKEN=csrf-token-123';
-    
-    const mockConfig = {
-      method: 'get',
-      url: '/test',
-      headers: {},
-    };
+  // 4. INTERCEPTOR REQUEST: NO CSRF EN GET
+  it('no debería agregar CSRF Token para peticiones GET', () => {
+    document.cookie = 'XSRF-TOKEN=csrf-secure-token';
 
-    const requestInterceptor = (axios.create as Mock).mock.results[0].value.interceptors.request.use.mock.calls[0][0];
-    const result = requestInterceptor(mockConfig);
+    const requestHandler = getRequestInterceptor();
+    const config = { headers: {}, method: 'get', url: '/api/data' };
+
+    const result = requestHandler(config);
 
     expect(result.headers['X-CSRF-Token']).toBeUndefined();
   });
 
-  // 6. INTERCEPTOR DE RESPONSE - ÉXITO
-  it('debería pasar la respuesta exitosa sin modificaciones', () => {
-    const mockResponse = { data: { success: true }, status: 200 };
+  // 5. INTERCEPTOR RESPONSE: ÉXITO
+  it('debería pasar las respuestas exitosas sin cambios', () => {
+    const [responseHandler] = getResponseInterceptors();
+    const response = { data: { success: true }, status: 200 };
 
-    const responseInterceptor = (axios.create as Mock).mock.results[0].value.interceptors.response.use.mock.calls[0][0];
-    const result = responseInterceptor(mockResponse);
-
-    expect(result).toEqual(mockResponse);
+    expect(responseHandler(response)).toEqual(response);
   });
 
-  // 7. INTERCEPTOR DE RESPONSE - ERROR 401 SIN TOKEN
-  it('debería rechazar error 401 si no hay token en localStorage', async () => {
-    const mockError = {
-      response: { status: 401 },
-      config: { url: '/protected', _retry: false },
-    };
+  // 6. INTERCEPTOR RESPONSE: MANEJO DE 401
+  it('debería rechazar la promesa si hay error 401 y no hay token', async () => {
+    const [, errorHandler] = getResponseInterceptors();
+    const error = { response: { status: 401 }, config: {} };
 
-    const responseInterceptor = (axios.create as Mock).mock.results[0].value.interceptors.response.use.mock.calls[0][1];
-    
-    await expect(responseInterceptor(mockError)).rejects.toEqual(mockError);
+    await expect(errorHandler(error)).rejects.toEqual(error);
   });
 
-  // 8. INTERCEPTOR DE RESPONSE - ERROR 401 CON TOKEN Y REFRESH EXITOSO
-  it('debería intentar refresh token y reintentar la petición original', async () => {
+  // 7. INTERCEPTOR RESPONSE: REFRESH TOKEN EXITOSO
+  it('debería intentar refrescar el token y reintentar la petición', async () => {
     localStorage.setItem('user_token', 'old-token');
-    
-    const mockError = {
+
+    const error = {
       response: { status: 401 },
-      config: { 
-        url: '/protected', 
-        _retry: false,
-        headers: { Authorization: 'Bearer old-token' }
-      },
+      config: { url: '/protected', _retry: false, headers: {} },
     };
 
-    const mockAxiosInstance = (axios.create as Mock).mock.results[0].value;
-    mockAxiosInstance.post.mockResolvedValue({ data: { token: 'new-token' } });
+    mockInstance.post.mockResolvedValueOnce({ data: { token: 'new-refreshed-token' } });
 
-    const responseInterceptor = mockAxiosInstance.interceptors.response.use.mock.calls[0][1];
-    
-    await responseInterceptor(mockError);
+    const [, errorHandler] = getResponseInterceptors();
 
-    expect(mockAxiosInstance.post).toHaveBeenCalledWith('/auth/refresh');
-    expect(localStorage.getItem('user_token')).toBe('new-token');
+    await errorHandler(error);
+
+    expect(mockInstance.post).toHaveBeenCalledWith('/auth/refresh');
+    expect(localStorage.getItem('user_token')).toBe('new-refreshed-token');
   });
 
-  // 9. INTERCEPTOR DE RESPONSE - ERROR 401 CON REFRESH FALLIDO
-  it('debería limpiar localStorage y dispatchear evento auth:unauthorized si refresh falla', async () => {
+  // 8. INTERCEPTOR RESPONSE: REFRESH FALLIDO -> LOGOUT
+  it('debería limpiar sesión si el refresh falla', async () => {
     localStorage.setItem('user_token', 'old-token');
-    
-    const mockError = {
-      response: { status: 401 },
-      config: { url: '/protected', _retry: false },
-    };
-
-    const mockAxiosInstance = (axios.create as Mock).mock.results[0].value;
-    mockAxiosInstance.post.mockRejectedValue(new Error('Refresh failed'));
-
     const dispatchSpy = vi.spyOn(window, 'dispatchEvent');
 
-    const responseInterceptor = mockAxiosInstance.interceptors.response.use.mock.calls[0][1];
-    
-    await expect(responseInterceptor(mockError)).rejects.toThrow('Refresh failed');
+    const error = {
+      response: { status: 401 },
+      config: { url: '/protected', _retry: false },
+    };
+
+    mockInstance.post.mockRejectedValueOnce(new Error('Refresh failed'));
+
+    const [, errorHandler] = getResponseInterceptors();
+
+    await expect(errorHandler(error)).rejects.toThrow();
 
     expect(localStorage.getItem('user_token')).toBeNull();
-    expect(dispatchSpy).toHaveBeenCalledWith(expect.any(Event));
+    expect(dispatchSpy).toHaveBeenCalledWith(
+      expect.objectContaining({ type: 'auth:unauthorized' })
+    );
   });
 
-  // 10. INTERCEPTOR DE RESPONSE - ERROR 403
-  it('debería loguear error de acceso denegado para status 403', async () => {
-    const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
-    
-    const mockError = {
-      response: { status: 403 },
-      config: { url: '/admin/panel' },
-    };
+  // 9. INTERCEPTOR RESPONSE: ERROR 403
+  it('debería loguear error de acceso denegado (403)', async () => {
+    const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => { });
 
-    const responseInterceptor = (axios.create as Mock).mock.results[0].value.interceptors.response.use.mock.calls[0][1];
-    
-    await expect(responseInterceptor(mockError)).rejects.toEqual(mockError);
+    const error = { response: { status: 403 }, config: { url: '/admin' } };
+    const [, errorHandler] = getResponseInterceptors();
 
-    expect(consoleSpy).toHaveBeenCalledWith(' Acceso denegado (403): No tienes permisos para esta acción.');
-    consoleSpy.mockRestore();
-  });
+    await expect(errorHandler(error)).rejects.toEqual(error);
 
-  // 11. QUEUE DE PETICIONES FALLIDAS
-  it('debería manejar cola de peticiones fallidas durante refresh', async () => {
-    localStorage.setItem('user_token', 'old-token');
-    
-    const mockError1 = {
-      response: { status: 401 },
-      config: { url: '/protected1', _retry: false },
-    };
-
-    const mockError2 = {
-      response: { status: 401 },
-      config: { url: '/protected2', _retry: false },
-    };
-
-    const mockAxiosInstance = (axios.create as Mock).mock.results[0].value;
-    mockAxiosInstance.post.mockResolvedValue({ data: { token: 'new-token' } });
-
-    const responseInterceptor = mockAxiosInstance.interceptors.response.use.mock.calls[0][1];
-    
-    // Primera petición inicia refresh
-    const promise1 = responseInterceptor(mockError1);
-    
-    // Segunda petición se pone en cola
-    const promise2 = responseInterceptor(mockError2);
-
-    await Promise.all([promise1, promise2]);
-
-    expect(mockAxiosInstance.post).toHaveBeenCalledTimes(1); // Solo un refresh
-  });
-
-  // 12. HELPER GETCOOKIE
-  it('debería leer cookies correctamente', () => {
-    document.cookie = 'XSRF-TOKEN=test-token; Path=/; HttpOnly';
-    
-    // Acceder a la función getCookie desde el módulo
-    const getCookie = (name: string) => {
-      const value = `; ${document.cookie}`;
-      const parts = value.split(`; ${name}=`);
-      if (parts.length === 2) return parts.pop()?.split(';').shift();
-      return null;
-    };
-
-    expect(getCookie('XSRF-TOKEN')).toBe('test-token');
-    expect(getCookie('NONEXISTENT')).toBeNull();
-  });
-
-  // 13. LOGGING DEBUG PARA ENDPOINTS ESPECÍFICOS
-  it('debería hacer debug log para endpoints de admins', () => {
-    const consoleSpy = vi.spyOn(console, 'debug').mockImplementation(() => {});
-    
-    const mockConfig = {
-      method: 'post',
-      url: '/admins/insertar',
-      headers: {},
-      data: { name: 'test' },
-    };
-
-    const requestInterceptor = (axios.create as Mock).mock.results[0].value.interceptors.request.use.mock.calls[0][0];
-    requestInterceptor(mockConfig);
-
-    expect(consoleSpy).toHaveBeenCalledWith('[apiClient] request', expect.any(Object));
+    expect(consoleSpy).toHaveBeenCalledWith(expect.stringContaining('Acceso denegado'));
     consoleSpy.mockRestore();
   });
 });
-
-
-

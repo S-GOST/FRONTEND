@@ -17,7 +17,7 @@ vi.mock('react-router-dom', async () => {
   const React = await import('react');
   return {
     ...mod,
-    Link: ({ children, to }) => React.createElement('a', { href: to }, children),
+    Link: ({ children, to }: { children: any; to: any }) => React.createElement('a', { href: to }, children),
     useNavigate: vi.fn(),
   };
 });

@@ -1,5 +1,5 @@
 import { MemoryRouter } from 'react-router-dom';
-import { Mock } from 'vitest';
+// Mock type not needed in this file
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import '@testing-library/jest-dom';
 import Servicios from '../../src/componentes/TableServicios/Servicios';

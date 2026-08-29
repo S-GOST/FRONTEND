@@ -1,4 +1,4 @@
-import { MemoryRouter } from 'react-router-dom';
+// MemoryRouter not needed; BrowserRouter is imported below
 import { render, screen } from '@testing-library/react';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import Cart from '../../src/componentes/Cart';

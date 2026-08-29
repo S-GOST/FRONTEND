@@ -18,7 +18,7 @@ vi.mock('../../src/services/base.service', () => {
   };
   return {
     __esModule: true,
-    BaseApiService: vi.fn(function() { Object.assign(this, instance); return this; }),
+    BaseApiService: vi.fn(function(this: any) { Object.assign(this, instance); return this; }),
   };
 });
 

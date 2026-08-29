@@ -15,7 +15,7 @@ import { obtenerReporteProductividad } from '../../src/services/informe.service'
 import Swal from 'sweetalert2';
 
 // Mock del servicio
-vi.mock('../../services/informe.service');
+vi.mock('../../src/services/informe.service');
 
 // Mock de SweetAlert2
 vi.mock('sweetalert2', () => ({ default: { fire: vi.fn().mockResolvedValue({ isConfirmed: true, value: '5' }), getInput: vi.fn() } }));

@@ -1,4 +1,4 @@
-import { MemoryRouter } from 'react-router-dom';
+// react-router-dom is fully mocked below
 import { render, screen } from '@testing-library/react';
 import '@testing-library/jest-dom';
 vi.mock('react-router-dom', async (importOriginal) => {
