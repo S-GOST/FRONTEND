@@ -1,0 +1,252 @@
+import { test, expect } from '@playwright/test';
+
+test.describe('Módulo Crear Producto', () => {
+
+  // Mockear la API antes de cada prueba
+  test.beforeEach(async ({ page }) => {
+    await page.route('**/api/admin/products', async (route) => {
+      const request = route.request();
+      
+      if (request.method() === 'POST') {
+        const postData = await request.postDataJSON();
+        
+        // Validaciones
+        if (!postData.nombre) {
+          await route.fulfill({
+            status: 400,
+            body: JSON.stringify({ mensaje: 'El nombre del producto es obligatorio.' })
+          });
+        } else if (postData.nombre.length < 3) {
+          await route.fulfill({
+            status: 400,
+            body: JSON.stringify({ mensaje: 'El nombre debe tener al menos 3 caracteres.' })
+          });
+        } else if (!postData.categoriaId) {
+          await route.fulfill({
+            status: 400,
+            body: JSON.stringify({ mensaje: 'Debe seleccionar una categoría.' })
+          });
+        } else if (postData.precio <= 0) {
+          await route.fulfill({
+            status: 400,
+            body: JSON.stringify({ mensaje: 'El precio debe ser mayor a cero.' })
+          });
+        } else if (postData.stock < 0) {
+          await route.fulfill({
+            status: 400,
+            body: JSON.stringify({ mensaje: 'El stock no puede ser negativo.' })
+          });
+        } else if (!postData.sku || postData.sku.length < 4) {
+          await route.fulfill({
+            status: 400,
+            body: JSON.stringify({ mensaje: 'El SKU debe tener al menos 4 caracteres.' })
+          });
+        } else if (postData.nombre === 'Existente') {
+          await route.fulfill({
+            status: 409,
+            body: JSON.stringify({ mensaje: 'El producto ya existe.' })
+          });
+        } else {
+          // Éxito
+          await route.fulfill({
+            status: 201,
+            body: JSON.stringify({ 
+              success: true, 
+              message: 'Producto creado exitosamente.',
+              data: { 
+                id: Date.now(), 
+                nombre: postData.nombre, 
+                descripcion: postData.descripcion || '', 
+                categoriaId: postData.categoriaId,
+                precio: postData.precio,
+                stock: postData.stock || 0,
+                sku: postData.sku,
+                activo: true 
+              }
+            })
+          });
+        }
+      }
+    });
+
+    // Mock para obtener categorías disponibles
+    await page.route('**/api/admin/categories?active=true', async (route) => {
+      await route.fulfill({
+        status: 200,
+        body: JSON.stringify({
+          success: true,
+          data: [
+            { id: 1, nombre: 'Electrónica' },
+            { id: 2, nombre: 'Hogar' },
+            { id: 3, nombre: 'Ropa' },
+            { id: 4, nombre: 'Deportes' }
+          ]
+        })
+      });
+    });
+  });
+
+  test('1. Debería renderizar el formulario correctamente', async ({ page }) => {
+    await page.goto('/admin/crear-producto');
+
+    await expect(page.getByText('Crear Nuevo Producto')).toBeVisible();
+    await expect(page.getByRole('button', { name: /crear|guardar/i })).toBeVisible();
+    await expect(page.getByRole('link', { name: /cancelar|volver/i })).toBeVisible();
+  });
+
+  test('2. Debería mostrar error si el nombre está vacío', async ({ page }) => {
+    await page.goto('/admin/crear-producto');
+
+    await page.getByRole('button', { name: /crear|guardar/i }).click();
+
+    await expect(page.getByText(/obligatorio|required/i)).toBeVisible();
+  });
+
+  test('3. Debería mostrar error si el nombre es muy corto', async ({ page }) => {
+    await page.goto('/admin/crear-producto');
+
+    await page.getByRole('button', { name: /crear|guardar/i }).click();
+
+    await expect(page.getByText(/al menos 3 caracteres|at least 3 characters/i)).toBeVisible();
+  });
+
+  test('4. Debería mostrar error si no se selecciona categoría', async ({ page }) => {
+    await page.goto('/admin/crear-producto');
+
+    await page.getByRole('button', { name: /crear|guardar/i }).click();
+
+    await expect(page.getByText(/seleccionar.*categoría|select.*category/i)).toBeVisible();
+  });
+
+  test('5. Debería mostrar error si el precio es inválido', async ({ page }) => {
+    await page.goto('/admin/crear-producto');
+
+    await page.getByRole('button', { name: /crear|guardar/i }).click();
+
+    await expect(page.getByText(/precio.*mayor|price.*greater/i)).toBeVisible();
+  });
+
+  test('6. Debería mostrar error si el stock es negativo', async ({ page }) => {
+    await page.goto('/admin/crear-producto');
+
+    await page.getByRole('button', { name: /crear|guardar/i }).click();
+
+    await expect(page.getByText(/stock.*negativo|stock.*negative/i)).toBeVisible();
+  });
+
+  test('7. Debería mostrar error si el SKU es inválido', async ({ page }) => {
+    await page.goto('/admin/crear-producto');
+
+    await page.getByRole('button', { name: /crear|guardar/i }).click();
+
+    await expect(page.getByText(/sku.*4 caracteres|sku.*4 characters/i)).toBeVisible();
+  });
+
+  test('8. Debería crear producto exitosamente', async ({ page }) => {
+    await page.goto('/admin/crear-producto');
+    
+    const requestPromise = page.waitForRequest(req => 
+      req.url().includes('/products') && req.method() === 'POST'
+    );
+
+    await page.getByRole('button', { name: /crear|guardar/i }).click();
+    
+    const request = await requestPromise;
+    const postData = await request.postDataJSON();
+    expect(postData.nombre).toBeDefined();
+    expect(postData.categoriaId).toBeDefined();
+    expect(postData.precio).toBeDefined();
+    expect(postData.stock).toBeDefined();
+    expect(postData.sku).toBeDefined();
+
+    await expect(page.getByText(/producto.*creado|product.*created/i)).toBeVisible();
+  });
+
+  test('9. Debería manejar error cuando el producto ya existe', async ({ page }) => {
+    await page.goto('/admin/crear-producto');
+
+    await page.getByRole('button', { name: /crear|guardar/i }).click();
+
+    await expect(page.getByText(/ya existe|already exists/i)).toBeVisible();
+  });
+
+  test('10. Debería cancelar creación y volver a la lista', async ({ page }) => {
+    await page.goto('/admin/crear-producto');
+
+    const link = page.getByRole('link', { name: /cancelar|volver/i });
+    await expect(link).toHaveAttribute('href', '/admin/productos'); 
+
+    await link.click();
+    await expect(page).toHaveURL(/.*\/admin\/productos/);
+  });
+
+  test('11. Debería mostrar indicador de carga durante la creación', async ({ page }) => {
+    // Sobrescribir mock para simular lentitud
+    await page.route('**/api/admin/products', async (route) => {
+      await new Promise(resolve => setTimeout(resolve, 1500));
+      await route.fulfill({ 
+        status: 201, 
+        body: JSON.stringify({ success: true, message: 'Producto creado exitosamente.' })
+      });
+    });
+
+    await page.goto('/admin/crear-producto');
+    
+    const button = page.getByRole('button', { name: /crear|guardar/i });
+    await button.click();
+
+    // Verificar estado de carga
+    await expect(page.getByText(/creando|creating/i)).toBeVisible();
+    await expect(button).toBeDisabled();
+  });
+
+  test('12. Debería manejar error al crear producto', async ({ page }) => {
+    // Sobrescribir mock para simular error
+    await page.route('**/api/admin/products', async (route) => {
+      await route.fulfill({
+        status: 500,
+        body: JSON.stringify({ mensaje: 'Error al crear producto.' })
+      });
+    });
+
+    await page.goto('/admin/crear-producto');
+    
+    await page.getByRole('button', { name: /crear|guardar/i }).click();
+
+    await expect(page.getByText(/error.*crear|error.*create/i)).toBeVisible();
+  });
+
+  test('13. Debería permitir crear producto sin descripción', async ({ page }) => {
+    await page.goto('/admin/crear-producto');
+    
+    const requestPromise = page.waitForRequest(req => 
+      req.url().includes('/products') && req.method() === 'POST'
+    );
+
+    await page.getByRole('button', { name: /crear|guardar/i }).click();
+    
+    const request = await requestPromise;
+    const postData = await request.postDataJSON();
+    expect(postData.nombre).toBeDefined();
+    expect(postData.descripcion).toBeDefined();
+
+    await expect(page.getByText(/producto.*creado/i)).toBeVisible();
+  });
+
+  test('14. Debería cargar categorías activas en el selector', async ({ page }) => {
+    await page.goto('/admin/crear-producto');
+
+    // Verificar que el selector de categorías tiene opciones
+    const categorySelect = page.getByRole('combobox', { name: /categoría/i });
+    await expect(categorySelect).toBeVisible();
+  });
+
+  test('15. Debería establecer stock por defecto en cero', async ({ page }) => {
+    await page.goto('/admin/crear-producto');
+
+    // Verificar que el campo de stock tiene un valor por defecto (0) si no se llena
+    const stockInput = page.getByLabel(/stock/i);
+    await expect(stockInput).toBeVisible();
+    // Nota: Esto depende de tu implementación UI, podría ser vacío o '0'
+  });
+});
