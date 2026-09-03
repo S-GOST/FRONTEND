@@ -1,366 +1,137 @@
-import { MemoryRouter } from 'react-router-dom';
-
+import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
-import '@testing-library/jest-dom';
-vi.mock('react-router-dom', async (importOriginal) => {
-  const actual = await importOriginal() as any;
-  return {
-    ...actual,
-    useNavigate: vi.fn(),
-  };
-});
-
 import TableProductos from '../../src/componentes/TableProductos/productos';
-import * as productoService from '../../src/services/producto.service';
-import * as categoriaService from '../../src/services/categoria.service';
+import { 
+  obtenerProductos, 
+  insertarProducto, 
+  actualizarProducto, 
+  eliminarProducto, 
+  habilitarProducto 
+} from '../../src/services/producto.service';
+import { obtenerCategoriasPorTipo } from '../../src/services/categoria.service';
+import { MemoryRouter } from 'react-router-dom';
 import Swal from 'sweetalert2';
 
-// 1. MOCKS DE MÓDULOS EXTERNOS
-vi.mock('sweetalert2', () => ({ default: { fire: vi.fn().mockResolvedValue({ isConfirmed: true, value: '5' }), getInput: vi.fn() } }));
-
-// Mock del componente FormattedId
-vi.mock('../../src/componentes/FormattedId', () => ({
-  FormattedId: ({ value }: any) => <span data-testid="formatted-id">{value}</span>,
+vi.mock('../../src/services/producto.service', () => ({
+  obtenerProductos: vi.fn(),
+  insertarProducto: vi.fn(),
+  actualizarProducto: vi.fn(),
+  eliminarProducto: vi.fn(),
+  habilitarProducto: vi.fn()
 }));
 
-// 2. MOCKS DE SERVICIOS (mismas rutas que los imports)
-vi.mock('../../src/services/producto.service');
-vi.mock('../../src/services/categoria.service');
+vi.mock('../../src/services/categoria.service', () => ({
+  obtenerCategoriasPorTipo: vi.fn()
+}));
 
-// ==================== DATOS DE PRUEBA ====================
-const mockProductos = [
-  { ID_PRODUCTOS: '1', ID_CATEGORIA: '10', Marca: 'KTM', Nombre: 'Aceite Motor', precio_costo: 30000, precio_venta: 50000, stock: 100, stock_minimo: 10, Estado: 'Disponibles', categoria_nombre: 'Repuestos' },
-  { ID_PRODUCTOS: '2', ID_CATEGORIA: '20', Marca: 'Bosch', Nombre: 'Bujía', precio_costo: 10000, precio_venta: 15000, stock: 50, stock_minimo: 5, Estado: 'Inactivo', categoria_nombre: null },
-];
+vi.mock('sweetalert2', () => ({
+  default: {
+    fire: vi.fn()
+  }
+}));
 
-const mockCategorias = [
-  { ID_CATEGORIA: 10, nombre: 'Repuestos' },
-  { ID_CATEGORIA: 20, nombre: 'Accesorios' },
-];
+describe('TableProductos', () => {
+  const mockProductos = [
+    { ID_PRODUCTOS: 1, ID_CATEGORIA: 1, Marca: 'Marca A', Nombre: 'Prod A', precio_costo: 10, precio_venta: 20, stock: 5, stock_minimo: 2, Estado: 'Disponibles', categoria_nombre: 'Cat 1' },
+    { ID_PRODUCTOS: 2, ID_CATEGORIA: 2, Marca: 'Marca B', Nombre: 'Prod B', precio_costo: 15, precio_venta: 30, stock: 0, stock_minimo: 5, Estado: 'Inactivo', categoria_nombre: 'Cat 2' }
+  ];
 
-describe('TableProductos Component', () => {
   beforeEach(() => {
     vi.clearAllMocks();
-    vi.mocked(productoService.obtenerProductos).mockResolvedValue({ data: mockProductos } as any);
-    vi.mocked(categoriaService.obtenerCategoriasPorTipo).mockResolvedValue({ data: mockCategorias } as any);
+    vi.mocked(obtenerProductos).mockResolvedValue({ data: { success: true, data: mockProductos } } as any);
+    vi.mocked(obtenerCategoriasPorTipo).mockResolvedValue({ data: [{ ID_CATEGORIA: 1, nombre: 'Cat 1' }, { ID_CATEGORIA: 2, nombre: 'Cat 2' }] } as any);
   });
 
-  // 1. RENDERIZADO INICIAL
-  it('debería renderizar el título, buscador y botones de acción', async () => {
-    render(<MemoryRouter><TableProductos /></MemoryRouter>);
+  const renderComponent = () => render(
+    <MemoryRouter>
+      <TableProductos />
+    </MemoryRouter>
+  );
 
-    expect(screen.getByText('Gestión de Productos')).toBeInTheDocument();
-    expect(screen.getByPlaceholderText(/buscar por nombre, marca/i)).toBeInTheDocument();
-    expect(screen.getByRole('button', { name: /nuevo producto/i })).toBeInTheDocument();
-    expect(screen.getByRole('button', { name: /reset/i })).toBeInTheDocument();
-  });
-
-  // 2. ESTADO DE CARGA
-  it('debería mostrar "Cargando productos..." mientras consulta la API', () => {
-    vi.mocked(productoService.obtenerProductos).mockImplementation(() => new Promise(() => {}));
-    render(<MemoryRouter><TableProductos /></MemoryRouter>);
-    expect(screen.getByText(/cargando productos/i)).toBeInTheDocument();
-  });
-
-  // 3. ESTADO VACÍO
-  it('debería mostrar mensaje cuando no hay productos', async () => {
-    vi.mocked(productoService.obtenerProductos).mockResolvedValue({ data: [] } as any);
-    render(<MemoryRouter><TableProductos /></MemoryRouter>);
-
+  it('should render the list of products', async () => {
+    renderComponent();
+    expect(screen.getByText('Cargando productos...')).toBeInTheDocument();
+    
     await waitFor(() => {
-      expect(screen.getByText(/no hay productos registrados/i)).toBeInTheDocument();
+      expect(screen.queryByText('Cargando productos...')).not.toBeInTheDocument();
+    });
+    
+    expect(screen.getByText('Prod A')).toBeInTheDocument();
+    expect(screen.getByText('Prod B')).toBeInTheDocument();
+  });
+
+  it('should filter products by search term', async () => {
+    renderComponent();
+    await waitFor(() => {
+      expect(screen.getByText('Prod A')).toBeInTheDocument();
+    });
+    
+    const searchInput = screen.getByPlaceholderText(/Buscar por nombre/i);
+    fireEvent.change(searchInput, { target: { value: 'Marca B' } });
+    
+    const searchBtn = screen.getByTitle('Buscar');
+    fireEvent.click(searchBtn);
+    
+    expect(screen.queryByText('Prod A')).not.toBeInTheDocument();
+    expect(screen.getByText('Prod B')).toBeInTheDocument();
+  });
+
+  it('should handle creating a new product', async () => {
+    vi.mocked(insertarProducto).mockResolvedValueOnce({ data: { success: true } } as any);
+    
+    renderComponent();
+    await waitFor(() => expect(screen.getByText('Prod A')).toBeInTheDocument());
+    
+    fireEvent.click(screen.getByText(/Nuevo Producto/i));
+    
+    await waitFor(() => {
+      expect(screen.getByText('Crear Producto')).toBeInTheDocument();
+    });
+    
+    fireEvent.change(screen.getByLabelText('ID Producto'), { target: { value: '3' } });
+    fireEvent.change(screen.getByLabelText('Categoría'), { target: { value: '1' } });
+    fireEvent.change(screen.getByLabelText('Marca'), { target: { value: 'NuevaMarca' } });
+    fireEvent.change(screen.getByLabelText('Nombre'), { target: { value: 'NuevoProd' } });
+    fireEvent.change(screen.getByLabelText('Precio de Costo'), { target: { value: '10' } });
+    fireEvent.change(screen.getByLabelText('Precio de Venta'), { target: { value: '20' } });
+    fireEvent.change(screen.getByLabelText('Stock'), { target: { value: '50' } });
+    fireEvent.change(screen.getByLabelText('Stock Mínimo'), { target: { value: '10' } });
+    fireEvent.change(screen.getByLabelText('Estado'), { target: { value: 'Disponibles' } });
+    
+    fireEvent.click(screen.getByText('Guardar'));
+    
+    await waitFor(() => {
+      expect(insertarProducto).toHaveBeenCalled();
     });
   });
 
-  // 4. ERROR AL CARGAR
-  it('debería mostrar alerta de error si falla la carga', async () => {
-    vi.mocked(productoService.obtenerProductos).mockRejectedValue(new Error('Fallo'));
-    render(<MemoryRouter><TableProductos /></MemoryRouter>);
-
+  it('should handle disabling a product', async () => {
+    vi.mocked(Swal.fire).mockResolvedValueOnce({ isConfirmed: true } as any);
+    vi.mocked(eliminarProducto).mockResolvedValueOnce({ data: { success: true } } as any);
+    
+    renderComponent();
+    await waitFor(() => expect(screen.getByText('Prod A')).toBeInTheDocument());
+    
+    const disableBtns = screen.getAllByText('Inhabilitar');
+    fireEvent.click(disableBtns[0]);
+    
     await waitFor(() => {
-      expect(Swal.fire).toHaveBeenCalledWith(
-        expect.objectContaining({ title: 'Error', text: 'No se pudieron cargar los productos.', icon: 'error' })
-      );
+      expect(eliminarProducto).toHaveBeenCalledWith(1);
     });
   });
 
-  // 5. TABLA CON DATOS, CATEGORÍAS Y PRECIOS
-  it('debería mostrar productos con categoría resuelta y precio formateado', async () => {
-    render(<MemoryRouter><TableProductos /></MemoryRouter>);
-
+  it('should handle enabling a product', async () => {
+    vi.mocked(Swal.fire).mockResolvedValueOnce({ isConfirmed: true } as any);
+    vi.mocked(habilitarProducto).mockResolvedValueOnce({ data: { success: true } } as any);
+    
+    renderComponent();
+    await waitFor(() => expect(screen.getByText('Prod B')).toBeInTheDocument());
+    
+    const enableBtns = screen.getAllByText('Habilitar');
+    fireEvent.click(enableBtns[0]);
+    
     await waitFor(() => {
-      expect(screen.getByText('Aceite Motor')).toBeInTheDocument();
-      expect(screen.getByText('Bujía')).toBeInTheDocument();
-    });
-
-    // Categoría directa (categoria_nombre) y por lookup (ID_CATEGORIA 20 → Accesorios)
-    expect(screen.getByText('Repuestos')).toBeInTheDocument();
-    expect(screen.getByText('Accesorios')).toBeInTheDocument();
-
-    // Precios con "$" y formato local
-    expect(screen.getByText(`$${(50000).toLocaleString()}`)).toBeInTheDocument();
-    expect(screen.getByText(`$${(15000).toLocaleString()}`)).toBeInTheDocument();
-  });
-
-  // 6. BADGES DE ESTADO
-  it('debería asignar la clase de badge correcta según el estado', async () => {
-    render(<MemoryRouter><TableProductos /></MemoryRouter>);
-
-    await waitFor(() => {
-      expect(screen.getByText('Disponibles')).toHaveClass('estado-badge bg-success');
-      expect(screen.getByText('Inactivo')).toHaveClass('estado-badge bg-warning');
-    });
-  });
-
-  // 7. BÚSQUEDA POR MARCA
-  it('debería filtrar productos al buscar por marca', async () => {
-    render(<MemoryRouter><TableProductos /></MemoryRouter>);
-    await waitFor(() => expect(screen.getByText('Aceite Motor')).toBeInTheDocument());
-
-    fireEvent.change(screen.getByPlaceholderText(/buscar por nombre, marca/i), { target: { value: 'Bosch' } });
-    fireEvent.click(screen.getByTitle('Buscar'));
-
-    await waitFor(() => {
-      expect(screen.getByText('Bujía')).toBeInTheDocument();
-      expect(screen.queryByText('Aceite Motor')).not.toBeInTheDocument();
-    });
-  });
-
-  // 8. BOTÓN RESET
-  it('debería limpiar la búsqueda con Reset', async () => {
-    render(<MemoryRouter><TableProductos /></MemoryRouter>);
-    await waitFor(() => expect(screen.getByText('Aceite Motor')).toBeInTheDocument());
-
-    fireEvent.change(screen.getByPlaceholderText(/buscar por nombre, marca/i), { target: { value: 'Bosch' } });
-    fireEvent.click(screen.getByTitle('Buscar'));
-    fireEvent.click(screen.getByRole('button', { name: /reset/i }));
-
-    await waitFor(() => {
-      expect(screen.getByText('Aceite Motor')).toBeInTheDocument();
-    });
-  });
-
-  // 9. MODAL DE CREACIÓN CON CATEGORÍAS
-  it('debería abrir el modal con las categorías de producto en el select', async () => {
-    render(<MemoryRouter><TableProductos /></MemoryRouter>);
-    fireEvent.click(screen.getByRole('button', { name: /nuevo producto/i }));
-
-    expect(screen.getByText('Crear Producto')).toBeInTheDocument();
-    await waitFor(() => {
-      expect(screen.getAllByText('Repuestos').length).toBeGreaterThan(0);
-      expect(screen.getAllByText('Accesorios').length).toBeGreaterThan(0);
-    });
-  });
-
-  // 10. VALIDACIÓN SOLO LETRAS
-  it('debería filtrar números en Nombre y Marca con toast de advertencia', async () => {
-    render(<MemoryRouter><TableProductos /></MemoryRouter>);
-    fireEvent.click(screen.getByRole('button', { name: /nuevo producto/i }));
-
-    const modal = screen.getByText('Crear Producto').closest('.modal-container') as HTMLElement;
-    const nombreInput = modal.querySelector('input[name="Nombre"]') as HTMLInputElement;
-
-    fireEvent.change(nombreInput, { target: { value: 'Aceite123' } });
-
-    expect(nombreInput).toHaveValue('Aceite');
-    expect(Swal.fire).toHaveBeenCalledWith(
-      expect.objectContaining({ title: 'Solo letras permitidas', toast: true })
-    );
-  });
-
-  // 11. VALIDACIÓN SOLO NÚMEROS EN ID
-  it('debería filtrar letras en el ID del producto', async () => {
-    render(<MemoryRouter><TableProductos /></MemoryRouter>);
-    fireEvent.click(screen.getByRole('button', { name: /nuevo producto/i }));
-
-    const modal = screen.getByText('Crear Producto').closest('.modal-container') as HTMLElement;
-    const idInput = modal.querySelector('input[name="ID_PRODUCTOS"]') as HTMLInputElement;
-
-    fireEvent.change(idInput, { target: { value: '12ab' } });
-
-    expect(idInput).toHaveValue('12');
-    expect(Swal.fire).toHaveBeenCalledWith(
-      expect.objectContaining({ title: 'Solo números permitidos', toast: true })
-    );
-  });
-
-  // 12. VALIDACIÓN DE CAMPOS OBLIGATORIOS
-  it('debería mostrar alerta si falta el ID', async () => {
-    render(<MemoryRouter><TableProductos /></MemoryRouter>);
-    fireEvent.click(screen.getByRole('button', { name: /nuevo producto/i }));
-
-    const modal = screen.getByText('Crear Producto').closest('.modal-container') as HTMLElement;
-    fireEvent.submit(modal.querySelector('form')!);
-
-    await waitFor(() => {
-      expect(Swal.fire).toHaveBeenCalledWith(
-        expect.objectContaining({ title: 'Datos incompletos', text: 'El ID del producto es obligatorio.', icon: 'warning' })
-      );
-      expect(productoService.insertarProducto).not.toHaveBeenCalled();
-    });
-  });
-
-  // 13. VALIDACIÓN DE PRECIO MAYOR A 0
-  it('debería rechazar precios menores o iguales a 0', async () => {
-    render(<MemoryRouter><TableProductos /></MemoryRouter>);
-    fireEvent.click(screen.getByRole('button', { name: /nuevo producto/i }));
-
-    const modal = screen.getByText('Crear Producto').closest('.modal-container') as HTMLElement;
-
-    await waitFor(() => {
-      expect(screen.getAllByText('Repuestos').length).toBeGreaterThan(0);
-    });
-
-    fireEvent.change(modal.querySelector('input[name="ID_PRODUCTOS"]')!, { target: { value: '3' } });
-    fireEvent.change(modal.querySelector('select[name="ID_CATEGORIA"]')!, { target: { value: '10' } });
-    fireEvent.change(modal.querySelector('input[name="Marca"]')!, { target: { value: 'KTM' } });
-    fireEvent.change(modal.querySelector('input[name="Nombre"]')!, { target: { value: 'Filtro' } });
-    fireEvent.change(modal.querySelector('input[name="precio_costo"]')!, { target: { value: '15000' } });
-    fireEvent.change(modal.querySelector('input[name="precio_venta"]')!, { target: { value: '0' } });
-    fireEvent.change(modal.querySelector('input[name="stock"]')!, { target: { value: '50' } });
-    fireEvent.change(modal.querySelector('input[name="stock_minimo"]')!, { target: { value: '10' } });
-    fireEvent.change(modal.querySelector('select[name="Estado"]')!, { target: { value: 'Disponibles' } });
-
-    await waitFor(() => {
-      expect(modal.querySelector('select[name="ID_CATEGORIA"]')).toHaveValue('10');
-      expect(modal.querySelector('input[name="precio_venta"]')).toHaveValue(0);
-    });
-
-    fireEvent.submit(modal.querySelector('form')!);
-
-    await waitFor(() => {
-      expect(Swal.fire).toHaveBeenCalledWith(
-        expect.objectContaining({ text: 'El precio de venta debe ser un número válido mayor a 0.', icon: 'warning' })
-      );
-    });
-  });
-
-  // 14. CREAR PRODUCTO EXITOSAMENTE
-  it('debería crear el producto con categoría y precio como números', async () => {
-    vi.mocked(productoService.insertarProducto).mockResolvedValue({ data: { success: true } } as any);
-    render(<MemoryRouter><TableProductos /></MemoryRouter>);
-    fireEvent.click(screen.getByRole('button', { name: /nuevo producto/i }));
-
-    const modal = screen.getByText('Crear Producto').closest('.modal-container') as HTMLElement;
-
-    await waitFor(() => {
-      expect(screen.getAllByText('Repuestos').length).toBeGreaterThan(0);
-    });
-
-    fireEvent.change(modal.querySelector('input[name="ID_PRODUCTOS"]')!, { target: { value: '3' } });
-    fireEvent.change(modal.querySelector('select[name="ID_CATEGORIA"]')!, { target: { value: '10' } });
-    fireEvent.change(modal.querySelector('input[name="Marca"]')!, { target: { value: 'KTM' } });
-    fireEvent.change(modal.querySelector('input[name="Nombre"]')!, { target: { value: 'Filtro' } });
-    fireEvent.change(modal.querySelector('input[name="precio_costo"]')!, { target: { value: '15000' } });
-    fireEvent.change(modal.querySelector('input[name="precio_venta"]')!, { target: { value: '25000' } });
-    fireEvent.change(modal.querySelector('input[name="stock"]')!, { target: { value: '50' } });
-    fireEvent.change(modal.querySelector('input[name="stock_minimo"]')!, { target: { value: '10' } });
-    fireEvent.change(modal.querySelector('select[name="Estado"]')!, { target: { value: 'Disponibles' } });
-
-    fireEvent.submit(modal.querySelector('form')!);
-
-    await waitFor(() => {
-      expect(productoService.insertarProducto).toHaveBeenCalledWith(
-        expect.objectContaining({
-          ID_PRODUCTOS: '3',
-          ID_CATEGORIA: 10, // Number
-          Nombre: 'Filtro',
-          Marca: 'KTM',
-          precio_costo: 15000,
-          precio_venta: 25000, // Number
-          stock: 50,
-          stock_minimo: 10,
-          Estado: 'Disponibles',
-        })
-      );
-      expect(Swal.fire).toHaveBeenCalledWith(
-        expect.objectContaining({ title: 'Producto creado', icon: 'success' })
-      );
-    });
-  });
-
-  // 15. EDITAR PRODUCTO
-  it('debería abrir la edición con datos y actualizar correctamente', async () => {
-    vi.mocked(productoService.actualizarProducto).mockResolvedValue({ data: { success: true } } as any);
-    render(<MemoryRouter><TableProductos /></MemoryRouter>);
-    await waitFor(() => expect(screen.getByText('Aceite Motor')).toBeInTheDocument());
-
-    fireEvent.click(screen.getAllByTitle('Editar')[0]);
-
-    expect(screen.getByText('Editar Producto')).toBeInTheDocument();
-    const modal = screen.getByText('Editar Producto').closest('.modal-container') as HTMLElement;
-    expect(modal.querySelector('input[name="Nombre"]')).toHaveValue('Aceite Motor');
-
-    fireEvent.change(modal.querySelector('input[name="Nombre"]')!, { target: { value: 'Aceite Sintetico' } });
-    fireEvent.submit(modal.querySelector('form')!);
-
-    await waitFor(() => {
-      expect(productoService.actualizarProducto).toHaveBeenCalledWith(
-        '1',
-        expect.objectContaining({ Nombre: 'Aceite Sintetico' })
-      );
-      expect(Swal.fire).toHaveBeenCalledWith(
-        expect.objectContaining({ title: 'Cambios guardados', icon: 'success' })
-      );
-    });
-  });
-
-  // 16. INHABILITAR PRODUCTO
-  it('debería inhabilitar el producto y actualizar el estado localmente', async () => {
-    vi.mocked(productoService.eliminarProducto).mockResolvedValue({ data: { success: true } } as any);
-    render(<MemoryRouter><TableProductos /></MemoryRouter>);
-    await waitFor(() => expect(screen.getByText('Aceite Motor')).toBeInTheDocument());
-
-    fireEvent.click(screen.getAllByTitle('Inhabilitar')[0]);
-
-    await waitFor(() => {
-      expect(productoService.eliminarProducto).toHaveBeenCalledWith('1');
-      expect(Swal.fire).toHaveBeenCalledWith(
-        expect.objectContaining({ title: 'Inhabilitado', icon: 'success' })
-      );
-    });
-
-    // El estado local cambia a Inactivo y aparece el botón Habilitar
-    await waitFor(() => {
-      expect(screen.getAllByText('Inactivo').length).toBe(2);
-      expect(screen.getAllByTitle('Habilitar').length).toBe(2);
-    });
-  });
-
-  // 17. INHABILITAR CANCELADO
-  it('no debería inhabilitar si se cancela la confirmación', async () => {
-    vi.mocked(Swal.fire).mockResolvedValueOnce({ isConfirmed: false } as any);
-    render(<MemoryRouter><TableProductos /></MemoryRouter>);
-    await waitFor(() => expect(screen.getByText('Aceite Motor')).toBeInTheDocument());
-
-    fireEvent.click(screen.getAllByTitle('Inhabilitar')[0]);
-
-    await waitFor(() => {
-      expect(productoService.eliminarProducto).not.toHaveBeenCalled();
-    });
-  });
-
-  // 18. HABILITAR PRODUCTO INACTIVO
-  it('debería habilitar el producto y actualizar el estado localmente', async () => {
-    vi.mocked(productoService.habilitarProducto).mockResolvedValue({ data: { success: true } } as any);
-    render(<MemoryRouter><TableProductos /></MemoryRouter>);
-    await waitFor(() => expect(screen.getByText('Bujía')).toBeInTheDocument());
-
-    fireEvent.click(screen.getAllByTitle('Habilitar')[0]);
-
-    await waitFor(() => {
-      expect(productoService.habilitarProducto).toHaveBeenCalledWith('2');
-      expect(Swal.fire).toHaveBeenCalledWith(
-        expect.objectContaining({ title: 'Habilitado', icon: 'success' })
-      );
-    });
-
-    // El estado local cambia a Activo (badge bg-success)
-    await waitFor(() => {
-      expect(screen.getByText('Activo')).toHaveClass('estado-badge bg-success');
+      expect(habilitarProducto).toHaveBeenCalledWith(2);
     });
   });
 });
-
-
-

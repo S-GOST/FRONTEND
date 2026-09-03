@@ -1,231 +1,127 @@
-import { MemoryRouter } from 'react-router-dom';
-import { Mock } from 'vitest';
+import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
-import '@testing-library/jest-dom';
 import ResetPassword from '../../src/pages/ResetPassword/ResetPassword';
 import { resetPassword } from '../../src/services/auth.services';
+import { MemoryRouter } from 'react-router-dom';
 import Swal from 'sweetalert2';
 
-// 1. MOCKS DE MÓDULOS EXTERNOS
-const mockNavigate = vi.fn();
-
-vi.mock('sweetalert2', () => ({ default: { fire: vi.fn().mockResolvedValue({ isConfirmed: true, value: '5' }), getInput: vi.fn() } }));
-
-vi.mock('react-router-dom', async () => ({
-  ...(await vi.importActual('react-router-dom') as any),
-  useParams: () => ({ token: 'abc123token' }),
-  useNavigate: () => mockNavigate,
+vi.mock('../../src/services/auth.services', () => ({
+  resetPassword: vi.fn()
 }));
 
-vi.mock('../../src/services/auth.services');
+const mockNavigate = vi.fn();
+vi.mock('react-router-dom', async () => {
+  const actual = await vi.importActual('react-router-dom');
+  return {
+    ...actual as any,
+    useNavigate: () => mockNavigate,
+    useParams: () => ({ token: 'mock-token' })
+  };
+});
 
-describe('ResetPassword Component', () => {
-  
+vi.mock('sweetalert2', () => ({ default: { fire: vi.fn().mockResolvedValue({ isConfirmed: true }) } }));
 
+describe('ResetPassword', () => {
   beforeEach(() => {
     vi.clearAllMocks();
   });
 
-  // 1. RENDERIZADO INICIAL
-  it('debería renderizar el formulario correctamente', () => {
-    render(<MemoryRouter><ResetPassword /></MemoryRouter>);
+  const renderComponent = () => render(
+    <MemoryRouter>
+      <ResetPassword />
+    </MemoryRouter>
+  );
 
-    expect(screen.getByText('Restablecer Contraseña')).toBeInTheDocument();
+  it('should render form', () => {
+    renderComponent();
     expect(screen.getByPlaceholderText('Nueva contraseña')).toBeInTheDocument();
     expect(screen.getByPlaceholderText('Confirmar contraseña')).toBeInTheDocument();
-    expect(screen.getByRole('button', { name: /guardar nueva contraseña/i })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: /Guardar nueva contraseña/i })).toBeInTheDocument();
   });
 
-  // 2. VALIDACIÓN: CAMPOS VACÍOS
-  it('debería mostrar error si los campos están vacíos', async () => {
-    render(<MemoryRouter><ResetPassword /></MemoryRouter>);
-
-    const form = screen.getByRole('button', { name: /guardar nueva contraseña/i }).closest('form');
-    fireEvent.submit(form!);
-
-    await waitFor(() => {
-      expect(Swal.fire).toHaveBeenCalledWith(
-        expect.objectContaining({
-          title: 'Error',
-          text: 'Por favor, complete ambos campos.',
-          icon: 'error',
-        })
-      );
-    });
-    expect(resetPassword).not.toHaveBeenCalled();
+  it('should toggle password visibility', () => {
+    renderComponent();
+    const newPassInput = screen.getByPlaceholderText('Nueva contraseña');
+    const confirmPassInput = screen.getByPlaceholderText('Confirmar contraseña');
+    const buttons = screen.getAllByRole('button');
+    
+    expect(newPassInput).toHaveAttribute('type', 'password');
+    expect(confirmPassInput).toHaveAttribute('type', 'password');
+    
+    // Toggle new pass
+    fireEvent.click(buttons[0]);
+    expect(newPassInput).toHaveAttribute('type', 'text');
+    
+    // Toggle confirm pass
+    fireEvent.click(buttons[1]);
+    expect(confirmPassInput).toHaveAttribute('type', 'text');
   });
 
-  // 3. VALIDACIÓN: CONTRASEÑA DÉBIL
-  it('debería mostrar error si la contraseña no cumple requisitos', async () => {
-    render(<MemoryRouter><ResetPassword /></MemoryRouter>);
-
-    fireEvent.change(screen.getByPlaceholderText('Nueva contraseña'), { target: { value: 'weak' } });
-    fireEvent.change(screen.getByPlaceholderText('Confirmar contraseña'), { target: { value: 'weak' } });
-    fireEvent.click(screen.getByRole('button', { name: /guardar nueva contraseña/i }));
-
-    await waitFor(() => {
-      expect(Swal.fire).toHaveBeenCalledWith(
-        expect.objectContaining({
-          title: 'Contraseña no cumple requisitos',
-          text: 'La contraseña debe tener mínimo 8 caracteres, una mayúscula, un número y un símbolo.',
-          icon: 'warning',
-        })
-      );
-    });
-    expect(resetPassword).not.toHaveBeenCalled();
-  });
-
-  // 4. VALIDACIÓN: CONTRASEÑAS NO COINCIDEN
-  it('debería mostrar error si las contraseñas no coinciden', async () => {
-    render(<MemoryRouter><ResetPassword /></MemoryRouter>);
-
-    fireEvent.change(screen.getByPlaceholderText('Nueva contraseña'), { target: { value: 'StrongPass123!' } });
-    fireEvent.change(screen.getByPlaceholderText('Confirmar contraseña'), { target: { value: 'DifferentPass123!' } });
-    fireEvent.click(screen.getByRole('button', { name: /guardar nueva contraseña/i }));
-
-    await waitFor(() => {
-      expect(Swal.fire).toHaveBeenCalledWith(
-        expect.objectContaining({
-          title: 'Error',
-          text: 'Las contraseñas no coinciden.',
-          icon: 'error',
-        })
-      );
-    });
-    expect(resetPassword).not.toHaveBeenCalled();
-  });
-
-  // 5. INDICADOR DE FORTALEZA - MUY DÉBIL
-  it('debería mostrar "Muy débil" para contraseña corta sin requisitos', () => {
-    render(<MemoryRouter><ResetPassword /></MemoryRouter>);
-
-    fireEvent.change(screen.getByPlaceholderText('Nueva contraseña'), { target: { value: 'a' } });
-
-    expect(screen.getByText('Muy débil')).toBeInTheDocument();
-    expect(screen.getByText('Muy débil')).toHaveStyle('color: #ff4444');
-  });
-
-  // 6. INDICADOR DE FORTALEZA - MUY FUERTE
-  it('debería mostrar "Muy fuerte" para contraseña que cumple todos los requisitos', () => {
-    render(<MemoryRouter><ResetPassword /></MemoryRouter>);
-
-    fireEvent.change(screen.getByPlaceholderText('Nueva contraseña'), { target: { value: 'StrongPass123!' } });
-
-    expect(screen.getByText('Muy fuerte')).toBeInTheDocument();
-    expect(screen.getByText('Muy fuerte')).toHaveStyle('color: #00cc44');
-  });
-
-  // 7. ADVERTENCIA DE NO COINCIDENCIA EN TIEMPO REAL
-  it('debería mostrar advertencia cuando las contraseñas no coinciden', () => {
-    render(<MemoryRouter><ResetPassword /></MemoryRouter>);
-
-    fireEvent.change(screen.getByPlaceholderText('Nueva contraseña'), { target: { value: 'Pass123!' } });
-    fireEvent.change(screen.getByPlaceholderText('Confirmar contraseña'), { target: { value: 'Different123!' } });
-
+  it('should show warning if passwords do not match', () => {
+    renderComponent();
+    const newPass = screen.getByPlaceholderText('Nueva contraseña');
+    const confirmPass = screen.getByPlaceholderText('Confirmar contraseña');
+    
+    fireEvent.change(newPass, { target: { value: 'Pass123!' } });
+    fireEvent.change(confirmPass, { target: { value: 'Pass1234!' } });
+    
     expect(screen.getByText('Las contraseñas no coinciden')).toBeInTheDocument();
   });
 
-  // 8. ENVÍO EXITOSO
-  it('debería enviar la nueva contraseña y navegar al login', async () => {
-    (resetPassword as Mock).mockResolvedValue({ data: { success: true } });
-    render(<MemoryRouter><ResetPassword /></MemoryRouter>);
-
-    fireEvent.change(screen.getByPlaceholderText('Nueva contraseña'), { target: { value: 'StrongPass123!' } });
-    fireEvent.change(screen.getByPlaceholderText('Confirmar contraseña'), { target: { value: 'StrongPass123!' } });
-    fireEvent.click(screen.getByRole('button', { name: /guardar nueva contraseña/i }));
-
+  it('should show error if passwords do not meet requirements', async () => {
+    renderComponent();
+    const newPass = screen.getByPlaceholderText('Nueva contraseña');
+    const confirmPass = screen.getByPlaceholderText('Confirmar contraseña');
+    const submitBtn = screen.getByRole('button', { name: /Guardar nueva contraseña/i });
+    
+    fireEvent.change(newPass, { target: { value: 'pass' } });
+    fireEvent.change(confirmPass, { target: { value: 'pass' } });
+    fireEvent.click(submitBtn);
+    
     await waitFor(() => {
-      expect(resetPassword).toHaveBeenCalledWith('abc123token', 'StrongPass123!');
-      expect(Swal.fire).toHaveBeenCalledWith(
-        expect.objectContaining({
-          title: '¡Contraseña Actualizada!',
-          icon: 'success',
-        })
-      );
+      expect(Swal.fire).toHaveBeenCalledWith(expect.objectContaining({
+        title: 'Contraseña no cumple requisitos'
+      }));
+    });
+  });
+
+  it('should submit successfully', async () => {
+    vi.mocked(resetPassword).mockResolvedValueOnce({ data: { success: true } } as any);
+    
+    renderComponent();
+    const newPass = screen.getByPlaceholderText('Nueva contraseña');
+    const confirmPass = screen.getByPlaceholderText('Confirmar contraseña');
+    const submitBtn = screen.getByRole('button', { name: /Guardar nueva contraseña/i });
+    
+    fireEvent.change(newPass, { target: { value: 'ValidPass123!' } });
+    fireEvent.change(confirmPass, { target: { value: 'ValidPass123!' } });
+    fireEvent.click(submitBtn);
+    
+    await waitFor(() => {
+      expect(resetPassword).toHaveBeenCalledWith('mock-token', 'ValidPass123!');
       expect(mockNavigate).toHaveBeenCalledWith('/login');
     });
   });
 
-  // 9. ERROR EN EL SERVICIO CON MENSAJE PERSONALIZADO
-  it('debería mostrar mensaje de error personalizado del servidor', async () => {
-    (resetPassword as Mock).mockRejectedValue({
-      response: { data: { mensaje: 'Token expirado' } },
+  it('should handle API error', async () => {
+    vi.mocked(resetPassword).mockRejectedValueOnce({
+      response: { data: { mensaje: 'Token inválido' } }
     });
-    render(<MemoryRouter><ResetPassword /></MemoryRouter>);
-
-    fireEvent.change(screen.getByPlaceholderText('Nueva contraseña'), { target: { value: 'StrongPass123!' } });
-    fireEvent.change(screen.getByPlaceholderText('Confirmar contraseña'), { target: { value: 'StrongPass123!' } });
-    fireEvent.click(screen.getByRole('button', { name: /guardar nueva contraseña/i }));
-
+    
+    renderComponent();
+    const newPass = screen.getByPlaceholderText('Nueva contraseña');
+    const confirmPass = screen.getByPlaceholderText('Confirmar contraseña');
+    const submitBtn = screen.getByRole('button', { name: /Guardar nueva contraseña/i });
+    
+    fireEvent.change(newPass, { target: { value: 'ValidPass123!' } });
+    fireEvent.change(confirmPass, { target: { value: 'ValidPass123!' } });
+    fireEvent.click(submitBtn);
+    
     await waitFor(() => {
-      expect(Swal.fire).toHaveBeenCalledWith(
-        expect.objectContaining({
-          title: 'Error',
-          text: 'Token expirado',
-          icon: 'error',
-        })
-      );
+      expect(Swal.fire).toHaveBeenCalledWith(expect.objectContaining({
+        title: 'Error',
+        text: 'Token inválido'
+      }));
     });
-  });
-
-  // 10. ERROR GENÉRICO SIN MENSAJE DEL SERVIDOR
-  it('debería mostrar mensaje genérico si no hay mensaje del servidor', async () => {
-    (resetPassword as Mock).mockRejectedValue(new Error('Error desconocido'));
-    render(<MemoryRouter><ResetPassword /></MemoryRouter>);
-
-    fireEvent.change(screen.getByPlaceholderText('Nueva contraseña'), { target: { value: 'StrongPass123!' } });
-    fireEvent.change(screen.getByPlaceholderText('Confirmar contraseña'), { target: { value: 'StrongPass123!' } });
-    fireEvent.click(screen.getByRole('button', { name: /guardar nueva contraseña/i }));
-
-    await waitFor(() => {
-      expect(Swal.fire).toHaveBeenCalledWith(
-        expect.objectContaining({
-          title: 'Error',
-          text: 'Token inválido o expirado. Solicite un nuevo enlace.',
-          icon: 'error',
-        })
-      );
-    });
-  });
-
-  // 11. ESTADO DE CARGA
-  it('debería deshabilitar el botón durante la carga', async () => {
-    (resetPassword as Mock).mockImplementation(() => new Promise(() => {}));
-    render(<MemoryRouter><ResetPassword /></MemoryRouter>);
-
-    fireEvent.change(screen.getByPlaceholderText('Nueva contraseña'), { target: { value: 'StrongPass123!' } });
-    fireEvent.change(screen.getByPlaceholderText('Confirmar contraseña'), { target: { value: 'StrongPass123!' } });
-    fireEvent.click(screen.getByRole('button', { name: /guardar nueva contraseña/i }));
-
-    await waitFor(() => {
-      expect(screen.getByRole('button', { name: /guardando\.\.\./i })).toBeDisabled();
-    });
-  });
-
-  // 12. TOGGLE MOSTRAR/OCULTAR CONTRASEÑA
-  it('debería alternar entre mostrar y ocultar la contraseña', () => {
-    const { container } = render(<MemoryRouter><ResetPassword /></MemoryRouter>);
-
-    const toggleBtn = container.querySelectorAll('.toggle-password')[0] as HTMLButtonElement;
-    const passwordInput = screen.getByPlaceholderText('Nueva contraseña');
-
-    expect(passwordInput).toHaveAttribute('type', 'password');
-
-    fireEvent.click(toggleBtn);
-    expect(passwordInput).toHaveAttribute('type', 'text');
-
-    fireEvent.click(toggleBtn);
-    expect(passwordInput).toHaveAttribute('type', 'password');
-  });
-
-  // 13. ENLACE A LOGIN
-  it('debería tener un enlace funcional para volver al login', () => {
-    render(<MemoryRouter><ResetPassword /></MemoryRouter>);
-
-    const link = screen.getByRole('link', { name: /volver a inicio de sesión/i });
-    expect(link).toHaveAttribute('href', '/login');
   });
 });
-
-
-

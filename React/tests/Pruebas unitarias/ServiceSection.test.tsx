@@ -1,79 +1,46 @@
-import { MemoryRouter } from 'react-router-dom';
-/// <reference types="vitest" />
-import { describe, test, expect, beforeEach, vi } from 'vitest';
-import { render, cleanup } from '@testing-library/react';
-import '@testing-library/jest-dom';
-vi.mock('react-router-dom', async (importOriginal) => {
-  const actual = await importOriginal() as any;
-  return {
-    ...actual,
-    useNavigate: vi.fn(),
-  };
-});
-
+import { describe, it, expect, vi } from 'vitest';
+import { render, screen, fireEvent } from '@testing-library/react';
 import ServiceSection from '../../src/componentes/ServiceSection';
+import { Service } from '../../src/types';
 
-// Con "any" TypeScript no se queja de los campos faltantes
-const mockServices: any[] = [
-  { id: 1, name: 'Servicio 1', description: 'Descripción 1', icon: 'bi-tools', price: 100 },
-  { id: 2, name: 'Servicio 2', description: 'Descripción 2', icon: 'bi-gear', price: 200 },
-  { id: 3, name: 'Servicio 3', description: 'Descripción 3', icon: 'bi-wrench', price: 300 }
-];
+describe('ServiceSection', () => {
+  const mockServices: Service[] = [
+    { id: 1, name: 'Service 1', description: 'Desc 1', price: 10000, icon: 'bi-wrench' },
+    { id: 2, name: 'Service 2', description: 'Desc 2', price: 25000, icon: 'bi-gear' }
+  ];
 
-const mockProps: any = {
-  title: 'Nuestros Servicios',
-  subtitle: 'Lo mejor para ti',
-  services: mockServices,
-  onAddToCart: vi.fn()
-};
+  it('renders correctly with services', () => {
+    const onAddToCart = vi.fn();
+    render(
+      <ServiceSection 
+        title="Test Title" 
+        subtitle="Test Subtitle" 
+        services={mockServices} 
+        onAddToCart={onAddToCart} 
+      />
+    );
 
-describe('ServiceSection Component', () => {
-  beforeEach(() => {
-    cleanup();
+    expect(screen.getByText('Test Title')).toBeInTheDocument();
+    expect(screen.getByText('Test Subtitle')).toBeInTheDocument();
+    expect(screen.getByText('Service 1')).toBeInTheDocument();
+    expect(screen.getByText('Desc 1')).toBeInTheDocument();
+    expect(screen.getByText('$10.000 COP')).toBeInTheDocument();
   });
 
-  test('debe renderizar la sección correctamente', () => {
-    render(<MemoryRouter><ServiceSection {...mockProps} /></MemoryRouter>);
-    expect(document.querySelector('section')).toBeInTheDocument();
-  });
+  it('calls onAddToCart when button is clicked', () => {
+    const onAddToCart = vi.fn();
+    render(
+      <ServiceSection 
+        title="Test Title" 
+        subtitle="Test Subtitle" 
+        services={mockServices} 
+        onAddToCart={onAddToCart} 
+      />
+    );
 
-  test('debe mostrar el título', () => {
-    render(<MemoryRouter><ServiceSection {...mockProps} /></MemoryRouter>);
-    expect(document.querySelector('h2')).toBeInTheDocument();
-  });
+    const buttons = screen.getAllByRole('button', { name: /Agregar al Carrito/i });
+    fireEvent.click(buttons[0]);
 
-  test('debe mostrar el subtítulo', () => {
-    render(<MemoryRouter><ServiceSection {...mockProps} /></MemoryRouter>);
-    expect(document.querySelector('h3')).toBeInTheDocument();
-  });
-
-  test('debe mostrar las tarjetas de servicio', () => {
-    render(<MemoryRouter><ServiceSection {...mockProps} /></MemoryRouter>);
-    const cards = document.querySelectorAll('.service-card');
-    expect(cards.length).toBeGreaterThan(0);
-  });
-
-  test('debe mostrar los nombres de los servicios', () => {
-    render(<MemoryRouter><ServiceSection {...mockProps} /></MemoryRouter>);
-    expect(document.body.textContent).toContain('Servicio 1');
-  });
-
-  test('debe mostrar descripciones', () => {
-    render(<MemoryRouter><ServiceSection {...mockProps} /></MemoryRouter>);
-    const paragraphs = document.querySelectorAll('p');
-    expect(paragraphs.length).toBeGreaterThan(0);
-  });
-
-  test('debe mostrar iconos', () => {
-    render(<MemoryRouter><ServiceSection {...mockProps} /></MemoryRouter>);
-    const icons = document.querySelectorAll('[class*="bi-"]');
-    expect(icons.length).toBeGreaterThan(0);
-  });
-
-  test('debe tener estructura de grid', () => {
-    render(<MemoryRouter><ServiceSection {...mockProps} /></MemoryRouter>);
-    expect(document.querySelector('.services-grid')).toBeInTheDocument();
+    expect(onAddToCart).toHaveBeenCalledWith(mockServices[0]);
   });
 });
-
-

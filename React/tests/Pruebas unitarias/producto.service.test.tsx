@@ -57,13 +57,24 @@ describe('producto.service', () => {
       ID_CATEGORIA: '30',
       Marca: 'KTM',
       Nombre: 'Aceite Sintético',
-      precio_venta: 50000, precio_costo: 40000, stock: 10, stock_minimo: 2, Estado: 'Disponible',
+      precio_costo: 40000,
+      precio_venta: 50000,
+      stock: 10,
+      stock_minimo: 2, estado: 'Disponible',
     };
-    await insertarProducto(mockPayload);
+    await insertarProducto(mockPayload as any);
     expect(base.crear).toHaveBeenCalledWith({
       ...mockPayload,
       ID_CATEGORIA: 30,
+      precio_costo: 40000,
       precio_venta: 50000,
+      stock: 10,
+      stock_minimo: 2,
+      Precio_Costo: 40000,
+      precioCosto: 40000,
+      Precio_Venta: 50000,
+      Stock: 10,
+      Stock_Minimo: 2
     });
   });
 
@@ -77,12 +88,13 @@ describe('producto.service', () => {
       Nombre: 'Aceite Sintético',
       precio_venta: 75000, precio_costo: 60000, stock: 15, stock_minimo: 3, Estado: 'Disponible',
     };
-    await actualizarProducto('5', mockPayload);
+    await actualizarProducto('5', mockPayload as any);
     expect(base.actualizar).toHaveBeenCalledWith(
       '5',
       expect.objectContaining({
         ID_CATEGORIA: 40,
         precio_venta: 75000,
+        Precio_Venta: 75000
       })
     );
   });

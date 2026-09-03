@@ -1,101 +1,91 @@
-// react-router-dom is fully mocked below
-/// <reference types="vitest" />
-import React from 'react';
-import { describe, test, expect, beforeEach, vi } from 'vitest';
-import { render, fireEvent, cleanup } from '@testing-library/react';
-import '@testing-library/jest-dom';
-vi.mock('react-router-dom', async (importOriginal) => {
-  const actual = await importOriginal() as any;
-  return {
-    ...actual,
-    useNavigate: vi.fn(),
-  };
-});
-
-import { BrowserRouter } from 'react-router-dom';
+import { describe, it, expect, vi, beforeEach } from 'vitest';
+import { render, screen, fireEvent } from '@testing-library/react';
 import Navbar from '../../src/componentes/Navbar';
+import { MemoryRouter } from 'react-router-dom';
 
-const renderWithRouter = (component: React.ReactElement) => {
-  return render(<BrowserRouter>{component}</BrowserRouter>);
-};
+describe('Navbar', () => {
+  beforeEach(() => {
+    localStorage.clear();
+    vi.clearAllMocks();
+  });
 
-describe('Navbar Component', () => {
-  const mockOnSearch = vi.fn();
-  const mockOnSuggestionClick = vi.fn();
-
-  const defaultProps = {
-    cartCount: 0,
-    onSearch: mockOnSearch,
-    onSuggestionClick: mockOnSuggestionClick
+  const renderNavbar = (props: any = {}) => {
+    const defaultProps = {
+      cartCount: 0,
+      onSearch: vi.fn().mockReturnValue([]),
+      onSuggestionClick: vi.fn(),
+      ...props
+    };
+    return render(
+      <MemoryRouter>
+        <Navbar {...defaultProps} />
+      </MemoryRouter>
+    );
   };
 
-  beforeEach(() => {
-    cleanup();
-    vi.clearAllMocks();
-    mockOnSearch.mockReturnValue([]);
+  it('should render the logo and search input', () => {
+    renderNavbar();
+    expect(screen.getByPlaceholderText(/Buscar servicios/i)).toBeInTheDocument();
+    expect(screen.getByAltText('KTM Rocket Service Logo')).toBeInTheDocument();
   });
 
-  test('debe renderizar el navbar correctamente', () => {
-    renderWithRouter(<Navbar {...defaultProps} />);
-    expect(document.querySelector('nav')).toBeInTheDocument();
+  it('should display login and register buttons when no token is present', () => {
+    renderNavbar();
+    expect(screen.getByText('Iniciar Sesión')).toBeInTheDocument();
+    expect(screen.getByText('Registrarse')).toBeInTheDocument();
   });
 
-  test('debe mostrar el logo', () => {
-    renderWithRouter(<Navbar {...defaultProps} />);
-    const logo = document.querySelector('img');
-    expect(logo).toBeInTheDocument();
+  it('should display "Volver al panel" when token is present', () => {
+    localStorage.setItem('user_token', 'token123');
+    localStorage.setItem('user_role', 'admin');
+    renderNavbar();
+    expect(screen.getByText('Volver al panel')).toBeInTheDocument();
   });
 
-  test('debe mostrar el contador del carrito', () => {
-    renderWithRouter(<Navbar {...defaultProps} cartCount={5} />);
-    const nav = document.querySelector('nav');
-    expect(nav).toBeInTheDocument();
+  it('should call onSearch when typing in the search input', () => {
+    const onSearch = vi.fn().mockReturnValue([{ id: 1, name: 'Service', category: 'Cat', icon: 'bi-star' }]);
+    renderNavbar({ onSearch });
+    const input = screen.getByPlaceholderText(/Buscar servicios/i);
+    fireEvent.change(input, { target: { value: 'serv' } });
+    
+    expect(onSearch).toHaveBeenCalledWith('serv');
+    expect(screen.getByText('Service')).toBeInTheDocument();
   });
 
-  test('debe mostrar 0 cuando no hay items', () => {
-    renderWithRouter(<Navbar {...defaultProps} cartCount={0} />);
-    expect(document.querySelector('nav')).toBeInTheDocument();
+  it('should call onSuggestionClick when submitting form with suggestions', () => {
+    const suggestion = { id: 1, name: 'Service', category: 'Cat', icon: 'bi-star' };
+    const onSearch = vi.fn().mockReturnValue([suggestion]);
+    const onSuggestionClick = vi.fn();
+    
+    renderNavbar({ onSearch, onSuggestionClick });
+    const input = screen.getByPlaceholderText(/Buscar servicios/i);
+    fireEvent.change(input, { target: { value: 'serv' } });
+    
+    const form = input.closest('form');
+    fireEvent.submit(form!);
+    
+    expect(onSuggestionClick).toHaveBeenCalledWith(suggestion);
   });
 
-  test('debe tener links de navegación', () => {
-    renderWithRouter(<Navbar {...defaultProps} />);
-    const links = document.querySelectorAll('a');
-    expect(links.length).toBeGreaterThan(0);
+  it('should call onSuggestionClick when clicking a suggestion', () => {
+    const suggestion = { id: 1, name: 'Service', category: 'Cat', icon: 'bi-star' };
+    const onSearch = vi.fn().mockReturnValue([suggestion]);
+    const onSuggestionClick = vi.fn();
+    
+    renderNavbar({ onSearch, onSuggestionClick });
+    const input = screen.getByPlaceholderText(/Buscar servicios/i);
+    fireEvent.change(input, { target: { value: 'serv' } });
+    
+    const suggestionEl = screen.getByText('Service');
+    fireEvent.click(suggestionEl);
+    
+    expect(onSuggestionClick).toHaveBeenCalledWith(suggestion);
   });
 
-  test('debe tener campo de búsqueda', () => {
-    renderWithRouter(<Navbar {...defaultProps} />);
-    const input = document.querySelector('input');
-    expect(input).toBeInTheDocument();
-  });
-
-  test('debe llamar onSearch al escribir en el campo de búsqueda', () => {
-    renderWithRouter(<Navbar {...defaultProps} />);
-    const input = document.querySelector('input') as HTMLInputElement;
-    if (input) {
-      fireEvent.change(input, { target: { value: 'ktm' } });
-      expect(input.value).toBe('ktm');
-      expect(mockOnSearch).toHaveBeenCalledWith('ktm');
-    }
-  });
-
-  test('debe tener un formulario de búsqueda', () => {
-    renderWithRouter(<Navbar {...defaultProps} />);
-    const form = document.querySelector('form');
-    expect(form).toBeInTheDocument();
-  });
-
-  test('debe mostrar el icono del carrito', () => {
-    renderWithRouter(<Navbar {...defaultProps} />);
-    const cartIcon = document.querySelector('[class*="cart"], i[class*="bi-"]');
-    expect(cartIcon).toBeInTheDocument();
-  });
-
-  test('debe tener link al carrito', () => {
-    renderWithRouter(<Navbar {...defaultProps} />);
-    const allLinks = document.querySelectorAll('a');
-    expect(allLinks.length).toBeGreaterThan(0);
+  it('should read cartCount from localStorage', () => {
+    localStorage.setItem('ktmCart', JSON.stringify([{ quantity: 2 }, { quantity: 3 }]));
+    renderNavbar();
+    const cartCounts = screen.getAllByText('5');
+    expect(cartCounts.length).toBeGreaterThan(0);
   });
 });
-
-

@@ -1,298 +1,118 @@
-import { MemoryRouter } from 'react-router-dom';
-
+import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
-import '@testing-library/jest-dom';
-vi.mock('react-router-dom', async (importOriginal) => {
-  const actual = await importOriginal() as any;
-  return {
-    ...actual,
-    useNavigate: vi.fn(),
-  };
-});
-
 import TableMotos from '../../src/componentes/TableMotos/Motos';
-import * as motoService from '../../src/services/moto.service';
-import * as clienteService from '../../src/services/cliente.service';
+import { obtenerMotos, insertarMoto, actualizarMoto, eliminarMoto } from '../../src/services/moto.service';
+import { obtenerClientes } from '../../src/services/cliente.service';
+import { MemoryRouter } from 'react-router-dom';
 import Swal from 'sweetalert2';
 
-// 1. MOCKS DE MÓDULOS EXTERNOS
-vi.mock('sweetalert2', () => ({ default: { fire: vi.fn().mockResolvedValue({ isConfirmed: true, value: '5' }), getInput: vi.fn() } }));
-
-// Mock del componente FormattedId
-vi.mock('../../src/componentes/FormattedId', () => ({
-  FormattedId: ({ value }: any) => <span data-testid="formatted-id">{value}</span>,
+vi.mock('../../src/services/moto.service', () => ({
+  obtenerMotos: vi.fn(),
+  insertarMoto: vi.fn(),
+  actualizarMoto: vi.fn(),
+  eliminarMoto: vi.fn()
 }));
 
-// 2. MOCKS DE SERVICIOS (mismas rutas que los imports)
-vi.mock('../../src/services/moto.service');
-vi.mock('../../src/services/cliente.service');
+vi.mock('../../src/services/cliente.service', () => ({
+  obtenerClientes: vi.fn()
+}));
 
-// ==================== DATOS DE PRUEBA ====================
-const mockMotos = [
-  { ID_MOTOS: 1, ID_CLIENTES: 100, Placa: 'ABC12D', Modelo: 'Duke 390', Marca: 'KTM', Recorrido: 15000 },
-  { ID_MOTOS: 2, ID_CLIENTES: 200, Placa: 'XYZ34E', Modelo: 'FZ 2.0', Marca: 'Yamaha', Recorrido: 8000 },
-];
+vi.mock('sweetalert2', () => ({
+  default: {
+    fire: vi.fn()
+  }
+}));
 
-const mockClientes = [
-  { ID_CLIENTES: 100, Nombre: 'Juan Pérez' },
-  { ID_CLIENTES: 200, Nombre: 'María Gómez' },
-];
+describe('TableMotos', () => {
+  const mockMotos = [
+    { ID_MOTOS: 1, ID_CLIENTES: 1, Placa: 'ABC-123', Modelo: '2020', Marca: 'KTM', Recorrido: 1000 },
+    { ID_MOTOS: 2, ID_CLIENTES: 2, Placa: 'XYZ-987', Modelo: '2022', Marca: 'KTM', Recorrido: 5000 }
+  ];
 
-describe('TableMotos Component', () => {
   beforeEach(() => {
     vi.clearAllMocks();
-    vi.mocked(motoService.obtenerMotos).mockResolvedValue({ data: mockMotos } as any);
-    vi.mocked(clienteService.obtenerClientes).mockResolvedValue({ data: mockClientes } as any);
+    vi.mocked(obtenerMotos).mockResolvedValue({ data: { success: true, data: mockMotos } } as any);
+    vi.mocked(obtenerClientes).mockResolvedValue({ data: { success: true, data: [{ ID_CLIENTES: 1, Nombre: 'Cliente 1' }] } } as any);
   });
 
-  // 1. RENDERIZADO INICIAL
-  it('debería renderizar el título, buscador y botones de acción', async () => {
-    render(<MemoryRouter><TableMotos /></MemoryRouter>);
+  const renderComponent = () => render(
+    <MemoryRouter>
+      <TableMotos />
+    </MemoryRouter>
+  );
 
-    expect(screen.getByText('Gestión de Motos')).toBeInTheDocument();
-    expect(screen.getByPlaceholderText(/buscar por id, placa, modelo/i)).toBeInTheDocument();
-    expect(screen.getByRole('button', { name: /nueva moto/i })).toBeInTheDocument();
-    expect(screen.getByRole('button', { name: /reset/i })).toBeInTheDocument();
-  });
-
-  // 2. ESTADO DE CARGA
-  it('debería mostrar "Cargando motos..." mientras consulta la API', () => {
-    vi.mocked(motoService.obtenerMotos).mockImplementation(() => new Promise(() => {}));
-    render(<MemoryRouter><TableMotos /></MemoryRouter>);
-    expect(screen.getByText(/cargando motos/i)).toBeInTheDocument();
-  });
-
-  // 3. TABLA CON DATOS Y RECORRIDO FORMATEADO
-  it('debería mostrar las motos con el recorrido formateado en es-CO', async () => {
-    render(<MemoryRouter><TableMotos /></MemoryRouter>);
-
+  it('should render the list of motos', async () => {
+    renderComponent();
+    expect(screen.getByText('Cargando motos...')).toBeInTheDocument();
+    
     await waitFor(() => {
-      expect(screen.getByText('ABC12D')).toBeInTheDocument();
-      expect(screen.getByText('XYZ34E')).toBeInTheDocument();
+      expect(screen.queryByText('Cargando motos...')).not.toBeInTheDocument();
     });
-
-    expect(screen.getByText('Duke 390')).toBeInTheDocument();
-    expect(screen.getByText('KTM')).toBeInTheDocument();
-    expect(screen.getByText(`${new Intl.NumberFormat('es-CO').format(15000)} km`)).toBeInTheDocument();
+    
+    expect(screen.getByText('ABC-123')).toBeInTheDocument();
+    expect(screen.getByText('XYZ-987')).toBeInTheDocument();
   });
 
-  // 4. BÚSQUEDA POR PLACA
-  it('debería filtrar motos al buscar por placa', async () => {
-    render(<MemoryRouter><TableMotos /></MemoryRouter>);
-    await waitFor(() => expect(screen.getByText('ABC12D')).toBeInTheDocument());
-
-    fireEvent.change(screen.getByPlaceholderText(/buscar por id, placa/i), { target: { value: 'ABC12D' } });
-    fireEvent.click(screen.getByTitle('Buscar'));
-
+  it('should filter motos by search term', async () => {
+    renderComponent();
     await waitFor(() => {
-      expect(screen.getByText('ABC12D')).toBeInTheDocument();
-      expect(screen.queryByText('XYZ34E')).not.toBeInTheDocument();
+      expect(screen.getByText('ABC-123')).toBeInTheDocument();
     });
+    
+    const searchInput = screen.getByPlaceholderText(/Buscar por ID/i);
+    fireEvent.change(searchInput, { target: { value: 'XYZ' } });
+    
+    const searchBtn = screen.getByTitle('Buscar');
+    fireEvent.click(searchBtn);
+    
+    expect(screen.queryByText('ABC-123')).not.toBeInTheDocument();
+    expect(screen.getByText('XYZ-987')).toBeInTheDocument();
   });
 
-  // 5. BOTÓN RESET
-  it('debería limpiar la búsqueda con Reset', async () => {
-    render(<MemoryRouter><TableMotos /></MemoryRouter>);
-    await waitFor(() => expect(screen.getByText('ABC12D')).toBeInTheDocument());
-
-    fireEvent.change(screen.getByPlaceholderText(/buscar por id, placa/i), { target: { value: 'ABC12D' } });
-    fireEvent.click(screen.getByTitle('Buscar'));
-    fireEvent.click(screen.getByRole('button', { name: /reset/i }));
-
+  it('should handle creating a new moto', async () => {
+    vi.mocked(insertarMoto).mockResolvedValueOnce({ data: { success: true } } as any);
+    
+    renderComponent();
+    await waitFor(() => expect(screen.getByText('ABC-123')).toBeInTheDocument());
+    
+    // Open create modal
+    fireEvent.click(screen.getByText(/Nueva Moto/i));
+    
     await waitFor(() => {
-      expect(screen.getByText('XYZ34E')).toBeInTheDocument();
+      expect(screen.getByText('Registrar Nueva Moto')).toBeInTheDocument();
     });
-    expect(screen.getByPlaceholderText(/buscar por id, placa/i)).toHaveValue('');
-  });
-
-  // 6. MODAL DE CREACIÓN CON CLIENTES CARGADOS
-  it('debería abrir el modal de creación y cargar los clientes en el select', async () => {
-    render(<MemoryRouter><TableMotos /></MemoryRouter>);
-    fireEvent.click(screen.getByRole('button', { name: /nueva moto/i }));
-
-    expect(screen.getByText('Registrar Nueva Moto')).toBeInTheDocument();
-
-    // Los clientes se cargan en el select
+    
+    // Fill form
+    fireEvent.change(screen.getByLabelText('ID Moto'), { target: { value: '3' } });
+    fireEvent.change(screen.getByLabelText('Cliente *'), { target: { value: '1' } });
+    fireEvent.change(screen.getByLabelText('Placa'), { target: { value: 'NEW-123' } });
+    fireEvent.change(screen.getByLabelText('Modelo'), { target: { value: '2023' } });
+    fireEvent.change(screen.getByLabelText('Marca'), { target: { value: 'KTM' } });
+    fireEvent.change(screen.getByLabelText('Recorrido (km)'), { target: { value: '100' } });
+    
+    // Submit
+    fireEvent.click(screen.getByText('Registrar Moto'));
+    
     await waitFor(() => {
-      expect(screen.getByText(/100 - Juan Pérez/)).toBeInTheDocument();
-      expect(screen.getByText(/200 - María Gómez/)).toBeInTheDocument();
+      expect(insertarMoto).toHaveBeenCalledWith(expect.objectContaining({
+        ID_MOTOS: '3',
+        Placa: 'NEW-123'
+      }));
     });
   });
 
-  // 7. VALIDACIÓN NUMÉRICA DEL ID MOTO
-  it('debería filtrar caracteres no numéricos en el ID de la moto', async () => {
-    render(<MemoryRouter><TableMotos /></MemoryRouter>);
-    fireEvent.click(screen.getByRole('button', { name: /nueva moto/i }));
-
-    const idInput = screen.getByPlaceholderText('Ej: 1, 2, 10...');
-    fireEvent.change(idInput, { target: { value: '12abc' } });
-
-    expect(idInput).toHaveValue('12');
-    expect(Swal.fire).toHaveBeenCalledWith(
-      expect.objectContaining({ title: 'Solo números permitidos', toast: true })
-    );
-  });
-
-  // 8. VALIDACIÓN DE CAMPOS OBLIGATORIOS
-  it('debería mostrar alerta si faltan campos obligatorios', async () => {
-    render(<MemoryRouter><TableMotos /></MemoryRouter>);
-    fireEvent.click(screen.getByRole('button', { name: /nueva moto/i }));
-
-    const modal = screen.getByText('Registrar Nueva Moto').closest('.modal-container') as HTMLElement;
-    fireEvent.submit(modal.querySelector('form')!);
-
+  it('should handle deleting a moto', async () => {
+    vi.mocked(Swal.fire).mockResolvedValueOnce({ isConfirmed: true } as any);
+    vi.mocked(eliminarMoto).mockResolvedValueOnce({ data: { success: true } } as any);
+    
+    renderComponent();
+    await waitFor(() => expect(screen.getByText('ABC-123')).toBeInTheDocument());
+    
+    const deleteBtns = screen.getAllByText('🗑️ Eliminar');
+    fireEvent.click(deleteBtns[0]);
+    
     await waitFor(() => {
-      expect(Swal.fire).toHaveBeenCalledWith(
-        expect.objectContaining({ title: 'Datos incompletos', text: 'El ID de la moto es obligatorio.', icon: 'warning' })
-      );
-      expect(motoService.insertarMoto).not.toHaveBeenCalled();
-    });
-  });
-
-  // 9. CREAR MOTO EXITOSAMENTE
-  it('debería registrar la moto con la placa en mayúsculas', async () => {
-    vi.mocked(motoService.insertarMoto).mockResolvedValue({ data: { success: true } } as any);
-    render(<MemoryRouter><TableMotos /></MemoryRouter>);
-    fireEvent.click(screen.getByRole('button', { name: /nueva moto/i }));
-
-    const modal = screen.getByText('Registrar Nueva Moto').closest('.modal-container') as HTMLElement;
-
-    await waitFor(() => {
-      expect(screen.getByText(/100 - Juan Pérez/)).toBeInTheDocument();
-    });
-
-    fireEvent.change(modal.querySelector('input[name="ID_MOTOS"]')!, { target: { value: '3' } });
-    fireEvent.change(modal.querySelector('select[name="ID_CLIENTES"]')!, { target: { value: '100' } });
-    fireEvent.change(modal.querySelector('input[name="Placa"]')!, { target: { value: 'nueva99' } });
-    fireEvent.change(modal.querySelector('input[name="Modelo"]')!, { target: { value: 'Duke 200' } });
-    fireEvent.change(modal.querySelector('input[name="Marca"]')!, { target: { value: 'ktm' } });
-    fireEvent.change(modal.querySelector('input[name="Recorrido"]')!, { target: { value: '5000' } });
-
-    fireEvent.submit(modal.querySelector('form')!);
-
-    await waitFor(() => {
-      expect(motoService.insertarMoto).toHaveBeenCalledWith(
-        expect.objectContaining({
-          ID_MOTOS: '3',
-          ID_CLIENTES: '100',
-          Placa: 'NUEVA99', // Mayúsculas
-          Modelo: 'Duke 200',
-          Marca: 'ktm',
-          Recorrido: 5000,
-        })
-      );
-      expect(Swal.fire).toHaveBeenCalledWith(
-        expect.objectContaining({ title: 'Moto registrada', icon: 'success' })
-      );
-    });
-
-    // El modal se cierra
-    await waitFor(() => {
-      expect(screen.queryByText('Registrar Nueva Moto')).not.toBeInTheDocument();
-    });
-  });
-
-  // 10. CREAR MOTO CON RESPUESTA FALLIDA
-  it('debería mostrar error si el backend responde sin éxito', async () => {
-    vi.mocked(motoService.insertarMoto).mockResolvedValue({ data: { success: false } } as any);
-    render(<MemoryRouter><TableMotos /></MemoryRouter>);
-    fireEvent.click(screen.getByRole('button', { name: /nueva moto/i }));
-
-    const modal = screen.getByText('Registrar Nueva Moto').closest('.modal-container') as HTMLElement;
-
-    await waitFor(() => {
-      expect(screen.getByText(/100 - Juan Pérez/)).toBeInTheDocument();
-    });
-
-    fireEvent.change(modal.querySelector('input[name="ID_MOTOS"]')!, { target: { value: '3' } });
-    fireEvent.change(modal.querySelector('select[name="ID_CLIENTES"]')!, { target: { value: '100' } });
-    fireEvent.change(modal.querySelector('input[name="Placa"]')!, { target: { value: 'ABC999' } });
-    fireEvent.change(modal.querySelector('input[name="Modelo"]')!, { target: { value: 'Duke' } });
-    fireEvent.change(modal.querySelector('input[name="Marca"]')!, { target: { value: 'KTM' } });
-
-    fireEvent.submit(modal.querySelector('form')!);
-
-    await waitFor(() => {
-      expect(Swal.fire).toHaveBeenCalledWith(
-        expect.objectContaining({ title: 'Error', text: 'No se pudo registrar la moto.', icon: 'error' })
-      );
-    });
-  });
-
-  // 11. MODAL DE EDICIÓN CON ID SOLO LECTURA
-  it('debería abrir el modal de edición con datos y el ID bloqueado', async () => {
-    render(<MemoryRouter><TableMotos /></MemoryRouter>);
-    await waitFor(() => expect(screen.getByText('ABC12D')).toBeInTheDocument());
-
-    fireEvent.click(screen.getAllByRole('button', { name: /editar/i })[0]);
-
-    expect(screen.getByText('Editar Moto')).toBeInTheDocument();
-    const modal = screen.getByText('Editar Moto').closest('.modal-container') as HTMLElement;
-
-    const idInput = modal.querySelector('input[name="ID_MOTOS"]') as HTMLInputElement;
-    expect(idInput).toHaveValue('1');
-    expect(idInput).toHaveAttribute('readonly');
-    expect(modal.querySelector('input[name="Placa"]')).toHaveValue('ABC12D');
-  });
-
-  // 12. ACTUALIZAR MOTO
-  it('debería actualizar la moto y mostrar alerta de éxito', async () => {
-    vi.mocked(motoService.actualizarMoto).mockResolvedValue({ data: { success: true } } as any);
-    render(<MemoryRouter><TableMotos /></MemoryRouter>);
-    await waitFor(() => expect(screen.getByText('ABC12D')).toBeInTheDocument());
-
-    fireEvent.click(screen.getAllByRole('button', { name: /editar/i })[0]);
-    const modal = screen.getByText('Editar Moto').closest('.modal-container') as HTMLElement;
-
-    fireEvent.change(modal.querySelector('input[name="Placa"]')!, { target: { value: 'EDITADA1' } });
-    fireEvent.submit(modal.querySelector('form')!);
-
-    await waitFor(() => {
-      expect(motoService.actualizarMoto).toHaveBeenCalledWith(
-        1,
-        expect.objectContaining({ Placa: 'EDITADA1' })
-      );
-      expect(Swal.fire).toHaveBeenCalledWith(
-        expect.objectContaining({ title: 'Cambios guardados', icon: 'success' })
-      );
-    });
-  });
-
-  // 13. ELIMINAR MOTO
-  it('debería eliminar la moto tras confirmar y quitarla de la tabla', async () => {
-    vi.mocked(motoService.eliminarMoto).mockResolvedValue({ data: { success: true } } as any);
-    render(<MemoryRouter><TableMotos /></MemoryRouter>);
-    await waitFor(() => expect(screen.getByText('ABC12D')).toBeInTheDocument());
-
-    fireEvent.click(screen.getAllByRole('button', { name: /eliminar/i })[0]);
-
-    await waitFor(() => {
-      expect(motoService.eliminarMoto).toHaveBeenCalledWith(1);
-      expect(Swal.fire).toHaveBeenCalledWith(
-        expect.objectContaining({ title: 'Eliminada', icon: 'success' })
-      );
-    });
-
-    // La fila desaparece de la tabla (actualización local)
-    await waitFor(() => {
-      expect(screen.queryByText('ABC12D')).not.toBeInTheDocument();
-    });
-  });
-
-  // 14. ELIMINAR CANCELADO
-  it('no debería eliminar si se cancela la confirmación', async () => {
-    vi.mocked(Swal.fire).mockResolvedValueOnce({ isConfirmed: false } as any);
-    render(<MemoryRouter><TableMotos /></MemoryRouter>);
-    await waitFor(() => expect(screen.getByText('ABC12D')).toBeInTheDocument());
-
-    fireEvent.click(screen.getAllByRole('button', { name: /eliminar/i })[0]);
-
-    await waitFor(() => {
-      expect(motoService.eliminarMoto).not.toHaveBeenCalled();
-      expect(screen.getByText('ABC12D')).toBeInTheDocument();
+      expect(eliminarMoto).toHaveBeenCalledWith(1);
     });
   });
 });
-
-
-

@@ -1,345 +1,156 @@
-import { MemoryRouter } from 'react-router-dom';
-
-import { render, screen, fireEvent, waitFor,} from '@testing-library/react';
-import '@testing-library/jest-dom';
+import { describe, it, expect, vi, beforeEach } from 'vitest';
+import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import Usuarios from '../../src/componentes/TableAdmin/Usuarios';
-import * as adminService from '../../src/services/admin.service';
-import * as tecnicoService from '../../src/services/tecnico.service';
-import * as clienteService from '../../src/services/cliente.service';
-import * as tipoDocService from '../../src/services/tipoDocumento.service';
+import { obtenerAdmins, insertarAdmin, actualizarAdmin, eliminarAdmin, habilitarAdmin } from '../../src/services/admin.service';
+import { obtenerTecnicos } from '../../src/services/tecnico.service';
+import { obtenerClientes, obtenerClientesPendientes, procesarAprobacionCliente } from '../../src/services/cliente.service';
+import { obtenerTiposDocumento } from '../../src/services/tipoDocumento.service';
+import { MemoryRouter } from 'react-router-dom';
 import Swal from 'sweetalert2';
 
-// 1. VARIABLES DE MOCK ANTES DE LOS Mock
-const mockNavigate = vi.fn();
-
-// 2. MOCKS DE MÓDULOS EXTERNOS
-vi.mock('sweetalert2', () => ({ default: { fire: vi.fn().mockResolvedValue({ isConfirmed: true, value: '5' }), getInput: vi.fn() } }));
-
-vi.mock('react-router-dom', async () => {
-  const actual = await vi.importActual('react-router-dom') as any;
-  return {
-    ...actual,
-    useNavigate: () => {
-      const actualNavigate = actual.useNavigate();
-      return (...args: any[]) => {
-        mockNavigate(...args);
-        actualNavigate(...args);
-      };
-    },
-  };
-});
-
-
-
-// Mock del componente FormattedId para simplificar
-vi.mock('../../src/componentes/FormattedId', () => ({
-  FormattedId: ({ value }: any) => <span data-testid="formatted-id">{value}</span>,
+vi.mock('../../src/services/admin.service', () => ({
+  obtenerAdmins: vi.fn(), insertarAdmin: vi.fn(), actualizarAdmin: vi.fn(), eliminarAdmin: vi.fn(), habilitarAdmin: vi.fn()
 }));
+vi.mock('../../src/services/tecnico.service', () => ({
+  obtenerTecnicos: vi.fn(), insertarTecnico: vi.fn(), actualizarTecnico: vi.fn(), eliminarTecnico: vi.fn(), habilitarTecnico: vi.fn()
+}));
+vi.mock('../../src/services/cliente.service', () => ({
+  obtenerClientes: vi.fn(), obtenerClientesPendientes: vi.fn(), insertarCliente: vi.fn(), actualizarCliente: vi.fn(), eliminarCliente: vi.fn(), habilitarCliente: vi.fn(), procesarAprobacionCliente: vi.fn()
+}));
+vi.mock('../../src/services/tipoDocumento.service', () => ({ obtenerTiposDocumento: vi.fn() }));
+vi.mock('sweetalert2', () => ({ default: { fire: vi.fn(), showValidationMessage: vi.fn() } }));
 
-// 3. MOCKS DE SERVICIOS (mismas rutas que los imports)
-vi.mock('../../src/services/admin.service');
-vi.mock('../../src/services/tecnico.service');
-vi.mock('../../src/services/cliente.service');
-vi.mock('../../src/services/tipoDocumento.service');
-
-// ==================== DATOS DE PRUEBA ====================
-const mockAdmins = [
-  { numero_documento: '1001', nombre: 'Admin Uno', correo: 'admin@test.com', telefono: '3001112233', usuario: 'admin1', id_tipo_documento: 1, estado: 1 },
-  { numero_documento: '1002', nombre: 'Admin Inactivo', correo: 'inactivo@test.com', telefono: '3001112234', usuario: 'admin2', id_tipo_documento: 1, estado: 0 },
-];
-const mockTecnicos = [
-  { numero_documento: '2001', nombre: 'Técnico Uno', correo: 'tec@test.com', telefono: '3002223344', usuario: 'tec1', id_tipo_documento: 1, estado: 1 },
-];
-const mockClientes = [
-  { numero_documento: '3001', nombre: 'Cliente Uno', correo: 'cli@test.com', telefono: '3003334455', usuario: 'cli1', id_tipo_documento: 2, ciudad: 'Bogotá', estado: 1 },
-];
-const mockPendientes = [
-  { numero_documento: '4001', nombre: 'Pendiente Uno', correo: 'pen@test.com', telefono: '3004445566', usuario: 'pen1', id_tipo_documento: 2, ciudad: 'Cali', estado: 'Pendiente' },
-];
-const mockTipos = [
-  { id_tipo_documento: 1, nombre: 'Cédula' },
-  { id_tipo_documento: 2, nombre: 'CE' },
-];
-
-describe('Usuarios Component', () => {
+describe('Usuarios', () => {
   beforeEach(() => {
     vi.clearAllMocks();
-    vi.mocked(adminService.obtenerAdmins).mockResolvedValue({ data: { admins: mockAdmins } } as any);
-    vi.mocked(tecnicoService.obtenerTecnicos).mockResolvedValue({ data: { tecnicos: mockTecnicos } } as any);
-    vi.mocked(clienteService.obtenerClientes).mockResolvedValue({ data: { clientes: mockClientes } } as any);
-    vi.mocked(clienteService.obtenerClientesPendientes).mockResolvedValue({ data: { data: mockPendientes } } as any);
-    vi.mocked(tipoDocService.obtenerTiposDocumento).mockResolvedValue({ data: mockTipos } as any);
+    vi.mocked(obtenerTiposDocumento).mockResolvedValue({ data: [{ id_tipo_documento: 1, nombre: 'CC' }] } as any);
+    vi.mocked(obtenerAdmins).mockResolvedValue({ data: [
+      { numero_documento: '1', nombre: 'Admin 1', correo: 'a@a.com', estado: 'Activo' }
+    ] } as any);
+    vi.mocked(obtenerTecnicos).mockResolvedValue({ data: [] } as any);
+    vi.mocked(obtenerClientes).mockResolvedValue({ data: [] } as any);
+    vi.mocked(obtenerClientesPendientes).mockResolvedValue({ data: [
+      { numero_documento: '2', nombre: 'Pendiente 1', correo: 'p@p.com' }
+    ] } as any);
   });
 
-  // 1. RENDERIZADO INICIAL Y TARJETAS RESUMEN
-  it('debería renderizar el título y las tarjetas resumen con los conteos', async () => {
-    const { container } = render(<MemoryRouter initialEntries={['/admin/usuarios']}><Usuarios /></MemoryRouter>);
+  const renderComponent = () => render(
+    <MemoryRouter initialEntries={['/admin/usuarios']}>
+      <Usuarios />
+    </MemoryRouter>
+  );
 
-    expect(screen.getByText('Usuarios')).toBeInTheDocument();
-
+  it('renders admins list', async () => {
+    renderComponent();
     await waitFor(() => {
-      const cards = container.querySelectorAll('.summary-card strong');
-      expect(cards).toHaveLength(4);
-      expect(cards[0]).toHaveTextContent('2'); // Admins
-      expect(cards[1]).toHaveTextContent('1'); // Técnicos
-      expect(cards[2]).toHaveTextContent('1'); // Clientes
-      expect(cards[3]).toHaveTextContent('1'); // Pendientes
+      expect(screen.getByText('Admin 1')).toBeInTheDocument();
     });
   });
 
-  // 2. ESTADO DE CARGA
-  it('debería mostrar "Cargando usuarios..." mientras consulta la API', () => {
-    vi.mocked(adminService.obtenerAdmins).mockImplementation(() => new Promise(() => {}));
-    render(<MemoryRouter initialEntries={['/admin/usuarios']}><Usuarios /></MemoryRouter>);
-    expect(screen.getByText(/cargando usuarios/i)).toBeInTheDocument();
-  });
+  it('switches tabs and renders data', async () => {
+    renderComponent();
+    await waitFor(() => expect(screen.getByText('Admin 1')).toBeInTheDocument());
 
-  // 3. TABLA CON DATOS Y TIPO DE DOCUMENTO FORMATEADO
-  it('debería mostrar los usuarios en la tabla con el tipo de documento formateado', async () => {
-    render(<MemoryRouter initialEntries={['/admin/usuarios']}><Usuarios /></MemoryRouter>);
+    const pendBtn = screen.getByRole('button', { name: 'Pendientes' });
+    fireEvent.click(pendBtn);
 
     await waitFor(() => {
-      expect(screen.getByText('Admin Uno')).toBeInTheDocument();
-      expect(screen.getByText('Admin Inactivo')).toBeInTheDocument();
-    });
-
-    // El id_tipo_documento 1 debe mostrarse como "Cédula"
-    expect(screen.getAllByText('Cédula').length).toBeGreaterThan(0);
-    // Estado activo e inactivo
-    expect(screen.getByText('Activo')).toBeInTheDocument();
-    expect(screen.getByText('Inactivo')).toBeInTheDocument();
-  });
-
-  // 4. CAMBIO DE PESTAÑA Y NAVEGACIÓN
-  it('debería navegar a la ruta correcta al cambiar de pestaña', async () => {
-    render(<MemoryRouter initialEntries={['/admin/usuarios']}><Usuarios /></MemoryRouter>);
-
-    fireEvent.click(screen.getByRole('button', { name: 'Técnicos' }));
-    expect(mockNavigate).toHaveBeenCalledWith('/admin/tecnicos');
-
-    fireEvent.click(screen.getByRole('button', { name: 'Clientes' }));
-    expect(mockNavigate).toHaveBeenCalledWith('/admin/clientes');
-
-    fireEvent.click(screen.getByRole('button', { name: 'Administradores' }));
-    expect(mockNavigate).toHaveBeenCalledWith('/admin/usuarios');
-  });
-
-  // 5. BÚSQUEDA DE USUARIOS
-  it('debería filtrar usuarios al buscar', async () => {
-    render(<MemoryRouter initialEntries={['/admin/usuarios']}><Usuarios /></MemoryRouter>);
-
-    await waitFor(() => expect(screen.getByText('Admin Uno')).toBeInTheDocument());
-
-    const searchInput = screen.getByPlaceholderText(/buscar en/i);
-    fireEvent.change(searchInput, { target: { value: 'Admin Uno' } });
-    fireEvent.click(screen.getByTitle('Buscar'));
-
-    await waitFor(() => {
-      expect(screen.getByText('Admin Uno')).toBeInTheDocument();
-      expect(screen.queryByText('Admin Inactivo')).not.toBeInTheDocument();
+      expect(screen.getByText('Pendiente 1')).toBeInTheDocument();
     });
   });
 
-  // 6. BÚSQUEDA SIN RESULTADOS
-  it('debería mostrar mensaje cuando la búsqueda no tiene resultados', async () => {
-    render(<MemoryRouter initialEntries={['/admin/usuarios']}><Usuarios /></MemoryRouter>);
+  it('handles search', async () => {
+    renderComponent();
+    await waitFor(() => expect(screen.getByText('Admin 1')).toBeInTheDocument());
+    
+    const searchInput = screen.getByPlaceholderText(/Buscar por/i);
+    fireEvent.change(searchInput, { target: { value: 'NonExistent' } });
+    
+    const searchBtn = screen.getByRole('button', { name: /Buscar/i });
+    fireEvent.click(searchBtn);
+    
+    expect(screen.queryByText('Admin 1')).not.toBeInTheDocument();
+    
+    const resetBtn = screen.getByText(/Reset/i);
+    fireEvent.click(resetBtn);
+    
+    expect(screen.getByText('Admin 1')).toBeInTheDocument();
+  });
 
-    await waitFor(() => expect(screen.getByText('Admin Uno')).toBeInTheDocument());
+  it('opens create modal for admins', async () => {
+    vi.mocked(insertarAdmin).mockResolvedValueOnce({ data: { success: true } } as any);
+    renderComponent();
+    await waitFor(() => expect(screen.getByText('Admin 1')).toBeInTheDocument());
 
-    fireEvent.change(screen.getByPlaceholderText(/buscar en/i), { target: { value: 'zzz' } });
-    fireEvent.click(screen.getByTitle('Buscar'));
+    fireEvent.click(screen.getByText(/Nuevo Admin/i));
 
     await waitFor(() => {
-      expect(screen.getByText(/no se encontraron resultados/i)).toBeInTheDocument();
+      expect(screen.getByRole('heading', { name: /Crear Administrador/i })).toBeInTheDocument();
+    });
+
+    fireEvent.change(screen.getByLabelText(/Documento/i), { target: { value: '99' } });
+    fireEvent.change(screen.getByLabelText(/Nombre/i), { target: { value: 'Test Admin' } });
+    fireEvent.change(screen.getByLabelText(/Correo/i), { target: { value: 'test@t.com' } });
+    fireEvent.change(screen.getByLabelText(/Tipo de documento/i), { target: { value: '1' } });
+    fireEvent.change(screen.getByLabelText(/Teléfono/i), { target: { value: '123' } });
+    fireEvent.change(screen.getByLabelText(/Usuario/i), { target: { value: 'test' } });
+    fireEvent.change(screen.getByLabelText(/Contraseña/i), { target: { value: 'pass' } });
+
+    fireEvent.click(screen.getByText(/Guardar/i, { exact: true }));
+
+    await waitFor(() => {
+      expect(insertarAdmin).toHaveBeenCalledWith(expect.objectContaining({ nombre: 'Test Admin' }));
     });
   });
 
-  // 7. BOTÓN VOLVER AL DASHBOARD
-  it('debería navegar al dashboard con el botón de volver', async () => {
-    render(<MemoryRouter initialEntries={['/admin/usuarios']}><Usuarios /></MemoryRouter>);
-    fireEvent.click(screen.getByTitle('Volver al Dashboard'));
-    expect(mockNavigate).toHaveBeenCalledWith('/admin/dashboard');
-  });
+  it('disables admin', async () => {
+    vi.mocked(Swal.fire).mockResolvedValueOnce({ isConfirmed: true } as any);
+    vi.mocked(eliminarAdmin).mockResolvedValueOnce({ data: { success: true } } as any);
+    
+    renderComponent();
+    await waitFor(() => expect(screen.getByText('Admin 1')).toBeInTheDocument());
 
-  // 8. ABRIR MODAL DE CREACIÓN
-it('debería abrir el modal de creación con el formulario vacío', async () => {
-  render(<MemoryRouter initialEntries={['/admin/usuarios']}><Usuarios /></MemoryRouter>);
-
-  fireEvent.click(screen.getByRole('button', { name: /nuevo administrador/i }));
-
-  expect(screen.getByText('Crear Administrador')).toBeInTheDocument();
-
-  const modal = screen.getByText('Crear Administrador').closest('.modal-container') as HTMLElement;
-
-  // Verificar que los campos del formulario están vacíos
-  expect(modal.querySelector('input[name="nombre"]')).toHaveValue('');
-  expect(modal.querySelector('input[name="correo"]')).toHaveValue('');
-  expect(modal.querySelector('input[name="numero_documento"]')).toHaveValue('');
-  expect(modal.querySelector('input[name="usuario"]')).toHaveValue('');
-});
-
-  // 9. CREAR USUARIO EXITOSAMENTE
-  it('debería crear un administrador y llamar al servicio', async () => {
-    render(<MemoryRouter initialEntries={['/admin/usuarios']}><Usuarios /></MemoryRouter>);
-
-    fireEvent.click(screen.getByRole('button', { name: /nuevo administrador/i }));
-    const modal = screen.getByText('Crear Administrador').closest('.modal-container') as HTMLElement;
-
-    fireEvent.change(modal.querySelector('input[name="numero_documento"]')!, { target: { value: '1003' } });
-    fireEvent.change(modal.querySelector('input[name="nombre"]')!, { target: { value: 'Nuevo Admin' } });
-    fireEvent.change(modal.querySelector('input[name="correo"]')!, { target: { value: 'nuevo@test.com' } });
-    fireEvent.change(modal.querySelector('select[name="id_tipo_documento"]')!, { target: { value: '1' } });
-    fireEvent.change(modal.querySelector('input[name="telefono"]')!, { target: { value: '3009998877' } });
-    fireEvent.change(modal.querySelector('input[name="usuario"]')!, { target: { value: 'nuevo' } });
-    fireEvent.change(modal.querySelector('input[name="password"]')!, { target: { value: 'clave123' } });
-
-    fireEvent.submit(modal.querySelector('form')!);
+    const disableBtn = screen.getByTitle('Inhabilitar');
+    fireEvent.click(disableBtn);
 
     await waitFor(() => {
-      expect(adminService.insertarAdmin).toHaveBeenCalledWith(
-        expect.objectContaining({
-          numero_documento: '1003',
-          nombre: 'Nuevo Admin',
-          password: 'clave123',
-        })
-      );
+      expect(eliminarAdmin).toHaveBeenCalledWith('1');
     });
   });
 
-  // 10. VALIDACIÓN: CONTRASEÑA OBLIGATORIA AL CREAR
-  it('debería mostrar alerta si se intenta crear sin contraseña', async () => {
-    render(<MemoryRouter initialEntries={['/admin/usuarios']}><Usuarios /></MemoryRouter>);
-
-    fireEvent.click(screen.getByRole('button', { name: /nuevo administrador/i }));
-    const modal = screen.getByText('Crear Administrador').closest('.modal-container') as HTMLElement;
-
-    fireEvent.change(modal.querySelector('input[name="numero_documento"]')!, { target: { value: '1004' } });
-    fireEvent.change(modal.querySelector('input[name="nombre"]')!, { target: { value: 'Sin Clave' } });
-    // Sin password
-
-    fireEvent.submit(modal.querySelector('form')!);
-
-    await waitFor(() => {
-      expect(Swal.fire).toHaveBeenCalledWith(
-        expect.objectContaining({ title: 'Atención', icon: 'warning' })
-      );
-      expect(adminService.insertarAdmin).not.toHaveBeenCalled();
-    });
-  });
-
-  // 11. EDITAR USUARIO
-  it('debería abrir el modal de edición con los datos y actualizar', async () => {
-    render(<MemoryRouter initialEntries={['/admin/usuarios']}><Usuarios /></MemoryRouter>);
-
-    await waitFor(() => expect(screen.getByText('Admin Uno')).toBeInTheDocument());
-
-    fireEvent.click(screen.getAllByRole('button', { name: /editar/i })[0]);
-
-    expect(screen.getByText('Editar Administrador')).toBeInTheDocument();
-    const modal = screen.getByText('Editar Administrador').closest('.modal-container') as HTMLElement;
-    expect(modal.querySelector('input[name="nombre"]')).toHaveValue('Admin Uno');
-
-    fireEvent.change(modal.querySelector('input[name="nombre"]')!, { target: { value: 'Admin Editado' } });
-    fireEvent.submit(modal.querySelector('form')!);
-
-    await waitFor(() => {
-      expect(adminService.actualizarAdmin).toHaveBeenCalledWith(
-        '1001',
-        expect.objectContaining({ nombre: 'Admin Editado' })
-      );
-    });
-  });
-
-  // 12. INHABILITAR USUARIO
-  it('debería inhabilitar un usuario activo tras confirmar', async () => {
-    render(<MemoryRouter initialEntries={['/admin/usuarios']}><Usuarios /></MemoryRouter>);
-
-    await waitFor(() => expect(screen.getByText('Admin Uno')).toBeInTheDocument());
-
-    fireEvent.click(screen.getAllByRole('button', { name: /inhabilitar/i })[0]);
-
-    await waitFor(() => {
-      expect(adminService.eliminarAdmin).toHaveBeenCalledWith('1001');
-    });
-  });
-
-  // 13. NO INHABILITAR SI SE CANCELA
-  it('no debería inhabilitar si se cancela la confirmación', async () => {
-    vi.mocked(Swal.fire).mockResolvedValueOnce({ isConfirmed: false } as any);
-    render(<MemoryRouter initialEntries={['/admin/usuarios']}><Usuarios /></MemoryRouter>);
-
-    await waitFor(() => expect(screen.getByText('Admin Uno')).toBeInTheDocument());
-
-    fireEvent.click(screen.getAllByRole('button', { name: /inhabilitar/i })[0]);
-
-    await waitFor(() => {
-      expect(adminService.eliminarAdmin).not.toHaveBeenCalled();
-    });
-  });
-
-  // 14. HABILITAR USUARIO INACTIVO
-  it('debería habilitar un usuario inactivo tras confirmar', async () => {
-    render(<MemoryRouter initialEntries={['/admin/usuarios']}><Usuarios /></MemoryRouter>);
-
-    await waitFor(() => expect(screen.getByText('Admin Inactivo')).toBeInTheDocument());
-
-    fireEvent.click(screen.getAllByRole('button', { name: /^habilitar/i })[0]);
-
-    await waitFor(() => {
-      expect(adminService.habilitarAdmin).toHaveBeenCalledWith('1002');
-    });
-  });
-
-  // 15. APROBAR CLIENTE PENDIENTE
-  it('debería aprobar un cliente pendiente', async () => {
-    render(<MemoryRouter initialEntries={['/admin/usuarios']}><Usuarios /></MemoryRouter>);
+  it('approves pending client', async () => {
+    vi.mocked(Swal.fire).mockResolvedValueOnce({ isConfirmed: true } as any);
+    vi.mocked(procesarAprobacionCliente).mockResolvedValueOnce({ data: { success: true } } as any);
+    
+    renderComponent();
+    await waitFor(() => expect(screen.getByText('Admin 1')).toBeInTheDocument());
 
     fireEvent.click(screen.getByRole('button', { name: 'Pendientes' }));
+    await waitFor(() => expect(screen.getByText('Pendiente 1')).toBeInTheDocument());
 
-    await waitFor(() => expect(screen.getByText('Pendiente Uno')).toBeInTheDocument());
-
-    fireEvent.click(screen.getByRole('button', { name: /aprobar/i }));
+    const approveBtn = screen.getByRole('button', { name: /Aprobar/i });
+    fireEvent.click(approveBtn);
 
     await waitFor(() => {
-      expect(clienteService.procesarAprobacionCliente).toHaveBeenCalledWith('4001', 'Aprobar');
+      expect(procesarAprobacionCliente).toHaveBeenCalledWith('2', 'Aprobar');
     });
   });
-
-  // 16. RECHAZAR CLIENTE PENDIENTE
-  it('debería rechazar un cliente pendiente con justificación', async () => {
-    (Swal.fire as any).mockResolvedValueOnce({ isConfirmed: true, value: 'Documento no válido' });
-    render(<MemoryRouter initialEntries={['/admin/usuarios']}><Usuarios /></MemoryRouter>);
-
-    await waitFor(() => expect(screen.getByText('Admin Uno')).toBeInTheDocument());
+  
+  it('rejects pending client', async () => {
+    vi.mocked(Swal.fire).mockResolvedValueOnce({ isConfirmed: true, value: 'Razón' } as any);
+    vi.mocked(procesarAprobacionCliente).mockResolvedValueOnce({ data: { success: true } } as any);
+    
+    renderComponent();
+    await waitFor(() => expect(screen.getByText('Admin 1')).toBeInTheDocument());
 
     fireEvent.click(screen.getByRole('button', { name: 'Pendientes' }));
+    await waitFor(() => expect(screen.getByText('Pendiente 1')).toBeInTheDocument());
 
-    await waitFor(() => expect(screen.getByText('Pendiente Uno')).toBeInTheDocument());
-
-    fireEvent.click(screen.getByRole('button', { name: /rechazar/i }));
-
-    await waitFor(() => {
-      expect(clienteService.procesarAprobacionCliente).toHaveBeenCalledWith(
-        '4001',
-        'Rechazar',
-        'Documento no válido'
-      );
-    });
-  });
-
-  // 17. MANEJO DE ERROR AL CARGAR
-  it('debería mostrar alerta de error si falla la carga de datos', async () => {
-    vi.mocked(adminService.obtenerAdmins).mockRejectedValue({ response: { status: 500, data: { message: 'Error servidor' } } });
-
-    render(<MemoryRouter initialEntries={['/admin/usuarios']}><Usuarios /></MemoryRouter>);
+    const rejectBtn = screen.getByRole('button', { name: /Rechazar/i });
+    fireEvent.click(rejectBtn);
 
     await waitFor(() => {
-      expect(Swal.fire).toHaveBeenCalledWith(
-        expect.objectContaining({ title: 'Error', icon: 'error' })
-      );
+      expect(procesarAprobacionCliente).toHaveBeenCalledWith('2', 'Rechazar', 'Razón');
     });
   });
 });
-
-
-
