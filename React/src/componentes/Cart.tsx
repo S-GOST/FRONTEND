@@ -503,7 +503,7 @@ const Cart: React.FC<CartProps> = () => {
                 <h3>Tu carrito está vacío</h3>
                 <p>No has agregado productos al carrito. ¡Explora nuestros servicios KTM!</p>
                 <Link to="/" className="cart-btn btn-continue">
-                  <i className="bi bi-arrow-left"></i>
+                  <i className="bi bi-arrow-left"></i>{' '}
                   Ver Servicios
                 </Link>
               </div>
@@ -590,11 +590,11 @@ const Cart: React.FC<CartProps> = () => {
                   className="cart-btn btn-checkout"
                   onClick={handleCheckoutClick}
                 >
-                  <i className="bi bi-credit-card"></i>
+                  <i className="bi bi-credit-card"></i>{' '}
                   PROCEDER AL PAGO
                 </button>
                 <Link to="/" className="cart-btn btn-continue">
-                  <i className="bi bi-arrow-left"></i>
+                  <i className="bi bi-arrow-left"></i>{' '}
                   SEGUIR COMPRANDO
                 </Link>
               </div>
@@ -664,7 +664,7 @@ const Cart: React.FC<CartProps> = () => {
                         className="btn-recommendation"
                         onClick={() => addToCart(product)}
                       >
-                        <i className="bi bi-cart-plus"></i>
+                        <i className="bi bi-cart-plus"></i>{' '}
                         Agregar
                       </button>
                     </div>
@@ -679,8 +679,8 @@ const Cart: React.FC<CartProps> = () => {
       {/* MODALS */}
       {/* Modal de eliminar producto */}
       {showDeleteModal && deleteModalData && (
-        <div className="modal-overlay" onClick={() => setShowDeleteModal(false)}>
-          <div className="modal-content" onClick={(e) => e.stopPropagation()} role="button" tabIndex={0} onKeyDown={(e) => { if(e.key === 'Enter') { /* call onClick */ } }}>
+        <div className="modal-overlay" onClick={() => setShowDeleteModal(false)} role="button" tabIndex={0} onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { setShowDeleteModal(false); } }}>
+          <div className="modal-content" onClick={(e) => e.stopPropagation()} role="dialog" tabIndex={-1}>
             <div className="modal-header">
               <h5 className="modal-title">
                 <i className="bi bi-exclamation-triangle me-2"></i>Eliminar Producto
@@ -724,8 +724,8 @@ const Cart: React.FC<CartProps> = () => {
 
       {/* Modal de checkout */}
       {showCheckoutModal && (
-        <div className="modal-overlay" onClick={() => { setShowCheckoutModal(false); setCheckoutStep(1); }}>
-          <div className="modal-content" onClick={(e) => e.stopPropagation()} role="button" tabIndex={0} onKeyDown={(e) => { if(e.key === 'Enter') { /* call onClick */ } }} style={{ maxWidth: checkoutStep === 2 ? '520px' : undefined }}>
+        <div className="modal-overlay" onClick={() => { setShowCheckoutModal(false); setCheckoutStep(1); }} role="button" tabIndex={0} onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { setShowCheckoutModal(false); setCheckoutStep(1); } }}>
+          <div className="modal-content" onClick={(e) => e.stopPropagation()} role="dialog" tabIndex={-1} style={{ maxWidth: checkoutStep === 2 ? '520px' : undefined }}>
             <div className="modal-header">
               <h5 className="modal-title">
                 <i className={`bi bi-${checkoutStep === 1 ? 'credit-card' : 'bicycle'} me-2`}></i>
@@ -791,7 +791,7 @@ const Cart: React.FC<CartProps> = () => {
                   <div className="moto-form">
                     {loadingMotos ? (
                       <div style={{ textAlign: 'center', padding: '2rem 1rem', color: '#888' }}>
-                        <i className="bi bi-hourglass-split" style={{ fontSize: '2rem', display: 'block', marginBottom: '0.5rem', color: 'var(--ktm-orange)' }}></i>
+                        <i className="bi bi-hourglass-split" style={{ fontSize: '2rem', display: 'block', marginBottom: '0.5rem', color: 'var(--ktm-orange)' }}></i>{' '}
                         Cargando tus motos...
                       </div>
                     ) : (
@@ -812,7 +812,7 @@ const Cart: React.FC<CartProps> = () => {
                               return (
                                 <div key={motoId}
                                   className={`moto-card ${isSelected ? 'moto-card--selected' : ''}`}
-                                  onClick={() => setSelectedMotoId(motoId)} role="button" tabIndex={0} onKeyDown={(e) => { if(e.key === 'Enter') { /* call onClick */ } }}
+                                  onClick={() => setSelectedMotoId(motoId)} role="button" tabIndex={0} onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { setSelectedMotoId(motoId); } }}
                                 >
                                   <div className="moto-card__check">
                                     <i className={`bi ${isSelected ? 'bi-check-circle-fill' : 'bi-circle'}`}></i>
@@ -832,7 +832,7 @@ const Cart: React.FC<CartProps> = () => {
 
                             {/* Card para agregar nueva moto */}
                             <div className={`moto-card moto-card--new ${selectedMotoId === 'new' ? 'moto-card--selected' : ''}`}
-                              onClick={() => setSelectedMotoId('new')} role="button" tabIndex={0} onKeyDown={(e) => { if(e.key === 'Enter') { /* call onClick */ } }}
+                              onClick={() => setSelectedMotoId('new')} role="button" tabIndex={0} onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { setSelectedMotoId('new'); } }}
                             >
                               <div className="moto-card__check">
                                 <i className={`bi ${selectedMotoId === 'new' ? 'bi-check-circle-fill' : 'bi-circle'}`}></i>
@@ -851,7 +851,7 @@ const Cart: React.FC<CartProps> = () => {
                           <div className="moto-new-form" style={{ marginTop: clientMotos.length > 0 ? '1.2rem' : 0 }}>
                             {clientMotos.length > 0 && (
                               <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '1rem', color: '#aaa', fontSize: '0.85rem' }}>
-                                <i className="bi bi-info-circle" style={{ color: 'var(--ktm-orange)' }}></i>
+                                <i className="bi bi-info-circle" style={{ color: 'var(--ktm-orange)' }}></i>{' '}
                                 Completa los datos de tu nueva motocicleta
                               </div>
                             )}

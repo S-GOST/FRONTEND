@@ -487,7 +487,17 @@ function Usuarios() {
               e.currentTarget.style.borderColor = '#ff6600';
               e.currentTarget.style.color = '#000';
             }}
+            onFocus={(e) => {
+              e.currentTarget.style.background = '#ff6600';
+              e.currentTarget.style.borderColor = '#ff6600';
+              e.currentTarget.style.color = '#000';
+            }}
             onMouseOut={(e) => {
+              e.currentTarget.style.background = '#1a1a1a';
+              e.currentTarget.style.borderColor = '#333';
+              e.currentTarget.style.color = '#fff';
+            }}
+            onBlur={(e) => {
               e.currentTarget.style.background = '#1a1a1a';
               e.currentTarget.style.borderColor = '#333';
               e.currentTarget.style.color = '#fff';

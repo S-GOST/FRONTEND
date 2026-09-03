@@ -54,7 +54,7 @@ const ClienteHistorial = () => {
   return (
     <div className="cliente-historial-page">
       <h1 className="cliente-historial-title">
-        <i className="bi bi-journal-text" style={{ marginRight: '10px' }}></i>
+        <i className="bi bi-journal-text" style={{ marginRight: '10px' }}></i>{' '}
         Mi Historial
       </h1>
 

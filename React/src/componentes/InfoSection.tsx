@@ -6,7 +6,7 @@ const InfoSection: React.FC = () => {
       <div className="info-grid">
         <div className="info-card">
           <h3 className="info-title">
-            <i className="bi bi-rocket-takeoff"></i>
+            <i className="bi bi-rocket-takeoff"></i>{' '}
             KTM ROCKET SERVICE
           </h3>
           <div className="info-content">
@@ -22,7 +22,7 @@ const InfoSection: React.FC = () => {
 
         <div className="info-card">
           <h3 className="info-title">
-            <i className="bi bi-shield-lock"></i>
+            <i className="bi bi-shield-lock"></i>{' '}
             Política de Privacidad
           </h3>
           <div className="info-content">

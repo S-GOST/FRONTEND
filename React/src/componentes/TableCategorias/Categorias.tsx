@@ -420,8 +420,8 @@ function Categorias() {
 
       {/* Modal Crear */}
       {showCreateModal && (
-        <div className="modal-overlay" onClick={closeCreateModal}>
-          <div className="modal-container" onClick={(e) => e.stopPropagation()} role="button" tabIndex={0} onKeyDown={(e) => { if(e.key === 'Enter') { /* click */ } }}>
+        <div className="modal-overlay" onClick={closeCreateModal} role="button" tabIndex={0} onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { closeCreateModal(); } }}>
+          <div className="modal-container" onClick={(e) => e.stopPropagation()} role="dialog" tabIndex={-1}>
             <div className="modal-header">
               <h3>Crear Categoría</h3>
               <button type="button" className="close-btn" onClick={closeCreateModal}>
@@ -476,8 +476,8 @@ function Categorias() {
 
       {/* Modal Editar */}
       {showEditModal && currentCategoria && (
-        <div className="modal-overlay" onClick={closeEditModal}>
-          <div className="modal-container" onClick={(e) => e.stopPropagation()} role="button" tabIndex={0} onKeyDown={(e) => { if(e.key === 'Enter') { /* click */ } }}>
+        <div className="modal-overlay" onClick={closeEditModal} role="button" tabIndex={0} onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { closeEditModal(); } }}>
+          <div className="modal-container" onClick={(e) => e.stopPropagation()} role="dialog" tabIndex={-1}>
             <div className="modal-header">
               <h3>Editar Categoría</h3>
               <button type="button" className="close-btn" onClick={closeEditModal}>

@@ -29,7 +29,7 @@ const ServiceSection: React.FC<ServiceSectionProps> = ({ title, subtitle, servic
               className="btn-service add-to-cart-btn"
               onClick={() => onAddToCart(service)}
             >
-              <i className="bi bi-cart-plus"></i>
+              <i className="bi bi-cart-plus"></i>{' '}
               Agregar al Carrito
             </button>
           </div>

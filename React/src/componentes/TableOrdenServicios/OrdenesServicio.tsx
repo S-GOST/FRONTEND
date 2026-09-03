@@ -411,8 +411,8 @@ const OrdenesServicio = () => {
 
       {/* Modal de detalles */}
       {modalOpen && selectedOrder && (
-        <div className="modal-overlay" onClick={() => setModalOpen(false)}>
-          <div className="modal-container" onClick={(e) => e.stopPropagation()} role="button" tabIndex={0} onKeyDown={(e) => { if (e.key === 'Enter') e.currentTarget.click() }}>
+        <div className="modal-overlay" onClick={() => setModalOpen(false)} role="button" tabIndex={0} onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { setModalOpen(false); } }}>
+          <div className="modal-container" onClick={(e) => e.stopPropagation()} role="dialog" tabIndex={-1}>
             <div className="modal-header">
               <h3>Detalles de la orden {selectedOrder.ID_ORDEN_SERVICIO}</h3>
               <button type="button" className="close-btn" onClick={() => setModalOpen(false)}>&times;</button>
@@ -459,8 +459,8 @@ const OrdenesServicio = () => {
 
       {/* Modal de formulario (Restaurado a selects originales) */}
       {modalFormOpen && (
-        <div className="modal-overlay" onClick={() => setModalFormOpen(false)}>
-          <div className="modal-container" onClick={(e) => e.stopPropagation()} role="button" tabIndex={0} onKeyDown={(e) => { if (e.key === 'Enter') e.currentTarget.click() }}>
+        <div className="modal-overlay" onClick={() => setModalFormOpen(false)} role="button" tabIndex={0} onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { setModalFormOpen(false); } }}>
+          <div className="modal-container" onClick={(e) => e.stopPropagation()} role="dialog" tabIndex={-1}>
             <div className="modal-header">
               <h3>{editMode ? 'Editar Orden' : 'Nueva Orden de Servicio'}</h3>
               <button type="button" className="close-btn" onClick={() => setModalFormOpen(false)}>&times;</button>

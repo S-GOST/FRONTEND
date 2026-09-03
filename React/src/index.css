@@ -362,8 +362,8 @@ body::before {
   font-size: 0.95rem;
   transition: all 0.3s ease;
   cursor: pointer;
-  border: none;
 }
+
 
 .btn-service:hover {
   background: rgba(255, 102, 0, 0.2);

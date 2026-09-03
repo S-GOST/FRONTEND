@@ -423,8 +423,8 @@ const TecnicoDashboard = () => {
 
       {/* ===== MODAL: DETALLE ORDEN ===== */}
       {modalAbierto && ordenActual && (
-        <div className="modal-overlay" onClick={() => setModalAbierto(false)}>
-          <div className="modal-content modal-tecnico" onClick={e => e.stopPropagation()} role="button" tabIndex={0} onKeyDown={(e) => { if (e.key === 'Enter') e.currentTarget.click() }}>
+        <div className="modal-overlay" onClick={() => setModalAbierto(false)} role="button" tabIndex={0} onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { setModalAbierto(false); } }}>
+          <div className="modal-content modal-tecnico" onClick={e => e.stopPropagation()} role="dialog" tabIndex={-1}>
             <div className="modal-header">
               <h3><i className="bi bi-tools"></i> Detalle — {formatId('orden', ordenActual.ID_ORDEN_SERVICIO)}</h3>
               <button className="modal-close" onClick={() => setModalAbierto(false)}>×</button>
@@ -531,8 +531,8 @@ const TecnicoDashboard = () => {
 
       {/* ===== MODAL: CREAR INFORME ===== */}
       {modalInformeAbierto && ordenActual && (
-        <div className="modal-overlay" onClick={() => setModalInformeAbierto(false)}>
-          <div className="modal-content modal-tecnico" onClick={e => e.stopPropagation()} role="button" tabIndex={0} onKeyDown={(e) => { if (e.key === 'Enter') e.currentTarget.click() }} style={{ maxWidth: '650px' }}>
+        <div className="modal-overlay" onClick={() => setModalInformeAbierto(false)} role="button" tabIndex={0} onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { setModalInformeAbierto(false); } }}>
+          <div className="modal-content modal-tecnico" onClick={e => e.stopPropagation()} role="dialog" tabIndex={-1} style={{ maxWidth: '650px' }}>
             <div className="modal-header">
               <h3><i className="bi bi-file-earmark-plus"></i> Informe — {formatId('orden', ordenActual.ID_ORDEN_SERVICIO)}</h3>
               <button className="modal-close" onClick={() => setModalInformeAbierto(false)}>×</button>

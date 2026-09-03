@@ -11,10 +11,10 @@ const Footer: React.FC = () => {
             <p>Certificación oficial KTM</p>
             <p>Taller autorizado para motos de competición</p>
             <div className="footer-social">
-              <a href="#"><i className="bi bi-facebook"></i></a>
-              <a href="#"><i className="bi bi-instagram"></i></a>
-              <a href="#"><i className="bi bi-youtube"></i></a>
-              <a href="#"><i className="bi bi-whatsapp"></i></a>
+              <a href="#!"><i className="bi bi-facebook"></i></a>
+              <a href="#!"><i className="bi bi-instagram"></i></a>
+              <a href="#!"><i className="bi bi-youtube"></i></a>
+              <a href="#!"><i className="bi bi-whatsapp"></i></a>
             </div>
           </div>
 

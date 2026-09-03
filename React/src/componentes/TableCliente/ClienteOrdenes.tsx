@@ -112,7 +112,7 @@ const ClienteOrdenes = () => {
       }}>
         <div>
           <h2 style={{ margin: 0, color: '#fff', fontSize: '1.6rem', fontWeight: 700 }}>
-            <i className="bi bi-clipboard-check" style={{ color: '#ff6600', marginRight: '10px' }}></i>
+            <i className="bi bi-clipboard-check" style={{ color: '#ff6600', marginRight: '10px' }}></i>{' '}
             Mis Órdenes de Servicio
           </h2>
           <p style={{ margin: '4px 0 0 0', color: '#888', fontSize: '0.9rem' }}>
@@ -175,7 +175,7 @@ const ClienteOrdenes = () => {
                 boxShadow: isExpanded ? '0 8px 30px rgba(255,102,0,0.1)' : '0 2px 10px rgba(0,0,0,0.2)'
               }}>
                 {/* Fila principal de la orden */}
-                <div onClick={() => toggleDetalles(orden.ID_ORDEN_SERVICIO)} role="button" tabIndex={0} onKeyDown={(e) => { if(e.key === 'Enter') { /* click */ } }}
+                <div onClick={() => toggleDetalles(orden.ID_ORDEN_SERVICIO)} role="button" tabIndex={0} onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { toggleDetalles(orden.ID_ORDEN_SERVICIO); } }}
                   style={{ 
                     padding: '20px 24px', cursor: 'pointer',
                     display: 'grid', 
@@ -185,7 +185,9 @@ const ClienteOrdenes = () => {
                     transition: 'background 0.2s'
                   }}
                   onMouseEnter={(e) => (e.currentTarget.style.background = '#222')}
+                  onFocus={(e) => (e.currentTarget.style.background = '#222')}
                   onMouseLeave={(e) => (e.currentTarget.style.background = 'transparent')}
+                  onBlur={(e) => (e.currentTarget.style.background = 'transparent')}
                 >
                   {/* ID */}
                   <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>

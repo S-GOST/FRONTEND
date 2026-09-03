@@ -29,14 +29,14 @@ export const BackButton: React.FC<BackButtonProps> = ({ to = '/admin/dashboard',
         flexShrink: 0
       }}
       onMouseOver={(e) => {
-        e.currentTarget.style.background = '#ff6600';
+        e.currentTarget.style.background = 'rgba(255, 102, 0, 0.2)';
         e.currentTarget.style.borderColor = '#ff6600';
-        e.currentTarget.style.color = '#000';
+        e.currentTarget.style.color = '#fff';
       }}
       onFocus={(e) => {
-        e.currentTarget.style.background = '#ff6600';
+        e.currentTarget.style.background = 'rgba(255, 102, 0, 0.2)';
         e.currentTarget.style.borderColor = '#ff6600';
-        e.currentTarget.style.color = '#000';
+        e.currentTarget.style.color = '#fff';
       }}
       onMouseOut={(e) => {
         e.currentTarget.style.background = '#1a1a1a';

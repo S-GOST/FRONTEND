@@ -494,8 +494,8 @@ function Servicios() {
 
       {/* Modal Crear */}
       {showCreateModal && (
-        <div className="modal-overlay" onClick={closeCreateModal}>
-          <div className="modal-container" onClick={(e) => e.stopPropagation()} role="button" tabIndex={0} onKeyDown={(e) => { if (e.key === 'Enter') e.currentTarget.click() }}>
+        <div className="modal-overlay" onClick={closeCreateModal} role="button" tabIndex={0} onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { closeCreateModal(); } }}>
+          <div className="modal-container" onClick={(e) => e.stopPropagation()} role="dialog" tabIndex={-1}>
             <div className="modal-header">
               <h3>Crear Servicio</h3>
               <button type="button" className="close-btn" onClick={closeCreateModal}>
@@ -595,8 +595,8 @@ function Servicios() {
 
       {/* Modal Editar */}
       {showEditModal && currentServicio && (
-        <div className="modal-overlay" onClick={closeEditModal}>
-          <div className="modal-container" onClick={(e) => e.stopPropagation()} role="button" tabIndex={0} onKeyDown={(e) => { if (e.key === 'Enter') e.currentTarget.click() }}>
+        <div className="modal-overlay" onClick={closeEditModal} role="button" tabIndex={0} onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { closeEditModal(); } }}>
+          <div className="modal-container" onClick={(e) => e.stopPropagation()} role="dialog" tabIndex={-1}>
             <div className="modal-header">
               <h3><i className="bi bi-pencil-square"></i> Editar Servicio</h3>
               <button type="button" className="close-btn" onClick={closeEditModal}>
