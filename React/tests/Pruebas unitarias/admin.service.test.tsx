@@ -1,4 +1,3 @@
-
 import {
   obtenerAdmins,
   insertarAdmin,
@@ -6,27 +5,29 @@ import {
   eliminarAdmin,
   habilitarAdmin,
 } from '../../src/services/admin.service';
-import { vi, describe, it, beforeEach, expect } from 'vitest'; // Importar vi
+import { vi, describe, it, beforeEach, expect } from 'vitest';
 
-// 1. MOCKS DE LOS MÉTODOS INTERNOS DE BaseApiService (hoisted para que vi.mock los vea)
-const { mockObtenerTodos, mockCrear, mockActualizar, mockEliminar, mockPut } = vi.hoisted(() => ({
-  mockObtenerTodos: vi.fn(),
-  mockCrear: vi.fn(),
-  mockActualizar: vi.fn(),
-  mockEliminar: vi.fn(),
-  mockPut: vi.fn(),
-}));
+// 1. Definimos las funciones mock fuera del vi.mock para evitar problemas de hoisting
+const mockObtenerTodos = vi.fn();
+const mockCrear = vi.fn();
+const mockActualizar = vi.fn();
+const mockEliminar = vi.fn();
+const mockPut = vi.fn();
 
-// 2. MOCK DE LA CLASE BaseApiService (misma ruta que usa admin.service)
-vi.mock('../../src/services/base.service', () => ({
-  BaseApiService: vi.fn(function(this: any) {
-    this.obtenerTodos = mockObtenerTodos;
-    this.crear = mockCrear;
-    this.actualizar = mockActualizar;
-    this.eliminar = mockEliminar;
-    this.http = { put: mockPut };
-  }),
-}));
+// 2. MOCK CORREGIDO DE LA CLASE BaseApiService
+vi.mock('../../src/services/base.service', () => {
+  // Retornamos una clase falsa. Usamos 'function' normal (no arrow) para tener acceso a 'this'.
+  // Agregamos ': any' después de 'function' para silenciar la advertencia de TypeScript.
+  return {
+    BaseApiService: vi.fn().mockImplementation(function(this: any) {
+      this.obtenerTodos = mockObtenerTodos;
+      this.crear = mockCrear;
+      this.actualizar = mockActualizar;
+      this.eliminar = mockEliminar;
+      this.http = { put: mockPut };
+    }),
+  };
+});
 
 // ==================== DATOS DE PRUEBA ====================
 const mockAdmin = {
@@ -40,15 +41,14 @@ const mockAdmin = {
 
 describe('admin.service', () => {
   beforeEach(() => {
-    vi.clearAllMocks(); // ✅ Cambio: jest -> vi
+    vi.clearAllMocks();
   });
 
   // ========== obtenerAdmins ==========
 
-  // 1. ARRAY DIRECTO CON RETROCOMPATIBILIDAD
   it('debería agregar ID_ADMINISTRADOR y Nombre cuando data es un array', async () => {
     mockObtenerTodos.mockResolvedValue({ data: [mockAdmin] });
-
+    
     const res = await obtenerAdmins();
 
     expect(res.data[0]).toEqual({
@@ -58,7 +58,6 @@ describe('admin.service', () => {
     });
   });
 
-  // 2. ARRAY ANIDADO EN data.data
   it('debería aplicar retrocompatibilidad cuando el array está en data.data', async () => {
     mockObtenerTodos.mockResolvedValue({ data: { data: [mockAdmin] } });
 
@@ -68,7 +67,6 @@ describe('admin.service', () => {
     expect(res.data.data[0].Nombre).toBe('Admin Uno');
   });
 
-  // 3. ARRAY ANIDADO EN data.admins
   it('debería aplicar retrocompatibilidad cuando el array está en data.admins', async () => {
     mockObtenerTodos.mockResolvedValue({ data: { admins: [mockAdmin] } });
 
@@ -78,7 +76,6 @@ describe('admin.service', () => {
     expect(res.data.admins[0].Nombre).toBe('Admin Uno');
   });
 
-  // 4. RESPUESTA SIN DATA
   it('debería retornar la respuesta sin modificar si no hay data', async () => {
     mockObtenerTodos.mockResolvedValue({ status: 200 });
 
@@ -89,7 +86,6 @@ describe('admin.service', () => {
 
   // ========== insertarAdmin ==========
 
-  // 5. CREAR ADMIN
   it('debería llamar a crear con el payload completo', async () => {
     mockCrear.mockResolvedValue({ data: { success: true } });
 
@@ -100,7 +96,6 @@ describe('admin.service', () => {
 
   // ========== actualizarAdmin ==========
 
-  // 6. ACTUALIZAR ADMIN
   it('debería llamar a actualizar con el ID y el payload', async () => {
     mockActualizar.mockResolvedValue({ data: { success: true } });
 
@@ -114,7 +109,6 @@ describe('admin.service', () => {
 
   // ========== eliminarAdmin ==========
 
-  // 7. ELIMINAR ADMIN
   it('debería llamar a eliminar con el ID', async () => {
     mockEliminar.mockResolvedValue({ data: { success: true } });
 
@@ -125,7 +119,6 @@ describe('admin.service', () => {
 
   // ========== habilitarAdmin ==========
 
-  // 8. HABILITAR ADMIN
   it('debería hacer PUT a la ruta de actualizar con estado Activo', async () => {
     mockPut.mockResolvedValue({ data: { success: true } });
 
@@ -141,6 +134,3 @@ describe('admin.service', () => {
     await expect(obtenerAdmins()).rejects.toThrow('Error de red');
   });
 });
-
-
-
