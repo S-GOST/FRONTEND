@@ -5,8 +5,8 @@ import { Service } from '../../src/types';
 
 describe('ServiceSection', () => {
   const mockServices: Service[] = [
-    { id: 1, name: 'Service 1', description: 'Desc 1', price: 10000, icon: 'bi-wrench' },
-    { id: 2, name: 'Service 2', description: 'Desc 2', price: 25000, icon: 'bi-gear' }
+    { id: '1', name: 'Service 1', category: 'Category 1', description: 'Desc 1', price: 10000, icon: 'bi-wrench' },
+    { id: '2', name: 'Service 2', category: 'Category 2', description: 'Desc 2', price: 25000, icon: 'bi-gear' }
   ];
 
   it('renders correctly with services', () => {

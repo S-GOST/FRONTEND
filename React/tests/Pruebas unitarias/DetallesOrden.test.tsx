@@ -1,7 +1,7 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import DetallesOrden from '../../src/componentes/TableOrdenServicios/DetallesOrden';
-import { obtenerDetallesOrdenes, insertarDetalleOrden, actualizarDetalleOrden, eliminarDetalleOrden } from '../../src/services/detalleOrdenServicioService';
+import { obtenerDetallesOrdenes, insertarDetalleOrden, eliminarDetalleOrden } from '../../src/services/detalleOrdenServicioService';
 import { obtenerServicios } from '../../src/services/servicio.service';
 import { obtenerProductos } from '../../src/services/producto.service';
 import { obtenerOrdenes } from '../../src/services/ordenServicioService';

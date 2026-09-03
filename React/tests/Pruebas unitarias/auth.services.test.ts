@@ -26,11 +26,11 @@ describe('auth.services', () => {
     
     // Mock de window.location.replace
     delete (window as any).location;
-    window.location = { ...originalLocation, replace: vi.fn() };
+    window.location = { ...originalLocation, replace: vi.fn() } as any;
   });
 
   afterEach(() => {
-    window.location = originalLocation;
+    window.location = originalLocation as any;
   });
 
   describe('loginService', () => {

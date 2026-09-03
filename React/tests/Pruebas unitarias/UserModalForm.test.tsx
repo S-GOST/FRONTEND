@@ -29,7 +29,7 @@ describe('UserModalForm', () => {
   it('renders create modal', () => {
     render(<UserModalForm {...mockProps} />);
     expect(screen.getByRole('heading', { name: /Crear Administrador/i })).toBeInTheDocument();
-    expect(screen.getByRole('button', { name: /Guardar/i, exact: true })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: /Guardar/i })).toBeInTheDocument();
   });
 
   it('renders edit modal', () => {

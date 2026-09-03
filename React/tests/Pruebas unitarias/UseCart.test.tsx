@@ -10,8 +10,9 @@ describe('useCart', () => {
   });
 
   const mockService: Service = {
-    id: 1,
+    id: '1',
     name: 'Test Service',
+    category: 'Test Category',
     description: 'Desc',
     price: 1000,
     icon: 'bi-wrench'

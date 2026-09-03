@@ -1,3 +1,4 @@
+import { describe, it, expect } from 'vitest';
 import { servicesData, searchSuggestionsData } from '../../src/utils/constants';
 describe('Constants - servicesData', () => {
   // 1. CANTIDAD DE SERVICIOS

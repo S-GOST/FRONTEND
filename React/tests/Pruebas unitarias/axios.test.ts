@@ -1,5 +1,4 @@
-import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
-import axios from 'axios';
+import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { apiClient } from '../../src/config/axios';
 
 describe('axios config', () => {
@@ -68,39 +67,39 @@ describe('axios config', () => {
     it('debería procesar refresh token si es 401, tiene token y no es ruta de login/refresh', async () => {
       localStorage.setItem('user_token', 'old-token');
       
-      const originalRequest = { url: '/api/data', headers: {} };
+      const originalRequest = { url: '/api/data', headers: {} as Record<string, string> };
       const error = { config: originalRequest, response: { status: 401 } };
       
       // Simular que el post al refresh funciona
-      const postSpy = vi.spyOn(apiClient, 'post').mockResolvedValueOnce({ data: { token: 'new-token' } });
+      vi.spyOn(apiClient, 'post').mockResolvedValueOnce({ data: { token: 'new-token' } });
       
       // Mockear request interno del axios
-      const requestSpy = vi.spyOn(apiClient, 'request').mockResolvedValueOnce({ data: 're-fetched' } as any);
+      vi.spyOn(apiClient, 'request').mockResolvedValueOnce({ data: 're-fetched' } as any);
 
       // Usar apply para pasar el 'this' falso (que es lo que el interceptor espera si llama a apiClient como funcion, pero en este caso llama a apiClient(originalRequest))
       // Esperamos que retorne la promesa de apiClient(originalRequest)
-      const fakeAxiosInstance = Object.assign(
+      Object.assign(
         vi.fn().mockResolvedValue({ data: 're-fetched' }), 
         apiClient
       );
       
-      const result = await resInterceptor.rejected(error);
+      await resInterceptor.rejected(error);
       expect(localStorage.getItem('user_token')).toBe('new-token');
       expect(originalRequest.headers.Authorization).toBe('Bearer new-token');
     });
 
     it('debería encolar peticiones si ya se está refrescando el token', async () => {
       localStorage.setItem('user_token', 'old-token');
-      const originalRequest1 = { url: '/api/data1', headers: {} };
+      const originalRequest1 = { url: '/api/data1', headers: {} as Record<string, string> };
       const error1 = { config: originalRequest1, response: { status: 401 } };
-      const originalRequest2 = { url: '/api/data2', headers: {} };
+      const originalRequest2 = { url: '/api/data2', headers: {} as Record<string, string> };
       const error2 = { config: originalRequest2, response: { status: 401 } };
 
       let resolveRefresh: any;
       const refreshPromise = new Promise(resolve => { resolveRefresh = resolve; });
       
       vi.spyOn(apiClient, 'post').mockReturnValue(refreshPromise as any);
-      const requestSpy = vi.spyOn(apiClient, 'request').mockResolvedValue({ data: 'ok' } as any);
+      vi.spyOn(apiClient, 'request').mockResolvedValue({ data: 'ok' } as any);
 
       // Disparamos el primero (inicia refresh)
       const promise1 = resInterceptor.rejected(error1);
@@ -117,7 +116,7 @@ describe('axios config', () => {
 
     it('debería manejar el error de refresh token y limpiar sesión', async () => {
       localStorage.setItem('user_token', 'old-token');
-      const originalRequest = { url: '/api/data', headers: {} };
+      const originalRequest = { url: '/api/data', headers: {} as Record<string, string> };
       const error = { config: originalRequest, response: { status: 401 } };
       
       vi.spyOn(apiClient, 'post').mockRejectedValueOnce(new Error('Refresh Failed'));

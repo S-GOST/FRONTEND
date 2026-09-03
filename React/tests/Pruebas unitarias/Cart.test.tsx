@@ -1,4 +1,3 @@
-import React from 'react';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import { MemoryRouter } from 'react-router-dom';
 import { vi, describe, it, expect, beforeEach } from 'vitest';
@@ -63,7 +62,6 @@ describe('Cart Component', () => {
 
     await waitFor(() => expect(screen.getByText('2')).toBeInTheDocument());
 
-    const btnMinus = screen.getByRole('button', { name: '' });
     // Vitest no tiene name en los botones con solo iconos sin aria-label fácilmente
     const buttonsMinus = screen.getAllByRole('button');
     const minus = buttonsMinus.find(b => b.classList.contains('minus'))!;

@@ -1,14 +1,13 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
-import TableInformes from '../../src/componentes/TableInforme/informe';
-import { obtenerInformes, obtenerMisInformes, crearInforme, actualizarInforme, eliminarInforme } from '../../src/services/informe.service';
+import TableInformes from '../../src/componentes/Tableinforme/informe';
+import { obtenerInformes, crearInforme, actualizarInforme, eliminarInforme } from '../../src/services/informe.service';
 import { obtenerComprobantes, generarComprobante } from '../../src/services/comprobanteService';
 import { MemoryRouter } from 'react-router-dom';
 import Swal from 'sweetalert2';
 
 vi.mock('../../src/services/informe.service', () => ({
   obtenerInformes: vi.fn(),
-  obtenerMisInformes: vi.fn(),
   crearInforme: vi.fn(),
   actualizarInforme: vi.fn(),
   eliminarInforme: vi.fn()
@@ -59,7 +58,7 @@ describe('TableInformes', () => {
     const searchInput = screen.getByPlaceholderText(/Buscar por ID/i);
     fireEvent.change(searchInput, { target: { value: 'Diag 2' } });
     
-    const searchBtn = screen.getByRole('button', { name: '' }); // the search button has no text, just icon
+
     // To click the correct button we can use the class or structure.
     const buttons = screen.getAllByRole('button');
     const searchBtnElement = buttons.find(btn => btn.querySelector('.bi-search'));

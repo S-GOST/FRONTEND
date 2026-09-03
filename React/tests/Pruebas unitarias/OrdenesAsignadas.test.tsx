@@ -4,10 +4,10 @@ import { OrdenesAsignadas, OrdenUI } from '../../src/componentes/TableTecnico/Or
 
 describe('OrdenesAsignadas', () => {
   const mockOrdenes: OrdenUI[] = [
-    { ID_ORDEN_SERVICIO: 1, ClienteNombre: 'Cliente A', Estado: 'Pendiente' },
-    { ID_ORDEN_SERVICIO: 2, ClienteNombre: 'Cliente B', Estado: 'En proceso' },
-    { ID_ORDEN_SERVICIO: 3, ClienteNombre: 'Cliente C', Estado: 'Completado' }
-  ];
+    { ID_ORDEN_SERVICIO: '1', ClienteNombre: 'Cliente A', Estado: 'Pendiente' },
+    { ID_ORDEN_SERVICIO: '2', ClienteNombre: 'Cliente B', Estado: 'En proceso' },
+    { ID_ORDEN_SERVICIO: '3', ClienteNombre: 'Cliente C', Estado: 'Completado' }
+  ] as OrdenUI[];
 
   const mockProps = {
     ordenes: mockOrdenes,
@@ -20,7 +20,7 @@ describe('OrdenesAsignadas', () => {
       return { class: 'completada', icon: 'icon-c', label: 'Finalizada', next: '' };
     },
     formatDate: (d: string | null | undefined) => d || '-',
-    formatId: (tipo: string, id: any) => `ORD-${id}`
+    formatId: (_tipo: string, id: any) => `ORD-${id}`
   };
 
   it('should render all orders initially', () => {

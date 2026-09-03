@@ -2,7 +2,7 @@ import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import Login from '../../src/pages/Login';
 import { loginService } from '../../src/services/auth.services';
-import { MemoryRouter, useNavigate } from 'react-router-dom';
+import { MemoryRouter } from 'react-router-dom';
 
 vi.mock('../../src/services/auth.services', () => ({
   loginService: vi.fn()

@@ -1,4 +1,4 @@
-import { Mock } from 'vitest';
+import { Mock, vi, describe, it, expect, beforeEach } from 'vitest';
 import { obtenerTiposDocumento } from '../../src/services/tipoDocumento.service';
 import { BaseApiService } from '../../src/services/base.service';
 

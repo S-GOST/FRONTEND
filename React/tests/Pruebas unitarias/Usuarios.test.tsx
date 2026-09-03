@@ -1,7 +1,7 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import Usuarios from '../../src/componentes/TableAdmin/Usuarios';
-import { obtenerAdmins, insertarAdmin, actualizarAdmin, eliminarAdmin, habilitarAdmin } from '../../src/services/admin.service';
+import { obtenerAdmins, insertarAdmin, eliminarAdmin, habilitarAdmin } from '../../src/services/admin.service';
 import { obtenerTecnicos } from '../../src/services/tecnico.service';
 import { obtenerClientes, obtenerClientesPendientes, procesarAprobacionCliente } from '../../src/services/cliente.service';
 import { obtenerTiposDocumento } from '../../src/services/tipoDocumento.service';
@@ -63,7 +63,7 @@ describe('Usuarios', () => {
     renderComponent();
     await waitFor(() => expect(screen.getByText('Admin 1')).toBeInTheDocument());
     
-    const searchInput = screen.getByPlaceholderText(/Buscar por/i);
+    const searchInput = screen.getByPlaceholderText(/Buscar en/i);
     fireEvent.change(searchInput, { target: { value: 'NonExistent' } });
     
     const searchBtn = screen.getByRole('button', { name: /Buscar/i });
@@ -71,8 +71,8 @@ describe('Usuarios', () => {
     
     expect(screen.queryByText('Admin 1')).not.toBeInTheDocument();
     
-    const resetBtn = screen.getByText(/Reset/i);
-    fireEvent.click(resetBtn);
+    fireEvent.change(searchInput, { target: { value: '' } });
+    fireEvent.click(searchBtn);
     
     expect(screen.getByText('Admin 1')).toBeInTheDocument();
   });
@@ -88,13 +88,13 @@ describe('Usuarios', () => {
       expect(screen.getByRole('heading', { name: /Crear Administrador/i })).toBeInTheDocument();
     });
 
-    fireEvent.change(screen.getByLabelText(/Documento/i), { target: { value: '99' } });
-    fireEvent.change(screen.getByLabelText(/Nombre/i), { target: { value: 'Test Admin' } });
+    fireEvent.change(screen.getByLabelText(/^Documento$/i), { target: { value: '99' } });
+    fireEvent.change(screen.getByLabelText(/^Nombre$/i), { target: { value: 'Test Admin' } });
     fireEvent.change(screen.getByLabelText(/Correo/i), { target: { value: 'test@t.com' } });
     fireEvent.change(screen.getByLabelText(/Tipo de documento/i), { target: { value: '1' } });
     fireEvent.change(screen.getByLabelText(/Teléfono/i), { target: { value: '123' } });
     fireEvent.change(screen.getByLabelText(/Usuario/i), { target: { value: 'test' } });
-    fireEvent.change(screen.getByLabelText(/Contraseña/i), { target: { value: 'pass' } });
+    fireEvent.change(screen.getByLabelText(/^Contraseña$/i), { target: { value: 'pass' } });
 
     fireEvent.click(screen.getByText(/Guardar/i, { exact: true }));
 
@@ -110,11 +110,29 @@ describe('Usuarios', () => {
     renderComponent();
     await waitFor(() => expect(screen.getByText('Admin 1')).toBeInTheDocument());
 
-    const disableBtn = screen.getByTitle('Inhabilitar');
+    const disableBtn = screen.getByRole('button', { name: /Inhabilitar/i });
     fireEvent.click(disableBtn);
 
     await waitFor(() => {
       expect(eliminarAdmin).toHaveBeenCalledWith('1');
+    });
+  });
+
+  it('enables admin', async () => {
+    vi.mocked(obtenerAdmins).mockResolvedValueOnce({ data: [
+      { numero_documento: '3', nombre: 'Admin Inactivo', correo: 'b@b.com', estado: 'Inactivo' }
+    ] } as any);
+    vi.mocked(Swal.fire).mockResolvedValueOnce({ isConfirmed: true } as any);
+    vi.mocked(habilitarAdmin).mockResolvedValueOnce({ data: { success: true } } as any);
+    
+    renderComponent();
+    await waitFor(() => expect(screen.getByText('Admin Inactivo')).toBeInTheDocument());
+
+    const enableBtn = screen.getByRole('button', { name: /Habilitar/i });
+    fireEvent.click(enableBtn);
+
+    await waitFor(() => {
+      expect(habilitarAdmin).toHaveBeenCalledWith('3');
     });
   });
 

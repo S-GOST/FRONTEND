@@ -1,4 +1,4 @@
-import { Mock } from 'vitest';
+import { Mock, vi, describe, it, expect, beforeEach } from 'vitest';
 import {
   obtenerProductos,
   insertarProducto,
@@ -8,16 +8,17 @@ import {
 } from '../../src/services/producto.service';
 import { BaseApiService } from '../../src/services/base.service';
 
+const mockBaseInstance = {
+  obtenerTodos: vi.fn(),
+  crear: vi.fn(),
+  actualizar: vi.fn(),
+  eliminar: vi.fn(),
+};
+
 vi.mock('../../src/services/base.service', () => {
-  const instance = {
-    obtenerTodos: vi.fn(),
-    crear: vi.fn(),
-    actualizar: vi.fn(),
-    eliminar: vi.fn(),
-  };
   return {
     __esModule: true,
-    BaseApiService: vi.fn(function(this: any) { Object.assign(this, instance); return this; }),
+    BaseApiService: vi.fn(() => mockBaseInstance),
   };
 });
 
@@ -31,7 +32,7 @@ vi.mock('../../src/config/axios', () => ({
   },
 }));
 
-const base = (BaseApiService as unknown as Mock).mock.results[0].value;
+const base = mockBaseInstance;
 
 describe('producto.service', () => {
   let apiClient: any;
@@ -60,7 +61,8 @@ describe('producto.service', () => {
       precio_costo: 40000,
       precio_venta: 50000,
       stock: 10,
-      stock_minimo: 2, estado: 'Disponible',
+      stock_minimo: 2, 
+      Estado: 'Disponible',
     };
     await insertarProducto(mockPayload as any);
     expect(base.crear).toHaveBeenCalledWith({
@@ -86,7 +88,11 @@ describe('producto.service', () => {
       ID_CATEGORIA: '40',
       Marca: 'KTM',
       Nombre: 'Aceite Sintético',
-      precio_venta: 75000, precio_costo: 60000, stock: 15, stock_minimo: 3, Estado: 'Disponible',
+      precio_venta: 75000, 
+      precio_costo: 60000, 
+      stock: 15, 
+      stock_minimo: 3, 
+      Estado: 'Disponible',
     };
     await actualizarProducto('5', mockPayload as any);
     expect(base.actualizar).toHaveBeenCalledWith(

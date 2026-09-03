@@ -1,4 +1,4 @@
-import { Mock } from 'vitest';
+import { Mock, vi, describe, it, expect, beforeEach } from 'vitest';
 import {
   obtenerTecnicos,
   insertarTecnico,

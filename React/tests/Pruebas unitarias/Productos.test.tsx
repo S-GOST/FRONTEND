@@ -4,7 +4,6 @@ import TableProductos from '../../src/componentes/TableProductos/productos';
 import { 
   obtenerProductos, 
   insertarProducto, 
-  actualizarProducto, 
   eliminarProducto, 
   habilitarProducto 
 } from '../../src/services/producto.service';
@@ -15,7 +14,6 @@ import Swal from 'sweetalert2';
 vi.mock('../../src/services/producto.service', () => ({
   obtenerProductos: vi.fn(),
   insertarProducto: vi.fn(),
-  actualizarProducto: vi.fn(),
   eliminarProducto: vi.fn(),
   habilitarProducto: vi.fn()
 }));

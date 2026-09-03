@@ -1,4 +1,4 @@
-import React from 'react';
+
 import { render, screen } from '@testing-library/react';
 import { MemoryRouter } from 'react-router-dom';
 import { describe, it, expect } from 'vitest';
@@ -13,10 +13,10 @@ describe('AccessSection Component', () => {
     );
 
     expect(screen.getByText('Acceso al Sistema de Gestión')).toBeInTheDocument();
-    
+
     const adminLink = screen.getByRole('link', { name: /Administrador/i });
     expect(adminLink).toHaveAttribute('href', '/admin');
-    
+
     const tecnicoLink = screen.getByRole('link', { name: /Técnico/i });
     expect(tecnicoLink).toHaveAttribute('href', '/tecnico/login');
   });

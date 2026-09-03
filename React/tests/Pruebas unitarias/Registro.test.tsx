@@ -3,7 +3,7 @@ import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import Registro from '../../src/pages/Registro';
 import { insertarCliente } from '../../src/services/cliente.service';
 import { obtenerTiposDocumento } from '../../src/services/tipoDocumento.service';
-import { MemoryRouter, useNavigate } from 'react-router-dom';
+import { MemoryRouter } from 'react-router-dom';
 import Swal from 'sweetalert2';
 
 vi.mock('../../src/services/cliente.service', () => ({
