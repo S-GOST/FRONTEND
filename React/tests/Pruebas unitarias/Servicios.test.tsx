@@ -198,6 +198,10 @@ describe('Servicios Component', () => {
 
     const modal = screen.getByText('Crear Servicio').closest('.modal-container') as HTMLElement;
     
+    await waitFor(() => {
+      expect(screen.getAllByText('Reparación')[0]).toBeInTheDocument();
+    });
+
     fireEvent.change(modal.querySelector('input[name="ID_SERVICIOS"]')!, { target: { name: 'ID_SERVICIOS', value: '3' } });
     fireEvent.change(modal.querySelector('select[name="ID_CATEGORIA"]')!, { target: { name: 'ID_CATEGORIA', value: '30' } });
     fireEvent.change(modal.querySelector('input[name="Nombre"]')!, { target: { name: 'Nombre', value: 'Lavado' } });
@@ -221,6 +225,10 @@ describe('Servicios Component', () => {
 
     const modal = screen.getByText('Crear Servicio').closest('.modal-container') as HTMLElement;
     
+    await waitFor(() => {
+      expect(screen.getAllByText('Reparación')[0]).toBeInTheDocument();
+    });
+
     fireEvent.change(modal.querySelector('input[name="ID_SERVICIOS"]')!, { target: { name: 'ID_SERVICIOS', value: '3' } });
     fireEvent.change(modal.querySelector('select[name="ID_CATEGORIA"]')!, { target: { name: 'ID_CATEGORIA', value: '30' } });
     fireEvent.change(modal.querySelector('input[name="Nombre"]')!, { target: { name: 'Nombre', value: 'Lavado' } });

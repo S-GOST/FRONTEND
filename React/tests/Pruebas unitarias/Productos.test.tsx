@@ -29,8 +29,8 @@ vi.mock('../../src/services/categoria.service');
 
 // ==================== DATOS DE PRUEBA ====================
 const mockProductos = [
-  { ID_PRODUCTOS: '1', ID_CATEGORIA: '10', Marca: 'KTM', Nombre: 'Aceite Motor', precio_venta: 50000, Estado: 'Disponibles', categoria_nombre: 'Repuestos' },
-  { ID_PRODUCTOS: '2', ID_CATEGORIA: '20', Marca: 'Bosch', Nombre: 'Bujía', precio_venta: 15000, Estado: 'Inactivo', categoria_nombre: null },
+  { ID_PRODUCTOS: '1', ID_CATEGORIA: '10', Marca: 'KTM', Nombre: 'Aceite Motor', precio_costo: 30000, precio_venta: 50000, stock: 100, stock_minimo: 10, Estado: 'Disponibles', categoria_nombre: 'Repuestos' },
+  { ID_PRODUCTOS: '2', ID_CATEGORIA: '20', Marca: 'Bosch', Nombre: 'Bujía', precio_costo: 10000, precio_venta: 15000, stock: 50, stock_minimo: 5, Estado: 'Inactivo', categoria_nombre: null },
 ];
 
 const mockCategorias = [
@@ -147,8 +147,8 @@ describe('TableProductos Component', () => {
 
     expect(screen.getByText('Crear Producto')).toBeInTheDocument();
     await waitFor(() => {
-      expect(screen.getByText('Repuestos')).toBeInTheDocument();
-      expect(screen.getByText('Accesorios')).toBeInTheDocument();
+      expect(screen.getAllByText('Repuestos').length).toBeGreaterThan(0);
+      expect(screen.getAllByText('Accesorios').length).toBeGreaterThan(0);
     });
   });
 
@@ -206,17 +206,31 @@ describe('TableProductos Component', () => {
     fireEvent.click(screen.getByRole('button', { name: /nuevo producto/i }));
 
     const modal = screen.getByText('Crear Producto').closest('.modal-container') as HTMLElement;
+
+    await waitFor(() => {
+      expect(screen.getAllByText('Repuestos').length).toBeGreaterThan(0);
+    });
+
     fireEvent.change(modal.querySelector('input[name="ID_PRODUCTOS"]')!, { target: { value: '3' } });
+    fireEvent.change(modal.querySelector('select[name="ID_CATEGORIA"]')!, { target: { value: '10' } });
     fireEvent.change(modal.querySelector('input[name="Marca"]')!, { target: { value: 'KTM' } });
     fireEvent.change(modal.querySelector('input[name="Nombre"]')!, { target: { value: 'Filtro' } });
-    fireEvent.change(modal.querySelector('select[name="ID_CATEGORIA"]')!, { target: { value: '10' } });
+    fireEvent.change(modal.querySelector('input[name="precio_costo"]')!, { target: { value: '15000' } });
     fireEvent.change(modal.querySelector('input[name="precio_venta"]')!, { target: { value: '0' } });
+    fireEvent.change(modal.querySelector('input[name="stock"]')!, { target: { value: '50' } });
+    fireEvent.change(modal.querySelector('input[name="stock_minimo"]')!, { target: { value: '10' } });
+    fireEvent.change(modal.querySelector('select[name="Estado"]')!, { target: { value: 'Disponibles' } });
+
+    await waitFor(() => {
+      expect(modal.querySelector('select[name="ID_CATEGORIA"]')).toHaveValue('10');
+      expect(modal.querySelector('input[name="precio_venta"]')).toHaveValue(0);
+    });
 
     fireEvent.submit(modal.querySelector('form')!);
 
     await waitFor(() => {
       expect(Swal.fire).toHaveBeenCalledWith(
-        expect.objectContaining({ text: 'El precio debe ser un número válido mayor a 0.', icon: 'warning' })
+        expect.objectContaining({ text: 'El precio de venta debe ser un número válido mayor a 0.', icon: 'warning' })
       );
     });
   });
@@ -228,11 +242,19 @@ describe('TableProductos Component', () => {
     fireEvent.click(screen.getByRole('button', { name: /nuevo producto/i }));
 
     const modal = screen.getByText('Crear Producto').closest('.modal-container') as HTMLElement;
+
+    await waitFor(() => {
+      expect(screen.getAllByText('Repuestos').length).toBeGreaterThan(0);
+    });
+
     fireEvent.change(modal.querySelector('input[name="ID_PRODUCTOS"]')!, { target: { value: '3' } });
     fireEvent.change(modal.querySelector('select[name="ID_CATEGORIA"]')!, { target: { value: '10' } });
     fireEvent.change(modal.querySelector('input[name="Marca"]')!, { target: { value: 'KTM' } });
     fireEvent.change(modal.querySelector('input[name="Nombre"]')!, { target: { value: 'Filtro' } });
+    fireEvent.change(modal.querySelector('input[name="precio_costo"]')!, { target: { value: '15000' } });
     fireEvent.change(modal.querySelector('input[name="precio_venta"]')!, { target: { value: '25000' } });
+    fireEvent.change(modal.querySelector('input[name="stock"]')!, { target: { value: '50' } });
+    fireEvent.change(modal.querySelector('input[name="stock_minimo"]')!, { target: { value: '10' } });
     fireEvent.change(modal.querySelector('select[name="Estado"]')!, { target: { value: 'Disponibles' } });
 
     fireEvent.submit(modal.querySelector('form')!);
@@ -244,7 +266,10 @@ describe('TableProductos Component', () => {
           ID_CATEGORIA: 10, // Number
           Nombre: 'Filtro',
           Marca: 'KTM',
+          precio_costo: 15000,
           precio_venta: 25000, // Number
+          stock: 50,
+          stock_minimo: 10,
           Estado: 'Disponibles',
         })
       );
@@ -266,13 +291,13 @@ describe('TableProductos Component', () => {
     const modal = screen.getByText('Editar Producto').closest('.modal-container') as HTMLElement;
     expect(modal.querySelector('input[name="Nombre"]')).toHaveValue('Aceite Motor');
 
-    fireEvent.change(modal.querySelector('input[name="Nombre"]')!, { target: { value: 'Aceite Sintético' } });
+    fireEvent.change(modal.querySelector('input[name="Nombre"]')!, { target: { value: 'Aceite Sintetico' } });
     fireEvent.submit(modal.querySelector('form')!);
 
     await waitFor(() => {
       expect(productoService.actualizarProducto).toHaveBeenCalledWith(
         '1',
-        expect.objectContaining({ Nombre: 'Aceite Sintético' })
+        expect.objectContaining({ Nombre: 'Aceite Sintetico' })
       );
       expect(Swal.fire).toHaveBeenCalledWith(
         expect.objectContaining({ title: 'Cambios guardados', icon: 'success' })

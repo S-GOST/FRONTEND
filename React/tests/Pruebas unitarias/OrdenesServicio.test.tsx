@@ -416,9 +416,9 @@ describe('OrdenesServicio Component', () => {
   it('debería abrir el modal de detalles de una orden', async () => {
     render(<MemoryRouter><OrdenesServicio /></MemoryRouter>);
 
-    await waitFor(() => expect(screen.getAllByRole('button', { name: /ver/i }).length).toBe(2));
+    await waitFor(() => expect(screen.getAllByRole('button', { name: /^ver$/i }).length).toBe(2));
 
-    fireEvent.click(screen.getAllByRole('button', { name: /ver/i })[0]);
+    fireEvent.click(screen.getAllByRole('button', { name: /^ver$/i })[0]);
 
     expect(screen.getByText(/detalles de la orden 1/i)).toBeInTheDocument();
     expect(screen.getByText(/cliente:/i)).toBeInTheDocument();
@@ -430,13 +430,13 @@ describe('OrdenesServicio Component', () => {
   it('debería cerrar el modal de detalles', async () => {
     render(<MemoryRouter><OrdenesServicio /></MemoryRouter>);
 
-    await waitFor(() => expect(screen.getAllByRole('button', { name: /ver/i }).length).toBe(2));
+    await waitFor(() => expect(screen.getAllByRole('button', { name: /^ver$/i }).length).toBe(2));
 
-    fireEvent.click(screen.getAllByRole('button', { name: /ver/i })[0]);
+    fireEvent.click(screen.getAllByRole('button', { name: /^ver$/i })[0]);
 
     expect(screen.getByText(/detalles de la orden 1/i)).toBeInTheDocument();
 
-    fireEvent.click(screen.getByRole('button', { name: /cerrar/i }));
+    fireEvent.click(screen.getAllByText('Cerrar')[0]);
 
     await waitFor(() => {
       expect(screen.queryByText(/detalles de la orden 1/i)).not.toBeInTheDocument();

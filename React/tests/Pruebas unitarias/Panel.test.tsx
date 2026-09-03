@@ -22,7 +22,7 @@ vi.mock('react-router-dom', async () => {
 });
 
 // Mock del servicio de autenticación
-vi.mock('../../services/auth.services');
+vi.mock('../../src/services/auth.services');
 
 describe('Panel Component', () => {
   beforeEach(() => {
@@ -137,9 +137,9 @@ describe('Panel Component', () => {
 
   // 10. PRUEBA DE ICONO DE USUARIO
   it('debería mostrar el icono de usuario', () => {
-    render(<MemoryRouter><Panel /></MemoryRouter>);
+    const { container } = render(<MemoryRouter><Panel /></MemoryRouter>);
     
-    const userIcon = screen.getByTestId('user-icon');
+    const userIcon = container.querySelector('.fa-user-circle');
     expect(userIcon).toBeInTheDocument();
   });
 });

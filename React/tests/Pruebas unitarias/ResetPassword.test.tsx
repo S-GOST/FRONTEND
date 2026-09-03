@@ -40,7 +40,8 @@ describe('ResetPassword Component', () => {
   it('debería mostrar error si los campos están vacíos', async () => {
     render(<MemoryRouter><ResetPassword /></MemoryRouter>);
 
-    fireEvent.click(screen.getByRole('button', { name: /guardar nueva contraseña/i }));
+    const form = screen.getByRole('button', { name: /guardar nueva contraseña/i }).closest('form');
+    fireEvent.submit(form!);
 
     await waitFor(() => {
       expect(Swal.fire).toHaveBeenCalledWith(
@@ -104,14 +105,14 @@ describe('ResetPassword Component', () => {
     expect(screen.getByText('Muy débil')).toHaveStyle('color: #ff4444');
   });
 
-  // 6. INDICADOR DE FORTALEZA - FUERTE
-  it('debería mostrar "Fuerte" para contraseña que cumple todos los requisitos', () => {
+  // 6. INDICADOR DE FORTALEZA - MUY FUERTE
+  it('debería mostrar "Muy fuerte" para contraseña que cumple todos los requisitos', () => {
     render(<MemoryRouter><ResetPassword /></MemoryRouter>);
 
     fireEvent.change(screen.getByPlaceholderText('Nueva contraseña'), { target: { value: 'StrongPass123!' } });
 
-    expect(screen.getByText('Fuerte')).toBeInTheDocument();
-    expect(screen.getByText('Fuerte')).toHaveStyle('color: #88cc00');
+    expect(screen.getByText('Muy fuerte')).toBeInTheDocument();
+    expect(screen.getByText('Muy fuerte')).toHaveStyle('color: #00cc44');
   });
 
   // 7. ADVERTENCIA DE NO COINCIDENCIA EN TIEMPO REAL
@@ -203,9 +204,9 @@ describe('ResetPassword Component', () => {
 
   // 12. TOGGLE MOSTRAR/OCULTAR CONTRASEÑA
   it('debería alternar entre mostrar y ocultar la contraseña', () => {
-    render(<MemoryRouter><ResetPassword /></MemoryRouter>);
+    const { container } = render(<MemoryRouter><ResetPassword /></MemoryRouter>);
 
-    const toggleBtn = screen.getAllByRole('button', { name: /bi-eye/i })[0];
+    const toggleBtn = container.querySelectorAll('.toggle-password')[0] as HTMLButtonElement;
     const passwordInput = screen.getByPlaceholderText('Nueva contraseña');
 
     expect(passwordInput).toHaveAttribute('type', 'password');

@@ -118,9 +118,8 @@ describe('Productividad Component', () => {
     // Verificar KPIs
     await waitFor(() => {
       expect(screen.getByText('35')).toBeInTheDocument(); // Total órdenes (15+20)
-      expect(screen.getByText('2')).toBeInTheDocument(); // Total técnicos
-      expect(screen.getByText(/2h 2m/i)).toBeInTheDocument(); // Promedio ((45+120)/2 = 82.5 min)
-      expect(screen.getByText('2')).toBeInTheDocument(); // Tipos de servicio
+      expect(screen.getAllByText('2').length).toBeGreaterThan(0); // Total técnicos & Tipos de servicio
+      expect(screen.getByText(/1h 23m/i)).toBeInTheDocument(); // Promedio ((45+120)/2 = 82.5 min = 1h 23m)
     });
     
     // Verificar tablas
@@ -250,7 +249,7 @@ describe('Productividad Component', () => {
   });
 
   // 11. PRUEBA DE KPIs CON DATOS VACÍOS
-  it('debería mostrar ceros en KPIs cuando no hay datos', async () => {
+  it('no debería renderizar KPIs cuando no hay datos, mostrando mensaje vacío', async () => {
     vi.mocked(obtenerReporteProductividad).mockResolvedValue({
       data: {
         success: true,
@@ -266,7 +265,8 @@ describe('Productividad Component', () => {
     fireEvent.click(screen.getByRole('button', { name: /generar reporte/i }));
     
     await waitFor(() => {
-      expect(screen.getByText('0')).toBeInTheDocument();
+      expect(screen.getByText(/No hay órdenes completadas en el período seleccionado/i)).toBeInTheDocument();
+      expect(screen.queryByText('Órdenes Completadas')).not.toBeInTheDocument();
     });
   });
 

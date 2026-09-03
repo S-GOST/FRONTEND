@@ -157,6 +157,10 @@ describe('TableMotos Component', () => {
 
     const modal = screen.getByText('Registrar Nueva Moto').closest('.modal-container') as HTMLElement;
 
+    await waitFor(() => {
+      expect(screen.getByText(/100 - Juan Pérez/)).toBeInTheDocument();
+    });
+
     fireEvent.change(modal.querySelector('input[name="ID_MOTOS"]')!, { target: { value: '3' } });
     fireEvent.change(modal.querySelector('select[name="ID_CLIENTES"]')!, { target: { value: '100' } });
     fireEvent.change(modal.querySelector('input[name="Placa"]')!, { target: { value: 'nueva99' } });
@@ -195,6 +199,11 @@ describe('TableMotos Component', () => {
     fireEvent.click(screen.getByRole('button', { name: /nueva moto/i }));
 
     const modal = screen.getByText('Registrar Nueva Moto').closest('.modal-container') as HTMLElement;
+
+    await waitFor(() => {
+      expect(screen.getByText(/100 - Juan Pérez/)).toBeInTheDocument();
+    });
+
     fireEvent.change(modal.querySelector('input[name="ID_MOTOS"]')!, { target: { value: '3' } });
     fireEvent.change(modal.querySelector('select[name="ID_CLIENTES"]')!, { target: { value: '100' } });
     fireEvent.change(modal.querySelector('input[name="Placa"]')!, { target: { value: 'ABC999' } });
@@ -240,7 +249,7 @@ describe('TableMotos Component', () => {
 
     await waitFor(() => {
       expect(motoService.actualizarMoto).toHaveBeenCalledWith(
-        '1',
+        1,
         expect.objectContaining({ Placa: 'EDITADA1' })
       );
       expect(Swal.fire).toHaveBeenCalledWith(
