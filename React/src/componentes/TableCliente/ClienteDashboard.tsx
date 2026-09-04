@@ -55,7 +55,7 @@ function ClienteDashboard() {
 
       const completadas = ordenesCliente.filter(o => ['Completado', 'completado'].includes(o.Estado)).length;
       const pendientes = ordenesCliente.filter(o => 
-        ['Pendiente', 'En proceso', 'pendiente', 'en proceso'].includes(o.Estado)
+        ['Pendiente', 'En proceso', 'pendiente', 'en proceso', 'En_proceso', 'en_proceso'].includes(o.Estado)
       ).length;
 
       const recientes = ordenesCliente

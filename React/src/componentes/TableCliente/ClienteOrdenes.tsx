@@ -33,7 +33,7 @@ interface OrdenCliente {
 const getEstadoColor = (estado: string): string => {
   const e = estado.toLowerCase();
   if (e === 'completado') return '#00ff88';
-  if (e === 'en proceso') return '#ffd166';
+  if ((e === 'en proceso' || e === 'en_proceso')) return '#ffd166';
   if (e === 'pendiente') return '#ff6600';
   if (e === 'cancelado') return '#ff4444';
   return '#888';
@@ -42,7 +42,7 @@ const getEstadoColor = (estado: string): string => {
 const getEstadoIcon = (estado: string): string => {
   const e = estado.toLowerCase();
   if (e === 'completado') return 'bi-check-circle-fill';
-  if (e === 'en proceso') return 'bi-gear-fill';
+  if ((e === 'en proceso' || e === 'en_proceso')) return 'bi-gear-fill';
   if (e === 'pendiente') return 'bi-clock-fill';
   if (e === 'cancelado') return 'bi-x-circle-fill';
   return 'bi-question-circle';

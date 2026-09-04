@@ -110,10 +110,7 @@
   line-height: 1.1;
 }
 
-.kpi-value.venta {
-  background: linear-gradient(135deg, #22c55e, #4ade80);
-
-}
+.kpi-value.venta { background: linear-gradient(135deg, #22c55e, #4ade80); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; }
 
 .kpi-label {
   font-size: 0.8rem;

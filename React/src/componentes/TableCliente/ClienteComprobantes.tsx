@@ -39,7 +39,7 @@ const ClienteComprobantes = () => {
           <label style="display:block; color:#aaa; font-size:0.85rem; font-weight:600; margin-bottom:0.5rem; text-transform:uppercase;" htmlFor="auto-id-538379">
             Método de pago
           </label>
-<select id="auto-id-538379" id="swal-metodo-pago" style="
+<select id="swal-metodo-pago" style="
             width:100%; 
             padding:1rem; 
             background:#1a1a1a; 

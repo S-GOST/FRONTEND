@@ -193,7 +193,7 @@ const TableInformes = () => {
   };
 
   const handleGenerarComprobante = async (informe: InformeRecord) => {
-    let metodoPago = 'Pendiente';
+    let metodoPago = 'Efectivo';
 
     // Solo mostrar selector de método de pago si NO es admin
     if (userRole !== 'admin' && userRole !== 'administrador') {
