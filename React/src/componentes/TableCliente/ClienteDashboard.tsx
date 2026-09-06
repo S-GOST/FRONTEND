@@ -164,7 +164,16 @@ function ClienteDashboard() {
       <div className="dashboard-section" style={{ margin: '0 1.5rem 1.5rem 1.5rem' }}>
         {isIndex ? (
           loading ? (
-            <div className="loading-container"><p className="loading-text">Cargando tu información...</p></div>
+            <div className="dashboard-loader-container">
+              <div className="ktm-loader">
+                <div className="loader-ring"></div>
+                <div className="loader-ring"></div>
+                <div className="loader-ring"></div>
+                <i className="bi bi-gear-fill loader-icon"></i>
+              </div>
+              <h2 className="loader-title">KTM Rocket Service</h2>
+              <p className="loader-text">Cargando tu información...</p>
+            </div>
           ) : (
             <>
               <div className="stats-grid" style={{ gridTemplateColumns: 'repeat(4, 1fr)', marginBottom: '2rem' }}>

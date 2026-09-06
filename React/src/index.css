@@ -936,3 +936,92 @@ body::before {
   from { transform: translateX(0); opacity: 1; }
   to { transform: translateX(100%); opacity: 0; }
 }
+
+/* --- PREMIUM LOADER --- */
+.dashboard-loader-container {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  background: radial-gradient(circle at center, #111111 0%, #050505 100%);
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  z-index: 9999;
+}
+
+.ktm-loader {
+  position: relative;
+  width: 90px;
+  height: 90px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-bottom: 2rem;
+}
+
+.loader-ring {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  border: 3px solid transparent;
+}
+
+.loader-ring:nth-child(1) {
+  border-top-color: #ff6600;
+  animation: spin-loader 1.5s cubic-bezier(0.68, -0.55, 0.265, 1.55) infinite;
+}
+
+.loader-ring:nth-child(2) {
+  border-right-color: #333;
+  animation: spin-loader 2s cubic-bezier(0.68, -0.55, 0.265, 1.55) infinite reverse;
+  width: 75%;
+  height: 75%;
+}
+
+.loader-ring:nth-child(3) {
+  border-bottom-color: #ff9933;
+  animation: spin-loader 1s cubic-bezier(0.68, -0.55, 0.265, 1.55) infinite;
+  width: 50%;
+  height: 50%;
+}
+
+.loader-icon {
+  font-size: 1.5rem;
+  color: #ff6600;
+  animation: pulse-glow 2s infinite;
+}
+
+.loader-title {
+  color: #fff;
+  font-size: 1.4rem;
+  font-weight: 800;
+  margin: 0 0 0.5rem 0;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  background: linear-gradient(135deg, #ff6600, #ff9933);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.loader-text {
+  color: var(--dashboard-muted, #aaaaaa);
+  font-size: 1rem;
+  font-weight: 500;
+  letter-spacing: 1px;
+  animation: pulse 1.5s ease-in-out infinite;
+}
+
+@keyframes spin-loader {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+@keyframes pulse-glow {
+  0%, 100% { text-shadow: 0 0 10px rgba(255,102,0,0.4); opacity: 0.8; }
+  50% { text-shadow: 0 0 20px rgba(255,102,0,0.9); opacity: 1; }
+}

@@ -238,12 +238,20 @@ const TecnicoDashboard = () => {
     }).length,
   };
 
-  if (loading && !ordenes.length) return (
-    <div className="dashboard-loader">
-      <i className="bi bi-gear-wide-connected" style={{ fontSize: '2rem', color: '#ff6600', animation: 'spin 1s linear infinite' }}></i>
-      <p>Cargando panel técnico...</p>
-    </div>
-  );
+  if (loading && !ordenes.length) {
+    return (
+      <div className="dashboard-loader-container">
+        <div className="ktm-loader">
+          <div className="loader-ring"></div>
+          <div className="loader-ring"></div>
+          <div className="loader-ring"></div>
+          <i className="bi bi-gear-fill loader-icon"></i>
+        </div>
+        <h2 className="loader-title">KTM Rocket Service</h2>
+        <p className="loader-text">Cargando panel técnico...</p>
+      </div>
+    );
+  }
 
   return (
     <div className="tecnico-dashboard">
@@ -423,7 +431,7 @@ const TecnicoDashboard = () => {
 
       {/* ===== MODAL: DETALLE ORDEN ===== */}
       {modalAbierto && ordenActual && (
-        <div className="modal-overlay" onClick={() => setModalAbierto(false)} role="button" tabIndex={0} onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { setModalAbierto(false); } }}>
+        <div className="modal-overlay" onClick={() => setModalAbierto(false)} role="button" tabIndex={0} onKeyDown={(e) => { if (e.target === e.currentTarget && (e.key === 'Enter' || e.key === ' ')) { setModalAbierto(false); } else if (e.key === 'Escape') { setModalAbierto(false); } }}>
           <div className="modal-content modal-tecnico" onClick={e => e.stopPropagation()} role="dialog" tabIndex={-1}>
             <div className="modal-header">
               <h3><i className="bi bi-tools"></i> Detalle — {formatId('orden', ordenActual.ID_ORDEN_SERVICIO)}</h3>
@@ -531,7 +539,7 @@ const TecnicoDashboard = () => {
 
       {/* ===== MODAL: CREAR INFORME ===== */}
       {modalInformeAbierto && ordenActual && (
-        <div className="modal-overlay" onClick={() => setModalInformeAbierto(false)} role="button" tabIndex={0} onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { setModalInformeAbierto(false); } }}>
+        <div className="modal-overlay" onClick={() => setModalInformeAbierto(false)} role="button" tabIndex={0} onKeyDown={(e) => { if (e.target === e.currentTarget && (e.key === 'Enter' || e.key === ' ')) { setModalInformeAbierto(false); } else if (e.key === 'Escape') { setModalInformeAbierto(false); } }}>
           <div className="modal-content modal-tecnico" onClick={e => e.stopPropagation()} role="dialog" tabIndex={-1} style={{ maxWidth: '650px' }}>
             <div className="modal-header">
               <h3><i className="bi bi-file-earmark-plus"></i> Informe — {formatId('orden', ordenActual.ID_ORDEN_SERVICIO)}</h3>

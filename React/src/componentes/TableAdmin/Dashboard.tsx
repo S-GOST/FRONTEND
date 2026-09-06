@@ -139,7 +139,20 @@ function Dashboard() {
 
   const handleNavigate = useCallback((path: string) => () => navigate(path), [navigate]);
 
-  if (loading) return <div className="dashboard-loader">Cargando panel administrativo...</div>;
+  if (loading) {
+    return (
+      <div className="dashboard-loader-container">
+        <div className="ktm-loader">
+          <div className="loader-ring"></div>
+          <div className="loader-ring"></div>
+          <div className="loader-ring"></div>
+          <i className="bi bi-gear-fill loader-icon"></i>
+        </div>
+        <h2 className="loader-title">KTM Rocket Service</h2>
+        <p className="loader-text">Cargando panel administrativo...</p>
+      </div>
+    );
+  }
 
   return (
     <div className="panel-container notranslate" translate="no" style={{ position: 'relative', overflowY: 'auto', minHeight: '100vh', background: '#050505' }}>
