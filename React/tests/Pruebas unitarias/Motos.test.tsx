@@ -1,7 +1,7 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import TableMotos from '../../src/componentes/TableMotos/Motos';
-import { obtenerMotos, insertarMoto, actualizarMoto, eliminarMoto } from '../../src/services/moto.service';
+import { obtenerMotos, insertarMoto, eliminarMoto } from '../../src/services/moto.service';
 import { obtenerClientes } from '../../src/services/cliente.service';
 import { MemoryRouter } from 'react-router-dom';
 import Swal from 'sweetalert2';
