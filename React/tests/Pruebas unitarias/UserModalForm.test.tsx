@@ -61,7 +61,7 @@ describe('UserModalForm', () => {
   
   it('toggles password visibility', () => {
     render(<UserModalForm {...mockProps} />);
-    const input = screen.getByLabelText(/Contraseña/i);
+    const input = screen.getByPlaceholderText('Ingresa la contraseña');
     expect(input).toHaveAttribute('type', 'password');
     
     const toggleBtn = screen.getByRole('button', { name: /Mostrar contraseña/i });

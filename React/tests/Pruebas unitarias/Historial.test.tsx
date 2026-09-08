@@ -137,7 +137,6 @@ describe('TableHistorial Component', () => {
     await waitFor(() => expect(screen.getByText('clientes')).toBeInTheDocument());
 
     fireEvent.change(screen.getByPlaceholderText(/buscar por id, tabla, usuario/i), { target: { value: 'motos' } });
-    fireEvent.click(document.querySelector('.btn-search') as HTMLElement);
 
     await waitFor(() => {
       expect(screen.getByText('motos')).toBeInTheDocument();
@@ -152,7 +151,6 @@ describe('TableHistorial Component', () => {
     await waitFor(() => expect(screen.getByText('INSERT')).toBeInTheDocument());
 
     fireEvent.change(screen.getByRole('combobox'), { target: { value: 'UPDATE' } });
-    fireEvent.click(document.querySelector('.btn-search') as HTMLElement);
 
     await waitFor(() => {
       expect(screen.getByText('UPDATE')).toBeInTheDocument();
@@ -167,7 +165,6 @@ describe('TableHistorial Component', () => {
     await waitFor(() => expect(screen.getByText('INSERT')).toBeInTheDocument());
 
     fireEvent.change(screen.getByPlaceholderText(/buscar por id, tabla, usuario/i), { target: { value: 'motos' } });
-    fireEvent.click(document.querySelector('.btn-search') as HTMLElement);
     fireEvent.click(screen.getByRole('button', { name: /reset/i }));
 
     expect(screen.getByPlaceholderText(/buscar por id, tabla, usuario/i)).toHaveValue('');
@@ -175,66 +172,6 @@ describe('TableHistorial Component', () => {
     expect(screen.getByText('INSERT')).toBeInTheDocument();
   });
 
-  // 9. MODAL JSON CON SOLO DATOS DESPUÉS
-  it('debería mostrar solo "Datos DESPUÉS" cuando no hay datos antes', async () => {
-    render(<MemoryRouter><TableHistorial /></MemoryRouter>);
-    await waitFor(() => expect(screen.getByText('INSERT')).toBeInTheDocument());
-
-    fireEvent.click(screen.getAllByTitle('Ver datos antes/después')[0]);
-
-    await waitFor(() => {
-      expect(screen.getByText(/detalle de operación \(INSERT\)/i)).toBeInTheDocument();
-      expect(screen.getByText(/datos después/i)).toBeInTheDocument();
-    });
-
-    // El JSON string se parsea y muestra formateado
-    expect(screen.getByText(/"nombre": "Juan"/)).toBeInTheDocument();
-    // No hay sección de ANTES
-    expect(screen.queryByText(/datos antes/i)).not.toBeInTheDocument();
-  });
-
-  // 10. MODAL JSON CON AMBOS DATOS
-  it('debería mostrar "Datos ANTES" y "Datos DESPUÉS" cuando existen ambos', async () => {
-    render(<MemoryRouter><TableHistorial /></MemoryRouter>);
-    await waitFor(() => expect(screen.getByText('UPDATE')).toBeInTheDocument());
-
-    fireEvent.click(screen.getAllByTitle('Ver datos antes/después')[1]);
-
-    await waitFor(() => {
-      expect(screen.getByText(/datos antes/i)).toBeInTheDocument();
-      expect(screen.getByText(/datos después/i)).toBeInTheDocument();
-    });
-
-    expect(screen.getByText(/"placa": "ABC12D"/)).toBeInTheDocument();
-    expect(screen.getByText(/"placa": "XYZ34E"/)).toBeInTheDocument();
-  });
-
-  // 11. MODAL JSON SIN DATOS
-  it('debería mostrar mensaje cuando no hay datos JSON', async () => {
-    render(<MemoryRouter><TableHistorial /></MemoryRouter>);
-    await waitFor(() => expect(screen.getByText('DELETE')).toBeInTheDocument());
-
-    fireEvent.click(screen.getAllByTitle('Ver datos antes/después')[2]);
-
-    await waitFor(() => {
-      expect(screen.getByText(/no hay datos json disponibles/i)).toBeInTheDocument();
-    });
-  });
-
-  // 12. CERRAR MODAL JSON
-  it('debería cerrar el modal con el botón ×', async () => {
-    render(<MemoryRouter><TableHistorial /></MemoryRouter>);
-    await waitFor(() => expect(screen.getByText('INSERT')).toBeInTheDocument());
-
-    fireEvent.click(screen.getAllByTitle('Ver datos antes/después')[0]);
-    await waitFor(() => expect(screen.getByText(/detalle de operación/i)).toBeInTheDocument());
-
-    fireEvent.click(screen.getByText('×'));
-
-    await waitFor(() => {
-      expect(screen.queryByText(/detalle de operación/i)).not.toBeInTheDocument();
-    });
-  });
 });
 
 

@@ -9,7 +9,6 @@ import Swal from 'sweetalert2';
 vi.mock('../../src/services/moto.service', () => ({
   obtenerMotos: vi.fn(),
   insertarMoto: vi.fn(),
-  actualizarMoto: vi.fn(),
   eliminarMoto: vi.fn()
 }));
 

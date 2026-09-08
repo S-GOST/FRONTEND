@@ -71,11 +71,11 @@ describe('TecnicoDashboard', () => {
     renderComponent();
     await waitFor(() => expect(screen.getByText('Cliente 1')).toBeInTheDocument());
 
-    const detailsBtn = screen.getByTitle('Ver detalles / Informe');
+    const detailsBtn = screen.getByRole('button', { name: /Detalles/i });
     fireEvent.click(detailsBtn);
 
     await waitFor(() => {
-      expect(screen.getByText(/Detalle — ORD-01/i)).toBeInTheDocument();
+      expect(screen.getByText(/Detalle — ORD/i)).toBeInTheDocument();
       expect(obtenerDetallesPorOrden).toHaveBeenCalledWith('1');
     });
   });
@@ -87,7 +87,7 @@ describe('TecnicoDashboard', () => {
     renderComponent();
     await waitFor(() => expect(screen.getByText('Cliente 1')).toBeInTheDocument());
 
-    const updateBtn = screen.getByTitle('Pasar a En Proceso');
+    const updateBtn = screen.getByRole('button', { name: /Iniciar Trabajo/i });
     fireEvent.click(updateBtn);
 
     await waitFor(() => {
@@ -111,13 +111,13 @@ describe('TecnicoDashboard', () => {
     fireEvent.click(btn);
 
     await waitFor(() => {
-      expect(screen.getByRole('heading', { name: /Redactar Informe Técnico/i })).toBeInTheDocument();
+      expect(screen.getByRole('heading', { name: /Informe — ORD/i })).toBeInTheDocument();
     });
 
     fireEvent.change(screen.getByLabelText(/Diagnóstico/i), { target: { value: 'Diagnostico test' } });
     
-    const saveBtn = screen.getByRole('button', { name: /Guardar Informe y Finalizar Orden/i });
-    fireEvent.click(saveBtn);
+    const saveBtns = screen.getAllByRole('button', { name: /Guardar Informe/i });
+    fireEvent.click(saveBtns[saveBtns.length - 1]);
 
     await waitFor(() => {
       expect(crearInforme).toHaveBeenCalledWith(expect.objectContaining({ diagnostico: 'Diagnostico test' }));

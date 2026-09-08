@@ -43,7 +43,7 @@ describe('ForgotPassword', () => {
     const submitBtn = screen.getByRole('button', { name: /Enviar enlace de recuperación/i });
     
     fireEvent.change(emailInput, { target: { value: 'invalid-email' } });
-    fireEvent.click(submitBtn);
+    fireEvent.submit(submitBtn.closest('form')!);
     
     expect(Swal.fire).toHaveBeenCalledWith(expect.objectContaining({
       title: 'Formato Inválido'
