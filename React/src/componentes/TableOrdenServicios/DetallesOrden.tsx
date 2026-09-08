@@ -12,7 +12,7 @@ import {
 import { obtenerServicios, type ServicioRecord } from '../../services/servicio.service';
 import { obtenerProductos, type ProductoPayload } from '../../services/producto.service';
 import { obtenerOrdenes, type OrdenServicioRecord } from '../../services/ordenServicioService';
-import { FormattedId } from '../../componentes/FormattedId';
+import { FormattedId } from '../FormattedId';
 import { extractArray } from '../../utils/apiHelpers';
 import './OrdenesServicio.css';
 

@@ -13,10 +13,10 @@ import {
   obtenerCategoriasPorTipo,
   type CategoriaPayload,
 } from '../../services/categoria.service';
-import { FormattedId } from '../../componentes/FormattedId';
+import { FormattedId } from '../FormattedId';
 import { BackButton } from '../BackButton';
 import { extractArray } from '../../utils/apiHelpers';
-import './Productos.css';
+import './productos.css';
 
 const ESTADOS = ['Disponibles', 'Agotados', 'Próximamente'] as const;
 type EstadoType = (typeof ESTADOS)[number];

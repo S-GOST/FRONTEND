@@ -8,7 +8,7 @@ import {
   habilitarCategoria,
   type CategoriaPayload,
 } from '../../services/categoria.service';
-import { FormattedId } from '../../componentes/FormattedId';
+import { FormattedId } from '../FormattedId';
 import { BackButton } from '../BackButton';
 import './Categorias.css';
 import { extractArray } from '../../utils/apiHelpers';

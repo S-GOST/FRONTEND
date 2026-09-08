@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import Swal from 'sweetalert2';
 import { obtenerMisComprobantes, pagarComprobante } from '../../services/comprobanteService';
-import { FormattedId } from '../../componentes/FormattedId';
+import { FormattedId } from '../FormattedId';
 import './ClienteComprobantes.css';
 
 const ClienteComprobantes = () => {

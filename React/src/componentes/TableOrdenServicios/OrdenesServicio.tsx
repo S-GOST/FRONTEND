@@ -12,7 +12,7 @@ import { obtenerClientes, type ClienteRecord } from '../../services/cliente.serv
 import { obtenerTecnicos, type TecnicoRecord } from '../../services/tecnico.service';
 import { obtenerMotos, type MotoRecord } from '../../services/moto.service';
 import { obtenerAdmins } from '../../services/admin.service';
-import { FormattedId } from '../../componentes/FormattedId';
+import { FormattedId } from '../FormattedId';
 import { BackButton } from '../BackButton';
 import { extractArray } from '../../utils/apiHelpers';import './OrdenesServicio.css';
 

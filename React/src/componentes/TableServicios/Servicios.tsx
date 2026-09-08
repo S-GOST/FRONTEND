@@ -12,7 +12,7 @@ import {
   obtenerCategoriasPorTipo,
   type CategoriaPayload,
 } from '../../services/categoria.service';
-import { FormattedId } from '../../componentes/FormattedId';
+import { FormattedId } from '../FormattedId';
 import { BackButton } from '../BackButton';
 import './Servicios.css';
 import { extractArray } from '../../utils/apiHelpers';

@@ -34,7 +34,7 @@ import {
   obtenerTiposDocumento,
   type TipoDocumentoRecord,
 } from '../../services/tipoDocumento.service';
-import { FormattedId } from '../../componentes/FormattedId';
+import { FormattedId } from '../FormattedId';
 import { extractArray } from '../../utils/apiHelpers';
 import { UserModalForm, type UserFormData } from './UserModalForm';
 import './Admin.css';

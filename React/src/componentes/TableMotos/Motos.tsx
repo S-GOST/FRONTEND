@@ -11,7 +11,7 @@ import {
 } from '../../services/moto.service';
 import { obtenerClientes, type ClienteRecord } from '../../services/cliente.service';
 import './Motos.css';
-import { FormattedId } from '../../componentes/FormattedId';
+import { FormattedId } from '../FormattedId';
 import { BackButton } from '../BackButton';
 import { extractArray } from '../../utils/apiHelpers';
 

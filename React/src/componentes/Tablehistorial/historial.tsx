@@ -5,7 +5,7 @@ import {
   obtenerHistorial,
   type HistorialRecord,
 } from '../../services/historial.service';
-import { FormattedId } from '../../componentes/FormattedId';
+import { FormattedId } from '../FormattedId';
 import { BackButton } from '../BackButton';
 import './historial.css';
 import { extractArray } from '../../utils/apiHelpers';

@@ -7,7 +7,7 @@ import {
 } from '../../services/ordenServicioService';
 import { obtenerClientes, type ClienteRecord } from '../../services/cliente.service';
 import { obtenerTecnicos, type TecnicoRecord } from '../../services/tecnico.service';
-import { FormattedId } from '../../componentes/FormattedId';
+import { FormattedId } from '../FormattedId';
 import { BackButton } from '../BackButton';
 import './AsignacionTecnicos.css';
 import { extractArray } from '../../utils/apiHelpers';

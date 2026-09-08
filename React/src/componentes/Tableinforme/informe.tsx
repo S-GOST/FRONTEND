@@ -12,7 +12,7 @@ import {
 } from '../../services/informe.service';
 import { generarComprobante, obtenerComprobantes } from '../../services/comprobanteService';
 
-import { FormattedId } from '../../componentes/FormattedId';
+import { FormattedId } from '../FormattedId';
 import { BackButton } from '../BackButton';
 import { extractArray } from '../../utils/apiHelpers';
 import './informe.css';

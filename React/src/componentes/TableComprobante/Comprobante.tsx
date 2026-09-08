@@ -7,7 +7,7 @@ import {
   obtenerMisComprobantes,
   type ComprobanteRecord,
 } from '../../services/comprobanteService';
-import { FormattedId } from '../../componentes/FormattedId';
+import { FormattedId } from '../FormattedId';
 import { BackButton } from '../BackButton';
 import './Comprobante.css';
 import { extractArray } from '../../utils/apiHelpers';
