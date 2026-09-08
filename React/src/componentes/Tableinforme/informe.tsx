@@ -15,7 +15,7 @@ import { generarComprobante, obtenerComprobantes } from '../../services/comproba
 import { FormattedId } from '../../componentes/FormattedId';
 import { BackButton } from '../BackButton';
 import { extractArray } from '../../utils/apiHelpers';
-import './Informe.css';
+import './informe.css';
 
 const initialFormState: InformePayload = {
   id_orden: 0,

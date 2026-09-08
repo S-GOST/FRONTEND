@@ -7,7 +7,7 @@ import {
 } from '../../services/historial.service';
 import { FormattedId } from '../../componentes/FormattedId';
 import { BackButton } from '../BackButton';
-import './Historial.css';
+import './historial.css';
 import { extractArray } from '../../utils/apiHelpers';
 
 
