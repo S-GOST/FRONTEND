@@ -348,7 +348,7 @@ const TableInformes = () => {
       </div>
 
       {showModal && (
-        <div className="modal-overlay" onClick={closeModal} role="button" tabIndex={0} onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { closeModal(); } }}>
+        <div className="modal-overlay" onClick={closeModal} role="button" tabIndex={0} onKeyDown={(e) => { if (e.target === e.currentTarget && (e.key === 'Enter' || e.key === ' ')) { closeModal(); } }}>
           <div className="modal-container" onClick={e => e.stopPropagation()} role="dialog" tabIndex={-1}>
             <div className="modal-header">
               <h3>{editMode ? 'Editar Informe' : 'Nuevo Informe Técnico'}</h3>
@@ -404,7 +404,7 @@ const TableInformes = () => {
       )}
 
       {showReportModal && (
-        <div className="modal-overlay" onClick={() => setShowReportModal(false)} role="button" tabIndex={0} onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { setShowReportModal(false); } }}>
+        <div className="modal-overlay" onClick={() => setShowReportModal(false)} role="button" tabIndex={0} onKeyDown={(e) => { if (e.target === e.currentTarget && (e.key === 'Enter' || e.key === ' ')) { setShowReportModal(false); } }}>
           <div className="modal-container" onClick={e => e.stopPropagation()} role="dialog" tabIndex={-1}>
             <div className="modal-header">
               <h3>Generar Reporte por Fechas</h3>

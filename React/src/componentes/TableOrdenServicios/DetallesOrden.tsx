@@ -360,7 +360,7 @@ const DetallesOrden = () => {
 
       {/* Modal con selects mejorados y sin campo Estado */}
       {modalFormOpen && (
-        <div className="modal-overlay" onClick={() => setModalFormOpen(false)} role="button" tabIndex={0} onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { setModalFormOpen(false); } }}>
+        <div className="modal-overlay" onClick={() => setModalFormOpen(false)} role="button" tabIndex={0} onKeyDown={(e) => { if (e.target === e.currentTarget && (e.key === 'Enter' || e.key === ' ')) { setModalFormOpen(false); } }}>
           <div className="modal-container" onClick={(e) => e.stopPropagation()} role="dialog" tabIndex={-1}>
             <div className="modal-header">
               <h3>{editMode ? 'Editar Detalle' : 'Nuevo Detalle de Orden'}</h3>

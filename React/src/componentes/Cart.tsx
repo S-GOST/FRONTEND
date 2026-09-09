@@ -679,7 +679,7 @@ const Cart: React.FC<CartProps> = () => {
       {/* MODALS */}
       {/* Modal de eliminar producto */}
       {showDeleteModal && deleteModalData && (
-        <div className="modal-overlay" onClick={() => setShowDeleteModal(false)} role="button" tabIndex={0} onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { setShowDeleteModal(false); } }}>
+        <div className="modal-overlay" onClick={() => setShowDeleteModal(false)} role="button" tabIndex={0} onKeyDown={(e) => { if (e.target === e.currentTarget && (e.key === 'Enter' || e.key === ' ')) { setShowDeleteModal(false); } }}>
           <div className="modal-content" onClick={(e) => e.stopPropagation()} role="dialog" tabIndex={-1}>
             <div className="modal-header">
               <h5 className="modal-title">
@@ -724,7 +724,7 @@ const Cart: React.FC<CartProps> = () => {
 
       {/* Modal de checkout */}
       {showCheckoutModal && (
-        <div className="modal-overlay" onClick={() => { setShowCheckoutModal(false); setCheckoutStep(1); }} role="button" tabIndex={0} onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { setShowCheckoutModal(false); setCheckoutStep(1); } }}>
+        <div className="modal-overlay" onClick={() => { setShowCheckoutModal(false); setCheckoutStep(1); }} role="button" tabIndex={0} onKeyDown={(e) => { if (e.target === e.currentTarget && (e.key === 'Enter' || e.key === ' ')) { setShowCheckoutModal(false); setCheckoutStep(1); } }}>
           <div className="modal-content" onClick={(e) => e.stopPropagation()} role="dialog" tabIndex={-1} style={{ maxWidth: checkoutStep === 2 ? '520px' : undefined }}>
             <div className="modal-header">
               <h5 className="modal-title">
