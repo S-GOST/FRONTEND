@@ -39,6 +39,7 @@ const ClienteDashboard = React.lazy(() => import('../componentes/TableCliente/Cl
 const ClienteHistorial = React.lazy(() => import('../componentes/TableCliente/ClienteHistorial'));
 const ClienteMotos = React.lazy(() => import('../componentes/TableCliente/ClienteMotos'));
 const ClienteOrdenes = React.lazy(() => import('../componentes/TableCliente/ClienteOrdenes'));
+const ClientePerfil = React.lazy(() => import('../componentes/TableCliente/ClientePerfil'));
 const TecnicoDashboard = React.lazy(() => import('../componentes/TableTecnico/TecnicoDashboard'));
 
 // ==================== Componentes de página ====================
@@ -235,7 +236,7 @@ const AppRoutes: React.FC<AppRoutesProps> = ({
             <Route path="comprobantes" element={<ClienteComprobantes />} />
             <Route path="historial" element={<ClienteHistorial />} />
             <Route path="servicios" element={<div>Servicios</div>} />
-            <Route path="perfil" element={<div>Mi Perfil</div>} />
+            <Route path="perfil" element={<ClientePerfil />} />
             <Route path="*" element={<Navigate to="/cliente/dashboard" replace />} />
           </Route>
         </Route>

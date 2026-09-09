@@ -233,6 +233,12 @@ function ClienteDashboard() {
                     </div>
                     <span className="action-title">Historial</span>
                   </button>
+                  <button className="action-btn" onClick={() => navigate('/cliente/perfil')}>
+                    <div className="action-icon-wrapper" style={{ color: '#8b5cf6', background: `linear-gradient(135deg, #8b5cf622, #8b5cf605)` }}>
+                      <i className="bi bi-person-circle"></i>
+                    </div>
+                    <span className="action-title">Mi Perfil</span>
+                  </button>
                 </div>
               </div>
 

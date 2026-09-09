@@ -53,6 +53,17 @@ export const insertarCliente = (datos: ClientePayload) => clienteService.crear(d
 export const actualizarCliente = (id: string | number, datos: ClientePayload) => clienteService.actualizar(id, datos);
 export const eliminarCliente = (id: string | number) => clienteService.eliminar(id);
 export const habilitarCliente = (id: string | number) => clienteService['http'].put(`/clientes/actualizar/${id}`, { estado: 'Activo' });
+export const obtenerClientePorId = async (id: string | number) => {
+  const res = await clienteService.obtenerPorId(id);
+  if (res.data) {
+    if (res.data.data) {
+      res.data.data = addCompatibility(res.data.data);
+    } else {
+      res.data = addCompatibility(res.data);
+    }
+  }
+  return res;
+};
 
 // Nuevas funciones para Aprobación de Clientes (RF-007)
 export const obtenerClientesPendientes = async () => {

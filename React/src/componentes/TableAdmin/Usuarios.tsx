@@ -619,9 +619,11 @@ function Usuarios() {
                         </>
                       ) : (
                         <>
-                          <button className="btn-edit-ktm" onClick={() => openEditModal(item)}>
-                            <i className="bi bi-pencil-square"></i> Editar
-                          </button>
+                          {activeTab !== 'clientes' && (
+                            <button className="btn-edit-ktm" onClick={() => openEditModal(item)}>
+                              <i className="bi bi-pencil-square"></i> Editar
+                            </button>
+                          )}
                           {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
                           {((item as any).estado === 0 || (item as any).estado === '0' || String((item as any).estado ?? (item as any).Estado).toLowerCase() === 'inactivo' || String((item as any).estado ?? (item as any).Estado).toLowerCase() === 'rechazado') ? (
                             <button className="btn-edit-ktm" style={{ background: '#064e3b', borderColor: '#10b981' }} onClick={() => handleEnable(item)}>
