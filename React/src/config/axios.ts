@@ -5,7 +5,7 @@ import axios from 'axios';
 // ============================================================
 export const apiClient = axios.create({
   baseURL: import.meta.env.VITE_API_URL || 'http://localhost:3000/api',
-  timeout: 10000,
+  timeout: 60000, // Aumentado a 60 segundos por el "cold start" de Render gratuito
   // IMPORTANTE: Habilita el envío de cookies (refreshToken y XSRF-TOKEN)
   withCredentials: true,
   // Configuración para CSRF (RFN-005)
