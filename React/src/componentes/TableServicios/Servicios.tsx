@@ -529,11 +529,18 @@ function Servicios() {
                   required
                 >
                   <option value="">Seleccione</option>
-                  {categorias.map((cat) => (
-                    <option key={cat.ID_CATEGORIA} value={cat.ID_CATEGORIA}>
-                      {cat.nombre}
-                    </option>
-                  ))}
+                  {categorias.map((cat) => {
+                    const isInactiva = cat.estado === 'Inactivo' || cat.estado === 'Inhabilitado';
+                    return (
+                      <option 
+                        key={cat.ID_CATEGORIA} 
+                        value={cat.ID_CATEGORIA}
+                        style={isInactiva ? { color: '#6c757d', fontStyle: 'italic' } : {}}
+                      >
+                        {cat.nombre} {isInactiva ? '🚫 (Inactiva)' : ''}
+                      </option>
+                    );
+                  })}
                 </select>
               </div>
               <div className="ktm-form-group">
@@ -630,11 +637,18 @@ function Servicios() {
                   required
                 >
                   <option value="">Seleccione</option>
-                  {categorias.map((cat) => (
-                    <option key={cat.ID_CATEGORIA} value={cat.ID_CATEGORIA}>
-                      {cat.nombre}
-                    </option>
-                  ))}
+                  {categorias.map((cat) => {
+                    const isInactiva = cat.estado === 'Inactivo' || cat.estado === 'Inhabilitado';
+                    return (
+                      <option 
+                        key={cat.ID_CATEGORIA} 
+                        value={cat.ID_CATEGORIA}
+                        style={isInactiva ? { color: '#6c757d', fontStyle: 'italic' } : {}}
+                      >
+                        {cat.nombre} {isInactiva ? '🚫 (Inactiva)' : ''}
+                      </option>
+                    );
+                  })}
                 </select>
               </div>
               <div className="ktm-form-group">
