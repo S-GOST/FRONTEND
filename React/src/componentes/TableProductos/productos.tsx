@@ -33,7 +33,7 @@ const createInitialFormData = (): ProductoPayload => ({
   stock_minimo: 0,
 });
 
-// ✅ FUNCIONES AUXILIARES DE VALIDACIÓN
+// ✅ FUNCIONES AUXILIARES DE VALIDACIÓN.
 const filterOnlyLetters = (value: string): string => value.replace(/[^a-zA-ZñÑ\s]/g, '');
 const filterOnlyNumbers = (value: string): string => value.replace(/\D/g, '');
 
@@ -123,7 +123,7 @@ function TableProductos() {
   useEffect(() => {
     void cargarProductos();
     void cargarCategorias();
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const cargarCategorias = async () => {
@@ -600,7 +600,7 @@ function TableProductos() {
               </div>
               <div className="form-group">
                 <label htmlFor="auto-id-498252">Categoría</label>
-<select id="auto-id-498252"
+                <select id="auto-id-498252"
                   name="ID_CATEGORIA"
                   value={formData.ID_CATEGORIA}
                   onChange={handleInputChange}
@@ -642,7 +642,7 @@ function TableProductos() {
                   <span>$</span>
                   <input
                     id="prod-precio_costo-0"
-                  type="number"
+                    type="number"
                     step="0.01"
                     name="precio_costo"
                     value={formData.precio_costo}
@@ -657,7 +657,7 @@ function TableProductos() {
                   <span>$</span>
                   <input
                     id="prod-precio_venta-2"
-                  type="number"
+                    type="number"
                     step="0.01"
                     name="precio_venta"
                     value={formData.precio_venta}
@@ -679,7 +679,7 @@ function TableProductos() {
               </div>
               <div className="form-group form-group-half">
                 <label htmlFor="auto-id-498253">Stock Mínimo</label>
-<input id="auto-id-498253"
+                <input id="auto-id-498253"
                   type="number"
                   name="stock_minimo"
                   value={formData.stock_minimo}
@@ -740,7 +740,7 @@ function TableProductos() {
               </div>
               <div className="form-group">
                 <label htmlFor="auto-id-498254">Categoría</label>
-<select id="auto-id-498254"
+                <select id="auto-id-498254"
                   name="ID_CATEGORIA"
                   value={formData.ID_CATEGORIA}
                   onChange={handleInputChange}
@@ -782,7 +782,7 @@ function TableProductos() {
                   <span>$</span>
                   <input
                     id="prod-precio_costo-1"
-                  type="number"
+                    type="number"
                     step="0.01"
                     name="precio_costo"
                     value={formData.precio_costo}
@@ -797,7 +797,7 @@ function TableProductos() {
                   <span>$</span>
                   <input
                     id="prod-precio_venta-3"
-                  type="number"
+                    type="number"
                     step="0.01"
                     name="precio_venta"
                     value={formData.precio_venta}
@@ -819,7 +819,7 @@ function TableProductos() {
               </div>
               <div className="form-group form-group-half">
                 <label htmlFor="auto-id-498255">Stock Mínimo</label>
-<input id="auto-id-498255"
+                <input id="auto-id-498255"
                   type="number"
                   name="stock_minimo"
                   value={formData.stock_minimo}
