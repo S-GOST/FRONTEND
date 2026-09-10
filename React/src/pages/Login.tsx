@@ -26,6 +26,7 @@ const Login: React.FC = () => {
   const {
     register,
     handleSubmit,
+    setValue,
     formState: { errors },
   } = useForm<LoginFormInputs>({
     defaultValues: { usuario: '', contrasena: '' },
@@ -63,31 +64,69 @@ const Login: React.FC = () => {
       const error = err as AxiosError<LoginErrorResponse>;
       const backendMsg = error.response?.data?.mensaje || error.response?.data?.message || '';
       
-      if (error.response?.status === 404 || backendMsg.toLowerCase().includes('no existe') || backendMsg.toLowerCase().includes('encontrad')) {
+      if (!error.response) {
         Swal.fire({
-          title: 'Usuario no existe',
-          text: 'El nombre de usuario ingresado no se encuentra registrado en el sistema.',
+          title: 'Error de Red',
+          text: 'No se pudo conectar con el servidor. Verifica tu conexión a internet o intenta más tarde.',
           icon: 'error',
           confirmButtonColor: '#ff6600',
           background: '#101010',
           color: '#f5f5f5',
         });
+        setServerError('No hay conexión con el servidor.');
+      } else if (error.response.status === 404 || backendMsg.toLowerCase().includes('no existe') || backendMsg.toLowerCase().includes('encontrad')) {
+        Swal.fire({
+          title: 'Usuario no encontrado',
+          html: `El usuario <b>${data.usuario}</b> no está registrado.<br>Por favor, verifica que esté bien escrito.`,
+          icon: 'warning',
+          confirmButtonColor: '#ff6600',
+          background: '#101010',
+          color: '#f5f5f5',
+        });
+        setValue('usuario', '');
+        setValue('contrasena', '');
         setServerError('El usuario ingresado no existe.');
-      } else if (error.response?.status === 401 || backendMsg.toLowerCase().includes('contraseña') || backendMsg.toLowerCase().includes('incorrecta')) {
+      } else if (error.response.status === 401 || backendMsg.toLowerCase().includes('contraseña') || backendMsg.toLowerCase().includes('incorrecta')) {
         Swal.fire({
           title: 'Contraseña incorrecta',
-          text: 'La contraseña ingresada no es válida para este usuario.',
+          html: 'La contraseña que has ingresado no es válida.<br>Vuelve a intentarlo.',
           icon: 'error',
           confirmButtonColor: '#ff6600',
           background: '#101010',
           color: '#f5f5f5',
         });
+        setValue('contrasena', '');
         setServerError('Contraseña incorrecta.');
-      } else if (error.response?.status === 403) {
-        const msg = backendMsg || 'Tu cuenta no tiene acceso al sistema.';
-        setServerError(msg);
+      } else if (error.response.status === 403 || backendMsg.toLowerCase().includes('inactiv') || backendMsg.toLowerCase().includes('suspendid')) {
+        Swal.fire({
+          title: 'Cuenta Inactiva',
+          text: backendMsg || 'Tu cuenta se encuentra deshabilitada. Contacta al administrador.',
+          icon: 'error',
+          confirmButtonColor: '#ff6600',
+          background: '#101010',
+          color: '#f5f5f5',
+        });
+        setServerError('Tu cuenta no tiene acceso al sistema.');
+      } else if (error.response.status >= 500) {
+        Swal.fire({
+          title: 'Error Interno',
+          text: 'El servidor está experimentando problemas. Por favor, intenta de nuevo más tarde.',
+          icon: 'error',
+          confirmButtonColor: '#ff6600',
+          background: '#101010',
+          color: '#f5f5f5',
+        });
+        setServerError('Error interno del servidor.');
       } else {
-        setServerError('Error de conexión con el servidor KTM.');
+        Swal.fire({
+          title: 'Error de Acceso',
+          text: backendMsg || 'Ocurrió un error inesperado. Inténtalo de nuevo.',
+          icon: 'error',
+          confirmButtonColor: '#ff6600',
+          background: '#101010',
+          color: '#f5f5f5',
+        });
+        setServerError(backendMsg || 'Error inesperado al intentar iniciar sesión.');
       }
     } finally {
       setLoading(false);
