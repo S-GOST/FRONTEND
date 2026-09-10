@@ -162,12 +162,7 @@ function Categorias() {
       return;
     }
     try {
-      const payloadToCreate = {
-        ...formData,
-        descripcion: "Sin descripción",
-        tipo: "PRODUCTO" as const
-      };
-      const response = await insertarCategoria(payloadToCreate);
+      const response = await insertarCategoria(formData);
       if (isSuccessfulResponse(response.data)) {
         showAlert('Categoría creada', 'La categoría fue registrada correctamente.', 'success');
         closeCreateModal();
