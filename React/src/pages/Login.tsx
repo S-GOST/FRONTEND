@@ -74,10 +74,10 @@ const Login: React.FC = () => {
           color: '#f5f5f5',
         });
         setServerError('No hay conexión con el servidor.');
-      } else if (error.response.status === 404 || backendMsg.toLowerCase().includes('no existe') || backendMsg.toLowerCase().includes('encontrad')) {
+      } else if (error.response.status === 404 || backendMsg.toLowerCase().includes('no existe') || backendMsg.toLowerCase().includes('encontrad') || backendMsg.toLowerCase() === 'usuario incorrecto') {
         Swal.fire({
-          title: 'Usuario no encontrado',
-          html: `El usuario <b>${data.usuario}</b> no está registrado.<br>Por favor, verifica que esté bien escrito.`,
+          title: 'Cuenta no encontrada',
+          html: `No encontramos ninguna cuenta registrada con el usuario <b>${data.usuario}</b>.<br><br>Verifica que esté escrito correctamente.`,
           icon: 'warning',
           confirmButtonColor: '#ff6600',
           background: '#101010',
@@ -86,10 +86,10 @@ const Login: React.FC = () => {
         setValue('usuario', '');
         setValue('contrasena', '');
         setServerError('El usuario ingresado no existe.');
-      } else if (error.response.status === 401 || backendMsg.toLowerCase().includes('contraseña') || backendMsg.toLowerCase().includes('incorrecta')) {
+      } else if (error.response.status === 401 && (backendMsg.toLowerCase().includes('contraseña') || backendMsg.toLowerCase().includes('clave'))) {
         Swal.fire({
           title: 'Contraseña incorrecta',
-          html: 'La contraseña que has ingresado no es válida.<br>Vuelve a intentarlo.',
+          html: `El usuario es correcto, pero la <b>contraseña</b> no coincide.<br><br>Por favor, vuelve a intentarlo.`,
           icon: 'error',
           confirmButtonColor: '#ff6600',
           background: '#101010',
@@ -97,6 +97,18 @@ const Login: React.FC = () => {
         });
         setValue('contrasena', '');
         setServerError('Contraseña incorrecta.');
+      } else if (error.response.status === 401) {
+        // Fallback genérico agradable si el backend solo envía 401 sin especificar si fue usuario o contraseña
+        Swal.fire({
+          title: 'Credenciales inválidas',
+          html: 'El usuario o la contraseña no coinciden con nuestros registros.<br><br>Verifica tus datos e inténtalo de nuevo.',
+          icon: 'warning',
+          confirmButtonColor: '#ff6600',
+          background: '#101010',
+          color: '#f5f5f5',
+        });
+        setValue('contrasena', '');
+        setServerError('Usuario o contraseña incorrectos.');
       } else if (error.response.status === 403 || backendMsg.toLowerCase().includes('inactiv') || backendMsg.toLowerCase().includes('suspendid')) {
         Swal.fire({
           title: 'Cuenta Inactiva',
