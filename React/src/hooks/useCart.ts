@@ -1,5 +1,6 @@
 import { useState, useEffect, useMemo, useCallback } from 'react';
 import { Service, CartItem } from '../types';
+import Swal from 'sweetalert2';
 
 /**
  * Hook personalizado para gestionar el carrito de compras.
@@ -15,6 +16,17 @@ export function useCart() {
       }
     } catch (error) {
       console.error('Error al leer el carrito desde localStorage:', error);
+      Swal.fire({
+        title: 'Error',
+        text: 'No se pudo cargar el carrito de compras guardado.',
+        icon: 'error',
+        toast: true,
+        position: 'top-end',
+        showConfirmButton: false,
+        timer: 3000,
+        background: '#101010',
+        color: '#f5f5f5',
+      });
     }
     return [];
   });
@@ -37,6 +49,17 @@ export function useCart() {
         }
       } catch (e) {
         console.error('Error al sincronizar el carrito:', e);
+        Swal.fire({
+          title: 'Error de Sincronización',
+          text: 'No se pudo sincronizar el carrito con otras pestañas.',
+          icon: 'warning',
+          toast: true,
+          position: 'top-end',
+          showConfirmButton: false,
+          timer: 3000,
+          background: '#101010',
+          color: '#f5f5f5',
+        });
       }
     };
 

@@ -1,4 +1,5 @@
 import apiClient from '../config/axios';
+import Swal from 'sweetalert2';
 
 export interface LoginResponse {
   token?: string;
@@ -60,6 +61,16 @@ const storeSession = (data: LoginResponse, role: 'admin' | 'tecnico' | 'cliente'
       console.log('🔑 [AUTH] user_id extraído del JWT:', userId);
     } else {
       console.error('❌ [AUTH] El backend no envió ID. Respuesta completa:', data);
+      Swal.fire({
+        title: 'Error de Sesión',
+        text: 'No se pudo verificar la identidad del usuario. Por favor, intente iniciar sesión nuevamente.',
+        icon: 'error',
+        confirmButtonColor: '#ff6600',
+        background: '#101010',
+        color: '#f5f5f5',
+      }).then(() => {
+        void clearSession();
+      });
     }
   }
 

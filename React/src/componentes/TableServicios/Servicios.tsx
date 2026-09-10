@@ -107,6 +107,7 @@ function Servicios() {
       setCategorias(cats);
     } catch (error) {
       console.error('Error al cargar categorías:', error);
+      Swal.fire('Error', 'No se pudieron cargar las categorías asociadas.', 'error');
     }
   };
 

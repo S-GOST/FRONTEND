@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import type { AxiosError } from 'axios';
 import { Link, useNavigate } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
+import Swal from 'sweetalert2';
 import { loginService } from '../services/auth.services';
 import logo from '../assets/icons/rock.png';
 import './Login.css';
@@ -60,10 +61,30 @@ const Login: React.FC = () => {
       }
     } catch (err) {
       const error = err as AxiosError<LoginErrorResponse>;
-      if (error.response?.status === 401) {
-        setServerError('Credenciales incorrectas. Verifica tu usuario y contraseña.');
+      const backendMsg = error.response?.data?.mensaje || error.response?.data?.message || '';
+      
+      if (error.response?.status === 404 || backendMsg.toLowerCase().includes('no existe') || backendMsg.toLowerCase().includes('encontrad')) {
+        Swal.fire({
+          title: 'Usuario no existe',
+          text: 'El nombre de usuario ingresado no se encuentra registrado en el sistema.',
+          icon: 'error',
+          confirmButtonColor: '#ff6600',
+          background: '#101010',
+          color: '#f5f5f5',
+        });
+        setServerError('El usuario ingresado no existe.');
+      } else if (error.response?.status === 401 || backendMsg.toLowerCase().includes('contraseña') || backendMsg.toLowerCase().includes('incorrecta')) {
+        Swal.fire({
+          title: 'Contraseña incorrecta',
+          text: 'La contraseña ingresada no es válida para este usuario.',
+          icon: 'error',
+          confirmButtonColor: '#ff6600',
+          background: '#101010',
+          color: '#f5f5f5',
+        });
+        setServerError('Contraseña incorrecta.');
       } else if (error.response?.status === 403) {
-        const msg = error.response?.data?.mensaje || error.response?.data?.message || 'Tu cuenta no tiene acceso al sistema.';
+        const msg = backendMsg || 'Tu cuenta no tiene acceso al sistema.';
         setServerError(msg);
       } else {
         setServerError('Error de conexión con el servidor KTM.');
