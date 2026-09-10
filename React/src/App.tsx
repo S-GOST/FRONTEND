@@ -90,7 +90,8 @@ function App() {
               description: `Producto de la marca ${p.Marca || 'KTM'}`,
               icon: 'bi-box-seam',
               ID_PRODUCTOS: p.ID_PRODUCTOS,
-              type: 'producto'
+              type: 'producto',
+              estado: p.Estado || 'Disponibles'
             }));
             setProductos(mappedProductos);
           }
@@ -130,7 +131,8 @@ function App() {
               price: Number(s.Precio || 0),
               description: `Servicio de ${s.Nombre}`,
               icon: 'bi-wrench',
-              type: 'servicio'
+              type: 'servicio',
+              estado: s.Estado || 'Activo'
             }));
             setServicios(mappedServicios);
           }

@@ -78,6 +78,45 @@ export function useCart() {
 
   // Agregar un servicio o producto al carrito
   const addToCart = useCallback((service: Service) => {
+    // Validar estado del producto o servicio
+    const estadoLimpio = service.estado?.toLowerCase() || '';
+
+    if (estadoLimpio.includes('agotado')) {
+      Swal.fire({
+        title: 'Producto Agotado',
+        text: 'Este producto se encuentra actualmente agotado y no puede ser agregado.',
+        icon: 'warning',
+        confirmButtonColor: '#ff6600',
+        background: '#101010',
+        color: '#f5f5f5',
+      });
+      return;
+    }
+
+    if (estadoLimpio.includes('próximamente') || estadoLimpio.includes('proximamente')) {
+      Swal.fire({
+        title: 'Próximamente',
+        text: 'Este producto estará disponible próximamente.',
+        icon: 'info',
+        confirmButtonColor: '#ff6600',
+        background: '#101010',
+        color: '#f5f5f5',
+      });
+      return;
+    }
+
+    if (estadoLimpio.includes('inactiv') || estadoLimpio.includes('inhabilitad')) {
+      Swal.fire({
+        title: 'No Disponible',
+        text: 'Este ítem no se encuentra disponible actualmente.',
+        icon: 'error',
+        confirmButtonColor: '#ff6600',
+        background: '#101010',
+        color: '#f5f5f5',
+      });
+      return;
+    }
+
     setCart(prevCart => {
       const existingItem = prevCart.find(item => item.id === service.id);
       if (existingItem) {

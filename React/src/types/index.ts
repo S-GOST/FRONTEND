@@ -5,6 +5,7 @@ export interface Service {
   price: number;
   description: string;
   icon: string; // nombre del ícono Bootstrap (ej. "bi-shield-check")
+  estado?: string;
 }
 
 export interface CartItem extends Service {
