@@ -265,6 +265,27 @@ const OrdenesServicio = () => {
       return;
     }
 
+    const hoy = new Date();
+    hoy.setHours(0, 0, 0, 0);
+
+    const fechaInicio = new Date(formData.Fecha_inicio + "T00:00:00");
+    const fechaEstimada = new Date(formData.Fecha_estimada + "T00:00:00");
+
+    if (fechaInicio < hoy) {
+      showAlert('Fecha inválida', 'La fecha de inicio no puede ser en el pasado.', 'error');
+      return;
+    }
+
+    if (fechaEstimada < hoy) {
+      showAlert('Fecha inválida', 'La fecha estimada no puede ser en el pasado.', 'error');
+      return;
+    }
+
+    if (fechaEstimada < fechaInicio) {
+      showAlert('Fecha inválida', 'La fecha estimada no puede ser anterior a la fecha de inicio.', 'error');
+      return;
+    }
+
     setSubmitting(true);
     try {
       if (editMode && selectedOrder) {

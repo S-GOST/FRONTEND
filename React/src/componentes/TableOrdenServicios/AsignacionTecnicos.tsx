@@ -158,6 +158,16 @@ const AsignacionTecnicos = () => {
     if (!confirm.isConfirmed) return;
     const { fecha, garantiaProductos, garantiaServicios } = confirm.value;
 
+    if (fecha) {
+      const hoy = new Date();
+      hoy.setHours(0, 0, 0, 0);
+      const fechaEstimada = new Date(fecha + "T00:00:00");
+      if (fechaEstimada < hoy) {
+        Swal.fire('Fecha inválida', 'La fecha estimada no puede ser en el pasado.', 'error');
+        return;
+      }
+    }
+
     try {
       setSubmitting(orden.ID_ORDEN_SERVICIO);
       await actualizarOrden(orden.ID_ORDEN_SERVICIO, {
