@@ -70,18 +70,18 @@ function App() {
           let productosArray = [];
           if (Array.isArray(res.data)) {
             productosArray = res.data;
-          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
           } else if (res.data && typeof res.data === 'object' && Array.isArray((res.data as any).data)) {
             // eslint-disable-next-line @typescript-eslint/no-explicit-any
             productosArray = (res.data as any).data;
-          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
           } else if (res.data && typeof res.data === 'object' && Array.isArray((res.data as any).productos)) {
             // eslint-disable-next-line @typescript-eslint/no-explicit-any
             productosArray = (res.data as any).productos;
           }
 
           if (productosArray.length > 0) {
-            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any.
             const mappedProductos = productosArray.map((p: any) => ({
               id: `prod_${p.ID_PRODUCTOS}`,
               name: p.Nombre,
@@ -108,15 +108,15 @@ function App() {
           let serviciosArray = [];
           if (Array.isArray(res.data)) {
             serviciosArray = res.data;
-          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
           } else if (res.data && typeof res.data === 'object' && Array.isArray((res.data as any).data)) {
             // eslint-disable-next-line @typescript-eslint/no-explicit-any
             serviciosArray = (res.data as any).data;
-          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
           } else if (res.data && typeof res.data === 'object' && Array.isArray((res.data as any).servicios)) {
             // eslint-disable-next-line @typescript-eslint/no-explicit-any
             serviciosArray = (res.data as any).servicios;
-          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
           } else if (res.data && typeof res.data === 'object' && Array.isArray((res.data as any).result)) {
             // eslint-disable-next-line @typescript-eslint/no-explicit-any
             serviciosArray = (res.data as any).result;
